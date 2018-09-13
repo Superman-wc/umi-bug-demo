@@ -1,0 +1,6 @@
+{
+  "extends": "eslint-config-umi",
+  "rules":{
+    "no-script-url": [0]
+  }
+}

@@ -1,0 +1,88 @@
+@import "../../utils/variable";
+
+@page-prefix-cls: ~"page-wrapper";
+
+:global {
+  .@{page-prefix-cls} {
+    overflow: hidden;
+    align-items: center;
+  }
+
+  .@{page-prefix-cls}-header {
+    .borderBottom;
+    height: auto;
+    padding: 0 10px;
+    //background-color: #fcfcfc;
+
+    .@{page-prefix-cls}-header-title {
+      //padding-left: 20px;
+      padding-bottom: 5px;
+      & > h1 {
+        font-size: 18px;
+        margin-top: 5px;
+        margin-bottom: 1px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 500px;
+      }
+      .ant-breadcrumb {
+        color: #aaa;
+        font-weight: 300;
+        display: inline-block;
+        & > span:last-child {
+          color: #999;
+        }
+      }
+      .anticon.anticon-heart {
+        color: #93cc93;
+        margin-right: 5px;
+        font-size: 10px;
+      }
+    }
+  }
+
+
+  .@{page-prefix-cls}-header-main {
+    padding: 0 2em;
+  }
+
+  .@{page-prefix-cls}-main {
+    //padding: 10px;
+    overflow-y: auto;
+    & > div {
+      //overflow-y: auto;
+      height: 100%;
+      &.ant-spin.ant-spin-spinning {
+        width: 100%;
+        position: relative;
+
+        .ant-spin-dot {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          margin: -25px 0 0 -25px;
+        }
+      }
+      & > .ant-spin-container {
+        height: 100%;
+        background-color: #f8f8f8;
+
+        & > .ant-form-horizontal {
+          height: 100%;
+        }
+        & > div,
+        & > section,
+        & > form {
+          overflow-x: hidden;
+          overflow-y: auto;
+          height: 100%;
+          padding: 10px;
+          width: 100%;
+          max-width: 100%;
+
+        }
+      }
+    }
+  }
+}

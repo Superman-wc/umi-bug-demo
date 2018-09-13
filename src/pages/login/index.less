@@ -1,0 +1,185 @@
+.login-page {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to right, #b9e3fc, #0075c5);
+  overflow: hidden;
+  .circular {
+    width: 1200px;
+    height: 1200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.02));
+    position: absolute;
+    top:50%;
+    left:50%;
+    margin:-600px 0 0 -600px;
+    //box-shadow: 0 0 500px rgba(255, 255, 255, .8);  // 这个外发光效果window下看不出来了
+    z-index: 1;
+    perspective: 1000;
+    transform: translate3d(0, 0, 0);
+  }
+  .circular-1 {
+    margin: -1200px 0 0 0;
+    width: 1800px;
+    height: 1800px;
+    //top: -60%;
+    //right: -20%;
+
+  }
+  .circular-2 {
+    margin: -600px 0 0 0;
+    width: 1900px;
+    height: 1900px;
+  }
+  .circular-3 {
+    margin: 0;
+    width: 1130px;
+    height: 1130px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.02));
+  }
+  .circular-4 {
+    margin: -1200px 0 0 -1200px;
+    width: 1600px;
+    height: 1600px;
+  }
+  .circular-5 {
+    margin: -600px 0 0 -1200px;
+    width: 1400px;
+    height: 1400px;
+  }
+  .circular-6 {
+    margin: 0 0 0 -1200px;
+    width: 1700px;
+    height: 1700px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.02));
+  }
+  :global {
+    .ant-spin-nested-loading {
+      position: relative;
+      z-index: 10;
+      margin-top: -150px;
+      box-shadow: 3px 3px 5px #555;
+      border-radius: 10px;
+      .ant-spin-container {
+        border-radius: 10px;
+      }
+    }
+  }
+}
+
+.login-box {
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 10px;
+
+  display: flex;
+  div.line {
+    width: 1px;
+    background: linear-gradient(rgba(0, 0, 0, .01), rgba(0, 0, 0, .6), rgba(0, 0, 0, .01));
+    margin: 0 30px;
+  }
+  div.login-box-left {
+    padding: 40px 0;
+    img {
+      display: block;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      font-size: 36px;
+      margin: 20px 0 0;
+      text-shadow: 2px 2px 3px #ccc;
+    }
+  }
+  form {
+    width: 240px;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    flex-direction: column;
+    :global {
+      .ant-form-item {
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}
+
+:global(.fade-animation) {
+  animation-duration: 10s;
+  animation-timing-function: cubic-bezier(.35, .15, .55, 0, .55, .2);
+  animation-fill-mode: both;
+  animation-name: animation-keyframes;
+  animation-iteration-count: 1;
+}
+
+@keyframes animation-keyframes {
+  0% {
+    transform: scale(1) translate(0, 0);
+    opacity: .8;
+  }
+  50% {
+    transform: scale(2) translate(20%, -30%);
+    opacity: .2;
+  }
+  100% {
+    transform: scale(1) translate(0, 0);
+    opacity: .8;
+  }
+}
+
+:global(.fade-enter) {
+  animation-duration: 2s;
+  animation-play-state: paused;
+  animation-timing-function: cubic-bezier(.55, 0, .55, .2);
+  opacity: 0;
+  animation-fill-mode: both;
+  &:global(.fade-enter-active) {
+    animation-name: fadeIn;
+    animation-play-state: running;
+  }
+}
+
+:global(.fade-appear) {
+  animation-duration: 2s;
+  animation-play-state: paused;
+  animation-timing-function: cubic-bezier(.55, 0, .55, .2);
+  opacity: 0;
+  animation-fill-mode: both;
+  &:global(.fade-appear-active) {
+    animation-name: fadeIn;
+    animation-play-state: running;
+  }
+}
+
+:global(.fade-leave) {
+  animation-duration: 2s;
+  animation-play-state: paused;
+  animation-timing-function: cubic-bezier(.55, 0, .55, .2);
+  animation-fill-mode: both;
+  &:global(.fade-leave-active) {
+    animation-name: fadeOut;
+    animation-play-state: running;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

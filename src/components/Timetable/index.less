@@ -1,0 +1,83 @@
+.timetable {
+  border: 1px solid #dcdcdc;
+}
+
+.timetable-col {
+  border-right: 1px solid #dcdcdc;
+  &.timetable-col-header {
+    background-color: #f0f0f0;
+    text-align: center;
+    font-weight: bold;
+    width: 100px;
+    flex: none;
+  }
+  &:last-child {
+    border-right: 0;
+  }
+
+}
+
+.timetable-cell {
+  border-bottom: 1px solid #dcdcdc;
+  height: 88px;
+  justify-content: center;
+  padding: 8px 8px;
+  box-sizing: border-box;
+  &:hover,
+  &.selected {
+    background-color: #f8ffff;
+    cursor: pointer;
+  }
+  &.timetable-cell-header {
+    background-color: #eee;
+    text-align: center;
+    font-weight: bold;
+    height: 40px;
+    line-height: 40px;
+    cursor: default;
+  }
+  &:last-child {
+    border-bottom: 0;
+  }
+  //&:global(.timetable-cell-course-131) {
+  //  background-color: #ffaa00;
+  //}
+  .timetable-cell-course {
+    font-size: 14px;
+    text-align: center;
+  }
+}
+
+.radio-selector {
+  padding: 0 10px;
+  background-color: #f8f8f8;
+  h3 {
+    flex-shrink: 0;
+    margin: 0;
+    height:40px;
+    line-height: 40px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+.radio-group-buttons {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  :global {
+    .ant-radio-button-wrapper {
+      margin: 5px;
+      display: block;
+      border-radius: 4px;
+      padding: 0 10px;
+      border: 1px solid #d9d9d9;
+      height: 30px;
+      line-height: 30px;
+      box-sizing: border-box;
+      &:before {
+        content: none;
+      }
+    }
+  }
+}
