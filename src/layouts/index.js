@@ -81,7 +81,7 @@ function Side(props) {
         <Bars onChange={onChange} isMin={isMin}/>
         <Spin spinning={!!loading}>
           {
-            user && user.token ?
+            // user && user.token ?
               <Menu
                 mode="inline"
                 defaultOpenKeys={[defaultOpenKeys]}
@@ -121,8 +121,8 @@ function Side(props) {
                     </Menu.SubMenu>
                   ))}
               </Menu>
-              :
-              null
+              // :
+              // null
           }
         </Spin>
       </Flex.Item>
