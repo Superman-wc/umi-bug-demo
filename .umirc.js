@@ -27,6 +27,7 @@ export default {
       // "pathRewrite": { "^/api" : "" }
     },
     "/api/8queen/*": {
+      // "target": "http://192.168.1.15:9901/",
       "target": "http://116.62.207.178:9901/",
       "changeOrigin": true,
       // "pathRewrite": { "^/api" : "" }

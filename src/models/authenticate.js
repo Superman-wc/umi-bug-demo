@@ -24,9 +24,9 @@ export default Model({
         if (pathname === '/login') {
           authenticateCache.clear();
         } else {
-          dispatch({
-            type: 'checkAuthenticate',
-          });
+          // dispatch({
+          //   type: 'checkAuthenticate',
+          // });
         }
       });
     },
