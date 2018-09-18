@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import withRouter from 'umi/withRouter';
 import Link from 'umi/link';
 import {connect} from 'dva';
-import {Tooltip, Icon, Spin, Menu} from 'antd';
+import {Tooltip, Icon, Spin, Menu, LocaleProvider} from 'antd';
+import zhCN from 'antd/lib/locale-provider/zh_CN';
 import classnames from 'classnames';
 import Flex from '../components/Flex';
 import {TransitionGroup, CSSTransition} from "react-transition-group";
@@ -85,7 +86,7 @@ function Side(props) {
                 mode="inline"
                 defaultOpenKeys={[defaultOpenKeys]}
                 defaultSelectedKeys={[pathname]}
-                onOpenChange={openKeys => onOpenChange( openKeys.length ? [openKeys.pop()] : [])}
+                onOpenChange={openKeys => onOpenChange(openKeys.length ? [openKeys.pop()] : [])}
                 openKeys={openKeys}
               >
                 {
@@ -249,9 +250,11 @@ class App extends Component {
 
     const [, defaultOpenKeys] = pathname.split('/');
 
+    console.log('defaultOpenKeys=', defaultOpenKeys, 'this.state.openKeys=', this.state.openKeys);
+
     const userSideProps = {
       defaultOpenKeys,
-      openKeys: this.state.openKeys || [],
+      openKeys: this.state.openKeys || [defaultOpenKeys],
       menu,
       loading, user, pathname,
       onOpenChange: openKeys => this.setState({openKeys}),
@@ -260,16 +263,18 @@ class App extends Component {
     };
 
     return (
-      <Flex>
-        <UserSide {...userSideProps}  />
-        <Flex.Item className={styles['main']}>
-          {/*<TransitionGroup>*/}
+      <LocaleProvider locale={zhCN}>
+        <Flex>
+          <UserSide {...userSideProps}  />
+          <Flex.Item className={styles['main']}>
+            {/*<TransitionGroup>*/}
             {/*<CSSTransition key={location.key} classNames="fade" timeout={300}>*/}
-              {this.props.children}
+            {this.props.children}
             {/*</CSSTransition>*/}
-          {/*</TransitionGroup>*/}
-        </Flex.Item>
-      </Flex>
+            {/*</TransitionGroup>*/}
+          </Flex.Item>
+        </Flex>
+      </LocaleProvider>
     );
   }
 }

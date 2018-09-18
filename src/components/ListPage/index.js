@@ -63,7 +63,7 @@ export function stdColumns(cols) {
   });
 }
 
-
+@connect()
 export default class ListPage extends Component {
   static propTypes = {
     list: PropTypes.array,

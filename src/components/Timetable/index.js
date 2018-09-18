@@ -56,7 +56,7 @@ export function RadioSelector({className, title, options = [], defaultValue, onC
       >
         {
           options.map(({name, id}) =>
-            <Radio.Button key={id} value={id}>{name}</Radio.Button>
+            <Radio.Button key={id} value={id}>{name}#{id}</Radio.Button>
           )
         }
       </Radio.Group>
@@ -111,25 +111,25 @@ export function TimetableCell({id, course, room, teacher, klass, children, isHea
           className={className}>
       {
         course ?
-          <div className={styles['timetable-cell-course']}>{course.name}</div>
+          <div className={styles['timetable-cell-course']}>{course.name}#{course.id}</div>
           :
           null
       }
       {
         room ?
-          <div>教室：{room.name}</div>
+          <div>教室：{room.name}#{room.id}</div>
           :
           null
       }
       {
         teacher ?
-          <div>教师：{teacher.name}</div>
+          <div>教师：{teacher.name}#{teacher.id}</div>
           :
           null
       }
       {
         klass ?
-          <div>班级：{klass.name}</div>
+          <div>班级：{klass.name}#{klass.id}</div>
           :
           null
       }

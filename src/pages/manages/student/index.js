@@ -109,14 +109,14 @@ export default class StudentList extends Component {
         total={total}
         pagination
         title={title}
-        scrollHeight={205}
+        scrollHeight={215}
       >
         <GradeClassSelector
           gradeList={gradeList}
           classList={classList}
           onGradeChange={(gradeId) => this.fetchClassList({gradeId})}
           onClassChange={(classId) => {
-            dispatch(routerRedux.replace({pathname, query: {...query, classId}}))
+            dispatch(routerRedux.replace({pathname, query: {...query, classId, p: undefined}}))
           }}
         />
       </ListPage>

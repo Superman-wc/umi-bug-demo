@@ -16,3 +16,19 @@ body {
   opacity: 1;
   transition: opacity 250ms ease-in;
 }
+
+#root > p {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 150px;
+  height: 150px;
+  margin: -75px 0 0 -75px;
+  background-color: rgba(0, 0, 0, .5);
+  border-radius: 10px;
+  box-sizing: border-box;
+  text-align: center;
+  color: #fff;
+  line-height: 150px;
+  font-size:30px;
+}
