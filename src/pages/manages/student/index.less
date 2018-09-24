@@ -2,3 +2,14 @@
 .normal {
   background: #F279DC;
 }
+
+.separate {
+  &:after {
+    content: ' / ';
+  }
+  &:last-child {
+    &:after {
+      content: none;
+    }
+  }
+}

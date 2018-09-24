@@ -1,16 +1,12 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import {Form, Row, Col, Modal} from 'antd';
-import {
-  ManagesClass,
-  ManagesGrade,
-  ManagesStudent as namespace,
-} from '../../../utils/namespace';
-import ListPage from '../../../components/ListPage';
-import TableCellOperation from '../../../components/TableCellOperation';
-import GradeClassSelector from "../../../components/GradeClassSelector";
-import styles from './index.less';
+import {Form, Row, Col, message, Modal, Radio} from 'antd';
+import {TimetableStudent as namespace, ManagesGrade, ManagesCourse, ManagesTeacher} from '../../../utils/namespace';
+import { transformTimetableList, RadioSelector, Timetable} from '../../../components/Timetable';
+import Page from '../../../components/Page';
+import PageHeaderOperation from '../../../components/Page/HeaderOperation';
+import styles from '../index.less';
 
 
 @connect(state => ({
@@ -18,108 +14,107 @@ import styles from './index.less';
   list: state[namespace].list,
   loading: state[namespace].loading,
   gradeList: state[ManagesGrade].list,
-  classList: state[ManagesClass].list,
+  courseList: state[ManagesCourse].list,
+  teacherList: state[ManagesTeacher].list,
 }))
-export default class StudentList extends Component {
+export default class TimetableTeacher extends Component {
 
   state = {};
 
   componentDidMount() {
     const {gradeList} = this.props;
-    if (!gradeList) {
-      // this.fetchGradeList();
+    if (!gradeList || !gradeList.length) {
+      this.fetchGradeList();
     }
   }
 
-  fetchGradeList() {
+  fetchGradeList = () => {
     const {dispatch} = this.props;
     dispatch({
-      type: ManagesGrade + '/list',
+      type: ManagesGrade + '/list'
     });
-  }
+  };
 
-  fetchClassList(payload) {
+  fetchCourseList = (payload) => {
     const {dispatch} = this.props;
     dispatch({
-      type: ManagesClass + '/list',
+      type: ManagesCourse + '/list',
       payload
     });
-  }
+  };
+
+  fetchTeacherList = (payload) => {
+    const {dispatch} = this.props;
+    dispatch({
+      type: ManagesTeacher + '/list',
+      payload
+    });
+  };
+
+  onGradeChange = e => {
+    const gradeId = e.target.value;
+    this.fetchCourseList({gradeId});
+    const {dispatch, location: {pathname, query}} = this.props;
+    dispatch(routerRedux.replace({pathname, query: {...query, gradeId, courseId: undefined, teacherId: undefined}}));
+    dispatch({
+      type: namespace + '/set',
+      payload: {list: []}
+    });
+  };
+
+  onCourseChange = e => {
+    const courseId = e.target.value;
+    const {dispatch, location: {pathname, query}} = this.props;
+    this.fetchTeacherList({courseId, gradeId: query.gradeId});
+    dispatch(routerRedux.replace({pathname, query: {...query, courseId, teacherId: undefined}}));
+    dispatch({
+      type: namespace + '/set',
+      payload: {list: []}
+    });
+  };
+
+  onTeacherChange = e => {
+    const teacherId = e.target.value;
+    const {dispatch, location: {pathname, query}} = this.props;
+    dispatch(routerRedux.replace({pathname, query: {...query, teacherId}}));
+  };
 
   render() {
     const {
-      list, total, loading,
-      gradeList = [], classList = [],
+      list = [], total, loading,
+      gradeList = [], courseList = [], teacherList = [],
       location, dispatch
     } = this.props;
 
     const {pathname, query} = location;
 
-    const title = '学生列表';
+    const title = '学生课表';
 
-    const breadcrumb = ['管理', '学生管理', title];
+    const breadcrumb = ['排课', '课表', title];
 
-    const buttons = [
-      {
-        key: 'create',
-        type: 'primary',
-        children: '创建',
-        title: '创建',
-        icon: 'plus',
-        onClick: () => {
-          this.setState({visible: true, item: null});
-        },
-      },
-    ];
+    const buttons = [];
 
-    const columns = [
-      {title: 'ID', key: 'id'},
-      {title: '学号', key: 'code'},
-      {title: '姓名', key: 'name'},
-      {title: '性别', key: 'gender'},
-      {title: '选考科目', key: 'electionExaminationCourseEntityList'},
-      {
-        title: '操作',
-        key: 'operate',
-        width: 80,
-        render: (id, row) => (
-          <TableCellOperation
-            operations={{
-              edit: () => {
-                this.setState({visible: true, item: row});
-              },
-              remove: {
-                onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
-              },
-            }}
-          />
-        ),
-      },
-    ];
-
+    const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={buttons}/>;
+    const header = (
+      <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>
+    );
 
     return (
-      <ListPage
-        operations={buttons}
-        location={location}
-        loading={!!loading}
-        columns={columns}
-        breadcrumb={breadcrumb}
-        list={list}
-        total={total}
-        pagination
-        title={title}
-        scrollHeight={205}
-      >
-        <GradeClassSelector
-          gradeList={gradeList}
-          classList={classList}
-          onGradeChange={(gradeId) => this.fetchClassList({gradeId})}
-          onClassChange={(classId) => {
-            dispatch(routerRedux.replace({pathname, query: {...query, classId}}))
-          }}
-        />
-      </ListPage>
-    )
+      <Page header={header} loading={!!loading}>
+        <div className="list-page-main">
+          <div className="list-table-container">
+            {
+              list && list.length ?
+                <Timetable {...transformTimetableList(list)}/>
+                :
+                null
+            }
+          </div>
+        </div>
+      </Page>
+
+    );
   }
 }
+
+

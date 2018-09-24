@@ -5,7 +5,7 @@ import {Form, Row, Col, Modal} from 'antd';
 import {
   ManagesClass,
   ManagesGrade,
-  ManagesStudent as namespace,
+  ManagesStudent as namespace, TimetableStudent,
 } from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
@@ -27,7 +27,7 @@ export default class StudentList extends Component {
   componentDidMount() {
     const {gradeList} = this.props;
     if (!gradeList) {
-      // this.fetchGradeList();
+      this.fetchGradeList();
     }
   }
 
@@ -39,7 +39,8 @@ export default class StudentList extends Component {
   }
 
   fetchClassList(payload) {
-    const {dispatch} = this.props;
+    const {dispatch, location: {pathname, query}} = this.props;
+    dispatch(routerRedux.replace({pathname, query: {...query, ...payload}}));
     dispatch({
       type: ManagesClass + '/list',
       payload
@@ -77,20 +78,36 @@ export default class StudentList extends Component {
       {title: '学号', key: 'code'},
       {title: '姓名', key: 'name'},
       {title: '性别', key: 'gender'},
-      {title: '选考科目', key: 'electionExaminationCourseEntityList'},
+      {
+        title: '选考科目', key: 'electionExaminationCourseEntityList',
+        render: list => list.map(it => <span className={styles['separate']} key={it.id}>{it.name}#{it.id}</span>)
+      },
+      {
+        title: '学考科目', key: 'studyExaminationCourseEntityList',
+        render: list => list.map(it => <span className={styles['separate']} key={it.id}>{it.name}#{it.id}</span>)
+      },
       {
         title: '操作',
         key: 'operate',
         width: 80,
-        render: (id, row) => (
+        render: (id, item) => (
           <TableCellOperation
             operations={{
               edit: () => {
-                this.setState({visible: true, item: row});
+                this.setState({visible: true, item});
               },
               remove: {
                 onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
               },
+              timetable: {
+                children: '课表',
+                onClick: () => {
+                  dispatch(routerRedux.push({
+                    pathname: TimetableStudent,
+                    query: {studentId: id, gradeId: item.gradeId, name: item.name}
+                  }))
+                }
+              }
             }}
           />
         ),
@@ -115,8 +132,8 @@ export default class StudentList extends Component {
           gradeList={gradeList}
           classList={classList}
           onGradeChange={(gradeId) => this.fetchClassList({gradeId})}
-          onClassChange={(classId) => {
-            dispatch(routerRedux.replace({pathname, query: {...query, classId, p: undefined}}))
+          onClassChange={(klassId) => {
+            dispatch(routerRedux.replace({pathname, query: {...query, klassId, p: undefined}}))
           }}
         />
       </ListPage>

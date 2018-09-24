@@ -9,10 +9,10 @@ export default Model(
       setup({dispatch, history}) {
         history.listen(({pathname, query}) => {
           if (pathname === namespace) {
-            // dispatch({
-            //   type: 'list',
-            //   payload: {...query},
-            // });
+            dispatch({
+              type: 'list',
+              payload: {...query},
+            });
           }
         });
       },

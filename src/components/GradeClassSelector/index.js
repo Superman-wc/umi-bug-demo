@@ -33,7 +33,7 @@ export default class GradeClassSelector extends Component{
                 <Select style={{width: '90%'}} placeholder="请选择年级" onChange={onGradeChange}>
                   {
                     gradeList.map(it =>
-                      <Select.Option key={it.id}>{it.name}</Select.Option>
+                      <Select.Option key={it.id}>{it.name}#{it.id}</Select.Option>
                     )
                   }
                 </Select>
@@ -49,7 +49,7 @@ export default class GradeClassSelector extends Component{
                     <Select style={{width: '90%'}} placeholder="请选择班级" onChange={onClassChange}>
                       {
                         classList.map(it =>
-                          <Select.Option key={it.id}>{it.name}</Select.Option>
+                          <Select.Option key={it.id}>{it.name}#{it.num}</Select.Option>
                         )
                       }
                     </Select>

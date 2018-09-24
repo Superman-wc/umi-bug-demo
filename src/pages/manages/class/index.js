@@ -39,9 +39,16 @@ export default class MeterList extends Component {
       },
     ];
 
+    const ClassTypeEnum = {
+      1: '行政班',
+      3: '选考班',
+      4: '学考班',
+    };
+
     const columns = [
       {title: 'ID', key: 'id'},
-      {title: '班级名称', key: 'name', width: 180, },
+      {title: '班级名称', key: 'name', width: 180,},
+      {title: '类型', key: 'type', width: 180, render: type => ClassTypeEnum[type] || ''},
       {title: '创建时间', key: 'dateCreated', width: 180},
       {title: '备注', key: 'memo', width: 'auto', tac: false},
       {
