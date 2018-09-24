@@ -215,10 +215,10 @@ class App extends Component {
                 link: '/timetable/teacher',
                 title: '教师课表',
               },
-              {
-                link: '/timetable/student',
-                title: '学生课表',
-              }
+              // {
+              //   link: '/timetable/student',
+              //   title: '学生课表',
+              // }
             ]
           }
         ],
