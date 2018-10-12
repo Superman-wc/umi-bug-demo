@@ -13,6 +13,9 @@ import styles from '../index.less';
 @connect(state => ({
   total: state[namespace].total,
   list: state[namespace].list,
+  next: state[namespace].next,
+  previous: state[namespace].previous,
+  now: state[namespace].now,
   loading: state[namespace].loading,
   gradeList: state[ManagesGrade].list,
   classList: state[ManagesClass].list,
@@ -62,7 +65,7 @@ export default class MeterList extends Component {
 
   render() {
     const {
-      list = [], total, loading,
+      list = [], total, loading, now, next, previous,
       gradeList = [], classList = [],
       location, dispatch
     } = this.props;
@@ -102,7 +105,7 @@ export default class MeterList extends Component {
             {
               query.gradeId && classList && classList.length ?
                 <LabelBox title="班级">
-                  <Select style={{width: 200, margin: 5}} placeholder="请选择班级"  onChange={this.onClassChange}>
+                  <Select style={{width: 200, margin: 5}} placeholder="请选择班级" onChange={this.onClassChange}>
                     {
                       klassGroup.map(it =>
                         <Select.OptGroup key={it.key} label={klassGroupLabels[it.key]}>
@@ -121,7 +124,18 @@ export default class MeterList extends Component {
             }
             {
               query.gradeId && query.klassId && classList && classList.length && list && list.length ?
-                <Timetable {...transformTimetableList(list)}/>
+                <div>
+                  <Flex>
+                    <div onClick={() => {
+                      dispatch(routerRedux.replace({pathname, query: {...query, weekIndex: previous.weekIndex}}));
+                    }}><WeekIndex value={previous && previous.weekIndex} /></div>
+                    <Flex.Item><WeekIndex value={now && now.weekIndex} /></Flex.Item>
+                    <div onClick={() => {
+                      dispatch(routerRedux.replace({pathname, query: {...query, weekIndex: next.weekIndex}}));
+                    }}><WeekIndex value={next && next.weekIndex} /></div>
+                  </Flex>
+                  <Timetable {...transformTimetableList(list)} now={now}/>
+                </div>
                 :
                 null
             }
@@ -131,4 +145,11 @@ export default class MeterList extends Component {
 
     );
   }
+}
+
+function WeekIndex({value}){
+  const [, year, week] = value.toString().match(/(^\d{4})(\d{1,2}$)/);
+  return (
+    <span><span>{year}年</span><span>第{week}周</span></span>
+  )
 }

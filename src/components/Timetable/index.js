@@ -84,16 +84,31 @@ export function LabelBox({style, className, title, children}) {
 const WEEK = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
 
 
-export function Timetable({data = [], timeslot}) {
+export function Timetable({data = [], timeslot, now}) {
   return (
     <Flex className={styles['timetable']}>
-      <TimetableCol data={timeslot} isHeader/>
+      <TimetableCol data={timeslot} isHeader />
       {
         data.map((it, index) =>
-          <TimetableCol key={it.id} data={it} week={WEEK[index]}/>
+          <TimetableCol key={it.id} data={it} week={<WeekOfDate {...{now, index}} />}/>
         )
       }
     </Flex>
+  )
+}
+
+function WeekOfDate({now, index}){
+  const week = WEEK[index];
+  const {startTime} = now;
+  const date = new Date(startTime + 3600 * 1000 * 24 * index);
+  const y = date.getFullYear();
+  const m = date.getMonth()+1;
+  const d = date.getDate();
+  return (
+    <div style={{lineHeight:1.5}}>
+      <div>{week}</div>
+      <div>{`${m}月${d}日`}</div>
+    </div>
   )
 }
 

@@ -7,9 +7,9 @@ import {Tooltip, Icon, Spin, Menu, LocaleProvider} from 'antd';
 import zhCN from 'antd/lib/locale-provider/zh_CN';
 import classnames from 'classnames';
 import Flex from '../components/Flex';
-import {TransitionGroup, CSSTransition} from "react-transition-group";
 import {Authenticate as namespace} from '../utils/namespace';
 import styles from './index.less';
+// import {MenuCategoryEnum, URLResourceCategoryEnum} from "../utils/Enum";
 
 
 function MenuItemContent({link, title, onClick, min}) {
@@ -72,7 +72,122 @@ function SideFooter({isMin}) {
 }
 
 function Side(props) {
-  const {loading, user, defaultOpenKeys, openKeys = [], pathname, onOpenChange, menu, isMin, onChange} = props;
+  const {loading, user, defaultOpenKeys, openKeys = [], pathname, onOpenChange, menus, isMin, onChange} = props;
+
+  // const menuMap = menus && menus.reduce((map, it) => {
+  //   const menuCategory = map[it.category] || {
+  //     key: MenuCategoryEnum[it.category],
+  //     title: URLResourceCategoryEnum[it.category],
+  //     items: {}
+  //   };
+  //   const group = menuCategory.items[it.menuGroup] || {
+  //     title: it.menuGroup,
+  //     items: []
+  //   };
+  //   group.items.push(it);
+  //   menuCategory.items[it.menuGroup] = group;
+  //   map[it.category] = menuCategory;
+  //   return map;
+  // }, {}) || {};
+  //
+  // const menu = Object.keys(menuMap).reduce((arr, category) => {
+  //   const menuCategory = menuMap[category];
+  //
+  //   menuCategory.items = Object.keys(menuCategory.items).reduce((items, g) => {
+  //     items.push(menuCategory.items[g]);
+  //     return items;
+  //   }, []);
+  //
+  //   arr.push(menuCategory);
+  //   return arr;
+  // }, []);
+
+  const menu = [
+    {
+      key: 'manages',
+      title: '管理',
+      items: [
+        {
+          items: [
+            {
+              link: '/manages/school',
+              title: '学校管理'
+            },
+            {
+              link: '/manages/grade',
+              title: '年级管理',
+            },
+            {
+              link: '/manages/class',
+              title: '班级管理',
+            },
+            {
+              link: '/manages/student',
+              title: '学生管理',
+            },
+            {
+              link: '/manages/teacher',
+              title: '师资管理',
+            },
+            {
+              link: '/manages/course',
+              title: '课程管理',
+            }
+          ]
+        }
+      ],
+    },
+    {
+      key: 'timetable',
+      title: '排课',
+      items: [
+        {
+          title: '',
+          items: [
+            {
+              link: '/timetable/grade',
+              title: '年级课表'
+            },
+            {
+              link: '/timetable/class',
+              title: '班级课表',
+            },
+            {
+              link: '/timetable/teacher',
+              title: '教师课表',
+            },
+            // {
+            //   link: '/timetable/student',
+            //   title: '学生课表',
+            // }
+          ]
+        }
+      ],
+    },
+    {
+      key: 'other',
+      title: '其他',
+      items: [
+        {
+          title: '',
+          items: [
+            {
+              link: '/manages/meter',
+              title: '个人中心'
+            },
+            {
+              link: '/manages/user',
+              title: '常见问题',
+            },
+            {
+              link: '/manages/price',
+              title: '下载中心',
+            }
+          ]
+        }
+      ],
+    },
+  ];
 
   return (
     <Flex direction="column" className={classnames(styles['side'], {[styles['min-side']]: isMin})}>
@@ -133,6 +248,9 @@ function Side(props) {
 
 const UserSide = connect(state => ({
   user: state[namespace].authenticate,
+  menus: state[namespace].menus,
+  loading: state[namespace].loading,
+  admissionRebuildCheckList: state[namespace].admissionRebuildCheckList
 }))(Side);
 
 
@@ -153,109 +271,15 @@ class App extends Component {
   render() {
 
     const {loading, user, location} = this.props;
-
     const {pathname} = location;
-
     if (pathname === '/login') {
       return this.props.children;
     }
 
-
-    const menu = [
-      {
-        key: 'manages',
-        title: '管理',
-        items: [
-          {
-            items: [
-              {
-                link: '/manages/school',
-                title: '学校管理'
-              },
-              {
-                link: '/manages/grade',
-                title: '年级管理',
-              },
-              {
-                link: '/manages/class',
-                title: '班级管理',
-              },
-              {
-                link: '/manages/student',
-                title: '学生管理',
-              },
-              {
-                link: '/manages/teacher',
-                title: '师资管理',
-              },
-              {
-                link: '/manages/course',
-                title: '课程管理',
-              }
-            ]
-          }
-        ],
-      },
-      {
-        key: 'timetable',
-        title: '排课',
-        items: [
-          {
-            title: '',
-            items: [
-              {
-                link: '/timetable/grade',
-                title: '年级课表'
-              },
-              {
-                link: '/timetable/class',
-                title: '班级课表',
-              },
-              {
-                link: '/timetable/teacher',
-                title: '教师课表',
-              },
-              // {
-              //   link: '/timetable/student',
-              //   title: '学生课表',
-              // }
-            ]
-          }
-        ],
-      },
-      {
-        key: 'other',
-        title: '其他',
-        items: [
-          {
-            title: '',
-            items: [
-              {
-                link: '/manages/meter',
-                title: '个人中心'
-              },
-              {
-                link: '/manages/user',
-                title: '常见问题',
-              },
-              {
-                link: '/manages/price',
-                title: '下载中心',
-              }
-            ]
-          }
-        ],
-      },
-    ];
-
     const [, defaultOpenKeys] = pathname.split('/');
-
-    console.log('defaultOpenKeys=', defaultOpenKeys, 'this.state.openKeys=', this.state.openKeys);
-
     const userSideProps = {
       defaultOpenKeys,
       openKeys: this.state.openKeys || [defaultOpenKeys],
-      menu,
       loading, user, pathname,
       onOpenChange: openKeys => this.setState({openKeys}),
       isMin: this.state.minSide,
@@ -267,11 +291,7 @@ class App extends Component {
         <Flex>
           <UserSide {...userSideProps}  />
           <Flex.Item className={styles['main']}>
-            {/*<TransitionGroup>*/}
-            {/*<CSSTransition key={location.key} classNames="fade" timeout={300}>*/}
             {this.props.children}
-            {/*</CSSTransition>*/}
-            {/*</TransitionGroup>*/}
           </Flex.Item>
         </Flex>
       </LocaleProvider>
