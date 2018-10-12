@@ -29,7 +29,7 @@ export default class StudentList extends Component {
   componentDidMount() {
     const {gradeList} = this.props;
     if (!gradeList) {
-      // this.fetchGradeList();
+      this.fetchGradeList();
     }
   }
 

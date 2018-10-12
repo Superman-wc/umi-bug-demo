@@ -1,11 +1,12 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Radio} from 'antd';
-import {TimetableClass as namespace,  ManagesGrade, ManagesClass} from '../../../utils/namespace';
+import {Form, Row, Col, message, Modal, Radio, Select} from 'antd';
+import {TimetableClass as namespace, ManagesGrade, ManagesClass} from '../../../utils/namespace';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
-import { transformTimetableList, RadioSelector, Timetable} from '../../../components/Timetable';
+import {transformTimetableList, RadioSelector, Timetable, LabelBox} from '../../../components/Timetable';
+import Flex from '../../../components/Flex';
 import styles from '../index.less';
 
 
@@ -53,8 +54,8 @@ export default class MeterList extends Component {
     });
   };
 
-  onClassChange = e => {
-    const klassId = e.target.value;
+  onClassChange = klassId => {
+    // const klassId = e.target.value;
     const {dispatch, location: {pathname, query}} = this.props;
     dispatch(routerRedux.replace({pathname, query: {...query, klassId}}));
   };
@@ -79,14 +80,42 @@ export default class MeterList extends Component {
       <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>
     );
 
+    const klassGroup = classList && classList.length && Object.entries(classList.reduce((group, it) => {
+      const arr = group[it.type] || [];
+      arr.push(it);
+      group[it.type] = arr;
+      return group;
+    }, {})).map(([key, list]) => ({key, list})) || [];
+
+    const klassGroupLabels = {
+      1: '行政班',
+      3: '选考班',
+      4: '学考班'
+    };
+
     return (
       <Page header={header} loading={!!loading}>
         <div className="list-page-main">
           <div className="list-table-container">
+
             <RadioSelector title="年级" options={gradeList} onChange={this.onGradeChange}/>
             {
               query.gradeId && classList && classList.length ?
-                <RadioSelector title="班级" options={classList} onChange={this.onClassChange}/>
+                <LabelBox title="班级">
+                  <Select style={{width: 200, margin: 5}} placeholder="请选择班级"  onChange={this.onClassChange}>
+                    {
+                      klassGroup.map(it =>
+                        <Select.OptGroup key={it.key} label={klassGroupLabels[it.key]}>
+                          {
+                            it.list.map(it =>
+                              <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
+                            )
+                          }
+                        </Select.OptGroup>
+                      )
+                    }
+                  </Select>
+                </LabelBox>
                 :
                 null
             }

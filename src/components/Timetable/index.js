@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import classnames from "classnames";
 import {Radio} from 'antd';
 import Flex from '../Flex';
@@ -26,6 +26,9 @@ export function transformTimetableList(list) {
 
   const timeslot = [];
 
+  maxDayOfWeek = 6;
+  maxTimeslot = 8;
+
   for (let i = 0; i <= maxDayOfWeek; i++) {
     if (!timetable[i]) {
       timetable[i] = [];
@@ -45,10 +48,9 @@ export function transformTimetableList(list) {
   return {data: timetable, timeslot};
 }
 
-export function RadioSelector({className, title, options = [], defaultValue, onChange}) {
+export function RadioSelector({style, className, title, options = [], defaultValue, onChange}) {
   return (
-    <Flex className={styles['radio-selector']}>
-      <h3><span>{title}:</span></h3>
+    <LabelBox className={className} style={style} title={title}>
       <Radio.Group defaultValue={defaultValue}
                    buttonStyle="solid"
                    className={classnames(styles['radio-group-buttons'], className)}
@@ -60,7 +62,20 @@ export function RadioSelector({className, title, options = [], defaultValue, onC
           )
         }
       </Radio.Group>
+    </LabelBox>
+  );
+}
 
+export function LabelBox({style, className, title, children}) {
+  return (
+    <Flex className={styles['label-box']} style={style}>
+      {
+        title ?
+          <h3><span>{title}:</span></h3>
+          :
+          null
+      }
+      {children}
     </Flex>
   );
 }
@@ -98,7 +113,7 @@ export function TimetableCol({data = [], week, isHeader}) {
 }
 
 
-export function TimetableCell({id, course, room, teacher, klass, children, isHeader}) {
+export function TimetableCell({id, type, reserveName, course, room, teacher, klass, children, isHeader}) {
   const className = classnames(
     styles['timetable-cell'],
     course ? 'timetable-cell-course-' + course.id : null,
@@ -110,30 +125,42 @@ export function TimetableCell({id, course, room, teacher, klass, children, isHea
     <Flex isItem direction="column"
           className={className}>
       {
-        course ?
-          <div className={styles['timetable-cell-course']}>{course.name}#{course.id}</div>
+        type === 1 ?
+          <Fragment>
+            {
+              course ?
+                <div className={styles['timetable-cell-course']}>{course.name}#{course.id}</div>
+                :
+                null
+            }
+            {
+              room ?
+                <div>教室：{room.name}#{room.id}</div>
+                :
+                null
+            }
+            {
+              teacher ?
+                <div>教师：{teacher.name}#{teacher.id}</div>
+                :
+                null
+            }
+            {
+              klass ?
+                <div>班级：{klass.name}#{klass.id}</div>
+                :
+                null
+            }
+            {children}
+          </Fragment>
           :
-          null
+          <Fragment>
+            <div className={styles['timetable-cell-course']}>
+              {reserveName}
+            </div>
+            {children}
+          </Fragment>
       }
-      {
-        room ?
-          <div>教室：{room.name}#{room.id}</div>
-          :
-          null
-      }
-      {
-        teacher ?
-          <div>教师：{teacher.name}#{teacher.id}</div>
-          :
-          null
-      }
-      {
-        klass ?
-          <div>班级：{klass.name}#{klass.id}</div>
-          :
-          null
-      }
-      {children}
     </Flex>
   )
 }
