@@ -5,7 +5,7 @@ import {Form, Row, Col, message, Modal, Radio, Select} from 'antd';
 import {TimetableClass as namespace, ManagesGrade, ManagesClass} from '../../../utils/namespace';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
-import {transformTimetableList, RadioSelector, Timetable, LabelBox} from '../../../components/Timetable';
+import {transformTimetableList, RadioSelector, Timetable, LabelBox, Calendar} from '../../../components/Timetable';
 import Flex from '../../../components/Flex';
 import styles from '../index.less';
 
@@ -125,15 +125,7 @@ export default class MeterList extends Component {
             {
               query.gradeId && query.klassId && classList && classList.length && list && list.length ?
                 <div>
-                  <Flex>
-                    <div onClick={() => {
-                      dispatch(routerRedux.replace({pathname, query: {...query, weekIndex: previous.weekIndex}}));
-                    }}><WeekIndex value={previous && previous.weekIndex} /></div>
-                    <Flex.Item><WeekIndex value={now && now.weekIndex} /></Flex.Item>
-                    <div onClick={() => {
-                      dispatch(routerRedux.replace({pathname, query: {...query, weekIndex: next.weekIndex}}));
-                    }}><WeekIndex value={next && next.weekIndex} /></div>
-                  </Flex>
+                  <Calendar {...{next, now, previous, dispatch, pathname, query}} />
                   <Timetable {...transformTimetableList(list)} now={now}/>
                 </div>
                 :
@@ -147,9 +139,4 @@ export default class MeterList extends Component {
   }
 }
 
-function WeekIndex({value}){
-  const [, year, week] = value.toString().match(/(^\d{4})(\d{1,2}$)/);
-  return (
-    <span><span>{year}年</span><span>第{week}周</span></span>
-  )
-}
+

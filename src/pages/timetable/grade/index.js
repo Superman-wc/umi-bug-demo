@@ -12,7 +12,10 @@ import TableCellOperation from '../../../components/TableCellOperation';
 @connect(state => ({
   total: state[namespace].total,
   list: state[namespace].list,
-  loading: state[namespace].loading
+  loading: state[namespace].loading,
+  next: state[namespace].next,
+  previous: state[namespace].previous,
+  now: state[namespace].now,
 }))
 export default class MeterList extends Component {
 

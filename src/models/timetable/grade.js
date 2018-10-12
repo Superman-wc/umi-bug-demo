@@ -17,6 +17,12 @@ export default Model(
         });
       },
     },
+    reducers: {
+      listSuccess(state, action) {
+        const {result: {list, next, now, previous}} = action;
+        return {...state, list, next, now, previous, loading: false};
+      }
+    }
   },
   {
     list,

@@ -3,9 +3,10 @@ import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
 import {Form, Row, Col, message, Modal, Radio} from 'antd';
 import {TimetableStudent as namespace, ManagesGrade, ManagesCourse, ManagesTeacher} from '../../../utils/namespace';
-import { transformTimetableList, RadioSelector, Timetable} from '../../../components/Timetable';
+import {transformTimetableList, Timetable, Calendar} from '../../../components/Timetable';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
+import Flex from '../../../components/Flex';
 import styles from '../index.less';
 
 
@@ -13,6 +14,9 @@ import styles from '../index.less';
   total: state[namespace].total,
   list: state[namespace].list,
   loading: state[namespace].loading,
+  next: state[namespace].next,
+  previous: state[namespace].previous,
+  now: state[namespace].now,
   gradeList: state[ManagesGrade].list,
   courseList: state[ManagesCourse].list,
   teacherList: state[ManagesTeacher].list,
@@ -81,7 +85,7 @@ export default class TimetableTeacher extends Component {
 
   render() {
     const {
-      list = [], total, loading,
+      list = [], total, loading, now, next, previous,
       gradeList = [], courseList = [], teacherList = [],
       location, dispatch
     } = this.props;
@@ -99,13 +103,18 @@ export default class TimetableTeacher extends Component {
       <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>
     );
 
+    console.log(now);
+
     return (
       <Page header={header} loading={!!loading}>
         <div className="list-page-main">
           <div className="list-table-container">
             {
               list && list.length ?
-                <Timetable {...transformTimetableList(list)}/>
+                <div>
+                  <Calendar {...{next, now, previous, dispatch, pathname, query}} />
+                  <Timetable {...transformTimetableList(list)} now={now}/>
+                </div>
                 :
                 null
             }

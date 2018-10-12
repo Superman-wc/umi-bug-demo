@@ -54,7 +54,7 @@
   h3 {
     flex-shrink: 0;
     margin: 0;
-    height:40px;
+    height: 40px;
     line-height: 40px;
     display: flex;
     align-items: center;
@@ -79,5 +79,23 @@
         content: none;
       }
     }
+  }
+}
+
+.calendar {
+  padding: 5px;
+  font-size: 20px;
+  .next,
+  .previous,
+  .now {
+    padding: 10px 30px;
+  }
+  .next ,
+  .previous {
+    cursor: pointer;
+  }
+  .now {
+    text-align: center;
+    cursor: default;
   }
 }
