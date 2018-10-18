@@ -73,12 +73,6 @@ export default class TimetableCell extends Component {
                   :
                   null
               }
-              {
-                available ?
-                  <div>可以换课</div>
-                  :
-                  null
-              }
               {children}
             </Fragment>
             :
