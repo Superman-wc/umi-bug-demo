@@ -4,12 +4,11 @@ import Flex from '../Flex';
 import TimetableCell from './TimetableCell';
 import styles from './index.less';
 
-export default function TimetableCol({data = [], week, isHeader, renderTeacher, renderCourse, swapAvailable, swap}) {
+export default function TimetableCol({data = [], week, isHeader, renderTeacher, renderCourse, swapStart, swap, swapEnd}) {
   const cellProps = {
     renderTeacher,
     renderCourse,
-    swapAvailable,
-    swap
+    swapStart, swap, swapEnd,
   };
   return (
     <Flex isItem direction="column"

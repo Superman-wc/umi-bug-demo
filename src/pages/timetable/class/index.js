@@ -99,14 +99,16 @@ export default class MeterList extends Component {
 
     const timetableProps = {
       now,
-      swapAvailable: (id) => {
+      swapStart: (id) => {
         list.forEach(it => {
           delete it.available
         });
         this.setState({disabledLoading: true}, ()=>{
           dispatch({
             type: namespace + '/set',
-            payload: list,
+            payload: {
+              list:[...list]
+            },
           });
           dispatch({
             type: namespace + '/available',
@@ -127,6 +129,17 @@ export default class MeterList extends Component {
             this.setState({disabledLoading: false})
           }
         })
+      },
+      swapEnd:()=>{
+        list.forEach(it => {
+          delete it.available
+        });
+        dispatch({
+          type: namespace + '/set',
+          payload: {
+            list:[...list]
+          },
+        });
       }
     };
 

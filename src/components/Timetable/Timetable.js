@@ -14,7 +14,7 @@ export default class Timetable extends Component {
 
   render() {
     const {
-      data = [], timeslot, now, renderTeacher, renderCourse, swapAvailable, swap,
+      data = [], timeslot, now, renderTeacher, renderCourse, swapStart, swap, swapEnd,
     } = this.props;
 
 
@@ -30,8 +30,9 @@ export default class Timetable extends Component {
                 week={<WeekOfDate {...{now, index}} />}
                 renderTeacher={renderTeacher}
                 renderCourse={renderCourse}
-                swapAvailable={swapAvailable}
+                swapStart={swapStart}
                 swap={swap}
+                swapEnd={swapEnd}
               />
             )
           }
