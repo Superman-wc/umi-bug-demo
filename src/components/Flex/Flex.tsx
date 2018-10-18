@@ -37,16 +37,16 @@ export default class Flex extends React.Component<FlexProps, any> {
     isItem: PropTypes.bool,
     overflow: PropTypes.string,
     wrap: PropTypes.bool,
-    // draggable: PropTypes.boolean,
-    // onDragOver: PropTypes.func,
-    // onDragStart: PropTypes.func,
-    // onDrop: PropTypes.func,
+    draggable: PropTypes.bool,
+    onDragOver: PropTypes.func,
+    onDragStart: PropTypes.func,
+    onDrop: PropTypes.func,
   };
 
   render() {
     const {
       id, className, children, direction, style, isItem, justify, align, prefixCls, overflow, wrap,
-      // draggable, onDragOver, onDragStart, onDrop
+      draggable, onDragOver, onDragStart, onDrop
     } = this.props;
     const _className = classname(className, prefixCls, {
       [prefixCls + '-direction-' + direction]: direction,
@@ -57,11 +57,11 @@ export default class Flex extends React.Component<FlexProps, any> {
       [prefixCls + '-wrap']: wrap,
       [prefixCls + '-nowrap']: !wrap,
     });
-    //draggable={draggable} onDragOver={onDragOver} onDragStart={onDragStart} onDrop={onDrop}
+
 
     return (
       <section id={id} className={_className} style={style}
-
+               draggable={draggable} onDragOver={onDragOver} onDragStart={onDragStart} onDrop={onDrop}
       >
         {children}
       </section>

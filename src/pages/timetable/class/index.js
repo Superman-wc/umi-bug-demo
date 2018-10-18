@@ -1,13 +1,14 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Radio, Select} from 'antd';
+import {Form, Row, Col, message, Modal, Radio, Select, CheckBox, Dropdown, Menu, notification} from 'antd';
 import {TimetableClass as namespace, ManagesGrade, ManagesClass} from '../../../utils/namespace';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
 import {transformTimetableList, RadioSelector, Timetable, LabelBox, Calendar} from '../../../components/Timetable';
 import Flex from '../../../components/Flex';
 import styles from '../index.less';
+import {conflict} from "../../../services/lecture";
 
 
 @connect(state => ({
@@ -16,7 +17,7 @@ import styles from '../index.less';
   next: state[namespace].next,
   previous: state[namespace].previous,
   now: state[namespace].now,
-  loading: state[namespace].loading,
+  loading: state[namespace].loading && !state[namespace].disabledLoading,
   gradeList: state[ManagesGrade].list,
   classList: state[ManagesClass].list,
 }))
@@ -96,8 +97,44 @@ export default class MeterList extends Component {
       4: '学考班'
     };
 
+    const timetableProps = {
+      now,
+      swapAvailable: (id) => {
+        list.forEach(it => {
+          delete it.available
+        });
+        this.setState({disabledLoading: true}, ()=>{
+          dispatch({
+            type: namespace + '/set',
+            payload: list,
+          });
+          dispatch({
+            type: namespace + '/available',
+            payload: {id},
+          });
+        })
+      },
+      swap: (id, lectureId) => {
+        dispatch({
+          type: namespace + '/swap',
+          payload: {
+            id, lectureId
+          },
+          resolve:()=>{
+            notification.success({
+              message: '换课成功'
+            });
+            this.setState({disabledLoading: false})
+          }
+        })
+      }
+    };
+
+
+
+
     return (
-      <Page header={header} loading={!!loading}>
+      <Page header={header} loading={loading && !this.state.disabledLoading}>
         <div className="list-page-main">
           <div className="list-table-container">
 
@@ -126,7 +163,7 @@ export default class MeterList extends Component {
               query.gradeId && query.klassId && classList && classList.length && list && list.length ?
                 <div>
                   <Calendar {...{next, now, previous, dispatch, pathname, query}} />
-                  <Timetable {...transformTimetableList(list)} now={now}/>
+                  <Timetable {...transformTimetableList(list)} {...timetableProps}/>
                 </div>
                 :
                 null

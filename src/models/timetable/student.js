@@ -1,5 +1,5 @@
 import Model from 'dva-model';
-import {list, create, modify, remove} from '../../services/timetable/student';
+import {list, create, modify, remove} from '../../services/lecture';
 import {TimetableStudent as namespace} from '../../utils/namespace';
 
 export default Model(

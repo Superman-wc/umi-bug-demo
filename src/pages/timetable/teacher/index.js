@@ -1,9 +1,15 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Radio} from 'antd';
+import {Form, Row, Col, message, Modal, Radio, Menu, Dropdown, notification} from 'antd';
 import {TimetableTeacher as namespace, ManagesGrade, ManagesCourse, ManagesTeacher} from '../../../utils/namespace';
-import {transformTimetableList, RadioSelector, Timetable, WeekIndex, Calendar} from '../../../components/Timetable';
+import {
+  transformTimetableList,
+  RadioSelector,
+  Timetable,
+  SubstituteModal,
+  Calendar
+} from '../../../components/Timetable';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
 import Flex from '../../../components/Flex';
@@ -103,6 +109,51 @@ export default class TimetableTeacher extends Component {
       <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>
     );
 
+    const menu = (lecture)=>(
+      <Menu onClick={(e) => {
+        switch (e.key) {
+          case 'substitute':
+            this.setState({substituteLecture: lecture, substituteModalVisible: true});
+            break;
+          default:
+            break;
+        }
+      }}>
+        {
+          [
+            {key: 'substitute', children: '代课',}
+          ].map(it =>
+            <Menu.Item {...it}/>
+          )
+        }
+      </Menu>
+    );
+
+    const timetableProps = {
+      now,
+      gradeList,
+      renderTeacher:(teacher, lecture)=><Dropdown overlay={menu(lecture)}><a>{teacher.name}</a></Dropdown>
+    };
+
+    const substituteModalProps = {
+      lecture: this.state.substituteLecture,
+      visible: this.state.substituteModalVisible,
+      gradeList,
+      onOk: (payload) => {
+        dispatch({
+          type: namespace + '/modify',
+          payload,
+          resolve:()=>{
+            notification.success({
+              message: '代课成功'
+            });
+            this.setState({substituteModalVisible: false});
+          }
+        });
+      },
+      onCancel: () => this.setState({substituteModalVisible: false})
+    };
+
     return (
       <Page header={header} loading={!!loading}>
         <div className="list-page-main">
@@ -124,13 +175,16 @@ export default class TimetableTeacher extends Component {
               query.gradeId && query.courseId && query.teacherId && list && list.length ?
                 <div>
                   <Calendar {...{next, now, previous, dispatch, pathname, query}} />
-                  <Timetable {...transformTimetableList(list)} now={now}/>
+                  <Timetable {...transformTimetableList(list)} {...timetableProps}>
+                    <SubstituteModal {...substituteModalProps}/>
+                  </Timetable>
                 </div>
                 :
                 null
             }
           </div>
         </div>
+
       </Page>
 
     );
