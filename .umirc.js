@@ -6,8 +6,8 @@ export default {
       antd: true,
       dva: true,
       dynamicImport: true,
-      title: 'timetabling',
-      polyfills: ['ie9'],
+      title: '云志愿后台管理系统',
+      // polyfills: ['ie9'],
       dll: true,
       pwa: true,
       routes: {
@@ -16,7 +16,11 @@ export default {
       hardSource: true,
     }],
   ],
-  "browserslist": [
+  hash: true,
+  targets: {
+    ie: 9,
+  },
+  browserslist: [
     "> 1%",
     "last 2 versions"
   ],
