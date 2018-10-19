@@ -38,6 +38,12 @@ export default class RoomTimetable extends Component {
                       lectures.map(lecture =>
                         <div key={lecture.id} className={styles['lecture']}>
                           {
+                            lecture.course ?
+                              <div>{lecture.course.name}</div>
+                              :
+                              null
+                          }
+                          {
                             lecture.klass ?
                               <div>{lecture.klass.name}</div>
                               :

@@ -127,7 +127,7 @@ export default class Filter extends Component {
     this.props.onChange('week', {weekIndex: week.format('YYYYWW'), gradeId, courseId, klassId, studentId, teacherId});
   };
 
-  onTypeChange = type=>{
+  onTypeChange = type => {
     this.setState({type});
     const {gradeId, week} = this.state;
     this.props.onChange('type', {weekIndex: week.format('YYYYWW'), gradeId, type});
@@ -221,9 +221,18 @@ export default class Filter extends Component {
             <Form.Item label="分类">
               <Select placeholder={gradeId ? '请选择' : '请先选择年级'} value={this.state.type}
                       onChange={this.onTypeChange} style={selectStyle}>
-                <Select.Option value="1">行政班</Select.Option>
-                <Select.Option value="2">教学班</Select.Option>
-                <Select.Option value="3">全部</Select.Option>
+                {
+                  gradeId ?
+                    [
+                      {id: 1, name: '行政班'},
+                      {id: 2, name: '教学班'},
+                      {id: 3, name: '全部'},
+                    ].map(it =>
+                      <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
+                    )
+                    :
+                    null
+                }
               </Select>
             </Form.Item>
             :
