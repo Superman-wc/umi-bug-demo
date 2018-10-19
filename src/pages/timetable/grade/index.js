@@ -1,83 +1,44 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Select} from 'antd';
-import {ManagesClass, ManagesGrade as namespace} from '../../../utils/namespace';
-import ListPage from '../../../components/ListPage';
-import TableCellOperation from '../../../components/TableCellOperation';
+import {Form, Row, Col, message, Modal, Radio} from 'antd';
+import Page from '../../../components/Page';
+import PageHeaderOperation from '../../../components/Page/HeaderOperation';
+import styles from '../index.less';
 import LectureTable from '../../../components/Timetable/LectureTable';
 
 
-
-
-@connect(state => ({
-  total: state[namespace].total,
-  list: state[namespace].list,
-  loading: state[namespace].loading,
-  next: state[namespace].next,
-  previous: state[namespace].previous,
-  now: state[namespace].now,
-}))
-export default class MeterList extends Component {
+export default class GradeTimeTable extends Component {
 
   state = {};
 
+
   render() {
-    const {list, total, loading, location, dispatch} = this.props;
+    const {location, dispatch} = this.props;
 
     const {pathname, query} = location;
 
-    const title = '年级列表';
+    const title = '年级课表';
 
-    const breadcrumb = ['管理', '年级管理', title];
+    const breadcrumb = ['排课', '课表', title];
 
-    const buttons = [
-      {
-        key: 'create',
-        type: 'primary',
-        children: '创建',
-        title: '创建',
-        icon: 'plus',
-        onClick: () => {
-          this.setState({visible: true, item: null});
-        },
-      },
-    ];
+    const buttons = [];
 
-    const columns = [
-      {title: 'ID', key: 'id'},
-      {title: '名称', key: 'name'},
-      {title: '学校', key: 'schoolId'},
-      {title: '创建时间', key: 'dateCreated'},
-      {
-        title: '操作',
-        key: 'operate',
-        render: (id, row) => (
-          <TableCellOperation
-            operations={{
-              look: () => dispatch(routerRedux.push({pathname: ManagesClass, query: {gradeId: id}})),
-              edit: () => this.setState({visible: true, item: row}),
-              remove: {
-                onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
-              },
-            }}
-          />
-        ),
-      },
-    ];
+    const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={buttons}/>;
+    const header = (
+      <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>
+    );
+
 
     return (
-      <ListPage
-        operations={buttons}
-        location={location}
-        loading={!!loading}
-        columns={columns}
-        breadcrumb={breadcrumb}
-        list={list}
-        total={total}
-        pagination
-        title={title}
-      ><LectureTable type="student" /></ListPage>
+      <Page header={header} loading={false}>
+        <div className="list-page-main">
+          <div className="list-table-container">
+            <LectureTable type="grade"/>
+          </div>
+        </div>
+      </Page>
+
     );
   }
 }

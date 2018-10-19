@@ -11,7 +11,7 @@ import styles from '../index.less';
 
 
 import LectureTable from '../../../components/Timetable/LectureTable';
-export default class TeacherTimeTable extends Component {
+export default class StudentTimeTable extends Component {
 
   state = {};
 

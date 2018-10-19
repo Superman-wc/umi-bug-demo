@@ -5,6 +5,10 @@ import {TimetableClass as namespace, TimetableClass} from "../../utils/namespace
 import Filter from './Filter';
 import Flex from '../Flex';
 import {transformTimetableList, Timetable, SubstituteModal, CancelModal} from "./index";
+import {transformListToTimeTableOfRoomWeekSlot} from './transformTimetableList';
+import TimetableCell from './TimetableCell';
+import WeekOfDate from './WeekOfDate';
+import RoomTimetable from './RoomTimetable';
 
 
 @connect(state => ({
@@ -33,23 +37,24 @@ export default class LectureTable extends Component {
     //     }
     //   })
     // } else {
-      if (
-        (this.props.type === 'klass' && payload.gradeId && payload.klassId) ||
-        (this.props.type === 'student' && payload.gradeId && payload.studentId) ||
-        (this.props.type === 'teacher' && payload.gradeId && payload.teacherId)
-      ) {
-        this.props.dispatch({
-          type: TimetableClass + '/list',
-          payload
-        })
-      }else{
-        this.props.dispatch({
-          type: TimetableClass + '/set',
-          payload: {
-            list: []
-          }
-        })
-      }
+    if (
+      (this.props.type === 'klass' && payload.gradeId && payload.klassId) ||
+      (this.props.type === 'student' && payload.gradeId && payload.studentId) ||
+      (this.props.type === 'teacher' && payload.gradeId && payload.teacherId) ||
+      (this.props.type === 'grade' && payload.gradeId && payload.type)
+    ) {
+      this.props.dispatch({
+        type: TimetableClass + '/list',
+        payload
+      })
+    } else {
+      this.props.dispatch({
+        type: TimetableClass + '/set',
+        payload: {
+          list: []
+        }
+      })
+    }
     // }
   };
 
@@ -188,14 +193,30 @@ export default class LectureTable extends Component {
       onCancel: () => this.setState({substituteModalVisible: false})
     };
 
+
     return (
       <div>
         <Filter type={type} onChange={this.fetchLectureList}/>
-        <Timetable {...transformTimetableList(list || [])} {...timetableProps} >
-          <CancelModal {...cancelModalProps} />
-          <SubstituteModal {...substituteModalProps}/>
-        </Timetable>
+        {
+          type === 'grade' ?
+            <div>{this.renderRoomWeekSlot(list, now)}</div>
+            :
+            <Timetable {...transformTimetableList(list || [])} {...timetableProps} >
+              <CancelModal {...cancelModalProps} />
+              <SubstituteModal {...substituteModalProps}/>
+            </Timetable>
+        }
       </div>
+    )
+  }
+
+  renderRoomWeekSlot(list, now) {
+    const data = transformListToTimeTableOfRoomWeekSlot(list || []) || [];
+
+    console.log(data);
+
+    return (
+      <RoomTimetable data={data} now={now} />
     )
   }
 }

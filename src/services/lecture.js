@@ -1,7 +1,7 @@
 import request from '../utils/request';
 
 export async function list(data) {
-  return request('/api/8queen/lecture', {data: {s: 30, ...data}, method: 'GET'});
+  return request('/api/8queen/lecture', {data, method: 'GET'});
 }
 
 export async function modify(data) {

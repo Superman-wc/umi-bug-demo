@@ -17,7 +17,7 @@ export default function WeekOfDate({now, index}) {
   const m = date.getMonth() + 1;
   const d = date.getDate();
   return (
-    <div style={{lineHeight: 1.5}}>
+    <div className={styles['week-of-date']}>
       <div>{week}</div>
       <div>{`${m}月${d}日`}</div>
     </div>

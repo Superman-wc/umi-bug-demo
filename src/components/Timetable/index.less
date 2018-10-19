@@ -39,7 +39,7 @@
   &:last-child {
     border-bottom: 0;
   }
-  &.timetable-cell-available{
+  &.timetable-cell-available {
     //outline: 3px solid #f00;
     box-shadow: 0 0 5px #f00 inset;
   }
@@ -49,22 +49,22 @@
   .timetable-cell-course {
     font-size: 14px;
     text-align: center;
-    .lecture-status{
-      font-size:80%;
-      &.lecture-status-2{
+    .lecture-status {
+      font-size: 80%;
+      &.lecture-status-2 {
         color: #ffaa00;
       }
-      &.lecture-status-3{
+      &.lecture-status-3 {
         color: #00aaff;
       }
-      &.lecture-status-4{
+      &.lecture-status-4 {
         color: #aa00ff
       }
-      &:before{
-        content:'['
+      &:before {
+        content: '['
       }
-      &:after{
-        content:']'
+      &:after {
+        content: ']'
       }
     }
   }
@@ -112,7 +112,7 @@
   .now {
     padding: 10px 30px;
   }
-  .next ,
+  .next,
   .previous {
     cursor: pointer;
   }
@@ -120,4 +120,102 @@
     text-align: center;
     cursor: pointer;
   }
+}
+
+.week-of-date {
+  line-height: 1.5;
+}
+
+@width: 90px;
+@height: 60px;
+@padding: 4px;
+@border: 1px solid #dcdcdc;
+
+.room-timetable {
+  display: flex;
+  flex-direction: row;
+  border: @border;
+  box-sizing: border-box;
+  .room-timetable-header {
+    width: 80px;
+    background-color: #f0f0f0;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    border-right: @border;
+    box-sizing: border-box;
+    .week-item {
+      flex: 1;
+      display: flex;
+      border-bottom: @border;
+      box-sizing: border-box;
+      .week-of-date {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: @padding;
+        border-right: @border;
+        width: 30px;
+        text-align: center;
+        box-sizing: border-box;
+      }
+      .timesolt {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        & > div {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: @padding;
+          border-bottom: @border;
+          box-sizing: border-box;
+          height: @height;
+          &:last-child {
+            border-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+  .room-column {
+    min-width: @width;
+    flex: 1;
+    border-right: @border;
+    box-sizing: border-box;
+    .room-week {
+      border-bottom: @border;
+      box-sizing: border-box;
+    }
+    .lecture {
+      padding: @padding;
+      height: @height;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-bottom: @border;
+      box-sizing: border-box;
+      &:last-child {
+        border-bottom: 0;
+      }
+      &:hover {
+        background-color: #fff;
+      }
+    }
+  }
+
+  .room,
+  .week {
+    background-color: #f0f0f0;
+    padding: @padding;
+    text-align: center;
+    font-weight: bold;
+    border-bottom: @border;
+    box-sizing: border-box;
+  }
+
 }

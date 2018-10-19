@@ -144,10 +144,10 @@ function Side(props) {
         {
           title: '',
           items: [
-            // {
-            //   link: '/timetable/grade',
-            //   title: '年级课表'
-            // },
+            {
+              link: '/timetable/grade',
+              title: '年级课表'
+            },
             {
               link: '/timetable/class',
               title: '班级课表',

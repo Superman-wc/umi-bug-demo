@@ -56,7 +56,7 @@ export default class Filter extends Component {
     this.setState({
       gradeId,
       klassList: [], courseList: [], teacherList: [], studentList: [],
-      klassId: undefined, courseId: undefined, teacherId: undefined, studentId: undefined
+      klassId: undefined, courseId: undefined, teacherId: undefined, studentId: undefined, type: undefined
     });
     // 如果是教师课表或科目筛选
     if (this.props.type === 'teacher' || this.props.type === 'course') {
@@ -125,6 +125,12 @@ export default class Filter extends Component {
     this.setState({week});
     const {gradeId, courseId, klassId, studentId, teacherId} = this.state;
     this.props.onChange('week', {weekIndex: week.format('YYYYWW'), gradeId, courseId, klassId, studentId, teacherId});
+  };
+
+  onTypeChange = type=>{
+    this.setState({type});
+    const {gradeId, week} = this.state;
+    this.props.onChange('type', {weekIndex: week.format('YYYYWW'), gradeId, type});
   };
 
   render() {
@@ -211,13 +217,27 @@ export default class Filter extends Component {
               null
         }
         {
-          type !== 'course'?
+          type === 'grade' ?
+            <Form.Item label="分类">
+              <Select placeholder={gradeId ? '请选择' : '请先选择年级'} value={this.state.type}
+                      onChange={this.onTypeChange} style={selectStyle}>
+                <Select.Option value="1">行政班</Select.Option>
+                <Select.Option value="2">教学班</Select.Option>
+                <Select.Option value="3">全部</Select.Option>
+              </Select>
+            </Form.Item>
+            :
+            null
+        }
+        {
+          type !== 'course' ?
             <Form.Item label="时间">
               <DatePicker.WeekPicker value={this.state.week} onChange={this.onWeekIndexChange}/>
             </Form.Item>
             :
             null
         }
+
       </Form>
     )
   }
