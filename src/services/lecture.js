@@ -25,3 +25,6 @@ export async function swap(data) {
   return request(`/api/8queen/lecture/${data.id}/op/swap`, {data, method: 'PUT'});
 }
 
+export async function cancel(data){
+  return request(`/api/8queen/lecture/${data.id}/op/cancel`, {data, method: 'PUT'});
+}

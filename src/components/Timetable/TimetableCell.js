@@ -1,8 +1,15 @@
 import React, {Fragment, Component} from 'react';
 import classnames from "classnames";
-import {Menu, Dropdown} from 'antd';
+import {Menu, Dropdown, Tooltip} from 'antd';
 import Flex from '../Flex';
 import styles from './index.less';
+
+const StatusEnum = {
+  1: '正常',
+  2: '已换课',
+  3: '已代课',
+  4: '已取消'
+};
 
 export default class TimetableCell extends Component {
   render() {
@@ -12,6 +19,7 @@ export default class TimetableCell extends Component {
       renderTeacher = teacher => teacher.name,
       renderCourse = course => course.name,
       swapStart, swap, swapEnd,
+      status, memo
     } = this.props;
     const className = classnames(
       styles['timetable-cell'],
@@ -22,7 +30,7 @@ export default class TimetableCell extends Component {
       }
     );
     const draggable = {
-      draggable: type === 1,
+      draggable: swap && type === 1,
       onDragStart: e => {
         swapStart && swapStart(id);
         e.dataTransfer.setData("sourceId", id);
@@ -51,7 +59,30 @@ export default class TimetableCell extends Component {
             <Fragment>
               {
                 course ?
-                  <div className={styles['timetable-cell-course']}>{renderCourse(course, this.props, id)}</div>
+                  <div className={styles['timetable-cell-course']}>
+                    {renderCourse(course, this.props, id)}
+                    {
+                      status !== 1 ?
+                        <span
+                          className={
+                            classnames(
+                              styles['lecture-status'],
+                              styles['lecture-status-' + status]
+                            )}
+                        >
+                          {
+                            status === 4 && memo ?
+                              <Tooltip title={memo}>
+                                <span>{StatusEnum[status]}</span>
+                              </Tooltip>
+                              :
+                              StatusEnum[status]
+                          }
+                          </span>
+                        :
+                        ''
+                    }
+                  </div>
                   :
                   null
               }

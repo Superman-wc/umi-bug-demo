@@ -4,28 +4,23 @@ import RadioSelector from './RadioSelector';
 import styles from './index.less';
 import {list as fetchCourseList} from '../../services/manages/course';
 import {list as fetchTeacherList} from '../../services/manages/teacher';
-import {paginationConfig, stdColumns} from '../ListPage';
+import { stdColumns} from '../ListPage';
+import Filter from './Filter';
 
 
 export default class SubstituteModal extends Component {
 
   state = {};
 
-  onGradeChange = (e) => {
-    const gradeId = e.target.value;
-    fetchCourseList({gradeId}).then(({result: {list}}) => {
-      this.setState({gradeId, courseList: list});
-    });
-  };
-
-  onCourseChange = (e) => {
-    const courseId = e.target.value;
-    const {gradeId} = this.state;
-    console.log(this.props);
-    const {lecture: {id}} = this.props;
-    fetchTeacherList({gradeId, courseId, lectureId: id}).then(({result: {list}}) => {
-      this.setState({courseId, teacherList: list.sort((a, b) => a.workStatus - b.workStatus)});
-    })
+  onFilterChange = (type, {gradeId, courseId})=>{
+    if(type === 'grade'){
+      this.setState({teacherList: [], courseId:null});
+    }else if(type === 'course') {
+      const {lecture: {id}} = this.props;
+      fetchTeacherList({gradeId, courseId, lectureId: id}).then(({result: {list}}) => {
+        this.setState({courseId, teacherList: list.sort((a, b) => a.workStatus - b.workStatus)});
+      })
+    }
   };
 
   onSelectedTeacherChange = (e) => {
@@ -33,8 +28,8 @@ export default class SubstituteModal extends Component {
   };
 
   render() {
-    const {gradeList, visible, onOk, onCancel} = this.props;
-    const {courseList, teacherList} = this.state;
+    const { visible, onOk, onCancel} = this.props;
+    const { teacherList} = this.state;
 
     const modalProps = {
       title: '代课',
@@ -53,6 +48,7 @@ export default class SubstituteModal extends Component {
     const columns = [
       {key: 'id', title: 'ID'},
       {key: 'name', title: '教师'},
+      {key: 'workCountOfWeek', title: '本周课时', render: v => v + '节课'},
       {key: 'workStatus', title: '是否有课', render: v => v === 2 ? '没课' : '有课'},
       {
         key: 'operation',
@@ -62,13 +58,7 @@ export default class SubstituteModal extends Component {
     ];
     return (
       <Modal {...modalProps}>
-        <RadioSelector title="年级" options={gradeList} onChange={this.onGradeChange}/>
-        {
-          this.state.gradeId && courseList && courseList.length ?
-            <RadioSelector title="科目" options={courseList} onChange={this.onCourseChange}/>
-            :
-            null
-        }
+        <Filter type="course" onChange={this.onFilterChange} />
         <Radio.Group name="selected" style={{display: 'block'}} onChange={this.onSelectedTeacherChange}>
           <Table
             className="list-table"

@@ -1,5 +1,5 @@
-import Model from 'dva-model';
-import {list, create, modify, remove, available, swap} from '../../services/lecture';
+import Model,{RestfulReducers} from 'dva-model';
+import {list, create, modify, remove, available, swap, cancel} from '../../services/lecture';
 import {TimetableClass as namespace} from '../../utils/namespace';
 
 export default Model(
@@ -41,7 +41,8 @@ export default Model(
           delete it.available
         });
         return {...state, loading: false, list: [...state.list]};
-      }
+      },
+      cancelSuccess: RestfulReducers.modifySuccess
     }
   },
   {
@@ -51,5 +52,6 @@ export default Model(
     remove,
     available,
     swap,
+    cancel
   }
 );

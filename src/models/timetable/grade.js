@@ -6,16 +6,16 @@ export default Model(
   {
     namespace,
     subscriptions: {
-      setup({dispatch, history}) {
-        history.listen(({pathname, query}) => {
-          if (pathname === namespace) {
-            // dispatch({
-            //   type: 'list',
-            //   payload: {...query},
-            // });
-          }
-        });
-      },
+      // setup({dispatch, history}) {
+      //   history.listen(({pathname, query}) => {
+      //     if (pathname === namespace) {
+      //       // dispatch({
+      //       //   type: 'list',
+      //       //   payload: {...query},
+      //       // });
+      //     }
+      //   });
+      // },
     },
     reducers: {
       listSuccess(state, action) {

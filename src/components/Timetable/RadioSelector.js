@@ -14,7 +14,7 @@ export default function RadioSelector({style, className, title, options = [], de
       >
         {
           options.map(({name, id}) =>
-            <Radio.Button key={id} value={id}>{name}#{id}</Radio.Button>
+            <Radio.Button key={id} value={id}>{name}</Radio.Button>
           )
         }
       </Radio.Group>

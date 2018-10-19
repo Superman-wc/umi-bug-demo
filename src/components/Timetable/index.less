@@ -49,6 +49,24 @@
   .timetable-cell-course {
     font-size: 14px;
     text-align: center;
+    .lecture-status{
+      font-size:80%;
+      &.lecture-status-2{
+        color: #ffaa00;
+      }
+      &.lecture-status-3{
+        color: #00aaff;
+      }
+      &.lecture-status-4{
+        color: #aa00ff
+      }
+      &:before{
+        content:'['
+      }
+      &:after{
+        content:']'
+      }
+    }
   }
 }
 

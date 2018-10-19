@@ -5,6 +5,7 @@ import {Form, Row, Col, message, Modal, Select} from 'antd';
 import {ManagesClass, ManagesGrade as namespace} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
+import LectureTable from '../../../components/Timetable/LectureTable';
 
 
 
@@ -76,7 +77,7 @@ export default class MeterList extends Component {
         total={total}
         pagination
         title={title}
-      />
+      ><LectureTable type="student" /></ListPage>
     );
   }
 }
