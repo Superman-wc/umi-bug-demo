@@ -46,7 +46,7 @@ export default class Filter extends Component {
   };
 
   fetchStudentList = (gradeId, klassId) => {
-    fetchStudentList({gradeId, klassId}).then(({result: {list}}) => {
+    fetchStudentList({gradeId, klassId, s:100000}).then(({result: {list}}) => {
       this.setState({studentList: list});
     });
   };
