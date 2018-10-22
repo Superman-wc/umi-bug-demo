@@ -1,10 +1,8 @@
 import React, {Component} from 'react';
-import {Modal, Table, Radio} from 'antd';
-import RadioSelector from './RadioSelector';
+import {Modal, Table, Radio, message} from 'antd';
 import styles from './index.less';
-import {list as fetchCourseList} from '../../services/manages/course';
 import {list as fetchTeacherList} from '../../services/manages/teacher';
-import { stdColumns} from '../ListPage';
+import {stdColumns} from '../ListPage';
 import Filter from './Filter';
 
 
@@ -12,10 +10,16 @@ export default class SubstituteModal extends Component {
 
   state = {};
 
-  onFilterChange = (type, {gradeId, courseId})=>{
-    if(type === 'grade'){
-      this.setState({teacherList: [], courseId:null});
-    }else if(type === 'course') {
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.visible === false && this.props.visible === true) {
+      this.setState({teacherList: [], teacherId: undefined, courseId: undefined});
+    }
+  }
+
+  onFilterChange = (type, {gradeId, courseId}) => {
+    if (type === 'grade') {
+      this.setState({teacherList: [], courseId: null});
+    } else if (type === 'course') {
       const {lecture: {id}} = this.props;
       fetchTeacherList({gradeId, courseId, lectureId: id}).then(({result: {list}}) => {
         this.setState({courseId, teacherList: list.sort((a, b) => a.workStatus - b.workStatus)});
@@ -27,9 +31,10 @@ export default class SubstituteModal extends Component {
     this.setState({teacherId: e.target.value});
   };
 
+
   render() {
-    const { visible, onOk, onCancel} = this.props;
-    const { teacherList} = this.state;
+    const {visible, onOk, onCancel} = this.props;
+    const {teacherList} = this.state;
 
     const modalProps = {
       title: '代课',
@@ -37,12 +42,17 @@ export default class SubstituteModal extends Component {
       visible, onCancel,
       onOk: () => {
         const {lecture: {id}} = this.props;
-        onOk && onOk({
-          id,
-          teacherId: this.state.teacherId,
-          courseId: this.state.courseId
-        })
-      }
+        if (this.state.teacherId && this.state.courseId) {
+          onOk && onOk({
+            id,
+            teacherId: this.state.teacherId,
+            courseId: this.state.courseId
+          })
+        } else {
+          message.warning('请选择代课的教师', 3);
+        }
+      },
+      destroyOnClose: true
     };
 
     const columns = [
@@ -58,7 +68,7 @@ export default class SubstituteModal extends Component {
     ];
     return (
       <Modal {...modalProps}>
-        <Filter type="course" onChange={this.onFilterChange} />
+        <Filter type="course" onChange={this.onFilterChange}/>
         <Radio.Group name="selected" style={{display: 'block'}} onChange={this.onSelectedTeacherChange}>
           <Table
             className="list-table"

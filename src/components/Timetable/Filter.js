@@ -51,6 +51,14 @@ export default class Filter extends Component {
     });
   };
 
+  clear = ()=>{
+    this.setState({
+      gradeId: undefined,
+      klassList: [], courseList: [], teacherList: [], studentList: [],
+      klassId: undefined, courseId: undefined, teacherId: undefined, studentId: undefined, type: undefined
+    });
+  };
+
 
   onGradeChange = gradeId => {
     this.setState({
