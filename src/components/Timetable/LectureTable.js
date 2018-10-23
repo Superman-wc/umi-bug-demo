@@ -28,26 +28,27 @@ export default class LectureTable extends Component {
     })
   }
 
-  fetchLectureList = (type, payload) => {
-    // if (type === 'grade' || type === 'course') {
-    //   this.props.dispatch({
-    //     type: TimetableClass + '/set',
-    //     payload: {
-    //       list: []
-    //     }
-    //   })
-    // } else {
-    if (
-      (this.props.type === 'klass' && payload.gradeId && payload.klassId) ||
-      (this.props.type === 'student' && payload.gradeId && payload.studentId) ||
-      (this.props.type === 'teacher' && payload.gradeId && payload.teacherId) ||
-      (this.props.type === 'grade' && payload.gradeId && payload.type)
-    ) {
+  fetchLectureList = (changeType, {gradeId, klassId, teacherId, studentId, weekIndex, type}) => {
+    let payload;
+    if(this.props.type === 'klass' && gradeId && klassId ){
+      payload = {gradeId, klassId, weekIndex};
+    }
+    else if(this.props.type === 'student' && gradeId && studentId){
+      payload = {gradeId, studentId, weekIndex};
+    }
+    else if(this.props.type === 'teacher' && gradeId && teacherId){
+      payload = {gradeId, teacher, weekIndex};
+    }
+    else if(this.props.type === 'grade' && gradeId && type){
+      payload = {gradeId, type , weekIndex};
+    }
+
+    if(payload){
       this.props.dispatch({
         type: TimetableClass + '/list',
         payload
-      })
-    } else {
+      });
+    }else{
       this.props.dispatch({
         type: TimetableClass + '/set',
         payload: {
@@ -55,7 +56,6 @@ export default class LectureTable extends Component {
         }
       })
     }
-    // }
   };
 
   render() {

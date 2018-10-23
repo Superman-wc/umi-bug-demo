@@ -6,7 +6,7 @@
     "build": "umi build",
     "test": "umi test",
     "lint": "eslint --ext .js src mock tests",
-    "precommit": "lint-staged"
+    "--precommit": "lint-staged"
   },
   "devDependencies": {
     "babel-eslint": "^9.0.0",
