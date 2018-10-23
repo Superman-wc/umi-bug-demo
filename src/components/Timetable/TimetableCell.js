@@ -53,7 +53,7 @@ export default class TimetableCell extends Component {
       }
     };
     return (
-      <Flex isItem direction="column" {...draggable} className={className}>
+      <Flex isItem direction="column" {...draggable} className={classnames(className, {[styles['course-'+(course ? course.code:'')]]:course})}>
         {
           type === 1 ?
             <Fragment>

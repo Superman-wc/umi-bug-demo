@@ -3,7 +3,7 @@
 }
 
 .timetable-col {
-  border-right: 1px solid #dcdcdc;
+  border-right: 1px solid #ccc;
   &.timetable-col-header {
     background-color: #f0f0f0;
     text-align: center;
@@ -18,12 +18,44 @@
 }
 
 .timetable-cell {
-  border-bottom: 1px solid #dcdcdc;
+  border-bottom: 1px solid #ccc;
   height: 88px;
   justify-content: center;
   padding: 8px 8px;
   box-sizing: border-box;
   user-select: none;
+
+  &.course-chinese{ //语文
+    background-color: rgba(255, 0, 0, 0.2);
+  }
+  &.course-math{ //数学
+    background-color: rgba(0, 255, 0, 0.2);
+  }
+  &.course-english{ //英语
+    background-color: rgba(0, 0, 255, 0.2);
+  }
+  &.course-physical{ //物理
+    background-color: rgba(136, 223, 245, 0.2);
+  }
+  &.course-chemistry{ //化学
+    background-color: rgba(212, 245, 136, 0.2);
+  }
+  &.course-biological{ //生物
+    background-color: rgba(136, 245, 191, 0.2);
+  }
+  &.course-political{ //政治
+    background-color: rgba(245, 136, 136, 0.2);
+  }
+  &.course-history{ // 历史
+    background-color: rgba(245, 136, 196, 0.2);
+  }
+  &.course-geography{ //地理
+    background-color: rgba(245, 136, 245, 0.2);
+  }
+  &.course-technology{ //技术
+    background-color: rgba(255, 255, 136, 0.2);
+  }
+
   &:hover,
   &.selected {
     background-color: #f8ffff;
@@ -130,7 +162,7 @@
 @width: 90px;
 @height: 60px;
 @padding: 4px;
-@border: 1px solid #dcdcdc;
+@border: 1px solid #ccc;
 
 .room-timetable {
   display: flex;
@@ -148,8 +180,13 @@
     .week-item {
       flex: 1;
       display: flex;
-      border-bottom: @border;
+      border-bottom: 3px double #ccc;
       box-sizing: border-box;
+      &.week-item-1,
+      &.week-item-3,
+      &.week-item-5{
+        background-color: rgba(0, 0, 0, 0.05);
+      }
       .week-of-date {
         display: flex;
         flex-direction: column;
@@ -188,8 +225,13 @@
     border-right: @border;
     box-sizing: border-box;
     .room-week {
-      border-bottom: @border;
+      border-bottom: 3px double #ccc;
       box-sizing: border-box;
+      &.room-week-1,
+      &.room-week-3,
+      &.room-week-5{
+        background-color: rgba(0,0,0,0.01);
+      }
     }
     .lecture {
       padding: @padding;
@@ -200,6 +242,40 @@
       justify-content: center;
       border-bottom: @border;
       box-sizing: border-box;
+      &.course-chinese{ //语文
+        background-color: rgba(255, 0, 0, 0.2);
+      }
+      &.course-math{ //数学
+        background-color: rgba(0, 255, 0, 0.2);
+      }
+      &.course-english{ //英语
+        background-color: rgba(0, 0, 255, 0.2);
+      }
+      &.course-physical{ //物理
+        background-color: rgba(136, 223, 245, 0.2);
+      }
+      &.course-chemistry{ //化学
+        background-color: rgba(212, 245, 136, 0.2);
+      }
+      &.course-biological{ //生物
+        background-color: rgba(136, 245, 191, 0.2);
+      }
+      &.course-political{ //政治
+        background-color: rgba(245, 136, 136, 0.2);
+      }
+      &.course-history{ // 历史
+        background-color: rgba(245, 136, 196, 0.2);
+      }
+      &.course-geography{ //地理
+        background-color: rgba(245, 136, 245, 0.2);
+      }
+      &.course-technology{ //技术
+        background-color: rgba(255, 255, 136, 0.2);
+      }
+
+
+
+
       &:last-child {
         border-bottom: 0;
       }

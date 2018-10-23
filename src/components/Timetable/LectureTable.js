@@ -37,7 +37,7 @@ export default class LectureTable extends Component {
       payload = {gradeId, studentId, weekIndex};
     }
     else if(this.props.type === 'teacher' && gradeId && teacherId){
-      payload = {gradeId, teacher, weekIndex};
+      payload = {gradeId, teacherId, weekIndex};
     }
     else if(this.props.type === 'grade' && gradeId && type){
       payload = {gradeId, type , weekIndex};
