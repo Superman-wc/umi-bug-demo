@@ -1,12 +1,13 @@
 import React, {Component} from 'react';
-import {Modal, Form, Input, message} from 'antd';
-import styles from './index.less';
+import {Modal, Form, Input} from 'antd';
 
-export default @Form.create()
 class CancelModal extends Component {
 
   render() {
-    const {visible, onOk, onCancel, form: {getFieldDecorator, validateFieldsAndScroll}} = this.props;
+    const {
+      visible, onOk, onCancel,
+      form: {getFieldDecorator, validateFieldsAndScroll}
+    } = this.props;
     const modalProps = {
       title: '取消课程',
       visible,
@@ -38,3 +39,5 @@ class CancelModal extends Component {
     );
   }
 }
+
+export default Form.create()(CancelModal);

@@ -30,25 +30,25 @@ export default class LectureTable extends Component {
 
   fetchLectureList = (changeType, {gradeId, klassId, teacherId, studentId, weekIndex, type}) => {
     let payload;
-    if(this.props.type === 'klass' && gradeId && klassId ){
+    if (this.props.type === 'klass' && gradeId && klassId) {
       payload = {gradeId, klassId, weekIndex};
     }
-    else if(this.props.type === 'student' && gradeId && studentId){
+    else if (this.props.type === 'student' && gradeId && studentId) {
       payload = {gradeId, studentId, weekIndex};
     }
-    else if(this.props.type === 'teacher' && gradeId && teacherId){
+    else if (this.props.type === 'teacher' && gradeId && teacherId) {
       payload = {gradeId, teacherId, weekIndex};
     }
-    else if(this.props.type === 'grade' && gradeId && type){
-      payload = {gradeId, type , weekIndex};
+    else if (this.props.type === 'grade' && gradeId && type) {
+      payload = {gradeId, type, weekIndex};
     }
 
-    if(payload){
+    if (payload) {
       this.props.dispatch({
         type: TimetableClass + '/list',
         payload
       });
-    }else{
+    } else {
       this.props.dispatch({
         type: TimetableClass + '/set',
         payload: {
@@ -61,44 +61,12 @@ export default class LectureTable extends Component {
   render() {
     const {list, now, type, dispatch} = this.props;
 
-    const courseMenu = (lecture) => (
-      <Menu onClick={(e) => {
-        switch (e.key) {
-          case 'cancel':
-            this.setState({cancelModalVisible: true, cancelLeture: lecture});
-          default:
-            break;
-        }
-      }}>
-        {
-          [
-            {key: 'cancel', children: '取消',}
-          ].map(it =>
-            <Menu.Item {...it}/>
-          )
-        }
-      </Menu>
-    );
-
-    const teacherMenu = (lecture) => (
-      <Menu onClick={(e) => {
-        switch (e.key) {
-          case 'substitute':
-            this.setState({substituteLecture: lecture, substituteModalVisible: true});
-            break;
-          default:
-            break;
-        }
-      }}>
-        {
-          [
-            {key: 'substitute', children: '代课',}
-          ].map(it =>
-            <Menu.Item {...it}/>
-          )
-        }
-      </Menu>
-    );
+    const courseMenu = this.createMenu([
+      {key: 'cancel', children: '取消', onClick:(lecture)=>this.setState({cancelModalVisible: true, cancelLeture: lecture})}
+    ]);
+    const teacherMenu = this.createMenu([
+      {key: 'substitute', children: '代课', onClick:(lecture)=>this.setState({substituteModalVisible: true, substituteLecture: lecture})}
+    ]);
 
     const swap = type === 'klass' ? {
       swapStart: (id) => {
@@ -199,7 +167,7 @@ export default class LectureTable extends Component {
         <Filter type={type} onChange={this.fetchLectureList}/>
         {
           type === 'grade' ?
-            <div>{this.renderRoomWeekSlot(list, now)}</div>
+            <div>{LectureTable.renderRoomWeekSlot(list, now)}</div>
             :
             <Timetable {...transformTimetableList(list || [])} {...timetableProps} >
               <CancelModal {...cancelModalProps} />
@@ -210,13 +178,27 @@ export default class LectureTable extends Component {
     )
   }
 
-  renderRoomWeekSlot(list, now) {
+  static renderRoomWeekSlot(list, now) {
     const data = transformListToTimeTableOfRoomWeekSlot(list || []) || [];
-
-    console.log(data);
-
     return (
-      <RoomTimetable data={data} now={now} />
+      <RoomTimetable data={data} now={now}/>
     )
   }
+
+  createMenu = (menus = []) => lecture => (
+    <Menu onClick={(e) => {
+      const menu = menus.find(it=>it.key === e.key);
+      if(menu && menu.onClick){
+        menu.onClick(lecture)
+      }
+    }}>
+      {
+        menus.map(it =>
+          <Menu.Item key={it.key}>{it.children}</Menu.Item>
+        )
+      }
+    </Menu>
+  )
+
+
 }

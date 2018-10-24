@@ -1,7 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import {Form, Select, DatePicker} from 'antd';
 import Moment from 'moment';
-
 import {list as fetchStudentList} from "../../services/manages/student";
 import {list as fetchKlassList} from "../../services/manages/class";
 import {list as fetchGradeList} from "../../services/manages/grade";
@@ -51,15 +50,6 @@ export default class Filter extends Component {
     });
   };
 
-  clear = ()=>{
-    this.setState({
-      gradeId: undefined,
-      klassList: [], courseList: [], teacherList: [], studentList: [],
-      klassId: undefined, courseId: undefined, teacherId: undefined, studentId: undefined, type: undefined
-    });
-  };
-
-
   onGradeChange = gradeId => {
     this.setState({
       gradeId,
@@ -91,9 +81,6 @@ export default class Filter extends Component {
     if (this.props.type === 'student') {
       this.fetchStudentList(gradeId, klassId);
     }
-    // else if (this.props.type === 'klass' && this.props.onChange) {
-    //   this.props.onChange({gradeId, klassId});
-    // }
     this.props.onChange && this.props.onChange('klass', {gradeId, klassId, weekIndex: week.format('YYYYWW')});
   };
 
@@ -107,9 +94,6 @@ export default class Filter extends Component {
     if (this.props.type === 'teacher') {
       this.fetchTeacherList(gradeId, courseId);
     }
-    // else if (this.props.type === 'course' && this.props.onChange) {
-    //   this.props.onChange({gradeId, courseId});
-    // }
     this.props.onChange && this.props.onChange('course', {gradeId, courseId});
   };
 
