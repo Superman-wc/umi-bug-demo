@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from 'react';
-import {Form, Select, Dropdown, Menu, notification} from 'antd';
+import {Form, Select, Dropdown, Menu, notification, Spin} from 'antd';
 import {connect} from 'dva';
 import {TimetableClass as namespace, TimetableClass} from "../../utils/namespace";
 import Filter from './Filter';
@@ -14,6 +14,7 @@ import RoomTimetable from './RoomTimetable';
 @connect(state => ({
   list: state[TimetableClass].list,
   now: state[namespace].now,
+  loading: state[TimetableClass].loading,
 }))
 export default class LectureTable extends Component {
 
@@ -59,7 +60,7 @@ export default class LectureTable extends Component {
   };
 
   render() {
-    const {list, now, type, dispatch} = this.props;
+    const {list, now, type, dispatch, loading} = this.props;
 
     const courseMenu = this.createMenu([
       {key: 'cancel', children: '取消', onClick:(lecture)=>this.setState({cancelModalVisible: true, cancelLeture: lecture})}
@@ -167,7 +168,7 @@ export default class LectureTable extends Component {
         <Filter type={type} onChange={this.fetchLectureList}/>
         {
           type === 'grade' ?
-            <div>{LectureTable.renderRoomWeekSlot(list, now)}</div>
+            <Spin spinning={!!loading}>{LectureTable.renderRoomWeekSlot(list, now)}</Spin>
             :
             <Timetable {...transformTimetableList(list || [])} {...timetableProps} >
               <CancelModal {...cancelModalProps} />
