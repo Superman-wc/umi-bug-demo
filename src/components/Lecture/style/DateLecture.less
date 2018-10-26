@@ -1,0 +1,60 @@
+@import "~antd/es/style/themes/default";
+@import "./fn";
+
+:global {
+  .date-lectures-wrapper {
+    flex: 1;
+    display: flex;
+    border-right: @border;
+    &:last-child {
+      border-right: 0;
+    }
+    &.date-lectures-wrapper-week-1,
+    &.date-lectures-wrapper-week-3,
+    &.date-lectures-wrapper-week-5 {
+      background-color: rgba(64, 128, 255, 0.02);
+    }
+
+    .lecture-wrapper {
+      .lecture {
+        //border: 1px solid transparent;
+        //outline: 0px solid @primary-color;
+        transition: transform 0.3s, border 0.3s;
+        &:hover {
+          outline: 2px solid @primary-color;
+          background-color: rgba(255, 255, 255, .5);
+          z-index: 10;
+          box-shadow: 2px 2px 10px #999;
+        }
+      }
+      &.lecture-wrapper-selected {
+        z-index: 2;
+        .lecture {
+          outline: 2px solid @primary-color;
+          background-color: rgba(255, 255, 255, .5);
+          z-index: 10;
+          box-shadow: 2px 2px 10px #999;
+        }
+      }
+      &.lecture-wrapper-available {
+        z-index: 2;
+        .lecture {
+          outline: 2px dashed #ff4444;
+          &:hover {
+            outline: 4px dashed #f00;
+            &:after {
+              content: '可以换课';
+              font-size: 16px;
+              color: #f00;
+              .position(absolute, 0, 0, 0, 0);
+              background-color: rgba(255, 255, 255,  0.5);
+              .flex-box(row, center, center);
+            }
+          }
+        }
+        //box-shadow: 0 0 5px #f00 inset;
+      }
+    }
+
+  }
+}

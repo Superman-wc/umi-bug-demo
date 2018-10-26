@@ -1,0 +1,106 @@
+@import "./fn";
+
+:global {
+  .room-timetable-wrapper {
+    display: flex;
+    //border: @border;
+    user-select: none;
+    .date-lectures-wrapper {
+      border-bottom: @doubleBorder;
+    }
+    .date-lectures-wrapper {
+      &.date-lectures-wrapper-week-1,
+      &.date-lectures-wrapper-week-3,
+      &.date-lectures-wrapper-week-5 {
+        border-bottom: @doubleBorder;
+      }
+    }
+    .lecture-wrapper {
+      .lecture {
+        &:hover {
+          transform: scale(1.25);
+        }
+      }
+    }
+    .week-of-date-wrapper {
+      width: 30px;
+      border-right: @border;
+    }
+    .lecture-wrapper {
+      &.lecture-wrapper-klass-type-4,
+      &.lecture-wrapper-klass-type-3 {
+        .lecture-wrapper-room,
+        .lecture-wrapper-course {
+          display: none;
+        }
+        .lecture-wrapper-klass {
+          .lecture-body();
+        }
+      }
+      &.lecture-wrapper-klass-type-1 {
+        .lecture-wrapper-room {
+          display: none;
+        }
+      }
+    }
+  }
+  .room-timetable-wrapper-header {
+    .header();
+    border-right: @border;
+    & > div {
+      &:first-child {
+        border-bottom: @border;
+        padding: @padding;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: @headerHeight;
+      }
+    }
+  }
+  .room-timetable-wrapper-header-week {
+    flex: 1;
+    display: flex;
+    border-bottom: @doubleBorder;
+    &:last-child {
+      border-bottom: 0;
+    }
+
+  }
+  .room-timetable-wrapper-header-timeslot-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .room-week-date-lectures-wrapper {
+    flex: 1;
+    display: flex;
+  }
+  .date-lectures-wrapper {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    border-bottom: @doubleBorder;
+  }
+
+  .room-week-date-lectures-wrapper-room {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: @padding;
+    height: @headerHeight;
+    border-bottom: @border;
+    background-color: @headerBackgroundColor;
+    font-weight: bold;
+  }
+  .week-date-lectures-wrapper {
+    flex: 1;
+    border-right: @border;
+    &:last-child {
+      border-right: 0;
+    }
+    .date-lectures-wrapper {
+      border-right: 0;
+    }
+  }
+}

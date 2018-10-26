@@ -7,19 +7,19 @@ export interface FlexItemProps {
   prefixCls?: string;
   className?: string;
   style?: React.CSSProperties,
-  overflow?: PropTypes.string,
-  onClick?: PropTypes.func,
-  onContextMenu?: PropTypes.func,
-  onDoubleClick?: PropTypes.func,
-  onMouseDown?: PropTypes.func,
-  onMouseEnter?: PropTypes.func,
-  onMouseLeave?: PropTypes.func,
-  onMouseMove?: PropTypes.func,
-  onMouseOut?: PropTypes.func,
-  onMouseOver?: PropTypes.func,
-  onMouseUp?: PropTypes.func,
-  onScroll?:PropTypes.func,
-  onWheel?:PropTypes.func,
+  overflow?: string,
+  onClick?: React.MouseEventHandler<HTMLElement>,
+  onContextMenu?: React.MouseEventHandler<HTMLElement>,
+  onDoubleClick?: React.MouseEventHandler<HTMLElement>,
+  onMouseDown?: React.MouseEventHandler<HTMLElement>,
+  onMouseEnter?: React.MouseEventHandler<HTMLElement>,
+  onMouseLeave?: React.MouseEventHandler<HTMLElement>,
+  onMouseMove?: React.MouseEventHandler<HTMLElement>,
+  onMouseOut?: React.MouseEventHandler<HTMLElement>,
+  onMouseOver?: React.MouseEventHandler<HTMLElement>,
+  onMouseUp?: React.MouseEventHandler<HTMLElement>,
+  onScroll?:React.UIEventHandler<HTMLElement>,
+  onWheel?:React.WheelEventHandler<HTMLElement>,
 }
 
 export default class FlexItem extends React.Component<FlexItemProps, any> {
@@ -27,20 +27,20 @@ export default class FlexItem extends React.Component<FlexItemProps, any> {
     prefixCls: 'flex-wrapper-item',
   };
 
-  // static propTypes = {
-  //   prefixCls: PropTypes.string,
-  //   overflow: PropTypes.string,
-  //   onClick: PropTypes.func,
-  //   onContextMenu: PropTypes.func,
-  //   onDoubleClick: PropTypes.func,
-  //   onMouseDown: PropTypes.func,
-  //   onMouseEnter: PropTypes.func,
-  //   onMouseLeave: PropTypes.func,
-  //   onMouseMove: PropTypes.func,
-  //   onMouseOut: PropTypes.func,
-  //   onMouseOver: PropTypes.func,
-  //   onMouseUp: PropTypes.func,
-  // };
+  static propTypes = {
+    prefixCls: PropTypes.string,
+    overflow: PropTypes.string,
+    onClick: PropTypes.func,
+    onContextMenu: PropTypes.func,
+    onDoubleClick: PropTypes.func,
+    onMouseDown: PropTypes.func,
+    onMouseEnter: PropTypes.func,
+    onMouseLeave: PropTypes.func,
+    onMouseMove: PropTypes.func,
+    onMouseOut: PropTypes.func,
+    onMouseOver: PropTypes.func,
+    onMouseUp: PropTypes.func,
+  };
 
   render() {
     const {

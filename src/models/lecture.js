@@ -1,6 +1,7 @@
-import Model,{RestfulReducers} from 'dva-model';
-import {list, create, modify, remove, available, swap, cancel} from '../../services/lecture';
-import {TimetableClass as namespace} from '../../utils/namespace';
+import Model, {RestfulReducers} from 'dva-model';
+import {list, create, modify, remove, available, swap, cancel} from '../services/lecture';
+import {TimetableLecture as namespace} from '../utils/namespace';
+
 
 export default Model(
   {
@@ -17,18 +18,25 @@ export default Model(
         });
       },
     },
+
+    effects: {
+
+    },
+
     reducers: {
       listSuccess(state, action) {
         const {result: {list, next, now, previous}} = action;
         return {...state, list, next, now, previous, loading: false};
       },
-      availableSuccess(state, action) {
-        const {result: {list = []}} = action;
-        state.list.forEach(it => {
-          it.available = list.indexOf(it.id * 1) !== -1;
-        });
-        return {...state, list: [...state.list], loading: false, disabledLoading: false};
-      },
+
+      // availableSuccess(state, action) {
+      //   const {result: {list = []}} = action;
+      //   state.list.forEach(it => {
+      //     it.available = list.indexOf(it.id * 1) !== -1;
+      //   });
+      //   return {...state, list: [...state.list], loading: false, disabledLoading: false};
+      // },
+
       swapSuccess(state, action) {
         const {result: {list}} = action;
         list.forEach(it => {

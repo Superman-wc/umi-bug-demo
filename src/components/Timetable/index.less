@@ -1,103 +1,40 @@
-.timetable {
-  border: 1px solid #dcdcdc;
-}
-
-.timetable-col {
-  border-right: 1px solid #ccc;
-  &.timetable-col-header {
-    background-color: #f0f0f0;
-    text-align: center;
-    font-weight: bold;
-    width: 100px;
-    flex: none;
-  }
-  &:last-child {
-    border-right: 0;
-  }
-
-}
-
-.timetable-cell {
-  border-bottom: 1px solid #ccc;
-  height: 88px;
-  justify-content: center;
-  padding: 8px 8px;
-  box-sizing: border-box;
-  user-select: none;
-
-  &.course-chinese{ //语文
-    background-color: rgba(255, 0, 0, 0.2);
-  }
-  &.course-math{ //数学
-    background-color: rgba(0, 255, 0, 0.2);
-  }
-  &.course-english{ //英语
-    background-color: rgba(0, 0, 255, 0.2);
-  }
-  &.course-physical{ //物理
-    background-color: rgba(136, 223, 245, 0.2);
-  }
-  &.course-chemistry{ //化学
-    background-color: rgba(212, 245, 136, 0.2);
-  }
-  &.course-biological{ //生物
-    background-color: rgba(136, 245, 191, 0.2);
-  }
-  &.course-political{ //政治
-    background-color: rgba(245, 136, 136, 0.2);
-  }
-  &.course-history{ // 历史
-    background-color: rgba(245, 136, 196, 0.2);
-  }
-  &.course-geography{ //地理
-    background-color: rgba(245, 136, 245, 0.2);
-  }
-  &.course-technology{ //技术
-    background-color: rgba(255, 255, 136, 0.2);
-  }
-
-  &:hover,
-  &.selected {
-    background-color: #f8ffff;
-    cursor: pointer;
-  }
-  &.timetable-cell-header {
-    background-color: #eee;
-    text-align: center;
-    font-weight: bold;
-    height: 40px;
-    line-height: 40px;
-    cursor: default;
-  }
-  &:last-child {
-    border-bottom: 0;
-  }
-  &.timetable-cell-available {
-    box-shadow: 0 0 5px #f00 inset;
-  }
-  .timetable-cell-course {
-    font-size: 14px;
-    text-align: center;
-    .lecture-status {
-      font-size: 80%;
-      &.lecture-status-2 {
-        color: #ffaa00;
-      }
-      &.lecture-status-3 {
-        color: #00aaff;
-      }
-      &.lecture-status-4 {
-        color: #aa00ff
-      }
-      &:before {
-        content: '['
-      }
-      &:after {
-        content: ']'
-      }
+.swap-dialog{
+  :global{
+    .ant-modal-confirm-title{
+      margin-bottom: 40px;
+      font-size:16px;
+    }
+    .lecture-wrapper{
+      border-top:1px solid #ccc;
+    }
+    .lecture-wrapper-teacher,
+    .lecture-wrapper-course,
+    .lecture-wrapper-room,
+    .lecture-wrapper-klass{
+      max-width: 120px;
+      min-width: 112px;
     }
   }
+  .swap-item{
+    border:1px solid #ccc;
+  }
+  .swap-dialog-week-of-date{
+    flex-direction: row-reverse;
+    margin: 10px 0;
+    span{
+      margin: 0 5px;
+      font-size:14px;
+      font-weight: bold;
+    }
+  }
+  .swap-dialog-timeslot{
+    font-size:14px;
+    font-weight: bold;
+  }
 }
+
+
+
 
 .label-box {
   padding: 0 10px;
@@ -112,183 +49,12 @@
   }
 }
 
-.radio-group-buttons {
-  display: flex;
-  flex: 1;
-  flex-wrap: wrap;
-  :global {
-    .ant-radio-button-wrapper {
-      margin: 5px;
-      display: block;
-      border-radius: 4px;
-      padding: 0 10px;
-      border: 1px solid #d9d9d9;
-      height: 30px;
-      line-height: 30px;
-      box-sizing: border-box;
-      &:before {
-        content: none;
-      }
-    }
+.right-side{
+  border-left: 1px solid #ccc;
+  background-color: #f0f0f0;
+  min-width: 200px;
+  padding:10px;
+  .source-lecture{
+    border:1px solid #666 !important;
   }
-}
-
-.calendar {
-  padding: 5px;
-  font-size: 20px;
-  .next,
-  .previous,
-  .now {
-    padding: 10px 30px;
-  }
-  .next,
-  .previous {
-    cursor: pointer;
-  }
-  .now {
-    text-align: center;
-    cursor: pointer;
-  }
-}
-
-.week-of-date {
-  line-height: 1.5;
-}
-
-@width: 90px;
-@height: 60px;
-@padding: 4px;
-@border: 1px solid #ccc;
-
-.room-timetable {
-  display: flex;
-  flex-direction: row;
-  border: @border;
-  box-sizing: border-box;
-  .room-timetable-header {
-    width: 80px;
-    background-color: #f0f0f0;
-    font-weight: bold;
-    display: flex;
-    flex-direction: column;
-    border-right: @border;
-    box-sizing: border-box;
-    .week-item {
-      flex: 1;
-      display: flex;
-      border-bottom: 3px double #ccc;
-      box-sizing: border-box;
-      &.week-item-1,
-      &.week-item-3,
-      &.week-item-5{
-        background-color: rgba(0, 0, 0, 0.05);
-      }
-      .week-of-date {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: @padding;
-        border-right: @border;
-        width: 30px;
-        text-align: center;
-        box-sizing: border-box;
-      }
-      .timesolt {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        box-sizing: border-box;
-        & > div {
-          flex: 1;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: @padding;
-          border-bottom: @border;
-          box-sizing: border-box;
-          height: @height;
-          &:last-child {
-            border-bottom: 0;
-          }
-        }
-      }
-    }
-  }
-  .room-column {
-    min-width: @width;
-    flex: 1;
-    border-right: @border;
-    box-sizing: border-box;
-    .room-week {
-      border-bottom: 3px double #ccc;
-      box-sizing: border-box;
-      &.room-week-1,
-      &.room-week-3,
-      &.room-week-5{
-        background-color: rgba(0,0,0,0.01);
-      }
-    }
-    .lecture {
-      padding: @padding;
-      height: @height;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border-bottom: @border;
-      box-sizing: border-box;
-      &.course-chinese{ //语文
-        background-color: rgba(255, 0, 0, 0.2);
-      }
-      &.course-math{ //数学
-        background-color: rgba(0, 255, 0, 0.2);
-      }
-      &.course-english{ //英语
-        background-color: rgba(0, 0, 255, 0.2);
-      }
-      &.course-physical{ //物理
-        background-color: rgba(136, 223, 245, 0.2);
-      }
-      &.course-chemistry{ //化学
-        background-color: rgba(212, 245, 136, 0.2);
-      }
-      &.course-biological{ //生物
-        background-color: rgba(136, 245, 191, 0.2);
-      }
-      &.course-political{ //政治
-        background-color: rgba(245, 136, 136, 0.2);
-      }
-      &.course-history{ // 历史
-        background-color: rgba(245, 136, 196, 0.2);
-      }
-      &.course-geography{ //地理
-        background-color: rgba(245, 136, 245, 0.2);
-      }
-      &.course-technology{ //技术
-        background-color: rgba(255, 255, 136, 0.2);
-      }
-
-
-
-
-      &:last-child {
-        border-bottom: 0;
-      }
-      &:hover {
-        background-color: #fff;
-      }
-    }
-  }
-
-  .room,
-  .week {
-    background-color: #f0f0f0;
-    padding: @padding;
-    text-align: center;
-    font-weight: bold;
-    border-bottom: @border;
-    box-sizing: border-box;
-  }
-
 }

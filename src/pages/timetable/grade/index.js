@@ -1,11 +1,7 @@
 import React, {Component} from 'react';
-import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Radio} from 'antd';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
-import styles from '../index.less';
-import LectureTable from '../../../components/Timetable/LectureTable';
+import RoomWeekTimeTable from '../../../components/Timetable/RoomWeekTimeTable';
 
 
 export default class GradeTimeTable extends Component {
@@ -34,7 +30,7 @@ export default class GradeTimeTable extends Component {
       <Page header={header} loading={false}>
         <div className="list-page-main">
           <div className="list-table-container">
-            <LectureTable type="grade"/>
+            <RoomWeekTimeTable type="grade"/>
           </div>
         </div>
       </Page>

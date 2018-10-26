@@ -1,0 +1,15 @@
+@import './fn';
+:global {
+  .timeslot-wrapper {
+    border-bottom: @border;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: @padding;
+    height: @height;
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+}

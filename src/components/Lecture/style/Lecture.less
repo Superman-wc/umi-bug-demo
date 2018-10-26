@@ -1,0 +1,113 @@
+@import "./fn";
+
+:global {
+
+  .lecture-wrapper {
+    position: relative;
+    z-index: 1;
+    .flex-box(column, stretch, stretch);
+    height: @height;
+    border-bottom: @border;
+    user-select: none;
+    .lecture {
+      overflow: hidden;
+      position: relative;
+      padding: @padding;
+      .flex-box(column);
+      .size();
+
+    }
+
+    &.lecture-wrapper-course-chinese { //语文
+      background-color: rgba(255, 0, 0, 0.1);
+    }
+    &.lecture-wrapper-course-math { //数学
+      background-color: rgba(0, 255, 0, 0.1);
+    }
+    &.lecture-wrapper-course-english { //英语
+      background-color: rgba(0, 0, 255, 0.1);
+    }
+    &.lecture-wrapper-course-physical { //物理
+      background-color: rgba(136, 223, 245, 0.1);
+    }
+    &.lecture-wrapper-course-chemistry { //化学
+      background-color: rgba(212, 245, 136, 0.1);
+    }
+    &.lecture-wrapper-course-biological { //生物
+      background-color: rgba(136, 245, 191, 0.1);
+    }
+    &.lecture-wrapper-course-political { //政治
+      background-color: rgba(245, 136, 136, 0.1);
+    }
+    &.lecture-wrapper-course-history { // 历史
+      background-color: rgba(245, 136, 196, 0.1);
+    }
+    &.lecture-wrapper-course-geography { //地理
+      background-color: rgba(245, 136, 245, 0.1);
+    }
+    &.lecture-wrapper-course-technology { //技术
+      background-color: rgba(255, 255, 136, 0.1);
+    }
+    &:last-child {
+      border-bottom: 0;
+    }
+    &:hover {
+      //background-color: rgba(255, 255, 255, 0.5);
+      z-index: 2;
+      cursor: pointer;
+    }
+    //&.lecture-wrapper-available {
+    //  z-index: 2;
+    //  .lecture {
+    //    outline: 2px dashed #ff4444;
+    //    &:hover {
+    //      outline: 4px dashed #f00 !important;
+    //      &:after {
+    //        content: '可以换课';
+    //        font-size: 16px;
+    //        color: #f00;
+    //        .position(absolute, 0, 0, 0, 0);
+    //        background-color: rgba(255, 255, 255,  0.5);
+    //        .flex-box(row, center, center);
+    //      }
+    //    }
+    //  }
+    //  //box-shadow: 0 0 5px #f00 inset;
+    //}
+    &.lecture-wrapper-course-reserve {
+      .lecture-wrapper-course {
+        font-weight: normal;
+      }
+    }
+  }
+
+  .lecture-wrapper-teacher {
+
+  }
+  .lecture-wrapper-course {
+    .lecture-body();
+  }
+  .lecture-wrapper-room {
+
+  }
+  .lecture-wrapper-klass {
+
+  }
+
+  .lecture-wrapper-status {
+    font-size: 80%;
+    .position(absolute, 5px, auto, auto, -15px);
+    padding: 0 10px;
+    transform: rotate(-45deg);
+    color: #fff;
+    &.lecture-wrapper-status-2 {
+      background-color: #ffaa00;
+    }
+    &.lecture-wrapper-status-3 {
+      background-color: #00aaff;
+    }
+    &.lecture-wrapper-status-4 {
+      background-color: #aa00ff;
+    }
+  }
+}

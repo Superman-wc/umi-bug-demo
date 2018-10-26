@@ -115,8 +115,8 @@ export default class Filter extends Component {
 
   onWeekIndexChange = week => {
     this.setState({week});
-    const {gradeId, courseId, klassId, studentId, teacherId} = this.state;
-    this.props.onChange('week', {weekIndex: week.format('YYYYWW'), gradeId, courseId, klassId, studentId, teacherId});
+    const {gradeId, courseId, klassId, studentId, teacherId, type} = this.state;
+    this.props.onChange('week', {weekIndex: week.format('YYYYWW'), gradeId, courseId, klassId, studentId, teacherId, type});
   };
 
   onTypeChange = type => {
@@ -127,7 +127,7 @@ export default class Filter extends Component {
 
   render() {
 
-    const {type} = this.props;
+    const {type, disabled} = this.props;
 
     const {
       gradeList = [], klassList = [], courseList = [], teacherList = [], studentList = [],
@@ -137,9 +137,9 @@ export default class Filter extends Component {
     const selectStyle = {width: 120};
 
     return (
-      <Form layout="inline">
+      <Form layout="inline" >
         <Form.Item label="年级">
-          <Select placeholder="请选择" value={gradeId} onChange={this.onGradeChange} style={selectStyle}>
+          <Select disabled={disabled} placeholder="请选择" value={gradeId} onChange={this.onGradeChange} style={selectStyle}>
             {
               gradeList.map(it =>
                 <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
@@ -151,7 +151,7 @@ export default class Filter extends Component {
           type === 'klass' || type === 'student' ?
             <Fragment>
               <Form.Item label="班级">
-                <Select placeholder={gradeId ? '请选择' : '请先选择年级'} value={klassId} onChange={this.onKlassChange}
+                <Select disabled={disabled} placeholder={gradeId ? '请选择' : '请先选择年级'} value={klassId} onChange={this.onKlassChange}
                         style={selectStyle}>
                   {
                     klassList.map(it =>
@@ -163,7 +163,7 @@ export default class Filter extends Component {
               {
                 type === 'student' ?
                   <Form.Item label="学生">
-                    <Select placeholder={gradeId ? klassId ? '请选择' : '请先选择班级' : '请先选择年级'} value={studentId}
+                    <Select disabled={disabled} placeholder={gradeId ? klassId ? '请选择' : '请先选择班级' : '请先选择年级'} value={studentId}
                             onChange={this.onStudentChange} style={selectStyle}>
                       {
                         studentList.map(it =>
@@ -180,7 +180,7 @@ export default class Filter extends Component {
             type === 'course' || type === 'teacher' ?
               <Fragment>
                 <Form.Item label="科目">
-                  <Select placeholder={gradeId ? '请选择' : '请先选择年级'} value={courseId} onChange={this.onCourseChange}
+                  <Select disabled={disabled} placeholder={gradeId ? '请选择' : '请先选择年级'} value={courseId} onChange={this.onCourseChange}
                           style={selectStyle}>
                     {
                       courseList.map(it =>
@@ -192,7 +192,7 @@ export default class Filter extends Component {
                 {
                   type === 'teacher' ?
                     <Form.Item label="教师">
-                      <Select placeholder={gradeId ? courseId ? '请选择' : '请先选择科目' : '请先选择年级'} value={teacherId}
+                      <Select disabled={disabled} placeholder={gradeId ? courseId ? '请选择' : '请先选择科目' : '请先选择年级'} value={teacherId}
                               onChange={this.onTeacherChange} style={selectStyle}>
                         {
                           teacherList.map(it =>
@@ -211,7 +211,7 @@ export default class Filter extends Component {
         {
           type === 'grade' ?
             <Form.Item label="分类">
-              <Select placeholder={gradeId ? '请选择' : '请先选择年级'} value={this.state.type}
+              <Select disabled={disabled} placeholder={gradeId ? '请选择' : '请先选择年级'} value={this.state.type}
                       onChange={this.onTypeChange} style={selectStyle}>
                 {
                   gradeId ?
@@ -233,7 +233,7 @@ export default class Filter extends Component {
         {
           type !== 'course' ?
             <Form.Item label="时间">
-              <DatePicker.WeekPicker value={this.state.week} onChange={this.onWeekIndexChange}/>
+              <DatePicker.WeekPicker disabled={disabled} value={this.state.week} onChange={this.onWeekIndexChange}/>
             </Form.Item>
             :
             null

@@ -1,0 +1,52 @@
+@width: 90px;
+@height: 95px;
+@headerHeight: @height/2;
+@padding: 4px;
+@border: 1px solid #999;
+@doubleBorder: 3px double #999;
+@headerBackgroundColor: #e8e8e8;
+
+.header() {
+  background-color: @headerBackgroundColor;
+  font-weight: bold;
+}
+
+.cell() {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lecture-body() {
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.all-center() {
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-box(@direction:row, @align:center, @justify:center) {
+  display: flex;
+  flex-direction: @direction;
+  align-items: @align;
+  justify-content: @justify;
+  box-sizing: border-box;
+}
+
+.size(@width:100%, @height:@width) {
+  width: @width;
+  height: @height;
+}
+
+.position(@position:absolute, @top:auto, @right:auto, @bottom:auto, @left:auto) {
+  position: absolute;
+  top: @top;
+  right: @right;
+  bottom: @bottom;
+  left: @left;
+}
