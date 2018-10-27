@@ -1,7 +1,7 @@
 import Storage from '../utils/storage';
 
-export const localCache = new Storage('布谷科技', window.localStorage);
-export const sessionCache = new Storage('布谷科技', window.sessionStorage);
+export const localCache = new Storage('布谷科技-排课系统', window.localStorage);
+export const sessionCache = new Storage('布谷科技-排课系统', window.sessionStorage);
 
 export const MINUTES = 60000;
 export const HOURS = 60 * MINUTES;

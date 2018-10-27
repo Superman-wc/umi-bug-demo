@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Breadcrumb, Icon, Spin, Menu, Modal } from 'antd';
 import classnames from 'classnames';
+import Operation from './HeaderOperation';
 import Flex from '../Flex';
 import './Page.less';
 
@@ -70,6 +71,8 @@ Page.Header.propType = {
   operation: PropTypes.object,
   menu: PropTypes.array,
 };
+
+Page.Header.Operation = Operation;
 
 const renderMenu = (data, map) =>
   data.map((menu, index) => {

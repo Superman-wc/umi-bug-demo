@@ -1,5 +1,5 @@
 {
-  "name":"timetabling",
+  "name": "timetabling",
   "private": true,
   "scripts": {
     "start": "umi dev",
@@ -33,6 +33,7 @@
   "dependencies": {
     "classnames": "^2.2.6",
     "dva-model": "^0.0.13",
+    "particles.js": "^2.0.0",
     "react-router-breadcrumbs-hoc": "^2.1.4",
     "react-transition-group": "^2.4.0"
   }

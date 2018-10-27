@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'dva';
 import {Form, Input, Spin, Button, Row, Col} from 'antd';
 import {Authenticate as namespace} from '../../utils/namespace';
+import Particles from '../../components/Particles';
 import styles from './index.less';
 
 
@@ -15,16 +16,11 @@ export default class LoginPage extends Component {
 
     return (
       <div className={styles['login-page']}>
-        <div className={[styles['circular'], styles['circular-1'], 'fade-animation'].join(' ')}/>
-        <div className={[styles['circular'], styles['circular-2'], 'fade-animation'].join(' ')}/>
-        <div className={[styles['circular'], styles['circular-3'], 'fade-animation'].join(' ')}/>
-        <div className={[styles['circular'], styles['circular-4'], 'fade-animation'].join(' ')}/>
-        <div className={[styles['circular'], styles['circular-5'], 'fade-animation'].join(' ')}/>
-        <div className={[styles['circular'], styles['circular-6'], 'fade-animation'].join(' ')}/>
+        <Particles />
         <Spin spinning={!!loading} size="large" tip="正在登录...">
           <div className={styles['login-box']}>
             <div className={styles['login-box-left']}>
-              <img src={require('./images/logo.png')} width={80}/>
+              <img src={require('./images/logo.png')} width={100}/>
               <h1>教学排课系统</h1>
             </div>
             <div className={styles['line']}/>
