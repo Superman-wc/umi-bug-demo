@@ -3,12 +3,20 @@ import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
-import RoomWeekTimeTable from '../../../components/Timetable/RoomWeekTimeTable';
+import BuildRoomWeekTimeTable from '../../../components/Timetable/BuildRoomWeekTimeTable';
+import {ManagesRoom, TimetableLecture} from "../../../utils/namespace";
 
-@connect()
+@connect(state => ({
+
+}))
 export default class GradeTimeTable extends Component {
 
   state = {};
+
+  componentDidMount() {
+
+
+  }
 
 
   render() {
@@ -16,7 +24,7 @@ export default class GradeTimeTable extends Component {
 
     const {pathname, query} = location;
 
-    const title = '年级课表';
+    const title = '构建课表';
 
     const breadcrumb = ['排课', '课表', title];
 
@@ -32,7 +40,7 @@ export default class GradeTimeTable extends Component {
       <Page header={header} loading={false}>
         <div className="list-page-main">
           <div className="list-table-container">
-            <RoomWeekTimeTable type="grade"/>
+            <BuildRoomWeekTimeTable />
           </div>
         </div>
       </Page>

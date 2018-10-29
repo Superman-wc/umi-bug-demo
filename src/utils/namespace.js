@@ -7,8 +7,11 @@ export const ManagesStudent = '/manages/student';
 export const ManagesTeacher = '/manages/teacher';
 export const ManagesCourse = '/manages/course';
 export const ManagesRoom = '/manages/room';
+export const ManagesPeriod = '/manages/period';
 
 
 export const TimetableLecture = '/timetable/lecture';
+
+export const TimetableBuild = '/timetable/build';
 
 

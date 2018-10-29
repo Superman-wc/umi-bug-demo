@@ -5,6 +5,16 @@
     display: flex;
     //border: @border;
     user-select: none;
+
+    &.room-week-timetable-editable{
+      .week-of-date-wrapper-date{
+        display: none;
+      }
+      .lecture-wrapper{
+        min-width: 90px;
+      }
+    }
+
     .date-lectures-wrapper {
       border-bottom: @doubleBorder;
     }
@@ -18,9 +28,13 @@
     .lecture-wrapper {
       .lecture {
         &:hover {
-          transform: scale(1.25);
+          //transform: scale(1.25);
+        }
+        .lecture-wrapper-room {
+          display: none;
         }
       }
+
     }
     .week-of-date-wrapper {
       width: 30px;
@@ -87,6 +101,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    text-align: center;
     padding: @padding;
     height: @headerHeight;
     border-bottom: @border;

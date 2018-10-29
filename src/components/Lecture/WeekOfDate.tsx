@@ -43,8 +43,8 @@ export default class WeekOfDate extends Component<WeekOfDateProps> {
     };
     return (
       <div {...props}>
-        <span>{week}</span>
-        <span>{`${m}月${d}日`}</span>
+        <span className={`${prefixCls}-week`}>{week}</span>
+        <span className={`${prefixCls}-date`}>{`${m}月${d}日`}</span>
       </div>
     );
   }

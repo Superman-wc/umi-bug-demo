@@ -79,17 +79,17 @@ export default class StudentList extends Component {
       {title: '姓名', key: 'name'},
       {title: '性别', key: 'gender'},
       {
-        title: '选考科目', key: 'electionExaminationCourseEntityList',
-        render: list => list.map(it => <span className={styles['separate']} key={it.id}>{it.name}#{it.id}</span>)
+        title: '选考科目', key: 'electionExaminationCourseEntityList', width:180,
+        render: list => list.map(it => <span className={styles['separate']} key={it.id}>{it.name}</span>)
       },
       {
-        title: '学考科目', key: 'studyExaminationCourseEntityList',
-        render: list => list.map(it => <span className={styles['separate']} key={it.id}>{it.name}#{it.id}</span>)
+        title: '学考科目', key: 'studyExaminationCourseEntityList', width:180,
+        render: list => list.map(it => <span className={styles['separate']} key={it.id}>{it.name}</span>)
       },
       {
         title: '操作',
         key: 'operate',
-        width: 80,
+        width: 120,
         render: (id, item) => (
           <TableCellOperation
             operations={{

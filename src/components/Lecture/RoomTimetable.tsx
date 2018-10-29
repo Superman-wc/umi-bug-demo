@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, Fragment} from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import {BaseComponentProps, ICustomRender, IEvent, INow, IRoomWeekLectures, WEEK} from "./interface";
@@ -9,7 +9,9 @@ import './style/RoomTimetable.less';
 
 export interface BaseRoomTimetableProps {
   roomWeekLectures?: Array<IRoomWeekLectures>;
-  now?: INow
+  now?: INow,
+  maxDayOfWeek?: number,
+  maxTimelot?: number
 }
 
 export type RoomTimetableProps = BaseRoomTimetableProps & BaseComponentProps & IEvent & ICustomRender;
@@ -18,6 +20,9 @@ export default class RoomTimetable extends Component<RoomTimetableProps, any> {
   static propTypes = {
     roomWeekLectures: PropTypes.array,
     now: PropTypes.object,
+    maxDayOfWeek: PropTypes.number,
+    maxTimelot: PropTypes.number,
+
     className: PropTypes.string,
     style: PropTypes.object,
     children: PropTypes.node,
@@ -37,11 +42,13 @@ export default class RoomTimetable extends Component<RoomTimetableProps, any> {
 
   static defaultProps = {
     prefixCls: 'room-timetable-wrapper',
+    maxDayOfWeek: 6,
+    maxTimelot: 8
   };
 
   render() {
     const {
-      roomWeekLectures, now,
+      roomWeekLectures, now, maxDayOfWeek = 6, maxTimelot = 8,
       prefixCls, className, style, children,
       ...lectureProps
     } = this.props;
@@ -51,28 +58,47 @@ export default class RoomTimetable extends Component<RoomTimetableProps, any> {
       className: classnames(prefixCls, className)
     };
     const headerClassName = `${prefixCls}-header`;
-    const weekClassName = `${prefixCls}-header-week`;
-    const timeslotListClassName = `${prefixCls}-header-timeslot-list`;
+
+
+    const WeekOfDatesProps = {
+      weekClassName: `${prefixCls}-header-week`,
+      timeslotListClassName: `${prefixCls}-header-timeslot-list`,
+      now,
+      prefixCls,
+      maxDayOfWeek,
+      maxTimelot,
+    };
+
     return (
       <div {...props}>
         <div className={headerClassName}>
           <div>星期 \ 教室</div>
-          {
-            WEEK.map((week, index) =>
-              <div key={week} className={weekClassName}>
-                <WeekOfDate index={index} now={now}/>
-                <div className={timeslotListClassName}>
-                  <Timeslot count={9}/>
-                </div>
-              </div>
-            )
-          }
+          <WeekOfDates {...WeekOfDatesProps}  />
         </div>
         <RoomWeekLecture roomWeekLectures={roomWeekLectures} {...lectureProps} />
         {children}
       </div>
     )
   }
+}
+
+function WeekOfDates({maxDayOfWeek = 6, maxTimelot = 8, now, prefixCls}): JSX.Element {
+  console.log('maxDayOfWeek=', maxDayOfWeek, 'maxTimelot=', maxTimelot);
+  const components: Array<JSX.Element> = [];
+  const weekClassName = `${prefixCls}-header-week`;
+  const timeslotListClassName = `${prefixCls}-header-timeslot-list`;
+  for (let dayOfWeek = 0; dayOfWeek <= maxDayOfWeek; dayOfWeek++) {
+    const week = WEEK[dayOfWeek];
+    components.push(
+      <div key={week} className={weekClassName}>
+        <WeekOfDate index={dayOfWeek} now={now}/>
+        <div className={timeslotListClassName}>
+          <Timeslot count={maxTimelot + 1}/>
+        </div>
+      </div>
+    )
+  }
+  return (<Fragment>{components}</Fragment>)
 }
 
 

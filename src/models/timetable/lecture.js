@@ -1,6 +1,6 @@
 import Model, {RestfulReducers} from 'dva-model';
-import {list, create, modify, remove, available, swap, cancel} from '../services/lecture';
-import {TimetableLecture as namespace} from '../utils/namespace';
+import {list, create, modify, remove, available, swap, cancel} from '../../services/timetable/lecture';
+import {TimetableLecture as namespace} from '../../utils/namespace';
 
 
 export default Model(

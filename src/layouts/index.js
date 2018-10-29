@@ -136,6 +136,10 @@ function Side(props) {
             {
               link: '/manages/room',
               title: '教室管理',
+            },
+            {
+              link: '/manages/period',
+              title: '课表配置',
             }
           ]
         }
@@ -148,6 +152,10 @@ function Side(props) {
         {
           title: '',
           items: [
+            {
+              link: '/timetable/build',
+              title: '构建课表'
+            },
             {
               link: '/timetable/grade',
               title: '年级课表'

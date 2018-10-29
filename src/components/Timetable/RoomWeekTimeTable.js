@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from 'react';
-import {Form, Select, Dropdown, Menu, notification, Spin, Button} from 'antd';
+import {Form, Select, Dropdown, Menu, notification, Spin, Button, Modal} from 'antd';
 import {connect} from 'dva';
 import {TimetableLecture as namespace} from "../../utils/namespace";
 import Filter from './Filter';
@@ -34,7 +34,9 @@ export default class RoomWeekTimeTable extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.list && nextProps.list !== this.props.list) {
-      this.setTimetable(nextProps.list);
+      this.setTimetable(nextProps.list, nextProps.roomList || this.props.roomList);
+    } else if (nextProps.roomList && nextProps.roomList !== this.props.roomList) {
+      this.setTimetable(nextProps.list || this.props.list, nextProps.roomList);
     }
   }
 
@@ -42,13 +44,26 @@ export default class RoomWeekTimeTable extends Component {
   render() {
     const {now, type, loading, dispatch} = this.props;
     const {timetable} = this.state;
+
     const props = {
       now,
       roomWeekLectures: timetable,
       renderTeacher: teacher => teacher ? teacher.name : null,
-      renderKlass: klass => klass ? klass.name : null
+      renderKlass: klass => klass ? klass.name : null,
+      onSelect: lecture => {
+        console.log(lecture);
+        timetable.forEach(roomWeekLectures => {
+          roomWeekLectures.weekLectures.forEach(dateLecture => {
+            dateLecture.forEach(it => {
+              it.selected = it === lecture
+            });
+          })
+        });
+        this.setState({timetable});
+      }
     };
-    const fetchLectureList = (changeType, {gradeId, weekIndex, type}) => {
+    const fetchLectureList = (changeType, value) => {
+      const {gradeId, weekIndex, type} = value;
       let payload;
       if (gradeId && type) {
         payload = {gradeId, type, weekIndex};
@@ -60,18 +75,17 @@ export default class RoomWeekTimeTable extends Component {
           payload,
         });
       } else {
-        this.setState({timetable: []})
+        this.setTimetable([]);
       }
     };
+
     return (
       <Spin spinning={!!loading}>
         <Flex align="middle" style={{padding: '5px 10px', background: '#eee', borderBottom: '1px solid #999'}}>
           <Filter type={type} onChange={fetchLectureList}/>
         </Flex>
-        <RoomTimetable {...props}/>
+        <RoomTimetable {...props} />
       </Spin>
     )
   }
 }
-
-
