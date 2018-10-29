@@ -132,6 +132,10 @@ function Side(props) {
             {
               link: '/manages/course',
               title: '课程管理',
+            },
+            {
+              link: '/manages/room',
+              title: '教室管理',
             }
           ]
         }

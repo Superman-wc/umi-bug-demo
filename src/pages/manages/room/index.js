@@ -2,11 +2,9 @@ import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
 import {Form, Row, Col, message, Modal, Select} from 'antd';
-import {ManagesClass, ManagesGrade as namespace} from '../../../utils/namespace';
+import {ManagesClass, ManagesRoom as namespace} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
-
-
 
 
 @connect(state => ({
@@ -23,9 +21,9 @@ export default class MeterList extends Component {
 
     const {pathname, query} = location;
 
-    const title = '年级列表';
+    const title = '教室列表';
 
-    const breadcrumb = ['管理', '年级管理', title];
+    const breadcrumb = ['管理', '教室管理', title];
 
     const buttons = [
       {
@@ -43,8 +41,7 @@ export default class MeterList extends Component {
     const columns = [
       {title: 'ID', key: 'id'},
       {title: '名称', key: 'name'},
-      {title: '学校', key: 'schoolId'},
-      {title: '创建时间', key: 'dateCreated'},
+      {title: '容纳学生数', key: 'capacity'},
       {
         title: '操作',
         key: 'operate',
