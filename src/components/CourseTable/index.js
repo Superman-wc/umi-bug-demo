@@ -366,7 +366,7 @@ export default class CourseTable extends Component {
           courseList={this.props.courseList}
           onCancel={() => this.setState({lectureModalVisible: false})}
           onOk={payload => {
-            payload.gradeId = this.props.gradeId;
+            payload.gradeId = this.state.gradeId;
             payload.roomId = this.state.selectedLecture.room.id;
             payload.periodId = this.state.selectedLecture.period.id;
             if (typeof  this.state.selectedLecture.id === 'number') {
