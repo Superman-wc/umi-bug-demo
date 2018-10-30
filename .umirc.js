@@ -25,14 +25,15 @@ export default {
     "last 2 versions"
   ],
   "proxy": {
-    "/admin/1.0/*": {
-      "target": "http://admin.hzdoworth.com/",
+    "/api/1.0/*": {
+      "target": "http://auth.admin.yunzhiyuan100.com.cn/",
       "changeOrigin": true,
       // "pathRewrite": { "^/api" : "" }
     },
     "/api/8queen/*": {
       // "target": "http://192.168.1.253:9901/",
       "target": "http://116.62.207.178:9901/",
+      // "target": "https://timetabling.yunzhiyuan100.com/",
       "changeOrigin": true,
       // "pathRewrite": { "^/api" : "" }
     }

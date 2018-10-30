@@ -6,19 +6,20 @@ import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
 
 import TimeTable from '../../../components/CourseTable';
+import {TimetableBuild as namespace} from "../../../utils/namespace";
 
 
-@connect()
+@connect(state => ({
+  loading: state[namespace].loading,
+}))
 export default class GradeTimeTable extends Component {
 
   state = {};
 
 
-
-
   render() {
     const {
-      location, dispatch,
+      location, dispatch, loading
 
     } = this.props;
 
@@ -37,7 +38,7 @@ export default class GradeTimeTable extends Component {
 
 
     return (
-      <Page header={header} loading={false}>
+      <Page header={header} loading={loading}>
         <TimeTable/>
       </Page>
 

@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
 import classnames from 'classnames';
-import {Modal, Form, Select, Input, Button} from 'antd';
+import {Modal, Form, Select, Input, Button, notification} from 'antd';
 import styles from './index.less';
 import {
   ManagesClass, ManagesCourse,
@@ -22,7 +22,6 @@ const MOUNTED = Symbol('mounted');
   periodList: state[ManagesPeriod].list,
   courseList: state[ManagesCourse].list,
   klassList: state[ManagesClass].list,
-  teacherList: state[ManagesTeacher].list,
   lectureList: state[namespace].list,
 }))
 export default class CourseTable extends Component {
@@ -116,7 +115,7 @@ export default class CourseTable extends Component {
       gradeList = [],
       dispatch,
     } = this.props;
-    const {scrollX, scrollY, width, height, selectedLecture} = this.state;
+    const {scrollX, scrollY, width, height, selectedLecture, gradeId} = this.state;
     const weekWidth = 30;
     const periodWidth = 40;
     const headerWidth = weekWidth + periodWidth;
@@ -232,10 +231,10 @@ export default class CourseTable extends Component {
               <Lecture key={key} style={style} lecture={it}
                        selected={selectedLecture && selectedLecture.id === it.id}
                        onClick={(lecture) => {
-                         this.setState({selectedLecture: lecture});
+                         gradeId && this.setState({selectedLecture: lecture});
                        }}
                        onEdit={(lecture) => {
-                         this.setState({selectedLecture: lecture, lectureModalVisible: true})
+                         gradeId && this.setState({selectedLecture: lecture, lectureModalVisible: true})
                        }}
               />
             )
@@ -257,10 +256,10 @@ export default class CourseTable extends Component {
                        lecture={{period: periodMap[row], room: roomMap[col], id: key}}
                        selected={selectedLecture && selectedLecture.id === key}
                        onClick={(lecture) => {
-                         this.setState({selectedLecture: lecture});
+                         gradeId && this.setState({selectedLecture: lecture});
                        }}
                        onEdit={(lecture) => {
-                         this.setState({selectedLecture: lecture, lectureModalVisible: true})
+                         gradeId && this.setState({selectedLecture: lecture, lectureModalVisible: true})
                        }}
               />
             )
@@ -281,7 +280,7 @@ export default class CourseTable extends Component {
 
     const buttons = [];
 
-    if (selectedLecture) {
+    if (selectedLecture && gradeId) {
       buttons.push({
         key: 'edit', children: '编辑', onClick: () => {
           this.setState({lectureModalVisible: true});
@@ -292,7 +291,12 @@ export default class CourseTable extends Component {
           key: 'remove', children: '删除', onClick: () => {
             dispatch({
               type: namespace + '/remove',
-              payload: {id: selectedLecture.id}
+              payload: {id: selectedLecture.id},
+              resolve: () => {
+                notification.success({
+                  message: '删除成功'
+                })
+              }
             })
           }
         })
@@ -302,7 +306,6 @@ export default class CourseTable extends Component {
 
     return (
       <Flex direction="column">
-
         <Flex align="middle" style={{height: 50, padding: '5px 10px', background: '#eee',}}>
           <Form layout="inline">
             <Form.Item label="年级">
@@ -375,7 +378,12 @@ export default class CourseTable extends Component {
             );
             this.props.dispatch({
               type: namespace + (payload.id ? '/modify' : '/create'),
-              payload
+              payload,
+              resolve: () => {
+                notification.success({
+                  message: payload.id ? '修改成功' : '创建成功'
+                })
+              }
             });
             this.setState({lectureModalVisible: false})
           }}
@@ -471,7 +479,7 @@ class LectureModal extends Component {
 
   render() {
     const {
-      visible, onCancel, onOk,
+      visible, onCancel, onOk, lecture,
       klassList = [], courseList = [], teacherList = [],
       form: {getFieldDecorator, validateFieldsAndScroll}
     } = this.props;
@@ -484,7 +492,7 @@ class LectureModal extends Component {
     };
 
     return (
-      <Modal title="创建课表" visible={visible} onCancel={onCancel}
+      <Modal title={lecture && typeof lecture.id ==='number' ? "修改课表" : '创建课表'} visible={visible} onCancel={onCancel}
              onOk={() => {
                validateFieldsAndScroll((errors, payload) => {
                  if (errors) {

@@ -66,7 +66,7 @@ export default class Lecture extends Component<LectureProps, any> {
     } = this.props;
 
     const props = {
-      id: id.toString(),
+      id: id ? id.toString() : undefined,
       style,
       className: classnames(prefixCls, className, {
         [`${prefixCls}-klass-type-${klass && klass.type}`]: klass && klass.type && course && course.id !== 'reserve',
