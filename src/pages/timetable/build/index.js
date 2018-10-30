@@ -1,26 +1,26 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
+
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
-import BuildRoomWeekTimeTable from '../../../components/Timetable/BuildRoomWeekTimeTable';
-import {ManagesRoom, TimetableLecture} from "../../../utils/namespace";
 
-@connect(state => ({
+import TimeTable from '../../../components/CourseTable';
 
-}))
+
+@connect()
 export default class GradeTimeTable extends Component {
 
   state = {};
 
-  componentDidMount() {
 
-
-  }
 
 
   render() {
-    const {location, dispatch} = this.props;
+    const {
+      location, dispatch,
+
+    } = this.props;
 
     const {pathname, query} = location;
 
@@ -38,11 +38,7 @@ export default class GradeTimeTable extends Component {
 
     return (
       <Page header={header} loading={false}>
-        <div className="list-page-main">
-          <div className="list-table-container">
-            <BuildRoomWeekTimeTable />
-          </div>
-        </div>
+        <TimeTable/>
       </Page>
 
     );
