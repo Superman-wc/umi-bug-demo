@@ -361,7 +361,7 @@ export default class CourseTable extends Component {
         <LectureModal
           visible={this.state.lectureModalVisible}
           lecture={this.state.selectedLecture}
-          gradeId={this.props.gradeId}
+          gradeId={this.state.gradeId}
           klassList={this.props.klassList}
           courseList={this.props.courseList}
           onCancel={() => this.setState({lectureModalVisible: false})}
