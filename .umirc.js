@@ -6,10 +6,10 @@ export default {
       antd: true,
       dva: true,
       dynamicImport: true,
-      title: '云志愿后台管理系统',
+      title: '云志愿教学排课管理系统',
       // polyfills: ['ie9'],
       dll: true,
-      pwa: true,
+      pwa: null,
       routes: {
         exclude: [],
       },
@@ -24,7 +24,7 @@ export default {
     "> 1%",
     "last 2 versions"
   ],
-  "proxy": {
+  proxy: {
     "/api/1.0/*": {
       "target": "http://auth.admin.yunzhiyuan100.com.cn/",
       "changeOrigin": true,
@@ -38,7 +38,7 @@ export default {
       // "pathRewrite": { "^/api" : "" }
     }
   },
-  "theme": {
+  theme: {
     "@primary-color": "#1DA57A",
     "@font-size-base": "12px",
   }
