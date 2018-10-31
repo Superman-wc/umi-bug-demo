@@ -34,6 +34,7 @@
   "dependencies": {
     "classnames": "^2.2.6",
     "dva-model": "^0.0.13",
+    "keyboardjs": "^2.4.1",
     "particles.js": "^2.0.0",
     "react-router-breadcrumbs-hoc": "^2.1.4",
     "react-transition-group": "^2.4.0"

@@ -2,6 +2,7 @@ import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
 import classnames from 'classnames';
 import {Modal, Form, Select, Input, Button, notification} from 'antd';
+import Keyboard from 'keyboardjs';
 import styles from './index.less';
 import {
   ManagesClass, ManagesCourse,
@@ -11,10 +12,15 @@ import {
   TimetableBuild as namespace
 } from "../../utils/namespace";
 import Flex from '../Flex';
+import Selection from './selection';
+import Point from "./point";
+import Range from './range';
+import Rect from './rect';
 
 
 const START_MOVE = Symbol('start-move');
 const MOUNTED = Symbol('mounted');
+const START_SELECT = Symbol('start-select');
 
 @connect(state => ({
   gradeList: state[ManagesGrade].list,
@@ -32,7 +38,9 @@ export default class CourseTable extends Component {
     scrollX: 0,
     scrollY: 0,
     width: 600,
-    height: 585
+    height: 585,
+    selection: new Selection(),
+    scrollOffset: new Point()
   };
 
   constructor() {
@@ -44,6 +52,7 @@ export default class CourseTable extends Component {
   componentDidMount() {
     this[MOUNTED] = true;
     this.element = window.document.getElementById(this.id);
+    this.viewport = window.document.getElementById(this.id + '-view-port');
     this.setState({
       height: this.element.clientHeight,
       width: this.element.clientWidth
@@ -52,16 +61,69 @@ export default class CourseTable extends Component {
     this.props.dispatch({
       type: ManagesGrade + '/list'
     });
+    this.bindKeyboard();
     this.props.dispatch({
       type: ManagesRoom + '/list',
       payload: {s: 10000}
-    })
+    });
   }
 
   componentWillUnmount() {
     delete this[MOUNTED];
     window.removeEventListener('resize', this.onResize);
+    this.unBindKeyboard();
   }
+
+  /**
+   * 绑定快捷键
+   */
+  bindKeyboard = () => {
+    if (!this._bindKeyboard) {
+      this._bindKeyboard = true;
+      Object.keys(this.keyboardMap).forEach(key => {
+        Keyboard.bind(key, this.keyboardMap[key]);
+      });
+    }
+  };
+
+  /**
+   * 解绑键盘操作
+   */
+  unBindKeyboard = () => {
+    if (this._bindKeyboard) {
+      Object.keys(this.keyboardMap).forEach(key => {
+        Keyboard.unbind(key, this.keyboardMap[key]);
+      });
+      this._bindKeyboard = false;
+    }
+  };
+
+
+  /**
+   * 快捷键映射
+   */
+  keyboardMap = {
+    // 'left': e => {
+    //   e.preventDefault();
+    //   e.stopPropagation();
+    //
+    // },
+    // 'right': e => {
+    //   e.preventDefault();
+    //   e.stopPropagation();
+    //
+    // },
+    // 'top': e => {
+    //   e.preventDefault();
+    //   e.stopPropagation();
+    //
+    // },
+    // 'down': e => {
+    //   e.preventDefault();
+    //   e.stopPropagation();
+    //
+    // },
+  };
 
   onResize = () => {
     this[MOUNTED] && this.setState({
@@ -73,6 +135,23 @@ export default class CourseTable extends Component {
   componentDidUpdate() {
     console.timeEnd('render');
   }
+
+  // componentWillReceiveProps(nextProps) {
+  //   if (
+  //     (nextProps.lectureList !== this.props.lectureList) ||
+  //     (nextProps.roomList !== this.props.roomList) ||
+  //     (nextProps.periodList !== this.props.periodList)
+  //   ) {
+  //     const lectureList = nextProps.lectureList || this.props.roomList;
+  //     const roomList = nextProps.roomList || this.props.roomList;
+  //     const periodList = nextProps.periodList || this.props.periodList;
+  //
+  //     if (lectureList && roomList && periodList) {
+  //       console.log(lectureList, roomList, periodList);
+  //     }
+  //   }
+  // }
+
 
   onGradeChange = gradeId => {
     this.setState({gradeId});
@@ -115,7 +194,7 @@ export default class CourseTable extends Component {
       gradeList = [],
       dispatch,
     } = this.props;
-    const {scrollX, scrollY, width, height, selectedLecture, gradeId} = this.state;
+    const {width, height, selectedLecture, gradeId, selection, scrollOffset} = this.state;
     const weekWidth = 30;
     const periodWidth = 40;
     const headerWidth = weekWidth + periodWidth;
@@ -126,8 +205,11 @@ export default class CourseTable extends Component {
     const viewPortHeight = height - headerHeight;
     const viewRowCount = Math.floor(viewPortHeight / stdHeight);
     const viewColCount = Math.floor(viewPortWidth / stdWidth);
-    const viewStartRow = Math.floor(Math.abs(scrollY) / stdHeight);
-    const viewStartCol = Math.floor(Math.abs(scrollX) / stdWidth);
+    const viewStartRow = Math.floor(scrollOffset.y / stdHeight);
+    const viewStartCol = Math.floor(scrollOffset.x / stdWidth);
+
+    this.lectureWidth = stdWidth * roomList.length - viewPortWidth;
+    this.lectureHeight = stdHeight * periodList.length - viewPortHeight;
 
     const roomIndexMap = {};
     const roomMap = {};
@@ -143,7 +225,7 @@ export default class CourseTable extends Component {
     })(roomList);
     const roomListStyle = {
       top: 0, left: headerWidth, width: roomList.length * stdWidth, height: headerHeight,
-      transform: `translateX(${scrollX}px)`,
+      transform: `translateX(${-scrollOffset.x}px)`,
     };
 
     const periodIndexMap = {};
@@ -202,17 +284,31 @@ export default class CourseTable extends Component {
       height: periodList.length * stdHeight,
       top: headerHeight,
       left: weekWidth,
-      transform: `translateY(${scrollY}px)`,
+      transform: `translateY(${-scrollOffset.y}px)`,
     };
     const weekListStyle = {
       width: weekWidth, top: headerHeight, left: 0, height: periodList.length * stdHeight,
-      transform: `translateY(${scrollY}px)`,
+      transform: `translateY(${-scrollOffset.y}px)`,
+    };
+
+    const contains = (range, rect2) => {
+      const {start, end} = range;
+      const x = Math.min(start.x, end.x);
+      const y = Math.min(start.y, end.y);
+      const w = Math.abs(start.x - end.x);
+      const h = Math.abs(start.y - end.y);
+      return new Rect(x, y, w, h).isOverlap(rect2);
     };
 
     const renderLectureList = ((list) => {
       const table = {};
       const viewEndCol = Math.min(viewStartCol + viewColCount, roomList.length - 1);
       const viewEndRow = Math.min(viewStartRow + viewRowCount, periodList.length - 1);
+
+      // const range = selection.getRange();
+      //
+      // console.log(JSON.stringify(range), scrollOffset.x, scrollOffset.y);
+
       list.forEach(it => {
         const col = roomIndexMap[it.room.id];
 
@@ -230,6 +326,7 @@ export default class CourseTable extends Component {
             table[key] = (
               <Lecture key={key} style={style} lecture={it}
                        selected={selectedLecture && selectedLecture.id === it.id}
+                // selected={contains(range, style)}
                        onClick={(lecture) => {
                          gradeId && this.setState({selectedLecture: lecture});
                        }}
@@ -254,6 +351,7 @@ export default class CourseTable extends Component {
             table[key] = (
               <Lecture key={key} style={style}
                        lecture={{period: periodMap[row], room: roomMap[col], id: key}}
+                // selected={contains(range, style)}
                        selected={selectedLecture && selectedLecture.id === key}
                        onClick={(lecture) => {
                          gradeId && this.setState({selectedLecture: lecture});
@@ -275,7 +373,7 @@ export default class CourseTable extends Component {
       left: headerWidth,
       width: roomList.length * stdWidth,
       height: periodList.length * stdHeight,
-      transform: `translateX(${scrollX}px) translateY(${scrollY}px)`,
+      transform: `translateX(${-scrollOffset.x}px) translateY(${-scrollOffset.y}px)`,
     };
 
     const buttons = [];
@@ -338,10 +436,10 @@ export default class CourseTable extends Component {
              onMouseUp={this.onMouseUp}>
           <div className={styles['header']}>
           <span className={styles['header-period']} onClick={() => {
-            this.setState({scrollY: 0})
+            this.setState({scrollOffset: new Point(scrollOffset.x, 0)})
           }}>星期</span>
             <span className={styles['header-room']} onClick={() => {
-              this.setState({scrollX: 0})
+              this.setState({scrollOffset: new Point(0, scrollOffset.y)})
             }}>教室</span>
           </div>
           <div className={styles['room-list']} style={roomListStyle} onMouseDown={this.onMouseDown}>
@@ -353,7 +451,34 @@ export default class CourseTable extends Component {
           <div className={styles['period-list']} style={periodListStyle} onMouseDown={this.onMouseDown}>
             {renderPeriodList.periodComponents}
           </div>
-          <div className={styles['lecture-list']} style={lectureListStyle}>
+          <div id={this.id + '-view-port'} className={styles['lecture-list']} style={lectureListStyle}
+               onMouseDown={(e) => {
+                 const {clientX, clientY} = e;
+                 let {x, y} = this.viewport.getBoundingClientRect();
+                 x = clientX - x + scrollOffset.x;
+                 y = clientY - y + scrollOffset.y;
+                 this[START_SELECT] = new Point(x, y);
+               }}
+               onMouseMove={(e) => {
+                 if (this[START_SELECT]) {
+                   const {clientX, clientY} = e;
+                   let {x, y} = this.viewport.getBoundingClientRect();
+                   x = clientX - x + scrollOffset.x;
+                   y = clientY - y + scrollOffset.y;
+                   this.setState({selection: new Selection(this[START_SELECT], new Point(x, y))});
+                 }
+               }}
+               onMouseUp={e => {
+                 if (this[START_SELECT]) {
+                   const {clientX, clientY} = e;
+                   let {x, y} = this.viewport.getBoundingClientRect();
+                   x = clientX - x + scrollOffset.x;
+                   y = clientY - y + scrollOffset.y;
+                   this.setState({selection: new Selection(this[START_SELECT], new Point(x, y))});
+                   delete this[START_SELECT];
+                 }
+               }}
+          >
             {renderLectureList}
           </div>
 
@@ -394,31 +519,48 @@ export default class CourseTable extends Component {
 
   onWheel = e => {
     const {deltaX, deltaY} = e;
-    const {scrollX, scrollY} = this.state;
-    this.setState({scrollX: Math.min(scrollX - deltaX, 0), scrollY: Math.min(scrollY - deltaY, 0)});
+    const {scrollOffset} = this.state;
+    const {lectureWidth, lectureHeight} = this;
+    this.setState({
+      scrollOffset: new Point(
+        Math.min(lectureWidth, Math.max(scrollOffset.x + deltaX, 0)),
+        Math.min(lectureHeight, Math.max(scrollOffset.y + deltaY, 0)))
+    });
     e.preventDefault();
     e.stopPropagation();
   };
 
   onMouseDown = e => {
     const {clientX, clientY} = e;
-    const {scrollX, scrollY} = this.state;
-    this[START_MOVE] = {clientX, clientY, scrollX, scrollY};
+    const {scrollOffset} = this.state;
+    this[START_MOVE] = {clientOffset: new Point(clientX, clientY), scrollOffset};
   };
   onMouseMove = e => {
     if (this[START_MOVE]) {
-      const {clientX, clientY, scrollX, scrollY} = this[START_MOVE];
-      const x = e.clientX - clientX;
-      const y = e.clientY - clientY;
-      this.setState({scrollX: Math.min(scrollX + x, 0), scrollY: Math.min(scrollY + y, 0)});
+      const {clientOffset, scrollOffset} = this[START_MOVE];
+      const x = e.clientX - clientOffset.x;
+      const y = e.clientY - clientOffset.y;
+      const {lectureWidth, lectureHeight} = this;
+      this.setState({
+        scrollOffset: new Point(
+          Math.min(lectureWidth, Math.max(scrollOffset.x - x, 0)),
+          Math.min(lectureHeight, Math.max(scrollOffset.y - y, 0))
+        )
+      });
     }
   };
   onMouseUp = e => {
     if (this[START_MOVE]) {
-      const {clientX, clientY, scrollX, scrollY} = this[START_MOVE];
-      const x = e.clientX - clientX;
-      const y = e.clientY - clientY;
-      this.setState({scrollX: Math.min(scrollX + x, 0), scrollY: Math.min(scrollY + y, 0)});
+      const {clientOffset, scrollOffset} = this[START_MOVE];
+      const x = e.clientX - clientOffset.x;
+      const y = e.clientY - clientOffset.y;
+      const {lectureWidth, lectureHeight} = this;
+      this.setState({
+        scrollOffset: new Point(
+          Math.min(lectureWidth, Math.max(scrollOffset.x - x, 0)),
+          Math.min(lectureHeight, Math.max(scrollOffset.y - y, 0))
+        )
+      });
       delete this[START_MOVE];
     }
   }
@@ -431,7 +573,7 @@ function Lecture(props) {
     onEdit, onClick, lecture, selected
   } = props;
   const {
-    id, type, course, room, teacher,
+    id, type, course, room, teacher, reserveName,
     klass, available, status, memo,
   } = lecture;
   const _props = {
@@ -451,6 +593,7 @@ function Lecture(props) {
     }}>
       <div className={styles['lecture-border']}>
         {course ? <div className={styles['lecture-course']}>{course.name}</div> : null}
+        {reserveName ? <div className={styles['lecture-course']}>{reserveName}</div> : null}
         {klass ? <div className={styles['lecture-klass']}>{klass.name}</div> : null}
         {teacher ? <div className={styles['lecture-teacher']}>{teacher.name}</div> : null}
         {children}
@@ -492,7 +635,7 @@ class LectureModal extends Component {
     };
 
     return (
-      <Modal title={lecture && typeof lecture.id ==='number' ? "修改课表" : '创建课表'} visible={visible} onCancel={onCancel}
+      <Modal title={lecture && typeof lecture.id === 'number' ? "修改课表" : '创建课表'} visible={visible} onCancel={onCancel}
              onOk={() => {
                validateFieldsAndScroll((errors, payload) => {
                  if (errors) {
