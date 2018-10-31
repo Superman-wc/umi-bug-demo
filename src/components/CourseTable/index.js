@@ -400,6 +400,19 @@ export default class CourseTable extends Component {
         })
       }
     }
+    if (gradeId) {
+      buttons.push({
+        key: 'refresh', children: '刷新', onClick: () => {
+          this.props.dispatch({
+            type: namespace + '/list',
+            payload: {
+              gradeId,
+              s: 10000,
+            }
+          });
+        }
+      });
+    }
 
 
     return (
