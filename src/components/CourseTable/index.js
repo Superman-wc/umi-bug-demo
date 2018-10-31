@@ -2,7 +2,7 @@ import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
 import classnames from 'classnames';
 import {Modal, Form, Select, Input, Button, notification} from 'antd';
-import Keyboard from 'keyboardjs';
+// import Keyboard from 'keyboardjs';
 import styles from './index.less';
 import {
   ManagesClass, ManagesCourse,
@@ -61,7 +61,7 @@ export default class CourseTable extends Component {
     this.props.dispatch({
       type: ManagesGrade + '/list'
     });
-    this.bindKeyboard();
+    // this.bindKeyboard();
     this.props.dispatch({
       type: ManagesRoom + '/list',
       payload: {s: 10000}
@@ -71,38 +71,38 @@ export default class CourseTable extends Component {
   componentWillUnmount() {
     delete this[MOUNTED];
     window.removeEventListener('resize', this.onResize);
-    this.unBindKeyboard();
+    // this.unBindKeyboard();
   }
 
   /**
    * 绑定快捷键
    */
-  bindKeyboard = () => {
-    if (!this._bindKeyboard) {
-      this._bindKeyboard = true;
-      Object.keys(this.keyboardMap).forEach(key => {
-        Keyboard.bind(key, this.keyboardMap[key]);
-      });
-    }
-  };
+  // bindKeyboard = () => {
+  //   if (!this._bindKeyboard) {
+  //     this._bindKeyboard = true;
+  //     Object.keys(this.keyboardMap).forEach(key => {
+  //       Keyboard.bind(key, this.keyboardMap[key]);
+  //     });
+  //   }
+  // };
 
   /**
    * 解绑键盘操作
    */
-  unBindKeyboard = () => {
-    if (this._bindKeyboard) {
-      Object.keys(this.keyboardMap).forEach(key => {
-        Keyboard.unbind(key, this.keyboardMap[key]);
-      });
-      this._bindKeyboard = false;
-    }
-  };
+  // unBindKeyboard = () => {
+  //   if (this._bindKeyboard) {
+  //     Object.keys(this.keyboardMap).forEach(key => {
+  //       Keyboard.unbind(key, this.keyboardMap[key]);
+  //     });
+  //     this._bindKeyboard = false;
+  //   }
+  // };
 
 
   /**
    * 快捷键映射
    */
-  keyboardMap = {
+  // keyboardMap = {
     // 'left': e => {
     //   e.preventDefault();
     //   e.stopPropagation();
@@ -123,7 +123,7 @@ export default class CourseTable extends Component {
     //   e.stopPropagation();
     //
     // },
-  };
+  // };
 
   onResize = () => {
     this[MOUNTED] && this.setState({
