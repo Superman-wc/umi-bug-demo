@@ -18,35 +18,36 @@
 
     }
 
+    @opacity: 0.15;
     &.lecture-wrapper-course-chinese { //语文
-      background-color: rgba(255, 0, 0, 0.1);
+      background-color: rgba(0, 255, 0, @opacity);
     }
     &.lecture-wrapper-course-math { //数学
-      background-color: rgba(0, 255, 0, 0.1);
+      background-color: rgba(0, 0, 255, @opacity);
     }
     &.lecture-wrapper-course-english { //英语
-      background-color: rgba(0, 0, 255, 0.1);
+      background-color: rgba(255, 0, 0, @opacity);
     }
     &.lecture-wrapper-course-physical { //物理
-      background-color: rgba(136, 223, 245, 0.1);
+      background-color: rgba(0, 255, 136, @opacity);
     }
     &.lecture-wrapper-course-chemistry { //化学
-      background-color: rgba(212, 245, 136, 0.1);
+      background-color: rgba(0, 255, 255, @opacity);
     }
     &.lecture-wrapper-course-biological { //生物
-      background-color: rgba(136, 245, 191, 0.1);
+      background-color: rgba(0, 136, 255, @opacity);
     }
     &.lecture-wrapper-course-political { //政治
-      background-color: rgba(245, 136, 136, 0.1);
+      background-color: rgba(136, 255, 0, @opacity);
     }
     &.lecture-wrapper-course-history { // 历史
-      background-color: rgba(245, 136, 196, 0.1);
+      background-color: rgba(255, 255, 0, @opacity);
     }
     &.lecture-wrapper-course-geography { //地理
-      background-color: rgba(245, 136, 245, 0.1);
+      background-color: rgba(255, 136, 0, @opacity);
     }
     &.lecture-wrapper-course-technology { //技术
-      background-color: rgba(255, 255, 136, 0.1);
+      background-color: rgba(136, 0, 255, @opacity);
     }
     &:last-child {
       border-bottom: 0;

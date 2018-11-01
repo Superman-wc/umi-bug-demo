@@ -18,6 +18,7 @@ import Range from './range';
 import Rect from './rect';
 
 
+const WHEEL = Symbol('wheel');
 const START_MOVE = Symbol('start-move');
 const MOUNTED = Symbol('mounted');
 const START_SELECT = Symbol('start-select');
@@ -102,7 +103,7 @@ export default class CourseTable extends Component {
   /**
    * 快捷键映射
    */
-  // keyboardMap = {
+    // keyboardMap = {
     // 'left': e => {
     //   e.preventDefault();
     //   e.stopPropagation();
@@ -123,7 +124,7 @@ export default class CourseTable extends Component {
     //   e.stopPropagation();
     //
     // },
-  // };
+    // };
 
   onResize = () => {
     this[MOUNTED] && this.setState({
@@ -185,6 +186,63 @@ export default class CourseTable extends Component {
     });
   };
 
+  onWheel = e => {
+    const {deltaX, deltaY} = e;
+    const {scrollOffset} = this.state;
+    const {lectureWidth, lectureHeight} = this;
+    this.setState({
+      showScrollbar: true,
+      scrollOffset: new Point(
+        Math.min(lectureWidth, Math.max(scrollOffset.x + deltaX, 0)),
+        Math.min(lectureHeight, Math.max(scrollOffset.y + deltaY, 0)))
+    }, () => {
+      clearTimeout(this[WHEEL]);
+      this[WHEEL] = setTimeout(() => {
+        this[MOUNTED] && this.setState({showScrollbar: false});
+      }, 2000);
+    });
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  onMouseDown = e => {
+    const {clientX, clientY} = e;
+    const {scrollOffset} = this.state;
+    this[START_MOVE] = {clientOffset: new Point(clientX, clientY), scrollOffset};
+  };
+  onMouseMove = e => {
+    if (this[START_MOVE]) {
+      const {clientOffset, scrollOffset} = this[START_MOVE];
+      const x = e.clientX - clientOffset.x;
+      const y = e.clientY - clientOffset.y;
+      const {lectureWidth, lectureHeight} = this;
+      this.setState({
+        showScrollbar: true,
+        scrollOffset: new Point(
+          Math.min(lectureWidth, Math.max(scrollOffset.x - x, 0)),
+          Math.min(lectureHeight, Math.max(scrollOffset.y - y, 0))
+        )
+      });
+    }
+  };
+  onMouseUp = e => {
+    if (this[START_MOVE]) {
+      const {clientOffset, scrollOffset} = this[START_MOVE];
+      const x = e.clientX - clientOffset.x;
+      const y = e.clientY - clientOffset.y;
+      const {lectureWidth, lectureHeight} = this;
+      this.setState({
+        showScrollbar: false,
+        scrollOffset: new Point(
+          Math.min(lectureWidth, Math.max(scrollOffset.x - x, 0)),
+          Math.min(lectureHeight, Math.max(scrollOffset.y - y, 0))
+        )
+      });
+      delete this[START_MOVE];
+    }
+  };
+
+
   render() {
     console.time('render');
     const {
@@ -199,10 +257,12 @@ export default class CourseTable extends Component {
     const periodWidth = 40;
     const headerWidth = weekWidth + periodWidth;
     const headerHeight = 45;
-    const stdWidth = Math.max(90, (width - headerWidth) / Math.floor((width - headerWidth) / 90));
-    const stdHeight = Math.max(90, (height - headerHeight) / Math.floor((height - headerHeight) / 90));
     const viewPortWidth = width - headerWidth;
     const viewPortHeight = height - headerHeight;
+
+    const stdWidth = Math.max(90, viewPortWidth / Math.floor(viewPortWidth / 90));
+    const stdHeight = Math.max(90, viewPortHeight / Math.floor(viewPortHeight / 90));
+
     const viewRowCount = Math.floor(viewPortHeight / stdHeight);
     const viewColCount = Math.floor(viewPortWidth / stdWidth);
     const viewStartRow = Math.floor(scrollOffset.y / stdHeight);
@@ -447,23 +507,82 @@ export default class CourseTable extends Component {
              onWheel={this.onWheel}
              onMouseMove={this.onMouseMove}
              onMouseUp={this.onMouseUp}>
-          <div className={styles['header']}>
-          <span className={styles['header-period']} onClick={() => {
-            this.setState({scrollOffset: new Point(scrollOffset.x, 0)})
-          }}>星期</span>
-            <span className={styles['header-room']} onClick={() => {
-              this.setState({scrollOffset: new Point(0, scrollOffset.y)})
-            }}>教室</span>
+          <div className={classnames(styles['header'], {[styles['show-scrollbar']]: this.state.showScrollbar})}
+               onMouseEnter={() => {
+                 clearTimeout(this[WHEEL]);
+                 if(!this.state.showScrollbar){
+                   this[MOUNTED] && this.setState({showScrollbar: true});
+                 }
+               }}
+               onMouseLeave={() => {
+                 clearTimeout(this[WHEEL]);
+                 this[WHEEL] = setTimeout(() => {
+                   if(this.state.showScrollbar) {
+                     this[MOUNTED] && this.setState({showScrollbar: false});
+                   }
+                 }, 3000);
+               }}
+          >
+            <div className={styles['header-box']}>
+              <span className={styles['header-period']} onClick={() => {
+                this.setState({scrollOffset: new Point(scrollOffset.x, 0)})
+              }}>星期</span>
+              <span className={styles['header-room']} onClick={() => {
+                this.setState({scrollOffset: new Point(0, scrollOffset.y)})
+              }}>教室</span>
+            </div>
+
+            {
+              roomListStyle.width > viewPortWidth ?
+                <Scrollbar direction="horizontal"
+                           style={{width: viewPortWidth, left: headerWidth, height: 12, top: height - 12}}
+                           size={viewPortWidth}
+                           maxValue={roomListStyle.width - viewPortWidth}
+                           value={scrollOffset.x}
+                           onChange={value => {
+                             this.setState({
+                               scrollOffset: new Point(
+                                 Math.min(this.lectureWidth, Math.max(value, 0)),
+                                 scrollOffset.y
+                               )
+                             })
+                           }}
+                />
+                :
+                null
+
+            }
+            {
+              periodListStyle.height > viewPortHeight ?
+                <Scrollbar direction="vertical"
+                           size={viewPortHeight}
+                           maxValue={periodListStyle.height - viewPortHeight}
+                           value={scrollOffset.y}
+                           style={{width: 12, left: width - 12, height: viewPortHeight, top: headerHeight}}
+                           onChange={value => {
+                             this.setState({
+                               scrollOffset: new Point(
+                                 scrollOffset.x,
+                                 Math.min(this.lectureHeight, Math.max(value, 0)),
+                               )
+                             })
+                           }}
+                />
+                :
+                null
+            }
+            <div className={styles['room-list']} style={roomListStyle} onMouseDown={this.onMouseDown}>
+              {renderRoomList}
+            </div>
+            <div className={styles['week-list']} style={weekListStyle} onMouseDown={this.onMouseDown}>
+              {renderPeriodList.weekComponents}
+            </div>
+            <div className={styles['period-list']} style={periodListStyle} onMouseDown={this.onMouseDown}>
+              {renderPeriodList.periodComponents}
+            </div>
           </div>
-          <div className={styles['room-list']} style={roomListStyle} onMouseDown={this.onMouseDown}>
-            {renderRoomList}
-          </div>
-          <div className={styles['week-list']} style={weekListStyle} onMouseDown={this.onMouseDown}>
-            {renderPeriodList.weekComponents}
-          </div>
-          <div className={styles['period-list']} style={periodListStyle} onMouseDown={this.onMouseDown}>
-            {renderPeriodList.periodComponents}
-          </div>
+
+
           <div id={this.id + '-view-port'} className={styles['lecture-list']} style={lectureListStyle}
                onMouseDown={(e) => {
                  const {clientX, clientY} = e;
@@ -530,53 +649,7 @@ export default class CourseTable extends Component {
     );
   }
 
-  onWheel = e => {
-    const {deltaX, deltaY} = e;
-    const {scrollOffset} = this.state;
-    const {lectureWidth, lectureHeight} = this;
-    this.setState({
-      scrollOffset: new Point(
-        Math.min(lectureWidth, Math.max(scrollOffset.x + deltaX, 0)),
-        Math.min(lectureHeight, Math.max(scrollOffset.y + deltaY, 0)))
-    });
-    e.preventDefault();
-    e.stopPropagation();
-  };
 
-  onMouseDown = e => {
-    const {clientX, clientY} = e;
-    const {scrollOffset} = this.state;
-    this[START_MOVE] = {clientOffset: new Point(clientX, clientY), scrollOffset};
-  };
-  onMouseMove = e => {
-    if (this[START_MOVE]) {
-      const {clientOffset, scrollOffset} = this[START_MOVE];
-      const x = e.clientX - clientOffset.x;
-      const y = e.clientY - clientOffset.y;
-      const {lectureWidth, lectureHeight} = this;
-      this.setState({
-        scrollOffset: new Point(
-          Math.min(lectureWidth, Math.max(scrollOffset.x - x, 0)),
-          Math.min(lectureHeight, Math.max(scrollOffset.y - y, 0))
-        )
-      });
-    }
-  };
-  onMouseUp = e => {
-    if (this[START_MOVE]) {
-      const {clientOffset, scrollOffset} = this[START_MOVE];
-      const x = e.clientX - clientOffset.x;
-      const y = e.clientY - clientOffset.y;
-      const {lectureWidth, lectureHeight} = this;
-      this.setState({
-        scrollOffset: new Point(
-          Math.min(lectureWidth, Math.max(scrollOffset.x - x, 0)),
-          Math.min(lectureHeight, Math.max(scrollOffset.y - y, 0))
-        )
-      });
-      delete this[START_MOVE];
-    }
-  }
 }
 
 
@@ -605,14 +678,102 @@ function Lecture(props) {
       onEdit(lecture)
     }}>
       <div className={styles['lecture-border']}>
-        {course ? <div className={styles['lecture-course']}>{course.name}</div> : null}
+        {
+          course && klass && klass.type === 1 ?
+            <div className={styles['lecture-course']}>{course.name}</div>
+            :
+            null
+        }
         {reserveName ? <div className={styles['lecture-course']}>{reserveName}</div> : null}
-        {klass ? <div className={styles['lecture-klass']}>{klass.name}</div> : null}
+        {
+          klass ?
+            <div
+              className={
+                classnames(styles['lecture-klass'], {
+                    [styles['lecture-course']]: klass.type !== 1
+                  }
+                )
+              }>
+              {klass.name}
+            </div>
+            :
+            null
+        }
         {teacher ? <div className={styles['lecture-teacher']}>{teacher.name}</div> : null}
         {children}
       </div>
     </span>
   )
+}
+
+class Scrollbar extends Component {
+
+
+  onMouseMove = (e) => {
+    if (this[START_MOVE]) {
+      const {clientX, clientY} = e;
+      const {clientOffset: {x, y}, value, maxValue, direction, size, thumbSize} = this[START_MOVE];
+      const {onChange} = this.props;
+      const cx = clientX - x;
+      const cy = clientY - y;
+      if (direction === 'horizontal') {
+        onChange && onChange(cx / (size - thumbSize) * maxValue + value);
+      } else {
+        onChange && onChange(cy / (size - thumbSize) * maxValue + value);
+      }
+    }
+  };
+  onMouseUp = (e) => {
+    if (this[START_MOVE]) {
+      const {clientX, clientY} = e;
+      const {clientOffset: {x, y}, value, maxValue, direction, size, thumbSize} = this[START_MOVE];
+      const {onChange} = this.props;
+      const cx = clientX - x;
+      const cy = clientY - y;
+      if (direction === 'horizontal') {
+        onChange && onChange(cx / (size - thumbSize) * maxValue + value);
+      } else {
+        onChange && onChange(cy / (size - thumbSize) * maxValue + value);
+      }
+      delete this[START_MOVE];
+    }
+    document.removeEventListener('mousemove', this.onMouseMove);
+    document.removeEventListener('mouseup', this.onMouseUp);
+  };
+
+  render() {
+    const {direction = 'horizontal', style, maxValue, value, size} = this.props;
+    const thumbSize = Math.max(size / maxValue * size / 2, 200);
+    const _value = value / maxValue * (size - thumbSize);
+    const _props = {
+      style,
+      className: classnames(styles['scrollbar'], styles['scrollbar-' + direction])
+    };
+    const thumbStyle = {};
+    if (direction === 'horizontal') {
+      thumbStyle.width = thumbSize;
+      thumbStyle.transform = `translateX(${ _value}px)`;
+    } else {
+      thumbStyle.height = thumbSize;
+      thumbStyle.transform = `translateY(${ _value}px)`;
+    }
+    const thumbProps = {
+        className: styles['scrollbar-thumb'],
+        style: thumbStyle,
+        onMouseDown: (e) => {
+          const {clientX, clientY} = e;
+          document.addEventListener('mousemove', this.onMouseMove);
+          document.addEventListener('mouseup', this.onMouseUp);
+          this[START_MOVE] = {clientOffset: new Point(clientX, clientY), value, maxValue, direction, size, thumbSize};
+        }
+      }
+    ;
+    return (
+      <div {..._props}>
+        <div {...thumbProps}/>
+      </div>
+    )
+  }
 }
 
 

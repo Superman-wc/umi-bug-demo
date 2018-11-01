@@ -30,7 +30,7 @@ class CancelModal extends Component {
               getFieldDecorator('memo', {
                 rules: [{required: true, message: '请设置取消原因'}]
               })(
-                <Input.TextArea autosize={{minRows: 3, maxRows: 10}}/>
+                <Input.TextArea autosize={{minRows: 3, maxRows: 10}} maxLength={500}/>
               )
             }
           </Form.Item>

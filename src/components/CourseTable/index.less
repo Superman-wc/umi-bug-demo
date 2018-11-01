@@ -22,33 +22,51 @@
   .header {
     position: absolute;
     z-index: 3;
-    border-right: @border;
-    border-bottom: @border;
-    box-shadow: 2px 2px 5px #ccc;
     top: 0;
     left: 0;
     width: 70px;
-    height: 45px;
-    overflow: hidden;
-    &:after {
-      content: '';
+    height: 100%;
+    background-color: @headerBackgroundColor;
+    border-right: @border;
+    box-shadow: 2px 2px 5px #ccc;
+    .header-box {
       position: absolute;
-      width: 70px*1.5;
-      height: 0;
+      z-index: 999;
+      border-right: @border;
       border-bottom: @border;
-      transform: rotate(32deg);
-      transform-origin: 0 0;
-    }
-    span {
-      width: 100%;
-      height: 100%;
-      position: absolute;
+      box-shadow: 2px 2px 5px #ccc;
       top: 0;
       left: 0;
-      box-sizing: border-box;
-      padding: @padding/2;
-      background-color: @headerBackgroundColor;
-      &:first-child {
+      width: 70px;
+      height: 45px;
+      overflow: hidden;
+      &:after {
+        content: '';
+        position: absolute;
+        width: 70px*1.18;
+        z-index: 2;
+        height: 0;
+        border-bottom: @border;
+        transform: rotate(32deg);
+        transform-origin: 0 0;
+      }
+      .header-period,
+      .header-room {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        z-index: 2;
+        top: 0;
+        left: 0;
+        box-sizing: border-box;
+        padding: @padding/2;
+        background-color: @headerBackgroundColor;
+
+        &:hover {
+          background-color: @headerBackgroundColor*1.05;
+        }
+      }
+      .header-period {
         clip-path: polygon(0 0, 0 100%, 100% 100%);
         //background-color: @headerBackgroundColor;
         display: flex;
@@ -56,7 +74,7 @@
         align-items: flex-end;
         padding-left: @padding;
       }
-      &:last-child {
+      .header-room {
         clip-path: polygon(0 0, 100% 0, 100% 100%);
         //background-color: @headerBackgroundColor;
         display: flex;
@@ -64,68 +82,79 @@
         align-items: flex-start;
         padding-top: @padding;
       }
-      &:hover {
-        background-color: @headerBackgroundColor*1.05;
+    }
+
+    .room-list {
+      position: absolute;
+      z-index: 1;
+      border-bottom: @border;
+      background-color: @headerBackgroundColor;
+      box-sizing: border-box;
+      box-shadow: 2px 2px 5px #ccc;
+      overflow: hidden;
+      .room {
+        position: absolute;
+        border-right: @border;
+        box-sizing: border-box;
+        font-weight: bold;
+        .center();
+        &:last-child {
+          border-right: 0;
+        }
       }
     }
-  }
-  .room-list {
-    position: absolute;
-    z-index: 2;
-    border-bottom: @border;
-    background-color: @headerBackgroundColor;
-    box-sizing: border-box;
-    box-shadow: 2px 2px 5px #ccc;
-    overflow: hidden;
-    .room {
+    .period-list {
       position: absolute;
+      z-index: 1;
       border-right: @border;
       box-sizing: border-box;
-      font-weight: bold;
-      .center();
-      &:last-child {
-        border-right: 0;
+      background-color: @headerBackgroundColor;
+      //box-shadow: 2px 2px 5px #ccc;
+      overflow: hidden;
+      .period {
+        position: absolute;
+        border-bottom: @border;
+        box-sizing: border-box;
+        font-weight: bold;
+        .center();
+        padding: @padding+3;
+        &:last-child {
+          border-bottom: 0;
+        }
       }
     }
-  }
-  .period-list {
-    position: absolute;
-    z-index: 2;
-    border-right: @border;
-    box-sizing: border-box;
-    background-color: @headerBackgroundColor;
-    box-shadow: 2px 2px 5px #ccc;
-    overflow: hidden;
-    .period {
+    .week-list {
       position: absolute;
-      border-bottom: @border;
+      z-index: 1;
+      //border-top: @border;
+      border-right: @border;
       box-sizing: border-box;
-      font-weight: bold;
-      .center();
-      padding: @padding+3;
-      &:last-child {
-        border-bottom: 0;
+      background-color: @headerBackgroundColor;
+      .week {
+        position: absolute;
+        border-bottom: @border;
+        box-sizing: border-box;
+        font-weight: bold;
+        .center();
+        &:last-child {
+          border-bottom: 0;
+        }
       }
     }
-  }
-  .week-list {
-    position: absolute;
-    z-index: 2;
-    //border-top: @border;
-    border-right: @border;
-    box-sizing: border-box;
-    background-color: @headerBackgroundColor;
-    .week {
-      position: absolute;
-      border-bottom: @border;
-      box-sizing: border-box;
-      font-weight: bold;
-      .center();
-      &:last-child {
-        border-bottom: 0;
+
+    &.show-scrollbar {
+      .scrollbar-horizontal {
+        transform: translateY(0);
+        transform-origin: bottom left;
       }
+      .scrollbar-vertical {
+        transform: translateX(0);
+        transform-origin: top right;
+      }
+
     }
   }
+
   .lecture-list {
     position: absolute;
     //background-color: #ffaa00;
@@ -134,35 +163,36 @@
       border-right: @border;
       border-bottom: @border;
       cursor: pointer;
+      @opacity: 0.15;
       &.lecture-course-chinese { //语文
-        background-color: rgba(255, 0, 0, 0.1);
+        background-color: rgba(0, 255, 0, @opacity);
       }
       &.lecture-course-math { //数学
-        background-color: rgba(0, 255, 0, 0.1);
+        background-color: rgba(0, 0, 255, @opacity);
       }
       &.lecture-course-english { //英语
-        background-color: rgba(0, 0, 255, 0.1);
+        background-color: rgba(255, 0, 0, @opacity);
       }
       &.lecture-course-physical { //物理
-        background-color: rgba(136, 223, 245, 0.1);
+        background-color: rgba(0, 255, 136, @opacity);
       }
       &.lecture-course-chemistry { //化学
-        background-color: rgba(212, 245, 136, 0.1);
+        background-color: rgba(0, 255, 255, @opacity);
       }
       &.lecture-course-biological { //生物
-        background-color: rgba(136, 245, 191, 0.1);
+        background-color: rgba(0, 136, 255, @opacity);
       }
       &.lecture-course-political { //政治
-        background-color: rgba(245, 136, 136, 0.1);
+        background-color: rgba(136, 255, 0, @opacity);
       }
       &.lecture-course-history { // 历史
-        background-color: rgba(245, 136, 196, 0.1);
+        background-color: rgba(255, 255, 0, @opacity);
       }
       &.lecture-course-geography { //地理
-        background-color: rgba(245, 136, 245, 0.1);
+        background-color: rgba(255, 136, 0, @opacity);
       }
       &.lecture-course-technology { //技术
-        background-color: rgba(255, 255, 136, 0.1);
+        background-color: rgba(136, 0, 255, @opacity);
       }
       .lecture-border {
         flex: 1;
@@ -187,5 +217,31 @@
         .lecture-body();
       }
     }
+  }
+}
+
+.scrollbar {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 2;
+  transition: transform 0.3s;
+  &.scrollbar-horizontal {
+    transform: translateY(100%);
+    .scrollbar-thumb {
+      height: 100%;
+    }
+  }
+  &.scrollbar-vertical {
+    transform: translateX(100%);
+    .scrollbar-thumb {
+      width: 100%;
+    }
+  }
+  .scrollbar-thumb {
+    position: absolute;
+    cursor: pointer;
+    border-radius: 20px;
+    background-color: rgba(0, 0, 0, .5);
+
   }
 }

@@ -110,7 +110,7 @@ export default class WeekTimeTable extends Component {
 
     const timetableProps = {
       now,
-      type: 'klass',
+      type,
       weekLectures: timetable,
       onSelect: lecture => {
         console.log(lecture);
