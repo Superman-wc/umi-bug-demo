@@ -510,23 +510,23 @@ export default class CourseTable extends Component {
           <div className={classnames(styles['header'], {[styles['show-scrollbar']]: this.state.showScrollbar})}
                onMouseEnter={() => {
                  clearTimeout(this[WHEEL]);
-                 if(!this.state.showScrollbar){
+                 if (!this.state.showScrollbar) {
                    this[MOUNTED] && this.setState({showScrollbar: true});
                  }
                }}
                onMouseLeave={() => {
                  clearTimeout(this[WHEEL]);
                  this[WHEEL] = setTimeout(() => {
-                   if(this.state.showScrollbar) {
+                   if (this.state.showScrollbar) {
                      this[MOUNTED] && this.setState({showScrollbar: false});
                    }
                  }, 3000);
                }}
           >
             <div className={styles['header-box']}>
-              <span className={styles['header-period']} onClick={() => {
-                this.setState({scrollOffset: new Point(scrollOffset.x, 0)})
-              }}>星期</span>
+                 <span className={styles['header-period']} onClick={() => {
+                   this.setState({scrollOffset: new Point(scrollOffset.x, 0)})
+                 }}>星期</span>
               <span className={styles['header-room']} onClick={() => {
                 this.setState({scrollOffset: new Point(0, scrollOffset.y)})
               }}>教室</span>
@@ -677,32 +677,32 @@ function Lecture(props) {
       e.stopPropagation();
       onEdit(lecture)
     }}>
-      <div className={styles['lecture-border']}>
-        {
-          course && klass && klass.type === 1 ?
-            <div className={styles['lecture-course']}>{course.name}</div>
-            :
-            null
-        }
-        {reserveName ? <div className={styles['lecture-course']}>{reserveName}</div> : null}
-        {
-          klass ?
-            <div
-              className={
-                classnames(styles['lecture-klass'], {
-                    [styles['lecture-course']]: klass.type !== 1
-                  }
-                )
-              }>
-              {klass.name}
-            </div>
-            :
-            null
-        }
-        {teacher ? <div className={styles['lecture-teacher']}>{teacher.name}</div> : null}
-        {children}
-      </div>
-    </span>
+          <div className={styles['lecture-border']}>
+          {
+            course && klass && klass.type === 1 ?
+              <div className={styles['lecture-course']}>{course.name}</div>
+              :
+              null
+          }
+            {reserveName ? <div className={styles['lecture-course']}>{reserveName}</div> : null}
+            {
+              klass ?
+                <div
+                  className={
+                    classnames(styles['lecture-klass'], {
+                        [styles['lecture-course']]: klass.type !== 1
+                      }
+                    )
+                  }>
+                  {klass.name}
+                </div>
+                :
+                null
+            }
+            {teacher ? <div className={styles['lecture-teacher']}>{teacher.name}</div> : null}
+            {children}
+          </div>
+          </span>
   )
 }
 
@@ -752,10 +752,10 @@ class Scrollbar extends Component {
     const thumbStyle = {};
     if (direction === 'horizontal') {
       thumbStyle.width = thumbSize;
-      thumbStyle.transform = `translateX(${ _value}px)`;
+      thumbStyle.transform = `translateX(${_value}px)`;
     } else {
       thumbStyle.height = thumbSize;
-      thumbStyle.transform = `translateY(${ _value}px)`;
+      thumbStyle.transform = `translateY(${_value}px)`;
     }
     const thumbProps = {
         className: styles['scrollbar-thumb'],
@@ -782,7 +782,7 @@ class Scrollbar extends Component {
     return {
       klassId: Form.createFormField({value: props.lecture && props.lecture.klass && props.lecture.klass.id || undefined}),
       courseId: Form.createFormField({value: props.lecture && props.lecture.course && props.lecture.course.id || undefined}),
-      // teacherId: Form.createFormField({value: props.lecture && props.lecture.teacher && props.lecture.teacher.id || undefined}),
+      teacherId: Form.createFormField({value: props.lecture && props.lecture.teacher && props.lecture.teacher.id || undefined}),
       reserveName: Form.createFormField({value: props.lecture && props.lecture.reserveName || undefined}),
     }
   }
@@ -794,6 +794,28 @@ class LectureModal extends Component {
 
   state = {};
 
+  fetchTeacherList = (courseId)=>{
+    this.props.dispatch({
+      type: ManagesTeacher + '/list',
+      payload: {
+        gradeId: this.props.gradeId,
+        courseId,
+        s: 10000,
+      }
+    });
+  };
+
+  componentWillReceiveProps(nextProps){
+    if(nextProps.lecture && nextProps.lecture !== this.props.lecture){
+      if(nextProps.lecture.course && nextProps.lecture.course.id){
+        this.fetchTeacherList(nextProps.lecture.course.id);
+        this.setState({courseId: nextProps.lecture.course.id});
+      }else{
+        this.setState({courseId:null});
+      }
+    }
+  }
+
   render() {
     const {
       visible, onCancel, onOk, lecture,
@@ -804,7 +826,7 @@ class LectureModal extends Component {
     const selectStyle = {width: '100%'};
 
     const wrapper = {
-      labelCol: {span: 6},
+      labelCol: {span: 5},
       wrapperCol: {span: 16}
     };
 
@@ -844,14 +866,7 @@ class LectureModal extends Component {
                 <Select placeholder="请选择" onChange={(courseId) => {
 
                   this.setState({courseId});
-                  this.props.dispatch({
-                    type: ManagesTeacher + '/list',
-                    payload: {
-                      gradeId: this.props.gradeId,
-                      courseId,
-                      s: 10000,
-                    }
-                  });
+                  this.fetchTeacherList(courseId);
 
                 }} style={selectStyle}>
                   {
@@ -868,7 +883,7 @@ class LectureModal extends Component {
               getFieldDecorator('teacherId', {})(
                 <Select placeholder={this.state.courseId ? '请选择' : '请先选择科目'} style={selectStyle}>
                   {
-                    teacherList.map(it =>
+                    this.state.courseId && teacherList.map(it =>
                       <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
                     )
                   }
