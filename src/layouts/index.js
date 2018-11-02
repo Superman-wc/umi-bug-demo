@@ -9,6 +9,7 @@ import classnames from 'classnames';
 import Flex from '../components/Flex';
 import {Authenticate as namespace} from '../utils/namespace';
 import styles from './index.less';
+
 // import {MenuCategoryEnum, URLResourceCategoryEnum} from "../utils/Enum";
 
 
@@ -55,9 +56,6 @@ function Bars({onChange, isMin}) {
   return (
     <a className={styles['menu-handle']} onClick={() => {
       onChange(!isMin);
-      const event = document.createEvent('HTMLEvents');
-      event.initEvent('resize', true, true);
-      window.dispatchEvent(event);
     }}>
       <Icon type="bars"/>
     </a>
@@ -207,54 +205,64 @@ function Side(props) {
   ];
 
   return (
-    <Flex direction="column" className={classnames(styles['side'], {[styles['min-side']]: isMin})}>
+    <Flex direction="column" className={classnames(styles['side'], {[styles['min-side']]: isMin})}
+          onTransitionEnd={(e) => {
+            if(e.propertyName === 'width'){
+              console.log(e.type, e.target, e.currentTarget, e);
+              const event = document.createEvent('HTMLEvents');
+              event.initEvent('resize', true, true);
+              window.dispatchEvent(event);
+            }
+
+            //
+          }}>
       <SideHeader/>
       <Flex.Item className={styles['side-main']}>
         <Bars onChange={onChange} isMin={isMin}/>
         <Spin spinning={!!loading}>
           {
             // user && user.token ?
-              <Menu
-                mode="inline"
-                defaultOpenKeys={[defaultOpenKeys]}
-                defaultSelectedKeys={[pathname]}
-                onOpenChange={openKeys => onOpenChange(openKeys.length ? [openKeys.pop()] : [])}
-                openKeys={openKeys}
-              >
-                {
-                  menu.map(submenu => (
-                    <Menu.SubMenu
-                      key={submenu.key}
-                      title={
-                        isMin ?
-                          <Tooltip placement="right" title={submenu.title}>
-                            <div className="ant-menu-submenu-title-div"/>
-                          </Tooltip>
-                          :
-                          submenu.title
-                      }
-                    >
-                      {
-                        submenu.items.map((menus, mi) =>
-                          <Menu.ItemGroup
-                            key={'menu-item-group-' + submenu.key + '-' + mi}
-                            title={menus.title}
-                          >
-                            {
-                              menus.items.map((item) => (
-                                <Menu.Item key={item.link || item.key} id={item.link}>
-                                  <MenuItemContent {...item} min={isMin}/>
-                                </Menu.Item>
-                              ))
-                            }
-                          </Menu.ItemGroup>
-                        )
-                      }
-                    </Menu.SubMenu>
-                  ))}
-              </Menu>
-              // :
-              // null
+            <Menu
+              mode="inline"
+              defaultOpenKeys={[defaultOpenKeys]}
+              defaultSelectedKeys={[pathname]}
+              onOpenChange={openKeys => onOpenChange(openKeys.length ? [openKeys.pop()] : [])}
+              openKeys={openKeys}
+            >
+              {
+                menu.map(submenu => (
+                  <Menu.SubMenu
+                    key={submenu.key}
+                    title={
+                      isMin ?
+                        <Tooltip placement="right" title={submenu.title}>
+                          <div className="ant-menu-submenu-title-div"/>
+                        </Tooltip>
+                        :
+                        submenu.title
+                    }
+                  >
+                    {
+                      submenu.items.map((menus, mi) =>
+                        <Menu.ItemGroup
+                          key={'menu-item-group-' + submenu.key + '-' + mi}
+                          title={menus.title}
+                        >
+                          {
+                            menus.items.map((item) => (
+                              <Menu.Item key={item.link || item.key} id={item.link}>
+                                <MenuItemContent {...item} min={isMin}/>
+                              </Menu.Item>
+                            ))
+                          }
+                        </Menu.ItemGroup>
+                      )
+                    }
+                  </Menu.SubMenu>
+                ))}
+            </Menu>
+            // :
+            // null
           }
         </Spin>
       </Flex.Item>

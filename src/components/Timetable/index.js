@@ -10,11 +10,16 @@ import SubstituteModal from './SubstituteModal';
 import Lecture from "../Lecture/Lecture";
 import styles from './index.less';
 
+const MOUNT = Symbol('mount');
 
 export default class WeekTimeTable extends Component {
   state = {
     timetable: transformLectureListToWeekTimetable([])
   };
+
+  componentDidMount(){
+    this[MOUNT] = true;
+  }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.list !== this.props.list) {
@@ -23,6 +28,7 @@ export default class WeekTimeTable extends Component {
   }
 
   componentWillUnmount() {
+    delete this[MOUNT];
     this.props.dispatch({
       type: this.props.namespace + '/set',
       payload: {
@@ -33,7 +39,7 @@ export default class WeekTimeTable extends Component {
 
 
   setTimetable = (list) => {
-    this.setState({timetable: transformLectureListToWeekTimetable(list || [])});
+    this[MOUNT] && this.setState({timetable: transformLectureListToWeekTimetable(list || [])});
   };
 
   render() {

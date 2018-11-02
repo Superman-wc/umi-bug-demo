@@ -22,6 +22,7 @@ const WHEEL = Symbol('wheel');
 const START_MOVE = Symbol('start-move');
 const MOUNTED = Symbol('mounted');
 const START_SELECT = Symbol('start-select');
+const ELEMENT = Symbol('element');
 
 @connect(state => ({
   gradeList: state[ManagesGrade].list,
@@ -30,6 +31,7 @@ const START_SELECT = Symbol('start-select');
   courseList: state[ManagesCourse].list,
   klassList: state[ManagesClass].list,
   lectureList: state[namespace].list,
+  gradeId: state[namespace].gradeId,
 }))
 export default class CourseTable extends Component {
 
@@ -44,24 +46,22 @@ export default class CourseTable extends Component {
     scrollOffset: new Point()
   };
 
-  width= 600;
-  height= 585;
+  width = 600;
+  height = 585;
 
   constructor() {
     super(...arguments);
     this.id = `CourseTable-${CourseTable.CID++}`;
+    this[ELEMENT] = React.createRef();
   }
 
 
   componentDidMount() {
     this[MOUNTED] = true;
     this.element = window.document.getElementById(this.id);
-    this.viewport = window.document.getElementById(this.id + '-view-port');
 
-    this.setState({
-      height: this.element.clientHeight,
-      width: this.element.clientWidth
-    });
+    this.onResize();
+
     window.addEventListener('resize', this.onResize);
     this.props.dispatch({
       type: ManagesGrade + '/list'
@@ -138,14 +138,17 @@ export default class CourseTable extends Component {
     // };
 
   onResize = () => {
-    this[MOUNTED] && this.setState({
-      height: this.element.clientHeight,
-      width: this.element.clientWidth
-    });
+    if (this[MOUNTED] && this[ELEMENT].current) {
+      const {width, height} = this[ELEMENT].current.getBoundingClientRect();
+      if (this.state.width !== width || this.state.height !== height) {
+        this.setState({width, height});
+      }
+    }
   };
 
   componentDidUpdate() {
     console.timeEnd('render');
+    this.onResize();
   }
 
   // componentWillReceiveProps(nextProps) {
@@ -166,7 +169,10 @@ export default class CourseTable extends Component {
 
 
   onGradeChange = gradeId => {
-    this.setState({gradeId});
+    this.props.dispatch({
+      type: namespace+'/set',
+      payload:{gradeId}
+    });
     this.props.dispatch({
       type: namespace + '/list',
       payload: {
@@ -261,9 +267,10 @@ export default class CourseTable extends Component {
       roomList = [],
       lectureList = [],
       gradeList = [],
+      gradeId,
       dispatch,
     } = this.props;
-    const {width, height, selectedLecture, gradeId, selection, scrollOffset} = this.state;
+    const {width, height, selectedLecture, selection, scrollOffset} = this.state;
     const weekWidth = 30;
     const periodWidth = 40;
     const headerWidth = weekWidth + periodWidth;
@@ -514,7 +521,7 @@ export default class CourseTable extends Component {
           }
         </Flex>
 
-        <div id={this.id} className={styles['timetable']}
+        <div ref={this[ELEMENT]} id={this.id} className={styles['timetable']} data-width={width} data-height={height}
              onWheel={this.onWheel}
              onMouseMove={this.onMouseMove}
              onMouseUp={this.onMouseUp}>
@@ -595,32 +602,32 @@ export default class CourseTable extends Component {
 
 
           <div id={this.id + '-view-port'} className={styles['lecture-list']} style={lectureListStyle}
-               onMouseDown={(e) => {
-                 const {clientX, clientY} = e;
-                 let {x, y} = this.viewport.getBoundingClientRect();
-                 x = clientX - x + scrollOffset.x;
-                 y = clientY - y + scrollOffset.y;
-                 this[START_SELECT] = new Point(x, y);
-               }}
-               onMouseMove={(e) => {
-                 if (this[START_SELECT]) {
-                   const {clientX, clientY} = e;
-                   let {x, y} = this.viewport.getBoundingClientRect();
-                   x = clientX - x + scrollOffset.x;
-                   y = clientY - y + scrollOffset.y;
-                   this.setState({selection: new Selection(this[START_SELECT], new Point(x, y))});
-                 }
-               }}
-               onMouseUp={e => {
-                 if (this[START_SELECT]) {
-                   const {clientX, clientY} = e;
-                   let {x, y} = this.viewport.getBoundingClientRect();
-                   x = clientX - x + scrollOffset.x;
-                   y = clientY - y + scrollOffset.y;
-                   this.setState({selection: new Selection(this[START_SELECT], new Point(x, y))});
-                   delete this[START_SELECT];
-                 }
-               }}
+               // onMouseDown={(e) => {
+               //   const {clientX, clientY} = e;
+               //   let {x, y} = this.viewport.getBoundingClientRect();
+               //   x = clientX - x + scrollOffset.x;
+               //   y = clientY - y + scrollOffset.y;
+               //   this[START_SELECT] = new Point(x, y);
+               // }}
+               // onMouseMove={(e) => {
+               //   if (this[START_SELECT]) {
+               //     const {clientX, clientY} = e;
+               //     let {x, y} = this.viewport.getBoundingClientRect();
+               //     x = clientX - x + scrollOffset.x;
+               //     y = clientY - y + scrollOffset.y;
+               //     this.setState({selection: new Selection(this[START_SELECT], new Point(x, y))});
+               //   }
+               // }}
+               // onMouseUp={e => {
+               //   if (this[START_SELECT]) {
+               //     const {clientX, clientY} = e;
+               //     let {x, y} = this.viewport.getBoundingClientRect();
+               //     x = clientX - x + scrollOffset.x;
+               //     y = clientY - y + scrollOffset.y;
+               //     this.setState({selection: new Selection(this[START_SELECT], new Point(x, y))});
+               //     delete this[START_SELECT];
+               //   }
+               // }}
           >
             {renderLectureList}
           </div>
@@ -629,12 +636,12 @@ export default class CourseTable extends Component {
         <LectureModal
           visible={this.state.lectureModalVisible}
           lecture={this.state.selectedLecture}
-          gradeId={this.state.gradeId}
+          gradeId={gradeId}
           klassList={this.props.klassList}
           courseList={this.props.courseList}
           onCancel={() => this.setState({lectureModalVisible: false})}
           onOk={payload => {
-            payload.gradeId = this.state.gradeId;
+            payload.gradeId = gradeId;
             payload.roomId = this.state.selectedLecture.room.id;
             payload.periodId = this.state.selectedLecture.period.id;
             if (typeof  this.state.selectedLecture.id === 'number') {
@@ -831,7 +838,7 @@ class LectureModal extends Component {
     const {
       visible, onCancel, onOk, lecture,
       klassList = [], courseList = [], teacherList = [],
-      form: {getFieldDecorator, validateFieldsAndScroll}
+      form: {getFieldDecorator, validateFieldsAndScroll, setFields, getFieldValue}
     } = this.props;
 
     const selectStyle = {width: '100%'};
@@ -848,11 +855,27 @@ class LectureModal extends Component {
                  if (errors) {
                    console.error(errors)
                  } else {
-                   if (payload.reserveName) {
-                     delete payload.courseId;
-                     delete payload.teacherId;
+                   if (!payload.reserveName && !payload.courseId) {
+                     setFields({
+                       courseId: {errors: [new Error('学科与其他必须填写一个')]},
+                       reserveName: {errors: [new Error('学科与其他必须填写一个')]}
+                     })
+                   } else if (payload.courseId && payload.reserveName) {
+                     setFields({
+                       courseId: {value: payload.courseId, errors: [new Error('学科与其他只能填写一个')]},
+                       reserveName: {value: payload.reserveName, errors: [new Error('学科与其他只能填写一个')]}
+                     })
+                   } else if (payload.courseId) {
+                     if (!payload.teacherId) {
+                       setFields({
+                         teacherId: {errors: [new Error('请选择一个授课教师')]}
+                       })
+                     } else {
+                       onOk(payload);
+                     }
+                   } else if (payload.reserveName) {
+                     onOk(payload);
                    }
-                   onOk(payload);
                  }
                })
              }}
@@ -860,7 +883,9 @@ class LectureModal extends Component {
         <Form layout="horizontal">
           <Form.Item label="班级" {...wrapper}>
             {
-              getFieldDecorator('klassId', {})(
+              getFieldDecorator('klassId', {
+                rules: [{message: '请选择班级', required: true}]
+              })(
                 <Select placeholder="请选择" style={selectStyle}>
                   {
                     klassList.map(it =>
@@ -878,6 +903,12 @@ class LectureModal extends Component {
 
                   this.setState({courseId});
                   this.fetchTeacherList(courseId);
+
+
+                  setFields({
+                    courseId: {value: courseId, errors: null},
+                    reserveName: { errors: null},
+                  })
 
                 }} style={selectStyle}>
                   {
@@ -902,10 +933,17 @@ class LectureModal extends Component {
               )
             }
           </Form.Item>
-          <Form.Item label="学科" {...wrapper}>
+          <Form.Item label="其他" {...wrapper}>
             {
               getFieldDecorator('reserveName', {})(
-                <Input placeholder="如果是班会、自修"/>
+                <Input placeholder="如果是班会、自修" onChange={(value) => {
+                  const teacherId = getFieldValue('teacherId');
+                  setFields({
+                    courseId: {errors: null},
+                    reserveName: {value, errors: null},
+                    teacherId: {value:teacherId, errors: null},
+                  })
+                }}/>
               )
             }
           </Form.Item>

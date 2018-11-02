@@ -23,6 +23,7 @@ export interface FlexProps {
   onDragOver?: React.DragEventHandler<HTMLElement>;
   onDragEnd?: React.DragEventHandler<HTMLElement>;
   onDrop?: React.DragEventHandler<HTMLElement>;
+  onTransitionEnd?: React.DragEventHandler<HTMLElement>;
 }
 
 export default class Flex extends React.Component<FlexProps, any> {
@@ -47,12 +48,13 @@ export default class Flex extends React.Component<FlexProps, any> {
     onDragStart: PropTypes.func,
     onDrop: PropTypes.func,
     onDragEnd: PropTypes.func,
+    onTransitionEnd: PropTypes.func,
   };
 
   render() {
     const {
-      id, className, children, direction, style, isItem, justify, align, prefixCls, overflow, wrap,
-      draggable, onDragOver, onDragStart, onDragEnd, onDrop
+      className, children, direction, isItem, justify, align, prefixCls, overflow, wrap,
+      ...props
     } = this.props;
     const _className = classname(className, prefixCls, {
       [prefixCls + '-direction-' + direction]: direction,
@@ -66,9 +68,7 @@ export default class Flex extends React.Component<FlexProps, any> {
 
 
     return (
-      <section id={id} className={_className} style={style}
-               draggable={draggable} onDragOver={onDragOver} onDragEnd={onDragEnd} onDragStart={onDragStart} onDrop={onDrop}
-      >
+      <section className={_className} {...props}>
         {children}
       </section>
     );
