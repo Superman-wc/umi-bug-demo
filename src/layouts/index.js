@@ -53,7 +53,12 @@ function SideHeader() {
 
 function Bars({onChange, isMin}) {
   return (
-    <a className={styles['menu-handle']} onClick={() => onChange(!isMin)}>
+    <a className={styles['menu-handle']} onClick={() => {
+      onChange(!isMin);
+      const event = document.createEvent('HTMLEvents');
+      event.initEvent('resize', true, true);
+      window.dispatchEvent(event);
+    }}>
       <Icon type="bars"/>
     </a>
   )

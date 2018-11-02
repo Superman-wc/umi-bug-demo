@@ -59,10 +59,10 @@ export default class Lecture extends Component<LectureProps, any> {
     const klassClassName = `${prefixCls}-klass`;
 
     const {
-      renderTeacher = teacher => <Fragment>教师：{teacher.name}</Fragment>,
+      renderTeacher = teacher => <Fragment>{teacher.name}</Fragment>,
       renderCourse = course => <Fragment>{course.name}</Fragment>,
-      renderRoom = room => <Fragment>教室：{room.name}</Fragment>,
-      renderKlass = klass => <Fragment>班级：{klass.name}</Fragment>,
+      renderRoom = room => <Fragment>{room.name}</Fragment>,
+      renderKlass = klass => <Fragment>{klass.name}</Fragment>,
     } = this.props;
 
     const props = {

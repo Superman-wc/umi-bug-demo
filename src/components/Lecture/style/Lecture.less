@@ -49,6 +49,9 @@
     &.lecture-wrapper-course-technology { //技术
       background-color: rgba(136, 0, 255, @opacity);
     }
+    &.lecture-wrapper-course-art { //美术
+      background-color: rgba(255, 0, 136, @opacity);
+    }
     &:last-child {
       border-bottom: 0;
     }
@@ -83,16 +86,22 @@
   }
 
   .lecture-wrapper-teacher {
-
+    &:before{
+      content:'教师：'
+    }
   }
   .lecture-wrapper-course {
     .lecture-body();
   }
   .lecture-wrapper-room {
-
+    &:before{
+      content:'教室：'
+    }
   }
   .lecture-wrapper-klass {
-
+    &:before{
+      content:'班级：'
+    }
   }
 
   .lecture-wrapper-status {

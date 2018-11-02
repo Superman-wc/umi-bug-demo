@@ -24,8 +24,20 @@
       }
     }
     &.timetable-wrapper-type-teacher{
-      .lecture-wrapper{
-        background-color: transparent;
+      //.lecture-wrapper{
+      //  background-color: transparent;
+      //}
+      .lecture-wrapper-klass-type-4,
+      .lecture-wrapper-klass-type-3{
+        .lecture-wrapper-course{
+          display: none;
+        }
+        .lecture-wrapper-klass{
+          .lecture-body();
+          &:before{
+            content:none;
+          }
+        }
       }
     }
     &.timetable-wrapper-type-student{
@@ -36,6 +48,9 @@
         }
         .lecture-wrapper-klass{
           .lecture-body();
+          &:before{
+            content:none;
+          }
         }
       }
       .lecture-wrapper-klass-type-1{

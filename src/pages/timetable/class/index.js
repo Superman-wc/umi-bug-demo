@@ -2,12 +2,18 @@ import React, {Component} from 'react';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
 import WeekTimeTable from '../../../components/Timetable';
+import {connect} from 'dva';
+import {TimetableClass as namespace} from "../../../utils/namespace";
 
-
+@connect(state => ({
+  list: state[namespace].list,
+  now: state[namespace].now,
+  loading: state[namespace].loading,
+}))
 export default class KlassTimeTable extends Component {
 
   render() {
-    const { location, dispatch} = this.props;
+    const {location, dispatch, list, now, loading} = this.props;
 
     const {pathname, query} = location;
 
@@ -22,11 +28,16 @@ export default class KlassTimeTable extends Component {
       <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>
     );
 
+    const timeTableProps = {
+      list, now, loading, dispatch,namespace,
+      type: 'klass'
+    };
+
     return (
       <Page header={header}>
         <div className="list-page-main">
           <div className="list-table-container">
-            <WeekTimeTable type="klass"/>
+            <WeekTimeTable {...timeTableProps} />
           </div>
         </div>
       </Page>

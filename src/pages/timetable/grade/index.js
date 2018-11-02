@@ -4,15 +4,21 @@ import {routerRedux} from 'dva/router';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
 import RoomWeekTimeTable from '../../../components/Timetable/RoomWeekTimeTable';
+import {TimetableGrade as namespace} from "../../../utils/namespace";
 
-@connect()
+@connect(state => ({
+  list: state[namespace].list,
+  now: state[namespace].now,
+  loading: state[namespace].loading,
+  item: state[namespace].item,
+}))
 export default class GradeTimeTable extends Component {
 
   state = {};
 
 
   render() {
-    const {location, dispatch} = this.props;
+    const {location, dispatch, list, now, loading, item} = this.props;
 
     const {pathname, query} = location;
 
@@ -27,12 +33,16 @@ export default class GradeTimeTable extends Component {
       <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>
     );
 
+    const timetableProps = {
+      list, now, loading, item, dispatch,namespace,
+      type: 'grade'
+    };
 
     return (
       <Page header={header} loading={false}>
         <div className="list-page-main">
           <div className="list-table-container">
-            <RoomWeekTimeTable type="grade"/>
+            <RoomWeekTimeTable {...timetableProps}/>
           </div>
         </div>
       </Page>

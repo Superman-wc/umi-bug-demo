@@ -12,6 +12,11 @@ export const ManagesPeriod = '/manages/period';
 
 export const TimetableLecture = '/timetable/lecture';
 
+export const TimetableGrade = '/timetable/grade';
+export const TimetableClass = '/timetable/class';
+export const TimetableTeacher = '/timetable/teacher';
+export const TimetableStudent = '/timetable/student';
+
 export const TimetableBuild = '/timetable/build';
 
 

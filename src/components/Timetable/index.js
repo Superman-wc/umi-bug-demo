@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
 import {notification, Button, Modal, Icon, Spin} from 'antd';
-import {TimetableLecture as namespace} from '../../utils/namespace';
 import Flex from '../Flex';
 import {Timetable, transformLectureListToWeekTimetable, WeekOfDate} from '../Lecture/index';
 import Filter from './Filter';
@@ -11,11 +10,7 @@ import SubstituteModal from './SubstituteModal';
 import Lecture from "../Lecture/Lecture";
 import styles from './index.less';
 
-@connect(state => ({
-  list: state[namespace].list,
-  now: state[namespace].now,
-  loading: state[namespace].loading,
-}))
+
 export default class WeekTimeTable extends Component {
   state = {
     timetable: transformLectureListToWeekTimetable([])
@@ -29,7 +24,7 @@ export default class WeekTimeTable extends Component {
 
   componentWillUnmount() {
     this.props.dispatch({
-      type: namespace + '/set',
+      type: this.props.namespace + '/set',
       payload: {
         list: [],
       }
@@ -43,7 +38,7 @@ export default class WeekTimeTable extends Component {
 
   render() {
     const {
-      loading, dispatch, now, type,
+      loading, dispatch, now, type, namespace,
     } = this.props;
 
     const {timetable, selectedLecture} = this.state;

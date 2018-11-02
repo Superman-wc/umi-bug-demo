@@ -44,6 +44,9 @@ export default class CourseTable extends Component {
     scrollOffset: new Point()
   };
 
+  width= 600;
+  height= 585;
+
   constructor() {
     super(...arguments);
     this.id = `CourseTable-${CourseTable.CID++}`;
@@ -54,6 +57,7 @@ export default class CourseTable extends Component {
     this[MOUNTED] = true;
     this.element = window.document.getElementById(this.id);
     this.viewport = window.document.getElementById(this.id + '-view-port');
+
     this.setState({
       height: this.element.clientHeight,
       width: this.element.clientWidth
@@ -74,6 +78,13 @@ export default class CourseTable extends Component {
     window.removeEventListener('resize', this.onResize);
     // this.unBindKeyboard();
   }
+
+  // componentWillReceiveProps() {
+  //   this.setState({
+  //     height: this.element.clientHeight,
+  //     width: this.element.clientWidth
+  //   });
+  // }
 
   /**
    * 绑定快捷键
@@ -794,7 +805,7 @@ class LectureModal extends Component {
 
   state = {};
 
-  fetchTeacherList = (courseId)=>{
+  fetchTeacherList = (courseId) => {
     this.props.dispatch({
       type: ManagesTeacher + '/list',
       payload: {
@@ -805,13 +816,13 @@ class LectureModal extends Component {
     });
   };
 
-  componentWillReceiveProps(nextProps){
-    if(nextProps.lecture && nextProps.lecture !== this.props.lecture){
-      if(nextProps.lecture.course && nextProps.lecture.course.id){
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.lecture && nextProps.lecture !== this.props.lecture) {
+      if (nextProps.lecture.course && nextProps.lecture.course.id) {
         this.fetchTeacherList(nextProps.lecture.course.id);
         this.setState({courseId: nextProps.lecture.course.id});
-      }else{
-        this.setState({courseId:null});
+      } else {
+        this.setState({courseId: null});
       }
     }
   }
