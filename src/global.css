@@ -30,9 +30,15 @@ body {
   text-align: center;
   color: #fff;
   line-height: 150px;
-  font-size:30px;
+  font-size: 30px;
 }
 
-.tac{
+.tac {
   text-align: center;
+}
+
+/* antd@3.10.1 设置了100%+1px*/
+.ant-menu-inline .ant-menu-item,
+.ant-menu-inline .ant-menu-submenu-title {
+  width: 100%;
 }
