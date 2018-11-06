@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
-import WeekTimeTable from '../../../components/Timetable';
+import WeekTimeTable from '../../../components/Timetable/WeekTimeTable';
 
 import {connect} from 'dva';
 import {TimetableTeacher as namespace} from "../../../utils/namespace";

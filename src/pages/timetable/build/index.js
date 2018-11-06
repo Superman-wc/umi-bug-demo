@@ -5,7 +5,7 @@ import {routerRedux} from 'dva/router';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
 
-import TimeTable from '../../../components/CourseTable';
+import TimeTable from '../../../components/Timetable/CourseTable';
 import {TimetableBuild as namespace} from "../../../utils/namespace";
 
 

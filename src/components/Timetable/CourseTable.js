@@ -3,7 +3,7 @@ import {connect} from 'dva';
 import classnames from 'classnames';
 import {Modal, Form, Select, Input, Button, notification} from 'antd';
 // import Keyboard from 'keyboardjs';
-import styles from './index.less';
+import styles from './CourseTable.less';
 import {
   ManagesClass, ManagesCourse,
   ManagesGrade,
@@ -11,11 +11,13 @@ import {
   ManagesTeacher,
   TimetableBuild as namespace
 } from "../../utils/namespace";
-import Flex from '../Flex';
+import Flex from '../Flex/index';
 import Selection from './selection';
 import Point from "./point";
 import Range from './range';
 import Rect from './rect';
+import Scrollbar from './Scrollbar';
+import LectureModal from './LectureModal';
 
 
 const WHEEL = Symbol('wheel');
@@ -525,7 +527,7 @@ export default class CourseTable extends Component {
              onWheel={this.onWheel}
              onMouseMove={this.onMouseMove}
              onMouseUp={this.onMouseUp}>
-          <div className={classnames(styles['header'], {[styles['show-scrollbar']]: this.state.showScrollbar})}
+          <div className={classnames(styles['header'])}
                onMouseEnter={() => {
                  clearTimeout(this[WHEEL]);
                  if (!this.state.showScrollbar) {
@@ -553,6 +555,7 @@ export default class CourseTable extends Component {
             {
               roomListStyle.width > viewPortWidth ?
                 <Scrollbar direction="horizontal"
+                           visible={this.state.showScrollbar}
                            style={{width: viewPortWidth, left: headerWidth, height: 12, top: height - 12}}
                            size={viewPortWidth}
                            maxValue={roomListStyle.width - viewPortWidth}
@@ -573,6 +576,7 @@ export default class CourseTable extends Component {
             {
               periodListStyle.height > viewPortHeight ?
                 <Scrollbar direction="vertical"
+                           visible={this.state.showScrollbar}
                            size={viewPortHeight}
                            maxValue={periodListStyle.height - viewPortHeight}
                            value={scrollOffset.y}
@@ -724,231 +728,3 @@ function Lecture(props) {
   )
 }
 
-class Scrollbar extends Component {
-
-
-  onMouseMove = (e) => {
-    if (this[START_MOVE]) {
-      const {clientX, clientY} = e;
-      const {clientOffset: {x, y}, value, maxValue, direction, size, thumbSize} = this[START_MOVE];
-      const {onChange} = this.props;
-      const cx = clientX - x;
-      const cy = clientY - y;
-      if (direction === 'horizontal') {
-        onChange && onChange(cx / (size - thumbSize) * maxValue + value);
-      } else {
-        onChange && onChange(cy / (size - thumbSize) * maxValue + value);
-      }
-    }
-  };
-  onMouseUp = (e) => {
-    if (this[START_MOVE]) {
-      const {clientX, clientY} = e;
-      const {clientOffset: {x, y}, value, maxValue, direction, size, thumbSize} = this[START_MOVE];
-      const {onChange} = this.props;
-      const cx = clientX - x;
-      const cy = clientY - y;
-      if (direction === 'horizontal') {
-        onChange && onChange(cx / (size - thumbSize) * maxValue + value);
-      } else {
-        onChange && onChange(cy / (size - thumbSize) * maxValue + value);
-      }
-      delete this[START_MOVE];
-    }
-    document.removeEventListener('mousemove', this.onMouseMove);
-    document.removeEventListener('mouseup', this.onMouseUp);
-  };
-
-  render() {
-    const {direction = 'horizontal', style, maxValue, value, size} = this.props;
-    const thumbSize = Math.max(size / maxValue * size / 2, 200);
-    const _value = value / maxValue * (size - thumbSize);
-    const _props = {
-      style,
-      className: classnames(styles['scrollbar'], styles['scrollbar-' + direction])
-    };
-    const thumbStyle = {};
-    if (direction === 'horizontal') {
-      thumbStyle.width = thumbSize;
-      thumbStyle.transform = `translateX(${_value}px)`;
-    } else {
-      thumbStyle.height = thumbSize;
-      thumbStyle.transform = `translateY(${_value}px)`;
-    }
-    const thumbProps = {
-        className: styles['scrollbar-thumb'],
-        style: thumbStyle,
-        onMouseDown: (e) => {
-          const {clientX, clientY} = e;
-          document.addEventListener('mousemove', this.onMouseMove);
-          document.addEventListener('mouseup', this.onMouseUp);
-          this[START_MOVE] = {clientOffset: new Point(clientX, clientY), value, maxValue, direction, size, thumbSize};
-        }
-      }
-    ;
-    return (
-      <div {..._props}>
-        <div {...thumbProps}/>
-      </div>
-    )
-  }
-}
-
-
-@Form.create({
-  mapPropsToFields: (props) => {
-    return {
-      klassId: Form.createFormField({value: props.lecture && props.lecture.klass && props.lecture.klass.id || undefined}),
-      courseId: Form.createFormField({value: props.lecture && props.lecture.course && props.lecture.course.id || undefined}),
-      teacherId: Form.createFormField({value: props.lecture && props.lecture.teacher && props.lecture.teacher.id || undefined}),
-      reserveName: Form.createFormField({value: props.lecture && props.lecture.reserveName || undefined}),
-    }
-  }
-})
-@connect(state => ({
-  teacherList: state[ManagesTeacher].list,
-}))
-class LectureModal extends Component {
-
-  state = {};
-
-  fetchTeacherList = (courseId) => {
-    this.props.dispatch({
-      type: ManagesTeacher + '/list',
-      payload: {
-        gradeId: this.props.gradeId,
-        courseId,
-        s: 10000,
-      }
-    });
-  };
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.lecture && nextProps.lecture !== this.props.lecture) {
-      if (nextProps.lecture.course && nextProps.lecture.course.id) {
-        this.fetchTeacherList(nextProps.lecture.course.id);
-        this.setState({courseId: nextProps.lecture.course.id});
-      } else {
-        this.setState({courseId: null});
-      }
-    }
-  }
-
-  render() {
-    const {
-      visible, onCancel, onOk, lecture,
-      klassList = [], courseList = [], teacherList = [],
-      form: {getFieldDecorator, validateFieldsAndScroll, setFields, getFieldValue}
-    } = this.props;
-
-    const selectStyle = {width: '100%'};
-
-    const wrapper = {
-      labelCol: {span: 5},
-      wrapperCol: {span: 16}
-    };
-
-    return (
-      <Modal title={lecture && typeof lecture.id === 'number' ? "修改课表" : '创建课表'} visible={visible} onCancel={onCancel}
-             onOk={() => {
-               validateFieldsAndScroll((errors, payload) => {
-                 if (errors) {
-                   console.error(errors)
-                 } else {
-                   if (!payload.reserveName && !payload.courseId) {
-                     setFields({
-                       courseId: {errors: [new Error('学科与其他必须填写一个')]},
-                       reserveName: {errors: [new Error('学科与其他必须填写一个')]}
-                     })
-                   } else if (payload.courseId && payload.reserveName) {
-                     setFields({
-                       courseId: {value: payload.courseId, errors: [new Error('学科与其他只能填写一个')]},
-                       reserveName: {value: payload.reserveName, errors: [new Error('学科与其他只能填写一个')]}
-                     })
-                   } else if (payload.courseId) {
-                     if (!payload.teacherId) {
-                       setFields({
-                         teacherId: {errors: [new Error('请选择一个授课教师')]}
-                       })
-                     } else {
-                       onOk(payload);
-                     }
-                   } else if (payload.reserveName) {
-                     onOk(payload);
-                   }
-                 }
-               })
-             }}
-      >
-        <Form layout="horizontal">
-          <Form.Item label="班级" {...wrapper}>
-            {
-              getFieldDecorator('klassId', {
-                rules: [{message: '请选择班级', required: true}]
-              })(
-                <Select placeholder="请选择" style={selectStyle}>
-                  {
-                    klassList.map(it =>
-                      <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
-                    )
-                  }
-                </Select>
-              )
-            }
-          </Form.Item>
-          <Form.Item label="学科" {...wrapper}>
-            {
-              getFieldDecorator('courseId', {})(
-                <Select placeholder="请选择" onChange={(courseId) => {
-
-                  this.setState({courseId});
-                  this.fetchTeacherList(courseId);
-
-
-                  setFields({
-                    courseId: {value: courseId, errors: null},
-                    reserveName: { errors: null},
-                  })
-
-                }} style={selectStyle}>
-                  {
-                    courseList.map(it =>
-                      <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
-                    )
-                  }
-                </Select>
-              )
-            }
-          </Form.Item>
-          <Form.Item label="教师"  {...wrapper}>
-            {
-              getFieldDecorator('teacherId', {})(
-                <Select placeholder={this.state.courseId ? '请选择' : '请先选择科目'} style={selectStyle}>
-                  {
-                    this.state.courseId && teacherList.map(it =>
-                      <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
-                    )
-                  }
-                </Select>
-              )
-            }
-          </Form.Item>
-          <Form.Item label="其他" {...wrapper}>
-            {
-              getFieldDecorator('reserveName', {})(
-                <Input placeholder="如果是班会、自修" onChange={(value) => {
-                  const teacherId = getFieldValue('teacherId');
-                  setFields({
-                    courseId: {errors: null},
-                    reserveName: {value, errors: null},
-                    teacherId: {value:teacherId, errors: null},
-                  })
-                }}/>
-              )
-            }
-          </Form.Item>
-        </Form>
-      </Modal>
-    )
-  }
-}

@@ -1,11 +1,26 @@
 {
   "compilerOptions": {
-    "strictNullChecks": true,
+    "target": "esnext",
+    "module": "esnext",
     "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
+    "importHelpers": true,
     "jsx": "preserve",
-    "target": "es6"
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    },
+    "allowSyntheticDefaultImports": true
+    //    "strictNullChecks": true,
+    //    "moduleResolution": "node",
+    //    "allowSyntheticDefaultImports": true,
+    //    "experimentalDecorators": true,
+    //    "jsx": "preserve",
+    //    "target": "es6",
+    //    "sourceMap": true
   },
   "exclude": [
     "node_modules"

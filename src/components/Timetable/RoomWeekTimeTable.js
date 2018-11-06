@@ -4,7 +4,8 @@ import {connect} from 'dva';
 import {TimetableLecture as namespace} from "../../utils/namespace";
 import Filter from './Filter';
 import Flex from '../Flex';
-import {RoomTimetable, transformLectureListToRoomWeekTimetable} from '../Lecture/index';
+import RoomTimetable from './RoomTimetable';
+import {transformLectureListToRoomWeekTimetable} from './transform';
 
 
 @connect(state => ({

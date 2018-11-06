@@ -1,0 +1,36 @@
+.scrollbar {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 2;
+  transition: transform 0.3s;
+  overflow: hidden;
+  &.scrollbar-horizontal {
+    transform: translateY(100%);
+    .scrollbar-thumb {
+      height: 100%;
+    }
+  }
+  &.scrollbar-vertical {
+    transform: translateX(100%);
+    .scrollbar-thumb {
+      width: 100%;
+    }
+  }
+  &.showed {
+    &.scrollbar-horizontal {
+      transform: translateY(0);
+      transform-origin: bottom left;
+    }
+    &.scrollbar-vertical {
+      transform: translateX(0);
+      transform-origin: top right;
+    }
+  }
+  .scrollbar-thumb {
+    position: absolute;
+    cursor: pointer;
+    border-radius: 20px;
+    background-color: rgba(0, 0, 0, .5);
+
+  }
+}

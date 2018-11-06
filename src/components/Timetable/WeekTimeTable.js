@@ -3,12 +3,14 @@ import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
 import {notification, Button, Modal, Icon, Spin} from 'antd';
 import Flex from '../Flex';
-import {Timetable, transformLectureListToWeekTimetable, WeekOfDate} from '../Lecture/index';
+import WeekOfDate from './WeekOfDate';
+import Timetable from './Timetable';
+import {transformLectureListToWeekTimetable} from './transform';
 import Filter from './Filter';
 import CancelModal from './CancelModal';
 import SubstituteModal from './SubstituteModal';
-import Lecture from "../Lecture/Lecture";
-import styles from './index.less';
+import Lecture from "./Lecture";
+import styles from './WeekTimeTable.less';
 
 const MOUNT = Symbol('mount');
 

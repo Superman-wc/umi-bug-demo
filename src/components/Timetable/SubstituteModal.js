@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Modal, Table, Radio, message} from 'antd';
-import styles from './index.less';
+import styles from './WeekTimeTable.less';
 import {list as fetchTeacherList} from '../../services/manages/teacher';
 import {stdColumns} from '../ListPage';
 import Filter from './Filter';
