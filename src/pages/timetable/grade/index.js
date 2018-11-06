@@ -83,7 +83,7 @@ export default class GradeTimeTable extends Component {
     };
 
     return (
-      <Page header={header} loading={false}>
+      <Page header={header} loading={!!loading}>
         <Flex direction="column">
           <Flex align="middle" style={{height: 50, padding: '5px 10px', background: '#eee',}}>
             <Filter type="grade" onChange={this.onFilterChange}/>
