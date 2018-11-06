@@ -4,20 +4,14 @@ import classnames from 'classnames';
 import {Modal, Form, Select, Input, Button, notification} from 'antd';
 // import Keyboard from 'keyboardjs';
 import styles from './CourseTable.less';
-import {
-  ManagesClass, ManagesCourse,
-  ManagesGrade,
-  ManagesPeriod, ManagesRoom,
-  ManagesTeacher,
-  TimetableBuild as namespace
-} from "../../utils/namespace";
-import Flex from '../Flex/index';
 import Selection from './selection';
 import Point from "./point";
 import Range from './range';
 import Rect from './rect';
 import Scrollbar from './Scrollbar';
-import LectureModal from './LectureModal';
+
+import {StatusEnum} from "./interface";
+import LectureStatus from './LectureStatus';
 
 
 const WHEEL = Symbol('wheel');
@@ -26,15 +20,7 @@ const MOUNTED = Symbol('mounted');
 const START_SELECT = Symbol('start-select');
 const ELEMENT = Symbol('element');
 
-@connect(state => ({
-  gradeList: state[ManagesGrade].list,
-  roomList: state[ManagesRoom].list,
-  periodList: state[ManagesPeriod].list,
-  courseList: state[ManagesCourse].list,
-  klassList: state[ManagesClass].list,
-  lectureList: state[namespace].list,
-  gradeId: state[namespace].gradeId,
-}))
+
 export default class CourseTable extends Component {
 
   static CID = 0;
@@ -61,18 +47,8 @@ export default class CourseTable extends Component {
   componentDidMount() {
     this[MOUNTED] = true;
     this.element = window.document.getElementById(this.id);
-
     this.onResize();
-
     window.addEventListener('resize', this.onResize);
-    this.props.dispatch({
-      type: ManagesGrade + '/list'
-    });
-    // this.bindKeyboard();
-    this.props.dispatch({
-      type: ManagesRoom + '/list',
-      payload: {s: 10000}
-    });
   }
 
   componentWillUnmount() {
@@ -153,58 +129,6 @@ export default class CourseTable extends Component {
     this.onResize();
   }
 
-  // componentWillReceiveProps(nextProps) {
-  //   if (
-  //     (nextProps.lectureList !== this.props.lectureList) ||
-  //     (nextProps.roomList !== this.props.roomList) ||
-  //     (nextProps.periodList !== this.props.periodList)
-  //   ) {
-  //     const lectureList = nextProps.lectureList || this.props.roomList;
-  //     const roomList = nextProps.roomList || this.props.roomList;
-  //     const periodList = nextProps.periodList || this.props.periodList;
-  //
-  //     if (lectureList && roomList && periodList) {
-  //       console.log(lectureList, roomList, periodList);
-  //     }
-  //   }
-  // }
-
-
-  onGradeChange = gradeId => {
-    this.props.dispatch({
-      type: namespace+'/set',
-      payload:{gradeId}
-    });
-    this.props.dispatch({
-      type: namespace + '/list',
-      payload: {
-        gradeId,
-        s: 10000,
-      }
-    });
-    this.props.dispatch({
-      type: ManagesClass + '/list',
-      payload: {
-        gradeId,
-        s: 10000,
-      }
-    });
-    this.props.dispatch({
-      type: ManagesCourse + '/list',
-      payload: {
-        gradeId,
-        s: 10000,
-      }
-    });
-    this.props.dispatch({
-      type: ManagesPeriod + '/list',
-      payload: {
-        gradeId,
-        s: 1000,
-      },
-    });
-  };
-
   onWheel = e => {
     const {deltaX, deltaY} = e;
     const {scrollOffset} = this.state;
@@ -268,11 +192,13 @@ export default class CourseTable extends Component {
       periodList = [],
       roomList = [],
       lectureList = [],
-      gradeList = [],
       gradeId,
-      dispatch,
+      onSelect,
+      onEdit,
+      selectedLecture,
+      now,
     } = this.props;
-    const {width, height, selectedLecture, selection, scrollOffset} = this.state;
+    const {width, height, selection, scrollOffset} = this.state;
     const weekWidth = 30;
     const periodWidth = 40;
     const headerWidth = weekWidth + periodWidth;
@@ -311,7 +237,7 @@ export default class CourseTable extends Component {
     const periodIndexMap = {};
     const periodMap = {};
 
-    const renderPeriodList = ((list = []) => {
+    const renderPeriodList = ((list = [], now) => {
       const weekPeriod = list.sort((a, b) => a.dayOfWeek - b.dayOfWeek || a.timeslot - b.timeslot).reduce((map, it) => {
         const week = map[it.dayOfWeek] || [];
         week.push(it);
@@ -335,8 +261,23 @@ export default class CourseTable extends Component {
           left: 0
         };
         weekTop += weekHeight;
+        let dateStr = '';
+        if (now && now.startTime) {
+          const date = new Date(now.startTime + 3600000 * 24 * key);
+          const m = date.getMonth() + 1;
+          const d = date.getDate();
+          dateStr = `${m}月${d}日`;
+        }
         weekComponents.push(
-          <span className={styles['week']} key={key} style={weekStyle}>{`星期${week}`}</span>
+          <span className={styles['week']} key={key} style={weekStyle}>
+            <span>{`星期${week}`}</span>
+            {
+              dateStr ?
+                <span>{dateStr}</span>
+                :
+                null
+            }
+          </span>
         );
 
         periods.forEach(period => {
@@ -358,7 +299,7 @@ export default class CourseTable extends Component {
       });
 
       return {weekComponents, periodComponents};
-    })(periodList);
+    })(periodList, now);
     const periodListStyle = {
       width: periodWidth,
       height: periodList.length * stdHeight,
@@ -408,10 +349,10 @@ export default class CourseTable extends Component {
                        selected={selectedLecture && selectedLecture.id === it.id}
                 // selected={contains(range, style)}
                        onClick={(lecture) => {
-                         gradeId && this.setState({selectedLecture: lecture});
+                         gradeId && onSelect(lecture);
                        }}
                        onEdit={(lecture) => {
-                         gradeId && this.setState({selectedLecture: lecture, lectureModalVisible: true})
+                         gradeId && onEdit && onEdit(lecture);
                        }}
               />
             )
@@ -434,10 +375,10 @@ export default class CourseTable extends Component {
                 // selected={contains(range, style)}
                        selected={selectedLecture && selectedLecture.id === key}
                        onClick={(lecture) => {
-                         gradeId && this.setState({selectedLecture: lecture});
+                         gradeId && onSelect(lecture);
                        }}
                        onEdit={(lecture) => {
-                         gradeId && this.setState({selectedLecture: lecture, lectureModalVisible: true})
+                         gradeId && onEdit && onEdit(lecture);
                        }}
               />
             )
@@ -456,218 +397,125 @@ export default class CourseTable extends Component {
       transform: `translateX(${-scrollOffset.x}px) translateY(${-scrollOffset.y}px)`,
     };
 
-    const buttons = [];
-
-    if (selectedLecture && gradeId) {
-      buttons.push({
-        key: 'edit', children: '编辑', onClick: () => {
-          this.setState({lectureModalVisible: true});
-        }
-      });
-      if (typeof selectedLecture.id === 'number') {
-        buttons.push({
-          key: 'remove', children: '删除', onClick: () => {
-            dispatch({
-              type: namespace + '/remove',
-              payload: {id: selectedLecture.id},
-              resolve: () => {
-                notification.success({
-                  message: '删除成功'
-                })
-              }
-            })
-          }
-        })
-      }
-    }
-    if (gradeId) {
-      buttons.push({
-        key: 'refresh', children: '刷新', onClick: () => {
-          this.props.dispatch({
-            type: namespace + '/list',
-            payload: {
-              gradeId,
-              s: 10000,
-            }
-          });
-        }
-      });
-    }
-
 
     return (
-      <Flex direction="column">
-        <Flex align="middle" style={{height: 50, padding: '5px 10px', background: '#eee',}}>
-          <Form layout="inline">
-            <Form.Item label="年级">
-              <Select placeholder="请选择" onChange={this.onGradeChange} style={{width: 120}}>
-                {
-                  gradeList.map(it =>
-                    <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
-                  )
-                }
-              </Select>
-            </Form.Item>
-          </Form>
-          {
-            buttons.length ?
-              <Button.Group>
-                {
-                  buttons.map(it =>
-                    <Button {...it} />
-                  )
-                }
-              </Button.Group>
-              :
-              null
-          }
-        </Flex>
 
-        <div ref={this[ELEMENT]} id={this.id} className={styles['timetable']} data-width={width} data-height={height}
-             onWheel={this.onWheel}
-             onMouseMove={this.onMouseMove}
-             onMouseUp={this.onMouseUp}>
-          <div className={classnames(styles['header'])}
-               onMouseEnter={() => {
-                 clearTimeout(this[WHEEL]);
-                 if (!this.state.showScrollbar) {
-                   this[MOUNTED] && this.setState({showScrollbar: true});
+
+      <div ref={this[ELEMENT]} id={this.id} className={styles['timetable']} data-width={width} data-height={height}
+           onWheel={this.onWheel}
+           onMouseMove={this.onMouseMove}
+           onMouseUp={this.onMouseUp}>
+        <div className={classnames(styles['header'])}
+             onMouseEnter={() => {
+               clearTimeout(this[WHEEL]);
+               if (!this.state.showScrollbar) {
+                 this[MOUNTED] && this.setState({showScrollbar: true});
+               }
+             }}
+             onMouseLeave={() => {
+               clearTimeout(this[WHEEL]);
+               this[WHEEL] = setTimeout(() => {
+                 if (this.state.showScrollbar) {
+                   this[MOUNTED] && this.setState({showScrollbar: false});
                  }
-               }}
-               onMouseLeave={() => {
-                 clearTimeout(this[WHEEL]);
-                 this[WHEEL] = setTimeout(() => {
-                   if (this.state.showScrollbar) {
-                     this[MOUNTED] && this.setState({showScrollbar: false});
-                   }
-                 }, 3000);
-               }}
-          >
-            <div className={styles['header-box']}>
+               }, 3000);
+             }}
+        >
+          <div className={styles['header-box']}>
                  <span className={styles['header-period']} onClick={() => {
                    this.setState({scrollOffset: new Point(scrollOffset.x, 0)})
                  }}>星期</span>
-              <span className={styles['header-room']} onClick={() => {
-                this.setState({scrollOffset: new Point(0, scrollOffset.y)})
-              }}>教室</span>
-            </div>
-
-            {
-              roomListStyle.width > viewPortWidth ?
-                <Scrollbar direction="horizontal"
-                           visible={this.state.showScrollbar}
-                           style={{width: viewPortWidth, left: headerWidth, height: 12, top: height - 12}}
-                           size={viewPortWidth}
-                           maxValue={roomListStyle.width - viewPortWidth}
-                           value={scrollOffset.x}
-                           onChange={value => {
-                             this.setState({
-                               scrollOffset: new Point(
-                                 Math.min(this.lectureWidth, Math.max(value, 0)),
-                                 scrollOffset.y
-                               )
-                             })
-                           }}
-                />
-                :
-                null
-
-            }
-            {
-              periodListStyle.height > viewPortHeight ?
-                <Scrollbar direction="vertical"
-                           visible={this.state.showScrollbar}
-                           size={viewPortHeight}
-                           maxValue={periodListStyle.height - viewPortHeight}
-                           value={scrollOffset.y}
-                           style={{width: 12, left: width - 12, height: viewPortHeight, top: headerHeight}}
-                           onChange={value => {
-                             this.setState({
-                               scrollOffset: new Point(
-                                 scrollOffset.x,
-                                 Math.min(this.lectureHeight, Math.max(value, 0)),
-                               )
-                             })
-                           }}
-                />
-                :
-                null
-            }
-            <div className={styles['room-list']} style={roomListStyle} onMouseDown={this.onMouseDown}>
-              {renderRoomList}
-            </div>
-            <div className={styles['week-list']} style={weekListStyle} onMouseDown={this.onMouseDown}>
-              {renderPeriodList.weekComponents}
-            </div>
-            <div className={styles['period-list']} style={periodListStyle} onMouseDown={this.onMouseDown}>
-              {renderPeriodList.periodComponents}
-            </div>
+            <span className={styles['header-room']} onClick={() => {
+              this.setState({scrollOffset: new Point(0, scrollOffset.y)})
+            }}>教室</span>
           </div>
 
+          {
+            roomListStyle.width > viewPortWidth ?
+              <Scrollbar direction="horizontal"
+                         visible={this.state.showScrollbar}
+                         style={{width: viewPortWidth, left: headerWidth, height: 12, top: height - 12}}
+                         size={viewPortWidth}
+                         maxValue={roomListStyle.width - viewPortWidth}
+                         value={scrollOffset.x}
+                         onChange={value => {
+                           this.setState({
+                             scrollOffset: new Point(
+                               Math.min(this.lectureWidth, Math.max(value, 0)),
+                               scrollOffset.y
+                             )
+                           })
+                         }}
+              />
+              :
+              null
 
-          <div id={this.id + '-view-port'} className={styles['lecture-list']} style={lectureListStyle}
-               // onMouseDown={(e) => {
-               //   const {clientX, clientY} = e;
-               //   let {x, y} = this.viewport.getBoundingClientRect();
-               //   x = clientX - x + scrollOffset.x;
-               //   y = clientY - y + scrollOffset.y;
-               //   this[START_SELECT] = new Point(x, y);
-               // }}
-               // onMouseMove={(e) => {
-               //   if (this[START_SELECT]) {
-               //     const {clientX, clientY} = e;
-               //     let {x, y} = this.viewport.getBoundingClientRect();
-               //     x = clientX - x + scrollOffset.x;
-               //     y = clientY - y + scrollOffset.y;
-               //     this.setState({selection: new Selection(this[START_SELECT], new Point(x, y))});
-               //   }
-               // }}
-               // onMouseUp={e => {
-               //   if (this[START_SELECT]) {
-               //     const {clientX, clientY} = e;
-               //     let {x, y} = this.viewport.getBoundingClientRect();
-               //     x = clientX - x + scrollOffset.x;
-               //     y = clientY - y + scrollOffset.y;
-               //     this.setState({selection: new Selection(this[START_SELECT], new Point(x, y))});
-               //     delete this[START_SELECT];
-               //   }
-               // }}
-          >
-            {renderLectureList}
+          }
+          {
+            periodListStyle.height > viewPortHeight ?
+              <Scrollbar direction="vertical"
+                         visible={this.state.showScrollbar}
+                         size={viewPortHeight}
+                         maxValue={periodListStyle.height - viewPortHeight}
+                         value={scrollOffset.y}
+                         style={{width: 12, left: width - 12, height: viewPortHeight, top: headerHeight}}
+                         onChange={value => {
+                           this.setState({
+                             scrollOffset: new Point(
+                               scrollOffset.x,
+                               Math.min(this.lectureHeight, Math.max(value, 0)),
+                             )
+                           })
+                         }}
+              />
+              :
+              null
+          }
+          <div className={styles['room-list']} style={roomListStyle} onMouseDown={this.onMouseDown}>
+            {renderRoomList}
           </div>
-
+          <div className={styles['week-list']} style={weekListStyle} onMouseDown={this.onMouseDown}>
+            {renderPeriodList.weekComponents}
+          </div>
+          <div className={styles['period-list']} style={periodListStyle} onMouseDown={this.onMouseDown}>
+            {renderPeriodList.periodComponents}
+          </div>
         </div>
-        <LectureModal
-          visible={this.state.lectureModalVisible}
-          lecture={this.state.selectedLecture}
-          gradeId={gradeId}
-          klassList={this.props.klassList}
-          courseList={this.props.courseList}
-          onCancel={() => this.setState({lectureModalVisible: false})}
-          onOk={payload => {
-            payload.gradeId = gradeId;
-            payload.roomId = this.state.selectedLecture.room.id;
-            payload.periodId = this.state.selectedLecture.period.id;
-            if (typeof  this.state.selectedLecture.id === 'number') {
-              payload.id = this.state.selectedLecture.id
-            }
-            console.log(
-              payload,
-              this.state.selectedLecture
-            );
-            this.props.dispatch({
-              type: namespace + (payload.id ? '/modify' : '/create'),
-              payload,
-              resolve: () => {
-                notification.success({
-                  message: payload.id ? '修改成功' : '创建成功'
-                })
-              }
-            });
-            this.setState({lectureModalVisible: false})
-          }}
-        />
-      </Flex>
+
+
+        <div id={this.id + '-view-port'} className={styles['lecture-list']} style={lectureListStyle}
+          // onMouseDown={(e) => {
+          //   const {clientX, clientY} = e;
+          //   let {x, y} = this.viewport.getBoundingClientRect();
+          //   x = clientX - x + scrollOffset.x;
+          //   y = clientY - y + scrollOffset.y;
+          //   this[START_SELECT] = new Point(x, y);
+          // }}
+          // onMouseMove={(e) => {
+          //   if (this[START_SELECT]) {
+          //     const {clientX, clientY} = e;
+          //     let {x, y} = this.viewport.getBoundingClientRect();
+          //     x = clientX - x + scrollOffset.x;
+          //     y = clientY - y + scrollOffset.y;
+          //     this.setState({selection: new Selection(this[START_SELECT], new Point(x, y))});
+          //   }
+          // }}
+          // onMouseUp={e => {
+          //   if (this[START_SELECT]) {
+          //     const {clientX, clientY} = e;
+          //     let {x, y} = this.viewport.getBoundingClientRect();
+          //     x = clientX - x + scrollOffset.x;
+          //     y = clientY - y + scrollOffset.y;
+          //     this.setState({selection: new Selection(this[START_SELECT], new Point(x, y))});
+          //     delete this[START_SELECT];
+          //   }
+          // }}
+        >
+          {renderLectureList}
+        </div>
+
+      </div>
+
     );
   }
 
@@ -700,12 +548,13 @@ function Lecture(props) {
       onEdit(lecture)
     }}>
           <div className={styles['lecture-border']}>
-          {
-            course && klass && klass.type === 1 ?
-              <div className={styles['lecture-course']}>{course.name}</div>
-              :
-              null
-          }
+            {
+              course && klass && klass.type === 1 ?
+                <div className={styles['lecture-course']}>{course.name}</div>
+                :
+                null
+            }
+            {status === StatusEnum.正常 ? null : <LectureStatus status={status} memo={memo}/>}
             {reserveName ? <div className={styles['lecture-course']}>{reserveName}</div> : null}
             {
               klass ?

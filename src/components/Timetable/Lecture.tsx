@@ -85,7 +85,7 @@ export default class Lecture extends Component<LectureProps, any> {
       <div {...props}>
         <div className="lecture">
           {course ? <div className={courseClassName}>{renderCourse(course, lecture)}</div> : null}
-          {status === StatusEnum.正常 ? null : <LectureStatus status={status} memo={memo} prefixCls={prefixCls}/>}
+          {status === StatusEnum.正常 ? null : <LectureStatus status={status} memo={memo} />}
           {klass ? <div className={klassClassName}>{renderKlass(klass, lecture)}</div> : null}
           {room ? <div className={roomClassName}>{renderRoom(room, lecture)}</div> : null}
           {teacher ? <div className={teacherClassName}>{renderTeacher(teacher, lecture)}</div> : null}

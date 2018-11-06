@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import {Tooltip, Popover, Button} from 'antd';
 import {StatusEnum} from "./interface";
+import styles from './style/LectureStatus.less';
 
 export interface LectureStatusProps {
   status: number;
@@ -18,9 +19,13 @@ export default class LectureStatus extends Component<LectureStatusProps, any> {
     memo: PropTypes.string,
   };
 
+  static defaultProps = {
+    prefixCls: 'lecture-status'
+  };
+
   render() {
     const {status, memo, prefixCls} = this.props;
-    const className = classnames(`${prefixCls}-status`, `${prefixCls}-status-${status}`);
+    const className = classnames(prefixCls, styles['lecture-status'], styles[`lecture-status-${status}`]);
     return (
       <span className={className}>
       {

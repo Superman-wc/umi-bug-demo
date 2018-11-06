@@ -136,6 +136,10 @@
         box-sizing: border-box;
         font-weight: bold;
         .center();
+        flex-direction: column;
+        span{
+          margin: 0.5em;
+        }
         &:last-child {
           border-bottom: 0;
         }
@@ -151,6 +155,7 @@
       border-right: @border;
       border-bottom: @border;
       cursor: pointer;
+      overflow: hidden;
       @opacity: 0.15;
       &.lecture-course-chinese { //语文
         background-color: rgba(0, 255, 0, @opacity);
