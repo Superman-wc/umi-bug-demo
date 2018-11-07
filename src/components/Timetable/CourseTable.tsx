@@ -186,11 +186,11 @@ export default class CourseTable extends Component<CourseTableProps, any> {
         map[it.dayOfWeek] = week;
         return map;
       }, {});
-      const weekComponents = [];
+      const weekComponents:JSX.Element[] =[];
       const WEEK = ['一', '二', '三', '四', '五', '六', '日'];
       let weekTop = 0;
       let periodTop = 0;
-      const periodComponents = [];
+      const periodComponents:JSX.Element[] = [];
       let periodIndex = 0;
       Object.keys(weekPeriod).forEach(key => {
         const periods = weekPeriod[key];
@@ -263,7 +263,7 @@ export default class CourseTable extends Component<CourseTableProps, any> {
     //   return new Rect(x, y, w, h).isOverlap(rect2);
     // };
 
-    const renderLectureList = ((list) => {
+    const renderLectureList = ((list:ILecture[]) => {
       const table = {};
       const viewEndCol = Math.min(viewStartCol + viewColCount, roomList.length - 1);
       const viewEndRow = Math.min(viewStartRow + viewRowCount, periodList.length - 1);
@@ -272,33 +272,36 @@ export default class CourseTable extends Component<CourseTableProps, any> {
       //
       // console.log(JSON.stringify(range), scrollOffset.x, scrollOffset.y);
 
-      list.forEach(it => {
-        const col = roomIndexMap[it.room.id];
+      list.forEach((it:ILecture) => {
+        if(it.room) {
+          const col = roomIndexMap[it.room.id];
+          if (col >= viewStartCol && col <= viewEndCol) {
+            const row = periodIndexMap[it.period.id];
 
-        if (col >= viewStartCol && col <= viewEndCol) {
-          const row = periodIndexMap[it.period.id];
-
-          if (row >= viewStartRow && row <= viewEndRow) {
-            const style = {
-              left: col * stdWidth,
-              top: row * stdHeight,
-              width: stdWidth,
-              height: stdHeight,
-            };
-            const key = `${row}-${col}`;
-            table[key] = (
-              <Lecture key={key} style={style} lecture={it}
-                       selected={selectedLecture && selectedLecture.id === it.id}
-                // selected={contains(range, style)}
-                       onClick={(lecture) => {
-                         gradeId && onSelect(lecture);
-                       }}
-                       onEdit={(lecture) => {
-                         gradeId && onEdit && onEdit(lecture);
-                       }}
-              />
-            )
+            if (row >= viewStartRow && row <= viewEndRow) {
+              const style = {
+                left: col * stdWidth,
+                top: row * stdHeight,
+                width: stdWidth,
+                height: stdHeight,
+              };
+              const key = `${row}-${col}`;
+              table[key] = (
+                <Lecture key={key} style={style} lecture={it}
+                         selected={selectedLecture && selectedLecture.id === it.id}
+                  // selected={contains(range, style)}
+                         onClick={(lecture) => {
+                           gradeId && onSelect && onSelect(lecture);
+                         }}
+                         onEdit={(lecture) => {
+                           gradeId && onEdit && onEdit(lecture);
+                         }}
+                />
+              )
+            }
           }
+        }else{
+          console.error('没有教室的课表单元', it);
         }
       });
       for (let col = viewStartCol; col <= viewEndCol; col++) {
@@ -317,7 +320,7 @@ export default class CourseTable extends Component<CourseTableProps, any> {
                 // selected={contains(range, style)}
                        selected={selectedLecture && selectedLecture.id === key}
                        onClick={(lecture) => {
-                         gradeId && onSelect(lecture);
+                         gradeId && onSelect && onSelect(lecture);
                        }}
                        onEdit={(lecture) => {
                          gradeId && onEdit && onEdit(lecture);
