@@ -21,7 +21,7 @@ export default class LoginPage extends Component {
           <div className={styles['login-box']}>
             <div className={styles['login-box-left']}>
               <img src={require('./images/logo.png')} width={100}/>
-              <h1>教学排课系统</h1>
+              <h1>智慧校园系统</h1>
             </div>
             <div className={styles['line']}/>
             <Form layout="horizontal">

@@ -6,10 +6,10 @@ export default {
       antd: true,
       dva: true,
       dynamicImport: true,
-      title: '云志愿教学排课管理系统',
+      title: '布谷智慧校园系统',
       // polyfills: ['ie9'],
       dll: true,
-      pwa: null,
+      pwa: {},
       routes: {
         exclude: [],
       },
@@ -26,7 +26,7 @@ export default {
   ],
   proxy: {
     "/api/1.0/*": {
-      "target": "http://auth.admin.yunzhiyuan100.com.cn/",
+      "target": "http://auth-admin.yunzhiyuan100.com.cn/",
       "changeOrigin": true,
       // "pathRewrite": { "^/api" : "" }
     },

@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
+  <title><%= context.title %></title>
+  <link rel="icon" type="image/x-icon" href="//res.yunzhiyuan100.com/o_1cdhgvnhtoon1mab1pnin04438j.png"/>
+  <script type="text/javascript" charset="utf-8" src="//g.alicdn.com/sd/ncpc/nc.js?t=2015052012"></script>
+  <!--<script src="//res.yunzhiyuan100.com/assets/plupload/2.1.9/js/plupload.full.min.js"></script>-->
+  <script>
+    if (navigator.platform === 'Win32') {
+      // MacIntel
+      const style = document.createElement('style');
+      style.id = 'scrollbar-style';
+      style.innerHTML = `
+          /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
+        ::-webkit-scrollbar {
+          width: 7px;
+          height: 7px;
+          background-color: transparent;
+          box-shadow: none;
+        }
+        /*定义滚动条轨道 内阴影+圆角*/
+        ::-webkit-scrollbar-track {
+          border-radius: 0;
+          background-color: transparent;
+        }
+        /*定义滑块 内阴影+圆角*/
+        ::-webkit-scrollbar-thumb {
+          border-radius: 3px;
+          background-color: rgba(0, 0, 0, .5);
+        }
+      `;
+      document.querySelector('head').appendChild(style);
+    }
+  </script>
+</head>
+<body>
+
+<div id="<%= context.config.mountElementId %>"></div>
+
+</body>
+</html>
