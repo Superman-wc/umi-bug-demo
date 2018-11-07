@@ -9,7 +9,7 @@ export default {
       title: '布谷智慧校园系统',
       // polyfills: ['ie9'],
       dll: true,
-      pwa: {},
+      pwa: null,
       routes: {
         exclude: [],
       },

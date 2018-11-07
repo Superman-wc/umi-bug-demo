@@ -7,7 +7,7 @@ export default function Home({location, dispatch}) {
 
   const breadcrumb = ['系统更新日志'];
 
-  const title = '欢迎使用布谷科技教学排课系统';
+  const title = '欢迎使用布谷科技智慧校园系统';
 
   const headerOperation = <Page.Header.Operation dispatch={dispatch}/>;
   const header = <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>;

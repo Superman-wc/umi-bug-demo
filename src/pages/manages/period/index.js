@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
 import {Form, Row, Col, message, Modal, Select} from 'antd';
-import {ManagesClass, ManagesRoom as namespace} from '../../../utils/namespace';
+import {ManagesPeriod as namespace} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 
@@ -40,8 +40,8 @@ export default class MeterList extends Component {
 
     const columns = [
       {title: 'ID', key: 'id'},
-      {title: '星期', key: 'dayOfWeek'},
-      {title: '节次', key: 'timeslot'},
+      {title: '星期', key: 'dayOfWeek', render:v=>['一','二','三','四','五','六','日'][v]},
+      {title: '节次', key: 'timeslot', render:v=>`第${v+1}节`},
       {
         title: '操作',
         key: 'operate',
