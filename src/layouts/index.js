@@ -208,13 +208,10 @@ function Side(props) {
     <Flex direction="column" className={classnames(styles['side'], {[styles['min-side']]: isMin})}
           onTransitionEnd={(e) => {
             if(e.propertyName === 'width'){
-              console.log(e.type, e.target, e.currentTarget, e);
               const event = document.createEvent('HTMLEvents');
               event.initEvent('resize', true, true);
               window.dispatchEvent(event);
             }
-
-            //
           }}>
       <SideHeader/>
       <Flex.Item className={styles['side-main']}>

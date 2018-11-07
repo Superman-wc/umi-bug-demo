@@ -1,31 +1,35 @@
-import React, {Component, Fragment} from 'react';
-import {connect} from 'dva';
+import React, {Component} from 'react';
 import classnames from 'classnames';
-import {Modal, Form, Select, Input, Button, notification} from 'antd';
-// import Keyboard from 'keyboardjs';
 import styles from './CourseTable.less';
 import Selection from './selection';
 import Point from "./point";
-import Range from './range';
-import Rect from './rect';
+// import Range from './range';
+// import Rect from './rect';
 import Scrollbar from './Scrollbar';
-
-import {StatusEnum} from "./interface";
+import {ILecture, IPeriod, IRoom, StatusEnum} from "./interface";
 import LectureStatus from './LectureStatus';
 
 
 const WHEEL = Symbol('wheel');
 const START_MOVE = Symbol('start-move');
 const MOUNTED = Symbol('mounted');
-const START_SELECT = Symbol('start-select');
 const ELEMENT = Symbol('element');
 
+export type CourseTableProps = {
+  periodList: IPeriod[];
+  roomList: IRoom[];
+  lectureList: ILecture[];
+  gradeId: number;
+  onSelect?: (lecture: ILecture) => void;
+  onEdit?: (lecture: ILecture) => void;
+  selectedLecture: ILecture;
+  now?: { startTime: number };
+}
 
-export default class CourseTable extends Component {
-
-  static CID = 0;
+export default class CourseTable extends Component<CourseTableProps, any> {
 
   state = {
+    showScrollbar: false,
     scrollX: 0,
     scrollY: 0,
     width: 600,
@@ -37,16 +41,14 @@ export default class CourseTable extends Component {
   width = 600;
   height = 585;
 
-  constructor() {
-    super(...arguments);
-    this.id = `CourseTable-${CourseTable.CID++}`;
-    this[ELEMENT] = React.createRef();
-  }
+  lectureWidth = 0;
+  lectureHeight = 0;
+
+  [ELEMENT] = React.createRef<HTMLDivElement>();
 
 
   componentDidMount() {
     this[MOUNTED] = true;
-    this.element = window.document.getElementById(this.id);
     this.onResize();
     window.addEventListener('resize', this.onResize);
   }
@@ -54,70 +56,12 @@ export default class CourseTable extends Component {
   componentWillUnmount() {
     delete this[MOUNTED];
     window.removeEventListener('resize', this.onResize);
-    // this.unBindKeyboard();
   }
-
-  // componentWillReceiveProps() {
-  //   this.setState({
-  //     height: this.element.clientHeight,
-  //     width: this.element.clientWidth
-  //   });
-  // }
-
-  /**
-   * 绑定快捷键
-   */
-  // bindKeyboard = () => {
-  //   if (!this._bindKeyboard) {
-  //     this._bindKeyboard = true;
-  //     Object.keys(this.keyboardMap).forEach(key => {
-  //       Keyboard.bind(key, this.keyboardMap[key]);
-  //     });
-  //   }
-  // };
-
-  /**
-   * 解绑键盘操作
-   */
-  // unBindKeyboard = () => {
-  //   if (this._bindKeyboard) {
-  //     Object.keys(this.keyboardMap).forEach(key => {
-  //       Keyboard.unbind(key, this.keyboardMap[key]);
-  //     });
-  //     this._bindKeyboard = false;
-  //   }
-  // };
-
-
-  /**
-   * 快捷键映射
-   */
-    // keyboardMap = {
-    // 'left': e => {
-    //   e.preventDefault();
-    //   e.stopPropagation();
-    //
-    // },
-    // 'right': e => {
-    //   e.preventDefault();
-    //   e.stopPropagation();
-    //
-    // },
-    // 'top': e => {
-    //   e.preventDefault();
-    //   e.stopPropagation();
-    //
-    // },
-    // 'down': e => {
-    //   e.preventDefault();
-    //   e.stopPropagation();
-    //
-    // },
-    // };
 
   onResize = () => {
     if (this[MOUNTED] && this[ELEMENT].current) {
-      const {width, height} = this[ELEMENT].current.getBoundingClientRect();
+      const element: HTMLElement = this[ELEMENT].current as HTMLElement;
+      const {width, height} = element.getBoundingClientRect();
       if (this.state.width !== width || this.state.height !== height) {
         this.setState({width, height});
       }
@@ -147,7 +91,6 @@ export default class CourseTable extends Component {
     e.preventDefault();
     e.stopPropagation();
   };
-
   onMouseDown = e => {
     const {clientX, clientY} = e;
     const {scrollOffset} = this.state;
@@ -185,7 +128,6 @@ export default class CourseTable extends Component {
     }
   };
 
-
   render() {
     console.time('render');
     const {
@@ -198,7 +140,7 @@ export default class CourseTable extends Component {
       selectedLecture,
       now,
     } = this.props;
-    const {width, height, selection, scrollOffset} = this.state;
+    const {width, height, scrollOffset} = this.state;
     const weekWidth = 30;
     const periodWidth = 40;
     const headerWidth = weekWidth + periodWidth;
@@ -263,7 +205,7 @@ export default class CourseTable extends Component {
         weekTop += weekHeight;
         let dateStr = '';
         if (now && now.startTime) {
-          const date = new Date(now.startTime + 3600000 * 24 * key);
+          const date = new Date(now.startTime + 3600000 * 24 * parseInt(key, 10));
           const m = date.getMonth() + 1;
           const d = date.getDate();
           dateStr = `${m}月${d}日`;
@@ -312,14 +254,14 @@ export default class CourseTable extends Component {
       transform: `translateY(${-scrollOffset.y}px)`,
     };
 
-    const contains = (range, rect2) => {
-      const {start, end} = range;
-      const x = Math.min(start.x, end.x);
-      const y = Math.min(start.y, end.y);
-      const w = Math.abs(start.x - end.x);
-      const h = Math.abs(start.y - end.y);
-      return new Rect(x, y, w, h).isOverlap(rect2);
-    };
+    // const contains = (range, rect2) => {
+    //   const {start, end} = range;
+    //   const x = Math.min(start.x, end.x);
+    //   const y = Math.min(start.y, end.y);
+    //   const w = Math.abs(start.x - end.x);
+    //   const h = Math.abs(start.y - end.y);
+    //   return new Rect(x, y, w, h).isOverlap(rect2);
+    // };
 
     const renderLectureList = ((list) => {
       const table = {};
@@ -401,7 +343,7 @@ export default class CourseTable extends Component {
     return (
 
 
-      <div ref={this[ELEMENT]} id={this.id} className={styles['timetable']} data-width={width} data-height={height}
+      <div ref={this[ELEMENT]} className={styles['timetable']}
            onWheel={this.onWheel}
            onMouseMove={this.onMouseMove}
            onMouseUp={this.onMouseUp}>
@@ -483,34 +425,7 @@ export default class CourseTable extends Component {
         </div>
 
 
-        <div id={this.id + '-view-port'} className={styles['lecture-list']} style={lectureListStyle}
-          // onMouseDown={(e) => {
-          //   const {clientX, clientY} = e;
-          //   let {x, y} = this.viewport.getBoundingClientRect();
-          //   x = clientX - x + scrollOffset.x;
-          //   y = clientY - y + scrollOffset.y;
-          //   this[START_SELECT] = new Point(x, y);
-          // }}
-          // onMouseMove={(e) => {
-          //   if (this[START_SELECT]) {
-          //     const {clientX, clientY} = e;
-          //     let {x, y} = this.viewport.getBoundingClientRect();
-          //     x = clientX - x + scrollOffset.x;
-          //     y = clientY - y + scrollOffset.y;
-          //     this.setState({selection: new Selection(this[START_SELECT], new Point(x, y))});
-          //   }
-          // }}
-          // onMouseUp={e => {
-          //   if (this[START_SELECT]) {
-          //     const {clientX, clientY} = e;
-          //     let {x, y} = this.viewport.getBoundingClientRect();
-          //     x = clientX - x + scrollOffset.x;
-          //     y = clientY - y + scrollOffset.y;
-          //     this.setState({selection: new Selection(this[START_SELECT], new Point(x, y))});
-          //     delete this[START_SELECT];
-          //   }
-          // }}
-        >
+        <div className={styles['lecture-list']} style={lectureListStyle}>
           {renderLectureList}
         </div>
 
@@ -547,33 +462,33 @@ function Lecture(props) {
       e.stopPropagation();
       onEdit(lecture)
     }}>
-          <div className={styles['lecture-border']}>
-            {
-              course && klass && klass.type === 1 ?
-                <div className={styles['lecture-course']}>{course.name}</div>
-                :
-                null
-            }
-            {status === StatusEnum.正常 ? null : <LectureStatus status={status} memo={memo}/>}
-            {reserveName ? <div className={styles['lecture-course']}>{reserveName}</div> : null}
-            {
-              klass ?
-                <div
-                  className={
-                    classnames(styles['lecture-klass'], {
-                        [styles['lecture-course']]: klass.type !== 1
-                      }
-                    )
-                  }>
-                  {klass.name}
-                </div>
-                :
-                null
-            }
-            {teacher ? <div className={styles['lecture-teacher']}>{teacher.name}</div> : null}
-            {children}
-          </div>
-          </span>
+      <div className={styles['lecture-border']}>
+        {
+          course && klass && klass.type === 1 ?
+            <div className={styles['lecture-course']}>{course.name}</div>
+            :
+            null
+        }
+        {status === StatusEnum.正常 ? null : <LectureStatus status={status} memo={memo}/>}
+        {reserveName ? <div className={styles['lecture-course']}>{reserveName}</div> : null}
+        {
+          klass ?
+            <div
+              className={
+                classnames(styles['lecture-klass'], {
+                    [styles['lecture-course']]: klass.type !== 1
+                  }
+                )
+              }>
+              {klass.name}
+            </div>
+            :
+            null
+        }
+        {teacher ? <div className={styles['lecture-teacher']}>{teacher.name}</div> : null}
+        {children}
+      </div>
+    </span>
   )
 }
 

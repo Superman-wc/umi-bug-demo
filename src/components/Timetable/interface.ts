@@ -28,6 +28,7 @@ export interface IEvent {
 }
 
 export interface IPeriod {
+  id: number,
   timeslot: number;
   dayOfWeek: number;
 }

@@ -13,14 +13,9 @@
         "src/*"
       ]
     },
-    "allowSyntheticDefaultImports": true
-    //    "strictNullChecks": true,
-    //    "moduleResolution": "node",
-    //    "allowSyntheticDefaultImports": true,
-    //    "experimentalDecorators": true,
-    //    "jsx": "preserve",
-    //    "target": "es6",
-    //    "sourceMap": true
+    "allowSyntheticDefaultImports": true,
+    "strictNullChecks": true,
+    "experimentalDecorators": true
   },
   "exclude": [
     "node_modules"
