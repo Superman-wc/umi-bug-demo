@@ -1,6 +1,6 @@
 import Model from 'dva-model';
-import {list, remove, create, modify} from '../../services/manages/course';
-import {ManagesCourse as namespace} from '../../utils/namespace';
+import {list, create, modify, remove} from '../../services/manages/semester';
+import {ManagesSemester as namespace} from '../../utils/namespace';
 
 export default Model(
   {
@@ -9,12 +9,10 @@ export default Model(
       setup({dispatch, history}) {
         history.listen(({pathname, query}) => {
           if (pathname === namespace) {
-
             dispatch({
               type: 'list',
               payload: {...query},
             });
-
           }
         });
       },

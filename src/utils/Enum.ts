@@ -3,12 +3,27 @@ export interface EnumValue {
   value: string
 }
 
-export const enum LectrueTypeEnum {
-  普通的 = 1,
-  空缺 = 2,
-  没有老师的排课比如班会自修等 = 3,
-  选课包含选考学考 = 4
+export const enum SemesterTypeEnum {
+  上学期 = 1,
+  下学期 = 2
 };
+
+export const enum ClassTypeEnum {
+  行政班 = 1,
+  选考班 = 3,
+  学考班 = 4,
+}
+
+export const enum GenderEnum {
+  女 = 0,
+  男 = 1
+}
+
+export const enum CourseTypeEnum {
+  非学考选考 = 1,
+  学考 = 2,
+  选考 = 3
+}
 
 export function Enums(e?: any): Array<EnumValue> {
   return Object.keys(e).reduce((sum, value) => {

@@ -113,12 +113,16 @@ function Side(props) {
         {
           items: [
             {
-              link: '/manages/school',
-              title: '学校管理'
+              link: '/manages/semester',
+              title: '学期管理'
             },
             {
               link: '/manages/grade',
               title: '年级管理',
+            },
+            {
+              link: '/manages/subject',
+              title: '科目管理',
             },
             {
               link: '/manages/class',

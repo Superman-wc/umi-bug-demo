@@ -8,6 +8,8 @@ export const ManagesTeacher = '/manages/teacher';
 export const ManagesCourse = '/manages/course';
 export const ManagesRoom = '/manages/room';
 export const ManagesPeriod = '/manages/period';
+export const ManagesSemester = '/manages/semester';
+export const ManagesSubject = '/manages/subject';
 
 
 export const TimetableLecture = '/timetable/lecture';
