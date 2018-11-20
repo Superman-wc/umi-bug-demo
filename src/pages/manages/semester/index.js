@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
 import moment from 'moment';
-import {Form, Row, Col, message, Modal, Select, DatePicker, Input, notification} from 'antd';
+import {Form, Row, Col, message, Modal, Select, DatePicker, Input, notification, Switch} from 'antd';
 import {ManagesSemester as namespace} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
@@ -46,6 +46,32 @@ export default class MeterList extends Component {
       {title: '学期', key: 'semesterType', render: v => SemesterTypeEnum[v]},
       {title: '开学时间', key: 'startDate', render: v => moment(v).format('YYYY-MM-DD')},
       {title: '放假时间', key: 'endDate', render: v => moment(v).format('YYYY-MM-DD')},
+      {
+        title: '是否当前学期', key: 'currentType',
+        render: (v, row) =>
+          <Switch checked={v === 1}
+                  disabled={v === 1}
+                  checkedChildren="是"
+                  unCheckedChildren="否"
+                  onChange={(e) => {
+                    dispatch({
+                      type: namespace + '/modify',
+                      payload: {
+                        id: row.id,
+                        currentType: e ? 1 : 0
+                      },
+                      resolve: () => {
+                        dispatch({
+                          type: namespace + '/list',
+                          payload: {
+                            ...query
+                          }
+                        })
+                      }
+                    })
+                  }}
+          />
+      },
       {title: '创建时间', key: 'dateCreated'},
       {
         title: '操作',
@@ -150,14 +176,14 @@ class SemesterModal extends Component {
                   const sy = start.year();
                   const ey = end.year();
                   const vv = getFieldsValue(['academicYear', 'semesterType']);
-                  Object.keys(vv).forEach(k=>{
-                    if(typeof vv[k] === 'undefined'){
+                  Object.keys(vv).forEach(k => {
+                    if (typeof vv[k] === 'undefined') {
                       delete vv[k]
                     }
                   });
                   const v = {
                     academicYear: sy === ey ? `${ey - 1}~${ey}` : `${sy}~${ey}`,
-                    semesterType: sy === ey ? SemesterTypeEnum.下学期.toString() :  SemesterTypeEnum.上学期.toString(),
+                    semesterType: sy === ey ? SemesterTypeEnum.下学期.toString() : SemesterTypeEnum.上学期.toString(),
                     ...vv
                   };
                   setFieldsValue(v);

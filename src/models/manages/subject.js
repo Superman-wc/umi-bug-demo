@@ -12,7 +12,7 @@ export default Model(
           if (pathname === namespace) {
             dispatch({
               type: 'list',
-              payload: {...query},
+              payload: {...query, s:10000, p:1},
             });
             dispatch({
               type: 'all'

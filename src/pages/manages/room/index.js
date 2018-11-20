@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Select, Input} from 'antd';
+import {Form, Row, Col, message, Modal, Select, Input, notification} from 'antd';
 import {ManagesClass, ManagesRoom as namespace, ManagesTeacher} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
@@ -43,14 +43,13 @@ export default class MeterList extends Component {
       {title: 'ID', key: 'id'},
       {title: '名称', key: 'name'},
       {title: '容纳学生数', key: 'capacity'},
-      {title:'班级', key:'unitName'},
+      {title:'班级', key:'klassName'},
       {
         title: '操作',
         key: 'operate',
         render: (id, row) => (
           <TableCellOperation
             operations={{
-              look: () => dispatch(routerRedux.push({pathname: ManagesRoom, query: {klassId: id}})),
               edit: () => this.setState({visible: true, item: row}),
               remove: {
                 onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),

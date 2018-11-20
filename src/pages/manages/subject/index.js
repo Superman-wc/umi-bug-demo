@@ -11,6 +11,8 @@ import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
 
 
+
+
 @connect(state => ({
   all: state[namespace].all || [],
   total: state[namespace].total,
@@ -20,12 +22,14 @@ import PageHeaderOperation from '../../../components/Page/HeaderOperation';
 @Form.create({
   mapPropsToFields(props) {
     const {list = []} = props;
-    return {
+    const ret = {
       subjectIds: Form.createFormField({value: list && list.length ? list.map(it => it.id) : undefined})
     }
+    console.log(ret, list);
+    return ret;
   }
 })
-export default class MeterList extends Component {
+export default class SubjectListPage extends Component {
 
   state = {};
 
@@ -36,6 +40,8 @@ export default class MeterList extends Component {
     } = this.props;
 
     const {pathname, query} = location;
+
+    console.log(list);
 
     const title = '科目列表';
 

@@ -2,10 +2,10 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Select, DatePicker, Input, notification} from 'antd';
+import {Form, Row, Col, message, Modal, Select, DatePicker, Input, notification, Checkbox} from 'antd';
 import {
   ManagesClass, ManagesCourse,
-  ManagesGrade,
+  ManagesGrade, ManagesSubject,
   ManagesTeacher as namespace,
 } from '../../../utils/namespace';
 
@@ -20,37 +20,41 @@ import GradeClassSelector from "../../../components/GradeClassSelector";
   loading: state[namespace].loading,
   gradeList: state[ManagesGrade].list,
   courseList: state[ManagesCourse].list,
+  subjectList: state[ManagesSubject].list,
 }))
 export default class StudentList extends Component {
 
   state = {};
 
   componentDidMount() {
-    const {gradeList} = this.props;
-    if (!gradeList) {
-      this.fetchGradeList();
+    const {subjectList, dispatch} = this.props;
+    if (!subjectList) {
+      dispatch({
+        type: ManagesSubject + '/list',
+        payload: {s: 1000}
+      })
     }
   }
 
-  fetchGradeList() {
-    const {dispatch} = this.props;
-    dispatch({
-      type: ManagesGrade + '/list',
-    });
-  }
-
-  fetchCourseList(payload) {
-    const {dispatch} = this.props;
-    dispatch({
-      type: ManagesCourse + '/list',
-      payload
-    });
-  }
+  // fetchGradeList() {
+  //   const {dispatch} = this.props;
+  //   dispatch({
+  //     type: ManagesGrade + '/list',
+  //   });
+  // }
+  //
+  // fetchCourseList(payload) {
+  //   const {dispatch} = this.props;
+  //   dispatch({
+  //     type: ManagesCourse + '/list',
+  //     payload
+  //   });
+  // }
 
   render() {
     const {
       list, total, loading,
-      gradeList = [], courseList = [],
+      gradeList = [], courseList = [], subjectList = [],
       location, dispatch
     } = this.props;
 
@@ -78,6 +82,7 @@ export default class StudentList extends Component {
       {title: '姓名', key: 'name'},
       {title: '工号', key: 'code'},
       {title: '手机号', key: 'mobile'},
+      {title: '教学科目', key: 'subjectIds'},
       {
         title: '操作',
         key: 'operate',
@@ -100,6 +105,7 @@ export default class StudentList extends Component {
     const teacherModalProps = {
       visible: this.state.visible,
       item: this.state.item,
+      subjectList,
       onCancel: () => this.setState({visible: false}),
       onOk: (payload) => {
         console.log(payload);
@@ -125,19 +131,8 @@ export default class StudentList extends Component {
         total={total}
         pagination
         title={title}
-        scrollHeight={205}
+        scrollHeight={176}
       >
-        {/*<GradeClassSelector*/}
-          {/*gradeList={gradeList}*/}
-          {/*courseList={courseList}*/}
-          {/*onGradeChange={(gradeId) => {*/}
-            {/*this.fetchCourseList({gradeId});*/}
-            {/*dispatch(routerRedux.replace({pathname, query: {...query, gradeId}}));*/}
-          {/*}}*/}
-          {/*onCourseChange={(courseId) => {*/}
-            {/*dispatch(routerRedux.replace({pathname, query: {...query, courseId}}))*/}
-          {/*}}*/}
-        {/*/>*/}
         <TeacherModal {...teacherModalProps}/>
       </ListPage>
     )
@@ -146,19 +141,18 @@ export default class StudentList extends Component {
 
 @Form.create({
   mapPropsToFields(props) {
-    const {name, code, mobile, subjectIds} = props.item || {};
+    const {name, code, mobile} = props.item || {};
     return {
       name: Form.createFormField({value: name || undefined}),
       code: Form.createFormField({value: code || undefined}),
       mobile: Form.createFormField({value: mobile || undefined}),
-      // subjectIds: Form.createFormField({value: subjectIds || undefined}),
     }
   }
 })
 class TeacherModal extends Component {
   render() {
     const {
-      visible, onCancel, onOk, item,
+      visible, onCancel, onOk, item, subjectList,
       form: {getFieldDecorator, validateFieldsAndScroll}
     } = this.props;
     const modalProps = {
@@ -172,6 +166,9 @@ class TeacherModal extends Component {
           } else {
             if (item && item.id) {
               payload.id = item.id;
+            }
+            if (payload.subjectIds && payload.subjectIds.length) {
+              payload.subjectIds = payload.subjectIds.join(',')
             }
             onOk(payload);
           }
@@ -205,10 +202,15 @@ class TeacherModal extends Component {
           </Form.Item>
           <Form.Item label="手机号" {...wrapper}>
             {
-              getFieldDecorator('mobile', {
-                rules: [{message: '请输入手机号', required: true}]
-              })(
+              getFieldDecorator('mobile')(
                 <Input maxLength={11} placeholder="请输入手机号"/>
+              )
+            }
+          </Form.Item>
+          <Form.Item label="教学科目" {...wrapper}>
+            {
+              getFieldDecorator('subjectIds')(
+                <Checkbox.Group options={subjectList.map(it => ({value: it.id, label: it.name}))}/>
               )
             }
           </Form.Item>
