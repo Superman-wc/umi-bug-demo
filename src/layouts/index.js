@@ -147,6 +147,10 @@ function Side(props) {
             {
               link: '/manages/period',
               title: '课表配置',
+            },
+            {
+              link: '/manages/device',
+              title: '设备管理',
             }
           ]
         }

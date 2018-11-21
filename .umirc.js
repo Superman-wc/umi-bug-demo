@@ -25,6 +25,11 @@ export default {
     "last 2 versions"
   ],
   proxy: {
+    "/api/hii/*": {
+      "target": "http://smart-campus-mp.yunzhiyuan100.com.cn/",
+      "changeOrigin": true,
+      // "pathRewrite": { "^/api" : "" }
+    },
     "/api/1.0/*": {
       "target": "http://auth-admin.yunzhiyuan100.com.cn",
       "changeOrigin": true,

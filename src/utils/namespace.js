@@ -10,6 +10,7 @@ export const ManagesRoom = '/manages/room';
 export const ManagesPeriod = '/manages/period';
 export const ManagesSemester = '/manages/semester';
 export const ManagesSubject = '/manages/subject';
+export const ManagesDevice = '/manages/device';
 
 
 export const TimetableLecture = '/timetable/lecture';
