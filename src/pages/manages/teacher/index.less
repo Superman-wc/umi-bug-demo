@@ -1,4 +1,10 @@
-
-.normal {
-  background: #F2798D;
+.subject-item {
+  &:after {
+    content: '、';
+  }
+  &:last-child {
+    &:after {
+      content: none;
+    }
+  }
 }

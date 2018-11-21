@@ -1,4 +1,12 @@
+.course-teacher {
+  display: inline-block;
+  &:after {
+    content: '、';
+  }
 
-.normal {
-  background: #F2798D;
+  &:last-child {
+    &:after {
+      content: none;
+    }
+  }
 }

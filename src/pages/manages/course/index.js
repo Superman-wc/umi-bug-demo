@@ -14,6 +14,8 @@ import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import GradeClassSelector from '../../../components/GradeClassSelector';
 import {CourseTypeEnum, Enums} from "../../../utils/Enum";
+import router from 'umi/router';
+import styles from './index.less';
 
 
 @connect(state => ({
@@ -22,6 +24,7 @@ import {CourseTypeEnum, Enums} from "../../../utils/Enum";
   loading: state[namespace].loading,
   gradeList: state[ManagesGrade].list,
   subjectList: state[ManagesSubject].list,
+  teacherList: state[ManagesTeacher].list,
 }))
 export default class CourseUniqueList extends Component {
 
@@ -46,7 +49,7 @@ export default class CourseUniqueList extends Component {
   render() {
     const {
       list, total, loading,
-      gradeList = [], subjectList = [],
+      gradeList = [], subjectList = [], teacherList = [],
       location, dispatch
     } = this.props;
 
@@ -64,7 +67,7 @@ export default class CourseUniqueList extends Component {
         title: '创建',
         icon: 'plus',
         onClick: () => {
-          this.setState({visible: true, item: null});
+          this.setState({visible: true, item: {}});
         },
       },
     ];
@@ -86,6 +89,7 @@ export default class CourseUniqueList extends Component {
         filteredValue: query.subjectId ? [query.subjectId] : [],
       },
       {title: '名称', key: 'name'},
+      {ttile: '类型', key: 'type', render: v => CourseTypeEnum[v]},
       {
         title: '行政班', key: 'belongToExecutiveClass', render: v => v ? '是' : '',
         filters: [{value: true, text: '是'}, {value: false, text: '否'}],
@@ -101,11 +105,27 @@ export default class CourseUniqueList extends Component {
         filteredValue: query.hierarchy ? [query.hierarchy] : [],
       },
       {
-        title: '操作',
-        key: 'operate',
+        title: '教师', key: 'teacherList', width: 120,
+        render: v => (
+          v ? v.map(it => <span className={styles['course-teacher']} key={it.id}>{it.name}</span>) : null
+        )
+      },
+      {
+        title: '操作', key: 'operate', width:100,
         render: (id, row) => (
           <TableCellOperation
             operations={{
+              allot: {
+                children: '分配', onClick: () => {
+                  dispatch({
+                    type: ManagesTeacher + '/list',
+                    payload: {
+                      subjectId: row.subjectId
+                    }
+                  });
+                  this.setState({item: row, allotTeacherModalVisible: true});
+                }
+              },
               edit: () => this.setState({visible: true, item: row}),
               remove: {
                 onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
@@ -119,6 +139,7 @@ export default class CourseUniqueList extends Component {
     const courseModalProps = {
       visible: this.state.visible,
       item: this.state.item,
+      gradeList, subjectList,
       onCancel: () => this.setState({visible: false}),
       onOk: (payload) => {
         dispatch({
@@ -129,8 +150,25 @@ export default class CourseUniqueList extends Component {
             this.setState({visible: false});
           }
         })
-      }
+      },
     };
+
+    const allotTeacherModalProps = {
+      visible: this.state.allotTeacherModalVisible,
+      item: this.state.item,
+      teacherList,
+      onCancel: () => this.setState({allotTeacherModalVisible: false}),
+      onOk: (payload) => {
+        dispatch({
+          type: namespace + '/modify',
+          payload,
+          resolve: () => {
+            notification.success({message: '分配教师成功'});
+            this.setState({allotTeacherModalVisible: false});
+          }
+        })
+      },
+    }
 
 
     return (
@@ -146,16 +184,68 @@ export default class CourseUniqueList extends Component {
         title={title}
       >
         <CourseModal {...courseModalProps} />
+        <AllotTeacherModal {...allotTeacherModalProps} />
       </ListPage>
     );
   }
 }
 
 
-@connect(state => ({
-  gradeList: state[ManagesGrade].list,
-  subjectList: state[ManagesSubject].list,
-}))
+@Form.create({
+  mapPropsToFields(props) {
+    const {teacherIds} = props.item || {};
+    return {
+      teacherIds: Form.createFormField({value: teacherIds || undefined})
+    };
+  }
+})
+class AllotTeacherModal extends Component {
+
+
+  render() {
+    const {
+      visible, onCancel, onOk, item = {}, teacherList = [],
+      form: {getFieldDecorator, validateFieldsAndScroll},
+    } = this.props;
+    console.log(item);
+    const modalProps = {
+      visible,
+      title: `给${item.gradeName}${item.name}分配教师`,
+      onCancel,
+      onOk: () => {
+        validateFieldsAndScroll((errors, payload) => {
+          if (errors) {
+            console.error(errors);
+          } else {
+            payload.teacherIds = payload.teacherIds.join(',');
+            onOk({...item, ...payload});
+          }
+        })
+      }
+    };
+    const wrapper = {
+      labelCol: {span: 5},
+      wrapperCol: {span: 16}
+    };
+    return (
+      <Modal {...modalProps}>
+        <Form layout="horizontal">
+          <Form.Item label="教师" {...wrapper}>
+            {
+              teacherList && teacherList.length ?
+                getFieldDecorator('teacherIds', {rules: [{message: '请选择教师', required: true}]})(
+                  <Checkbox.Group options={teacherList.map(it => ({value: it.id, label: it.name}))}/>
+                )
+                :
+                <div>还没有教{item.subjectName}的教师，去<a onClick={() => router.push(ManagesTeacher)}>教师管理</a>设置</div>
+            }
+          </Form.Item>
+        </Form>
+      </Modal>
+    )
+  }
+}
+
 @Form.create({
   mapPropsToFields(props) {
     const {name, type, gradeId, belongToExecutiveClass, hierarchy, memo, subjectId} = props.item || {};
@@ -169,30 +259,15 @@ export default class CourseUniqueList extends Component {
       memo: Form.createFormField({value: memo || undefined}),
 
     }
-  }
+  },
 })
 class CourseModal extends Component {
 
-  componentDidMount() {
-    if (!this.props.gradeList) {
-      this.props.dispatch({
-        type: ManagesGrade + '/list',
-        payload: {s: 10000}
-      })
-    }
-    if (!this.props.subjectList) {
-      this.props.dispatch({
-        type: ManagesSubject + '/list',
-        payload: {s: 10000}
-      })
-    }
-
-  }
 
   render() {
     const {
-      visible, onCancel, onOk, item, subjectList = [], gradeList = [],
-      form: {getFieldDecorator, validateFieldsAndScroll}
+      visible, onCancel, onOk, item = {}, subjectList = [], gradeList = [],
+      form: {getFieldDecorator, validateFieldsAndScroll},
     } = this.props;
     const modalProps = {
       visible,

@@ -13,10 +13,10 @@ export type LectureModalProps = {
   visible: boolean;
   klassList: IKlass[];
   courseList: ICourse[];
-  teacherList: ITeacher[];
+  // teacherList: ITeacher[];
   onCancel: () => void;
   onOk: (payload: ILecture) => void;
-  dispatch: (action: { type: string, payload: any }) => void;
+  // dispatch: (action: { type: string, payload: any }) => void;
 } & FormComponentProps
 
 
@@ -28,25 +28,30 @@ class LectureModal extends Component<LectureModalProps, any> {
     visible: Proptypes.bool,
     klassList: Proptypes.array,
     courseList: Proptypes.array,
-    teacherList: Proptypes.array,
+    // teacherList: Proptypes.array,
     onCancel: Proptypes.func,
     onOk: Proptypes.func,
   };
 
 
   state = {
-    courseId: undefined
+    courseId: undefined,
+    teacherList: []
   };
 
   fetchTeacherList = (courseId) => {
-    this.props.dispatch({
-      type: ManagesTeacher + '/list',
-      payload: {
-        gradeId: this.props.gradeId,
-        courseId,
-        s: 10000,
-      }
-    });
+    // this.props.dispatch({
+    //   type: ManagesTeacher + '/list',
+    //   payload: {
+    //     gradeId: this.props.gradeId,
+    //     courseId,
+    //     s: 10000,
+    //   }
+    // });
+    const course = this.props.courseList.find((it: ICourse) => it.id === courseId);
+    if (course) {
+      this.setState({teacherList: course.teacherList});
+    }
   };
 
   componentWillReceiveProps(nextProps) {
@@ -63,7 +68,8 @@ class LectureModal extends Component<LectureModalProps, any> {
   render() {
     const {
       visible, onCancel, onOk, lecture,
-      klassList = [], courseList = [], teacherList = [],
+      klassList = [], courseList = [],
+      // teacherList = [],
       form: {getFieldDecorator, validateFieldsAndScroll, setFields, getFieldValue}
     } = this.props;
 
@@ -73,6 +79,8 @@ class LectureModal extends Component<LectureModalProps, any> {
       labelCol: {span: 5},
       wrapperCol: {span: 16}
     };
+
+    const {teacherList = []} = this.state;
 
     return (
       <Modal title={lecture && typeof lecture.id === 'number' ? "修改课表" : '创建课表'} visible={visible} onCancel={onCancel}
@@ -122,7 +130,7 @@ class LectureModal extends Component<LectureModalProps, any> {
               )
             }
           </Form.Item>
-          <Form.Item label="学科" {...wrapper}>
+          <Form.Item label="课程" {...wrapper}>
             {
               getFieldDecorator('courseId', {})(
                 <Select placeholder="请选择" onChange={(courseId) => {
@@ -151,7 +159,7 @@ class LectureModal extends Component<LectureModalProps, any> {
               getFieldDecorator('teacherId', {})(
                 <Select placeholder={this.state.courseId ? '请选择' : '请先选择科目'} style={selectStyle}>
                   {
-                    this.state.courseId && teacherList.map(it =>
+                    this.state.courseId && teacherList.map((it:ITeacher) =>
                       <Select.Option key={it.id.toString()} value={it.id}>{it.name}</Select.Option>
                     )
                   }
@@ -189,5 +197,5 @@ export default Form.create({
     }
   }
 })(connect(state => ({
-  teacherList: state[ManagesTeacher].list,
+  // teacherList: state[ManagesTeacher].list,
 }))(LectureModal))

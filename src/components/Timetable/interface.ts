@@ -15,6 +15,7 @@ export interface IRoom extends IIdName {
 
 export interface ICourse extends IIdName {
   code: string;
+  teacherList?: ITeacher[];
 }
 
 export interface IEvent {

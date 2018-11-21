@@ -11,7 +11,8 @@ import {
 
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
-import GradeClassSelector from "../../../components/GradeClassSelector";
+import styles from './index.less';
+
 
 
 @connect(state => ({
@@ -82,7 +83,7 @@ export default class StudentList extends Component {
       {title: '姓名', key: 'name'},
       {title: '工号', key: 'code'},
       {title: '手机号', key: 'mobile'},
-      {title: '教学科目', key: 'subjectIds'},
+      {title: '教学科目', key: 'subjectList', render: v => v.map(it => <span className={styles['subject-item']} key={it.id}>{it.name}</span>)},
       {
         title: '操作',
         key: 'operate',
@@ -141,11 +142,12 @@ export default class StudentList extends Component {
 
 @Form.create({
   mapPropsToFields(props) {
-    const {name, code, mobile} = props.item || {};
+    const {name, code, mobile, subjectsList} = props.item || {};
     return {
       name: Form.createFormField({value: name || undefined}),
       code: Form.createFormField({value: code || undefined}),
       mobile: Form.createFormField({value: mobile || undefined}),
+      subjectIds: Form.createFormField({value: subjectsList && subjectsList.length && subjectsList.map(it => (it.id)) || undefined})
     }
   }
 })
@@ -200,7 +202,7 @@ class TeacherModal extends Component {
               )
             }
           </Form.Item>
-          <Form.Item label="手机号" {...wrapper}>
+          <Form.Item label="手机号" {...wrapper} extra="微信登录时需要填写">
             {
               getFieldDecorator('mobile')(
                 <Input maxLength={11} placeholder="请输入手机号"/>
