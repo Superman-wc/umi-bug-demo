@@ -26,7 +26,7 @@ export default {
   ],
   proxy: {
     "/api/1.0/*": {
-      "target": "http://auth-admin.yunzhiyuan100.com.cn/",
+      "target": "http://auth-admin.yunzhiyuan100.com.cn",
       "changeOrigin": true,
       // "pathRewrite": { "^/api" : "" }
     },
