@@ -111,7 +111,7 @@ export default class CourseUniqueList extends Component {
         )
       },
       {
-        title: '操作', key: 'operate', width:100,
+        title: '操作', key: 'operate', width: 100,
         render: (id, row) => (
           <TableCellOperation
             operations={{
@@ -120,6 +120,7 @@ export default class CourseUniqueList extends Component {
                   dispatch({
                     type: ManagesTeacher + '/list',
                     payload: {
+                      s: 1000,
                       subjectId: row.subjectId
                     }
                   });

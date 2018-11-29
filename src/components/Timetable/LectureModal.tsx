@@ -118,7 +118,7 @@ class LectureModal extends Component<LectureModalProps, any> {
           <Form.Item label="班级" {...wrapper}>
             {
               getFieldDecorator('klassId', {
-                rules: [{message: '请选择班级', required: true}]
+                // rules: [{message: '请选择班级', required: true}]
               })(
                 <Select placeholder="请选择" style={selectStyle}>
                   {
@@ -146,7 +146,7 @@ class LectureModal extends Component<LectureModalProps, any> {
 
                 }} style={selectStyle}>
                   {
-                    courseList.map(it =>
+                    courseList.sort((a: ICourse, b: ICourse): number => (a.id as number) - (b.id as number)).map(it =>
                       <Select.Option key={it.id.toString()} value={it.id}>{it.name}</Select.Option>
                     )
                   }
@@ -159,7 +159,7 @@ class LectureModal extends Component<LectureModalProps, any> {
               getFieldDecorator('teacherId', {})(
                 <Select placeholder={this.state.courseId ? '请选择' : '请先选择科目'} style={selectStyle}>
                   {
-                    this.state.courseId && teacherList.map((it:ITeacher) =>
+                    this.state.courseId && teacherList.map((it: ITeacher) =>
                       <Select.Option key={it.id.toString()} value={it.id}>{it.name}</Select.Option>
                     )
                   }
