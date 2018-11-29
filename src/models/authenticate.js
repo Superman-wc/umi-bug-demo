@@ -3,6 +3,7 @@ import Model from 'dva-model';
 import effect from 'dva-model/effect';
 import {login, create, modify} from '../services/authenticate';
 import authenticateCache from '../caches/authenticate';
+import {sessionCache, localCache} from "../caches";
 import {set as setToken} from '../utils/request';
 import {Authenticate as namespace} from '../utils/namespace';
 
@@ -81,11 +82,12 @@ export default Model({
       setToken('token', action.result.token);
       return {...state, authenticate: action.result, loading: false};
     },
-    // logoutSuccess() {
-    //   authenticateCache.clear();
-    //   sessionCache.clear();
-    //   return {};
-    // },
+    logoutSuccess() {
+      authenticateCache.clear();
+      sessionCache.clear();
+      localCache.clear();
+      return {};
+    },
     // createSuccess(state) {
     //   return { ...state, loading: false, authenticate: null };
     // },

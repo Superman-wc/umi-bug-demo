@@ -1,18 +1,31 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Select, DatePicker, Input, notification, Checkbox, Button, Radio} from 'antd';
+import {
+  Form,
+  Row,
+  Col,
+  message,
+  Modal,
+  Select,
+  DatePicker,
+  Input,
+  notification,
+  Checkbox,
+  Button,
+  Radio,
+  Progress
+} from 'antd';
 import {
   ManagesClass,
   ManagesGrade,
   ManagesStudent as namespace, ManagesTeacher, TimetableStudent,
+  Authenticate
 } from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
-import GradeClassSelector from "../../../components/GradeClassSelector";
 import styles from './index.less';
-import {GenderEnum, Enums} from "../../../utils/Enum";
-
+import ExcelImportModal from '../../../components/ExcelImport';
 
 @connect(state => ({
   total: state[namespace].total,
@@ -20,31 +33,30 @@ import {GenderEnum, Enums} from "../../../utils/Enum";
   loading: state[namespace].loading,
   gradeList: state[ManagesGrade].list,
   classList: state[ManagesClass].list,
+
 }))
 export default class StudentList extends Component {
 
   state = {};
 
   componentDidMount() {
-    const {gradeList} = this.props;
-    if (!gradeList) {
-      this.fetchGradeList();
-    }
+    this.fetchGradeList();
+    this.fetchClassList();
   }
 
   fetchGradeList() {
     const {dispatch} = this.props;
     dispatch({
       type: ManagesGrade + '/list',
+      payload: {s: 1000}
     });
   }
 
-  fetchClassList(payload) {
-    const {dispatch, location: {pathname, query}} = this.props;
-    dispatch(routerRedux.replace({pathname, query: {...query, ...payload}}));
+  fetchClassList() {
+    const {dispatch} = this.props;
     dispatch({
       type: ManagesClass + '/list',
-      payload
+      payload: {s: 1000}
     });
   }
 
@@ -61,6 +73,16 @@ export default class StudentList extends Component {
 
     const breadcrumb = ['管理', '学生管理', title];
 
+    // const gradeMap = gradeList.reduce((map, it) => {
+    //   map[it.id] = it;
+    //   return map;
+    // }, {});
+    //
+    // const classMap = classList.reduce((map, it) => {
+    //   map[it.id] = it;
+    //   return map;
+    // }, {});
+
     const buttons = [
       {
         key: 'create',
@@ -72,7 +94,22 @@ export default class StudentList extends Component {
           this.setState({visible: true, item: null});
         },
       },
+      {
+        key: 'import',
+        type: 'primary',
+        children: '导入',
+        title: '导入',
+        icon: 'import',
+        onClick: () => {
+          this.setState({importModalVisible: true});
+        },
+      },
     ];
+
+    let filterClassList = classList;
+    if (query.gradeId) {
+      filterClassList = classList.filter(it => it.gradeId === query.gradeId * 1);
+    }
 
     const columns = [
       {title: 'ID', key: 'id'},
@@ -84,13 +121,15 @@ export default class StudentList extends Component {
         filtered: !!query.gradeId,
         filterMultiple: false,
         filteredValue: query.gradeId ? [query.gradeId] : [],
+        render: (gradeId, row) => row.gradeName
       },
       {
         title: '班级', key: 'klassId',
-        filters: classList.map(it => ({value: it.id, text: it.name})),
+        filters: filterClassList.map(it => ({value: it.id, text: it.name})),
         filtered: !!query.klassId,
         filterMultiple: false,
         filteredValue: query.klassId ? [query.klassId] : [],
+        render: (classId, row) => row.klassName,
       },
       {
         title: '性别', key: 'gender', render: v => v ? '男' : '女',
@@ -151,6 +190,24 @@ export default class StudentList extends Component {
       }
     };
 
+    const importModalProps = {
+      title: '导入学生',
+      visible: this.state.importModalVisible,
+      onCancel: () => this.setState({importModalVisible: false}),
+      templateUrl: 'https://res.yunzhiyuan100.com/hii/学生名单录入模板（请勿随意更改模板格式，否则无法导入数据！）.xlsx',
+      excelImport: ({excelUrl}) => {
+        return new Promise((resolve, reject) => {
+          dispatch({
+            type: namespace + '/excelImport',
+            payload: {
+              excelUrl
+            },
+            resolve, reject
+          });
+        })
+      }
+    };
+
 
     return (
       <ListPage
@@ -164,8 +221,18 @@ export default class StudentList extends Component {
         pagination
         title={title}
         scrollHeight={162}
+        onChange={(pagination, filters) => {
+          if (filters.klassId[0] && filters.gradeId && filters.gradeId.length) {
+            const klass = classList.find(it => it.id * 1 === filters.klassId[0] * 1);
+            if (klass && klass.gradeId && klass.gradeId !== filters.gradeId[0] * 1) {
+              return {klassId: undefined};
+            }
+          }
+          return {};
+        }}
       >
         <StudentModal {...studentModalProps} />
+        <ExcelImportModal {...importModalProps} />
       </ListPage>
     )
   }

@@ -6,7 +6,7 @@ import {ManagesClass, ManagesRoom as namespace, ManagesTeacher} from '../../../u
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import {ClassTypeEnum} from "../../../utils/Enum";
-
+import ExcelImportModal from '../../../components/ExcelImport';
 
 @connect(state => ({
   total: state[namespace].total,
@@ -35,6 +35,16 @@ export default class MeterList extends Component {
         icon: 'plus',
         onClick: () => {
           this.setState({visible: true, item: null});
+        },
+      },
+      {
+        key: 'import',
+        type: 'primary',
+        children: '导入',
+        title: '导入',
+        icon: 'import',
+        onClick: () => {
+          this.setState({importModalVisible: true});
         },
       },
     ];
@@ -76,6 +86,25 @@ export default class MeterList extends Component {
       }
     };
 
+    const importModalProps = {
+      title: '导入教室',
+      visible: this.state.importModalVisible,
+      onCancel: () => this.setState({importModalVisible: false}),
+      templateUrl: 'https://res.yunzhiyuan100.com/hii/教室管理录入模板（请勿随意更改模板格式，否则无法导入数据！）.xlsx',
+      excelImport: (excelUrl) => {
+        return new Promise((resolve, reject)=>{
+          dispatch({
+            type: namespace + '/excelImport',
+            payload: {
+              excelUrl
+            },
+            resolve, reject
+          });
+        })
+      }
+    };
+
+
     return (
       <ListPage
         operations={buttons}
@@ -89,6 +118,7 @@ export default class MeterList extends Component {
         title={title}
       >
         <RoomModal {...roomModalProps} />
+        <ExcelImportModal {...importModalProps} />
       </ListPage>
     );
   }

@@ -106,7 +106,7 @@ export default class ListPage extends Component {
         {headerChildren}
       </Page.Header>
     );
-    const handleTableChange = (pagination, filters, /*sorter*/) => {
+    const handleTableChange = (pagination, filters, sorter) => {
       let _query = {...query};
       Object.keys(filters).forEach(key => {
         if (filters[key].length) {
@@ -117,7 +117,8 @@ export default class ListPage extends Component {
       });
       _query.p = pagination.current;
       _query.s = pagination.pageSize;
-      dispatch(routerRedux.replace({pathname, query: _query}));
+      const __query = this.props.onChange && this.props.onChange(pagination, filters, sorter) || {};
+      dispatch(routerRedux.replace({pathname, query: {..._query, ...__query}}));
     };
     return (
       <Page header={header} loading={!!loading}>

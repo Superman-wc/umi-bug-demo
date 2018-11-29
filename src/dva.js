@@ -14,7 +14,7 @@ export function config() {
       '/manages/class': {
         text: 'hi umi + dva',
       },
-    }
+    },
   };
 }
 

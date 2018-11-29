@@ -3,10 +3,6 @@ import PropTypes from 'prop-types';
 import classname from 'classnames';
 import './index.less';
 
-// interface IEventHandler {
-//   (e:any):void
-// }
-
 export interface FlexProps {
   id?: string;
   prefixCls?: string;
@@ -16,14 +12,14 @@ export interface FlexProps {
   align?: string,
   isItem?: boolean,
   style?: React.CSSProperties,
-  overflow: string,
-  wrap: boolean,
+  overflow?: string,
+  wrap?: boolean,
   draggable?: boolean;
   onDragStart?: React.DragEventHandler<HTMLElement>;
   onDragOver?: React.DragEventHandler<HTMLElement>;
   onDragEnd?: React.DragEventHandler<HTMLElement>;
   onDrop?: React.DragEventHandler<HTMLElement>;
-  onTransitionEnd?: React.DragEventHandler<HTMLElement>;
+  // onTransitionEnd?: React.DragEventHandler<HTMLElement>;
 }
 
 export default class Flex extends React.Component<FlexProps, any> {
@@ -48,7 +44,7 @@ export default class Flex extends React.Component<FlexProps, any> {
     onDragStart: PropTypes.func,
     onDrop: PropTypes.func,
     onDragEnd: PropTypes.func,
-    onTransitionEnd: PropTypes.func,
+    // onTransitionEnd: PropTypes.func,
   };
 
   render() {

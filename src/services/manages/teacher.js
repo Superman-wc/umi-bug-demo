@@ -15,3 +15,7 @@ export async function create(data) {
 export async function remove({ id }) {
   return request('/api/8queen/teacher/' + id, { method: 'DELETE' });
 }
+
+export async function excelImport({excelUrl}){
+  return request('/api/8queen/teacher/import', {data:{excelUrl}, method:'POST'})
+}

@@ -17,10 +17,12 @@ function checkHttpStatus(response) {
     return response;
   }
   if (response.status === 401) {
+    set('token', null);
     router.replace('/login');
   }
 
   if (response.status === 403) {
+    set('token', null);
     router.replace('/403');
   }
 

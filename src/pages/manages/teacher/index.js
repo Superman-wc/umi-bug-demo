@@ -12,6 +12,7 @@ import {
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import styles from './index.less';
+import ExcelImportModal from '../../../components/ExcelImport';
 
 
 
@@ -76,6 +77,16 @@ export default class StudentList extends Component {
           this.setState({visible: true, item: null});
         },
       },
+      {
+        key: 'import',
+        type: 'primary',
+        children: '导入',
+        title: '导入',
+        icon: 'import',
+        onClick: () => {
+          this.setState({importModalVisible: true});
+        },
+      },
     ];
 
     const columns = [
@@ -121,6 +132,24 @@ export default class StudentList extends Component {
       }
     };
 
+    const importModalProps = {
+      title: '导入教师',
+      visible: this.state.importModalVisible,
+      onCancel: () => this.setState({importModalVisible: false}),
+      templateUrl: 'https://res.yunzhiyuan100.com/hii/老师管理录入模板（请勿随意更改模板格式，否则无法导入数据！）.xlsx',
+      excelImport: (excelUrl) => {
+        return new Promise((resolve, reject)=>{
+          dispatch({
+            type: namespace + '/excelImport',
+            payload: {
+              excelUrl
+            },
+            resolve, reject
+          });
+        })
+      }
+    };
+
     return (
       <ListPage
         operations={buttons}
@@ -135,6 +164,7 @@ export default class StudentList extends Component {
         scrollHeight={176}
       >
         <TeacherModal {...teacherModalProps}/>
+        <ExcelImportModal {...importModalProps} />
       </ListPage>
     )
   }

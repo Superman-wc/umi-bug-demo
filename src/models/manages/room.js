@@ -1,5 +1,5 @@
 import Model from 'dva-model';
-import {list, create, modify, remove} from '../../services/manages/room';
+import {list, create, modify, remove, excelImport} from '../../services/manages/room';
 import {ManagesRoom as namespace} from '../../utils/namespace';
 
 export default Model(
@@ -23,5 +23,6 @@ export default Model(
     create,
     modify,
     remove,
+    excelImport
   }
 );
