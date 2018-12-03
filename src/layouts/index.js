@@ -149,8 +149,16 @@ function Side(props) {
               title: '课表配置',
             },
             {
+              link: '/manages/timetable',
+              title: '课时配置',
+            },
+            {
               link: '/manages/device',
               title: '设备管理',
+            },
+            {
+              link: '/manages/notice',
+              title: '公告新闻',
             }
           ]
         }

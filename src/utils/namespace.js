@@ -11,6 +11,8 @@ export const ManagesPeriod = '/manages/period';
 export const ManagesSemester = '/manages/semester';
 export const ManagesSubject = '/manages/subject';
 export const ManagesDevice = '/manages/device';
+export const ManagesTimetable = '/manages/timetable';
+export const ManagesNotice = '/manages/notice';
 
 
 export const TimetableLecture = '/timetable/lecture';

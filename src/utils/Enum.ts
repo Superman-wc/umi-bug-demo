@@ -25,6 +25,12 @@ export const enum CourseTypeEnum {
   选考 = 3
 }
 
+export const enum NoticeTypeEnum{
+  校园新闻=1,
+  校园公告=2,
+  年级公告=3,
+}
+
 export function Enums(e?: any): Array<EnumValue> {
   return Object.keys(e).reduce((sum, value) => {
     if (parseInt(value, 10) >= 0) {
