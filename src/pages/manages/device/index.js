@@ -49,7 +49,6 @@ export default class MeterList extends Component {
       {title: 'ID', key: 'id'},
       {title: '设备名称', key: 'deviceName'},
       {title: '设备编号', key: 'device'},
-      {title:'教室名称', key:'roomId'},
       {
         title: '操作',
         key: 'operate',
@@ -100,33 +99,21 @@ export default class MeterList extends Component {
   }
 }
 
-@connect(state => ({
-  roomList: state[ManagesRoom].list,
-}))
+
 @Form.create({
   mapPropsToFields(props) {
-    const {deviceName, device, roomId} = props.item || {};
+    const {deviceName, device} = props.item || {};
     return {
       deviceName: Form.createFormField({value: deviceName || undefined}),
       device: Form.createFormField({value: device || undefined}),
-      roomId: Form.createFormField({value: roomId || undefined}),
     }
   }
 })
 class DeviceModal extends Component {
 
-  componentDidMount() {
-    if (!this.props.roomList) {
-      this.props.dispatch({
-        type: ManagesRoom + '/list',
-        payload: {s: 10000}
-      })
-    }
-  }
-
   render() {
     const {
-      visible, onCancel, onOk, item, roomList=[],
+      visible, onCancel, onOk, item,
       form: {getFieldDecorator, validateFieldsAndScroll}
     } = this.props;
     const modalProps = {
@@ -165,19 +152,6 @@ class DeviceModal extends Component {
             {
               getFieldDecorator('device', {rules: [{message: '请输入设备编号', required: true}]})(
                 <Input maxLength={64}/>
-              )
-            }
-          </Form.Item>
-          <Form.Item label="教室名称" {...wrapper}>
-            {
-              getFieldDecorator('roomId', {rules: [{message: '请输入教室名称', required: true}]})(
-                <Select placeholder="请选择">
-                  {
-                    roomList.map(it =>
-                      <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
-                    )
-                  }
-                </Select>
               )
             }
           </Form.Item>

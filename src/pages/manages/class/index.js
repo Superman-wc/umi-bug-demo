@@ -7,7 +7,7 @@ import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import {
   ManagesClass as namespace,
-  ManagesGrade,
+  ManagesGrade, ManagesRoom,
   ManagesStudent,
   ManagesSubject,
   ManagesTeacher
@@ -77,6 +77,7 @@ export default class MeterList extends Component {
       },
       {title: '科目', key: 'subjectName',},
       {title: '班主任', key: 'teacherName',},
+      {title: '教室', key: 'roomName'},
       {
         title: '操作', key: 'operate',
         render: (id, row) => (
@@ -115,7 +116,7 @@ export default class MeterList extends Component {
       onCancel: () => this.setState({importModalVisible: false}),
       templateUrl: 'https://res.yunzhiyuan100.com/hii/班级管理录入模板（请勿随意更改模板格式，否则无法导入数据！）.xlsx',
       excelImport: (excelUrl) => {
-        return new Promise((resolve, reject)=>{
+        return new Promise((resolve, reject) => {
           dispatch({
             type: namespace + '/excelImport',
             payload: {
@@ -151,16 +152,18 @@ export default class MeterList extends Component {
   gradeList: state[ManagesGrade].list,
   teacherList: state[ManagesTeacher].list,
   subjectList: state[ManagesSubject].list,
+  roomList: state[ManagesRoom].list
 }))
 @Form.create({
   mapPropsToFields(props) {
-    const {name, type, gradeId, teacherId, subjectId} = props.item || {};
+    const {name, type, gradeId, teacherId, subjectId, roomId} = props.item || {};
     return {
       name: Form.createFormField({value: name || undefined}),
       type: Form.createFormField({value: type && type.toString() || undefined}),
       gradeId: Form.createFormField({value: gradeId || undefined}),
       teacherId: Form.createFormField({value: teacherId || undefined}),
       subjectId: Form.createFormField({value: subjectId || undefined}),
+      roomId: Form.createFormField({value: roomId || undefined}),
     }
   }
 })
@@ -187,12 +190,18 @@ class ClassModal extends Component {
         payload: {s: 10000}
       })
     }
+    if (!this.props.subjectList) {
+      this.props.dispatch({
+        type: ManagesRoom + '/list',
+        payload: {s: 10000}
+      })
+    }
 
   }
 
   render() {
     const {
-      visible, onCancel, onOk, item, teacherList = [], gradeList = [], subjectList = [],
+      visible, onCancel, onOk, item, teacherList = [], gradeList = [], subjectList = [], roomList = [],
       form: {getFieldDecorator, validateFieldsAndScroll, setFields, getFieldValue}
     } = this.props;
     const modalProps = {
@@ -315,9 +324,21 @@ class ClassModal extends Component {
               )
             }
           </Form.Item>
+          <Form.Item label="教室" {...wrapper}>
+            {
+              getFieldDecorator('roomId', {})(
+                <Select placeholder="请选择">
+                  {
+                    roomList.map(it =>
+                      <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
+                    )
+                  }
+                </Select>
+              )
+            }
+          </Form.Item>
         </Form>
-        <
-        /Modal>
-        )
-        }
-        }
+      </Modal>
+    )
+  }
+}

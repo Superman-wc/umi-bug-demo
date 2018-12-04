@@ -62,7 +62,7 @@ export default class ManagesNotice extends Component {
       {title: '年级', key: 'gradeId', render: v => gradeMap[v] ? gradeMap[v].name : v},
       {title: '标题', key: 'title',},
       {title: '内容', key: 'content',},
-      {title: '图片', key: 'picUrl', render: v => v ? <img src={v + '!t'}/> : ''},
+      {title: '图片', key: 'picUrl', render: v => v ? <img src={v}/> : ''},
       {title: '新闻链接', key: 'newsUrl', render: v => v ? <a href={v} target="_blank">{v}</a> : ''},
       {title: '发布时间', key: 'newsTime', render: v => moment(v).format('YYYY-MM-DD hh:mm:ss')},
       {title: '创建时间', key: 'dateCreated'},

@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
 import {Form, Row, Col, message, Modal, Select, Input, notification} from 'antd';
-import {ManagesClass, ManagesRoom as namespace, ManagesTeacher} from '../../../utils/namespace';
+import {ManagesClass, ManagesDevice, ManagesRoom as namespace, ManagesTeacher} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import {ClassTypeEnum} from "../../../utils/Enum";
@@ -53,7 +53,7 @@ export default class MeterList extends Component {
       {title: 'ID', key: 'id'},
       {title: '名称', key: 'name'},
       {title: '容纳学生数', key: 'capacity'},
-      {title:'班级', key:'klassName'},
+      {title:'设备', key:'deviceName'},
       {
         title: '操作',
         key: 'operate',
@@ -125,13 +125,13 @@ export default class MeterList extends Component {
 }
 
 @connect(state => ({
-  klassList: state[ManagesClass].list,
+  deviceList: state[ManagesDevice].list,
 }))
 @Form.create({
   mapPropsToFields(props) {
-    const {klassId, name, capacity} = props.item || {};
+    const {deviceId, name, capacity} = props.item || {};
     return {
-      klassId: Form.createFormField({value: klassId || undefined}),
+      deviceId: Form.createFormField({value: deviceId || undefined}),
       name: Form.createFormField({value: name || undefined}),
       capacity: Form.createFormField({value: capacity || undefined}),
     }
@@ -140,17 +140,17 @@ export default class MeterList extends Component {
 class RoomModal extends Component {
 
   componentDidMount() {
-    if (!this.props.klassList) {
+    if (!this.props.deviceList) {
       this.props.dispatch({
-        type: ManagesClass + '/list',
-        payload: {s: 10000, type: ClassTypeEnum.行政班}
+        type: ManagesDevice + '/list',
+        payload: {s: 10000}
       })
     }
   }
 
   render() {
     const {
-      visible, onCancel, onOk, item, klassList=[],
+      visible, onCancel, onOk, item, deviceList=[],
       form: {getFieldDecorator, validateFieldsAndScroll}
     } = this.props;
     const modalProps = {
@@ -196,12 +196,12 @@ class RoomModal extends Component {
               )
             }
           </Form.Item>
-          <Form.Item label="行政班级" {...wrapper}>
+          <Form.Item label="班牌设备" {...wrapper}>
             {
-              getFieldDecorator('klassId', {})(
+              getFieldDecorator('deviceId', {})(
                 <Select placeholder="请选择">
                   {
-                    klassList.map(it =>
+                    deviceList.map(it =>
                       <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
                     )
                   }

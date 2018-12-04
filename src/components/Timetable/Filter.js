@@ -27,19 +27,19 @@ export default class Filter extends Component {
   };
 
   fetchKlassList = (gradeId) => {
-    fetchKlassList({gradeId}).then(({result: {list}}) => {
+    fetchKlassList({gradeId, s:10000}).then(({result: {list}}) => {
       this.setState({klassList: list});
     });
   };
 
   fetchCourseList = (gradeId) => {
-    fetchCourseList({gradeId}).then(({result: {list}}) => {
+    fetchCourseList({gradeId, s:10000}).then(({result: {list}}) => {
       this.setState({courseList: list});
     });
   };
 
   fetchTeacherList = (gradeId, courseId) => {
-    fetchTeacherList({gradeId, courseId}).then(({result: {list}}) => {
+    fetchTeacherList({gradeId, courseId, s:10000}).then(({result: {list}}) => {
       this.setState({teacherList: list});
     });
   };
