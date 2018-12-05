@@ -1,31 +1,13 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import {
-  Form,
-  Row,
-  Col,
-  message,
-  Modal,
-  Select,
-  DatePicker,
-  Input,
-  notification,
-  Checkbox,
-  Button,
-  Radio,
-  Progress
-} from 'antd';
-import {
-  ManagesClass,
-  ManagesGrade,
-  ManagesStudent as namespace, ManagesTeacher, TimetableStudent,
-  Authenticate
-} from '../../../utils/namespace';
+import {Form, Modal, Input, notification, Radio,} from 'antd';
+import {ManagesClass, ManagesGrade, ManagesStudent as namespace} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import styles from './index.less';
 import ExcelImportModal from '../../../components/ExcelImport';
+import ReadExcel from '../../../components/ReadExcel';
 
 @connect(state => ({
   total: state[namespace].total,
@@ -241,7 +223,7 @@ export default class StudentList extends Component {
         }}
       >
         <StudentModal {...studentModalProps} />
-        <ExcelImportModal {...importModalProps} />
+        <ImportStudentModal {...importModalProps} />
       </ListPage>
     )
   }
@@ -324,6 +306,29 @@ class StudentModal extends Component {
             }
           </Form.Item>
         </Form>
+      </Modal>
+    )
+  }
+}
+
+
+class ImportStudentModal extends Component {
+  render() {
+    const {
+      visible, onCancel, onOk,
+    } = this.props;
+    const modalProps = {
+      width: 1000,
+      visible,
+      title: '导入学生',
+      onCancel,
+      onOk: () => {
+
+      }
+    };
+    return (
+      <Modal {...modalProps}>
+        <ReadExcel/>
       </Modal>
     )
   }

@@ -2,7 +2,7 @@ import React from 'react';
 import {Timeline} from 'antd';
 import Page from '../../components/Page';
 import styles from './index.less';
-import ReadExcel from '../../components/ReadExcel';
+
 
 export default function Home({location, dispatch}) {
 
@@ -16,7 +16,7 @@ export default function Home({location, dispatch}) {
   return (
     <Page header={header}>
       <div className={styles.home}>
-        <ReadExcel />
+
         <Timeline>
           <Timeline.Item>
             <h3>2018-12 Version:1.0.0</h3>
