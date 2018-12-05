@@ -83,7 +83,7 @@ export default class MeterList extends Component {
         render: (id, row) => (
           <TableCellOperation
             operations={{
-              look: () => dispatch(routerRedux.push({pathname: ManagesStudent, query: {gradeId: id}})),
+              look: () => dispatch(routerRedux.push({pathname: ManagesStudent, query: {klassId: id}})),
               edit: () => this.setState({visible: true, item: row}),
               remove: {
                 onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
