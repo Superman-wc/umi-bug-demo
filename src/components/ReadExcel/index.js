@@ -1,49 +1,80 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {message, Modal, Button, Progress} from 'antd';
+import {message, Modal, Button, Progress, Table, Tabs} from 'antd';
 import XLSX from 'xlsx';
+import {stdColumns} from '../ListPage';
+import TableCellOperation from '../TableCellOperation';
 
+
+const INDEX = Symbol('index');
 
 export default class ReadExcel extends Component {
+
+  state = {};
 
   read = (file) => {
     const name = file.name;
     const reader = new FileReader();
     reader.onload = (e) => {
-      const data = e.target.result;
-      const wb = XLSX.read(data, {type: 'binary'});
+      const wb = XLSX.read(e.target.result, {type: 'binary'});
       console.log(name, wb);
       const {Sheets} = wb;
-      Object.entries(Sheets).reduce((map, [sheetName, sheet]) => {
+      const data = Object.entries(Sheets).reduce((map, [sheetName, sheet]) => {
         const ref = sheet['!ref'];
         if (ref) {
           const [refStart, refEnd] = ref.split(':') || [];
           if (refStart && refEnd) {
-            const [, refStartCol, refStartRow] = refStart.match(/^([A-Z]+)(\d+)$/) || [];
-            const [, refEndCol, refEndRow] = refEnd.match(/^([A-Z]+)(\d+)$/) || [];
+            let [, refStartCol, refStartRow] = refStart.match(/^([A-Z]+)(\d+)$/) || [];
+            let [, refEndCol, refEndRow] = refEnd.match(/^([A-Z]+)(\d+)$/) || [];
+
+            refStartRow = refStartRow * 1;
+            refEndRow = refEndRow * 1;
 
             const refStartColIndex = ColCharToIndex(refStartCol);
             const refEndColIndex = ColCharToIndex(refEndCol);
 
             const cols = {};
-            for(let i=refStartColIndex; i<=refEndColIndex; i++){
-
+            const colList = [];
+            for (let i = refStartColIndex; i <= refEndColIndex; i++) {
+              const col = IndexToColChar(i);
+              colList.push(col);
+              cols[col] = sheet[col + refStartRow].v;
+            }
+            const list = [];
+            for (let i = refStartRow + 1; i <= refEndRow; i++) {
+              let flag = false;
+              const cell = colList.reduce((o, col) => {
+                if (sheet[col + i]) {
+                  o[cols[col]] = sheet[col + i] ? sheet[col + i].v : undefined;
+                  flag = true;
+                }
+                return o;
+              }, {id: i, [INDEX]: i});
+              flag && list.push(cell);
             }
 
-            console.log(refStartCol, ColCharToIndex(refStartCol), refEndCol, ColCharToIndex(refEndCol));
-
+            map[sheetName] = {
+              headers: colList.map(key => cols[key]),
+              list
+            }
           }
         }
         return map;
-      }, {})
+      }, {});
+
+      // console.log(data);
+
+      this.setState({data})
 
     };
     reader.readAsBinaryString(file);
   };
 
   render() {
+    const {data = {}} = this.state;
+
     return (
-      <section>
+      <section className="list-table-container">
         <input type="file" onChange={(e) => {
           if (e.target.files && e.target.files.length) {
             [...e.target.files].forEach(it => {
@@ -51,10 +82,39 @@ export default class ReadExcel extends Component {
             })
           }
         }}/>
+        <Tabs>
+          {
+            Object.entries(data).map(([sheetName, sheet]) =>
+              <Tabs.TabPane key={sheetName} tab={sheetName}>
+                <Table className="list-table"
+                       columns={stdColumns([
+                         ...sheet.headers.map(key => ({key, title: key})),
+                         {
+                           title: '操作', key: INDEX,
+                           render: (id, row) => (
+                             <TableCellOperation
+                               operations={{
+                                 remove: () => {
+                                   this.setState({visible: true, item: row})
+                                 },
+                               }}
+                             />
+                           ),
+                         },
+                         ])}
+                       bordered
+                       dataSource={sheet.list}
+                       rowKey={'id'}
+                />
+              </Tabs.TabPane>
+            )
+          }
+        </Tabs>
       </section>
     )
   }
 }
+
 
 /**
  * Excel列ID转number
@@ -66,8 +126,13 @@ function ColCharToIndex(val = 'A') {
   return val.match(/[A-Z]/g).reverse().reduce((sum, c, i) => sum + (c.charCodeAt(0) - (i ? 64 : 65)) * Math.pow(26, i), 0);
 }
 
-function IndexToColChar(index){
+function IndexToColChar(index = 0) {
   const v = [];
-
-  Math.floor(index/26)
+  let s = 0;
+  do {
+    s = Math.floor(index / 26);
+    v.push(index % 26);
+    index = s;
+  } while (s > 0);
+  return v.map((t, i) => String.fromCharCode(t + (i ? 64 : 65))).reverse().join('')
 }

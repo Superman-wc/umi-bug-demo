@@ -104,7 +104,7 @@ export default class MeterList extends Component {
   mapPropsToFields(props) {
     const {deviceName, device} = props.item || {};
     return {
-      deviceName: Form.createFormField({value: deviceName || undefined}),
+      name: Form.createFormField({value: deviceName || undefined}),
       device: Form.createFormField({value: device || undefined}),
     }
   }
@@ -143,7 +143,7 @@ class DeviceModal extends Component {
         <Form layout="horizontal">
           <Form.Item label="设备名称" {...wrapper}>
             {
-              getFieldDecorator('deviceName', {rules: [{message: '请输入设备名称', required: true}]})(
+              getFieldDecorator('name', {rules: [{message: '请输入设备名称', required: true}]})(
                 <Input maxLength={64}/>
               )
             }
