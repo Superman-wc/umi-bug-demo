@@ -47,7 +47,7 @@ export default class MeterList extends Component {
 
     const columns = [
       {title: 'ID', key: 'id'},
-      {title: '设备名称', key: 'deviceName'},
+      {title: '设备名称', key: 'name'},
       {title: '设备编号', key: 'device'},
       {
         title: '操作',

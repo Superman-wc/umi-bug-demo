@@ -53,7 +53,7 @@ export default class MeterList extends Component {
       {title: 'ID', key: 'id'},
       {title: '名称', key: 'name'},
       {title: '容纳学生数', key: 'capacity'},
-      {title:'设备', key:'deviceName'},
+      {title:'设备', key:'device'},
       {
         title: '操作',
         key: 'operate',

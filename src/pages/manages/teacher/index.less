@@ -1,4 +1,6 @@
+
 .subject-item {
+  display: inline-block;
   &:after {
     content: '、';
   }
@@ -6,5 +8,46 @@
     &:after {
       content: none;
     }
+  }
+}
+
+.teach-scope-subject {
+  padding-left: 12px;
+  margin-right: 12px;
+  cursor: pointer;
+  &:hover {
+    background-color: rgba(76, 150, 137, 0.2)
+  }
+  &.selected {
+    color: @primary-color;
+  }
+  &.current {
+    background-color: @primary-color;
+    color: #fff;
+  }
+
+}
+
+.select-checkbox {
+  &-dropdown {
+    line-height: 2.5;
+    :global {
+      .ant-checkbox-group {
+        line-height: 2.5;
+        padding-left: 12px;
+      }
+    }
+    .col-item {
+      border-right: 1px solid #ddd;
+      & > h3 {
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+      }
+      & > div {
+        max-height: 300px;
+        overflow: auto;
+      }
+    }
+
   }
 }

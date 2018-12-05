@@ -2,6 +2,7 @@ import React from 'react';
 import {Timeline} from 'antd';
 import Page from '../../components/Page';
 import styles from './index.less';
+import ReadExcel from '../../components/ReadExcel';
 
 export default function Home({location, dispatch}) {
 
@@ -15,7 +16,16 @@ export default function Home({location, dispatch}) {
   return (
     <Page header={header}>
       <div className={styles.home}>
+        <ReadExcel />
         <Timeline>
+          <Timeline.Item>
+            <h3>2018-12 Version:1.0.0</h3>
+            <p>
+              1. 功能实现：学期管理、年级管理、科目管理、班级管理、学生管理、师资管理<br/>
+              2. 功能实现：课程管理、教室管理、课表配置、课时配置、设备管理
+            </p>
+
+          </Timeline.Item>
           <Timeline.Item>
             <h3>2018-10-25 课表全新UI</h3>
             <p>

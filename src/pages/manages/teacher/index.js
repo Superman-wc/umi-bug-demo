@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Select, DatePicker, Input, notification, Checkbox} from 'antd';
+import {Form, Row, Col, message, Modal, Select, Divider, DatePicker, Input, notification, Checkbox} from 'antd';
+import classnames from 'classnames';
 import {
   ManagesClass, ManagesCourse,
   ManagesGrade, ManagesSubject,
@@ -13,7 +14,8 @@ import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import styles from './index.less';
 import ExcelImportModal from '../../../components/ExcelImport';
-
+import Flex from '../../../components/Flex';
+import {ClassTypeEnum} from "../../../utils/Enum";
 
 
 @connect(state => ({
@@ -23,19 +25,32 @@ import ExcelImportModal from '../../../components/ExcelImport';
   gradeList: state[ManagesGrade].list,
   courseList: state[ManagesCourse].list,
   subjectList: state[ManagesSubject].list,
+  classList: state[ManagesClass].list,
 }))
 export default class StudentList extends Component {
 
   state = {};
 
   componentDidMount() {
-    const {subjectList, dispatch} = this.props;
+    const {subjectList, gradeList, classList, dispatch} = this.props;
     if (!subjectList) {
       dispatch({
         type: ManagesSubject + '/list',
         payload: {s: 1000}
       })
     }
+    if (!gradeList) {
+      dispatch({
+        type: ManagesGrade + '/list',
+        payload: {s: 1000}
+      })
+    }
+    // if (!classList) {
+    dispatch({
+      type: ManagesClass + '/list',
+      payload: {s: 1000}
+    })
+    // }
   }
 
   // fetchGradeList() {
@@ -56,7 +71,7 @@ export default class StudentList extends Component {
   render() {
     const {
       list, total, loading,
-      gradeList = [], courseList = [], subjectList = [],
+      gradeList = [], courseList = [], subjectList = [], classList = [],
       location, dispatch
     } = this.props;
 
@@ -94,11 +109,26 @@ export default class StudentList extends Component {
       {title: '姓名', key: 'name'},
       {title: '工号', key: 'code'},
       {title: '手机号', key: 'mobile'},
-      {title: '教学科目', key: 'subjectList', render: v => v.map(it => <span className={styles['subject-item']} key={it.id}>{it.name}</span>)},
+      {
+        title: '教学范围',
+        key: 'teachScopeList',
+        render: v => v && v.map(it =>
+          <span className={styles['subject-item']}
+                key={[it.gradeId, it.subjectId].join('-')}>{it.gradeName + it.subjectName}</span>
+        )
+      },
+      {
+        title: '任课班级',
+        key: 'klassTeacherList',
+        render: v => v && v.map(it =>
+          <span className={styles['subject-item']}
+                key={[it.klassId, it.subjectId].join('-')}>{it.klassName + it.subjectName}</span>
+        )
+      },
       {
         title: '操作',
         key: 'operate',
-        width: 80,
+        // width: 80,
         render: (id, row) => (
           <TableCellOperation
             operations={{
@@ -117,7 +147,7 @@ export default class StudentList extends Component {
     const teacherModalProps = {
       visible: this.state.visible,
       item: this.state.item,
-      subjectList,
+      subjectList, gradeList, classList,
       onCancel: () => this.setState({visible: false}),
       onOk: (payload) => {
         console.log(payload);
@@ -138,7 +168,7 @@ export default class StudentList extends Component {
       onCancel: () => this.setState({importModalVisible: false}),
       templateUrl: 'https://res.yunzhiyuan100.com/hii/老师管理录入模板（请勿随意更改模板格式，否则无法导入数据！）.xlsx',
       excelImport: (excelUrl) => {
-        return new Promise((resolve, reject)=>{
+        return new Promise((resolve, reject) => {
           dispatch({
             type: namespace + '/excelImport',
             payload: {
@@ -172,19 +202,21 @@ export default class StudentList extends Component {
 
 @Form.create({
   mapPropsToFields(props) {
-    const {name, code, mobile, subjectsList} = props.item || {};
+    const {name, code, mobile, subjectsList, teachScopeList, klassTeacherList} = props.item || {};
     return {
       name: Form.createFormField({value: name || undefined}),
       code: Form.createFormField({value: code || undefined}),
       mobile: Form.createFormField({value: mobile || undefined}),
-      subjectIds: Form.createFormField({value: subjectsList && subjectsList.length && subjectsList.map(it => (it.id)) || undefined})
+      subjectIds: Form.createFormField({value: subjectsList && subjectsList.length && subjectsList.map(it => (it.id)) || undefined}),
+      teachScopeList: Form.createFormField({value: teachScopeList || undefined}),
+      klassTeacherList: Form.createFormField({value: klassTeacherList || undefined}),
     }
   }
 })
 class TeacherModal extends Component {
   render() {
     const {
-      visible, onCancel, onOk, item, subjectList,
+      visible, onCancel, onOk, item, subjectList = [], gradeList = [], classList = [],
       form: {getFieldDecorator, validateFieldsAndScroll}
     } = this.props;
     const modalProps = {
@@ -202,6 +234,13 @@ class TeacherModal extends Component {
             if (payload.subjectIds && payload.subjectIds.length) {
               payload.subjectIds = payload.subjectIds.join(',')
             }
+            if (payload.teachScopeList) {
+              payload.teachScopeList = JSON.stringify(payload.teachScopeList);
+            }
+            if (payload.klassTeacherList) {
+              payload.klassTeacherList = JSON.stringify(payload.klassTeacherList);
+            }
+            // console.log(payload);
             onOk(payload);
           }
         })
@@ -239,15 +278,282 @@ class TeacherModal extends Component {
               )
             }
           </Form.Item>
-          <Form.Item label="教学科目" {...wrapper}>
+          <Form.Item label="教学范围" {...wrapper}>
             {
-              getFieldDecorator('subjectIds')(
-                <Checkbox.Group options={subjectList.map(it => ({value: it.id, label: it.name}))}/>
+              getFieldDecorator('teachScopeList')(
+                <TeachSubjectGradeScopeCheckbox gradeList={gradeList} subjectList={subjectList}/>
+              )
+            }
+          </Form.Item>
+          <Form.Item label="任课班级" {...wrapper}>
+            {
+              getFieldDecorator('klassTeacherList')(
+                <TeachClassSubjectScopeCheckbox classList={classList} subjectList={subjectList}/>
               )
             }
           </Form.Item>
         </Form>
       </Modal>
+    )
+  }
+}
+
+
+class TeachClassSubjectScopeCheckbox extends Component {
+
+  static CID = 0;
+
+  constructor() {
+    super(...arguments);
+    this.id = 'TeachClassSubjectScopeCheckbox-' + (TeachClassSubjectScopeCheckbox.CID++);
+  }
+
+  state = {};
+
+  componentDidMount() {
+    document.addEventListener('click', this.onClick);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('click', this.onClick);
+  }
+
+  onClick = (e) => {
+    if (this.state.open) {
+      const findId = ele => {
+        return ele.id === this.id || (ele.parentElement && findId(ele.parentElement))
+      };
+      const v = findId(e.target);
+      // console.log(v, e.target);
+      if (!v) {
+        this.setState({open: false});
+      }
+    }
+  };
+
+  render() {
+    const {classList = [], subjectList = [], value = [], onChange} = this.props;
+    const klassMap = classList.reduce((map, it) => {
+      map[it.id] = it;
+      return map;
+    }, {});
+    const subjectMap = subjectList.reduce((map, it) => {
+      map[it.id] = it;
+      return map;
+    }, {});
+
+    let selectedValue = [];
+
+    const valueMap = value.reduce((map, it) => {
+      selectedValue.push(it.klassName + it.subjectName);
+      const m = map[it.klassId] || {};
+      m[it.subjectId] = it;
+      map[it.klassId] = m;
+      return map;
+    }, {});
+
+    const klassId = this.state.klassId ||
+      (value && value.length && value[0] && value[0].klassId) ||
+      (classList && classList[0] && classList[0].id);
+
+    const valueItem = valueMap[klassId] || {};
+
+    const subjectValue = Object.keys(valueItem).map(key => key * 1);
+
+    const klass = klassMap[klassId];
+
+    return (
+      <div id={this.id} className={styles['select-checkbox']}>
+        <Select open={this.state.open} value={selectedValue.length ? selectedValue.join('、') : undefined}
+                placeholder="请选择"
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                onFocus={() => {
+                  this.setState({open: true});
+                }}
+                dropdownRender={() => (
+                  <Flex className={styles['select-checkbox-dropdown']}>
+                    <Flex.Item className={styles['col-item']}>
+                      <h3>班级</h3>
+                      <div>
+                        {
+                          classList.map(it =>
+                            <div key={it.id}
+                                 className={
+                                   classnames(styles['teach-scope-subject'], {
+                                     [styles['selected']]: valueMap[it.id],
+                                     [styles['current']]: klassId === it.id,
+                                   })
+                                 }
+                                 onClick={() => {
+                                   this.setState({klassId: it.id});
+                                 }}
+                            >
+                              {it.type !== ClassTypeEnum.行政班 ? it.gradeName : ''}{it.name}
+                            </div>
+                          )
+                        }
+                      </div>
+                    </Flex.Item>
+                    <Flex.Item className={styles['col-item']}>
+                      <h3>科目</h3>
+                      <div>
+                        <Checkbox.Group value={subjectValue} onChange={v => {
+                          const vi = {};
+                          v.forEach(subjectId => {
+                            vi[subjectId] = {
+                              klassId,
+                              subjectId,
+                              subjectName: subjectMap[subjectId].name,
+                              klassName: klass.name
+                            }
+                          });
+                          valueMap[klassId] = vi;
+                          const vv = Object.values(valueMap).reduce((arr, it) => arr.concat(Object.values(it)), []);
+                          onChange(vv);
+                        }}>
+                          {
+                            klass && klass.subjectId ?
+                              <div>
+                                <Checkbox value={klass.subjectId}>{klass.subjectName}</Checkbox>
+                              </div>
+                              :
+                              subjectList.map(it =>
+                                <div key={it.id}>
+                                  <Checkbox value={it.id}>{it.name}</Checkbox>
+                                </div>
+                              )
+                          }
+                        </Checkbox.Group>
+                      </div>
+                    </Flex.Item>
+                  </Flex>
+                )}/>
+      </div>
+    )
+  }
+}
+
+class TeachSubjectGradeScopeCheckbox extends Component {
+
+  static CID = 0;
+
+  constructor() {
+    super(...arguments);
+    this.id = 'TeachSubjectGradeScopeCheckbox-' + (TeachSubjectGradeScopeCheckbox.CID++);
+  }
+
+  state = {};
+
+  componentDidMount() {
+    document.addEventListener('click', this.onClick);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('click', this.onClick);
+  }
+
+  onClick = (e) => {
+    if (this.state.open) {
+      const findId = ele => {
+        return ele.id === this.id || (ele.parentElement && findId(ele.parentElement))
+      };
+      const v = findId(e.target);
+      // console.log(v, e.target);
+      if (!v) {
+        this.setState({open: false});
+      }
+    }
+  };
+
+  render() {
+    const {gradeList = [], subjectList = [], value = [], onChange} = this.props;
+    const gradeMap = gradeList.reduce((map, it) => {
+      map[it.id] = it;
+      return map;
+    }, {});
+    const subjectMap = subjectList.reduce((map, it) => {
+      map[it.id] = it;
+      return map;
+    }, {});
+
+    let selectedValue = [];
+
+    const valueMap = value.reduce((map, it) => {
+      selectedValue.push(it.gradeName + it.subjectName);
+      const m = map[it.subjectId] || {};
+      m[it.gradeId] = it;
+      map[it.subjectId] = m;
+      return map;
+    }, {});
+
+    const subjectId = this.state.subjectId ||
+      (value && value.length && value[0] && value[0].subjectId) ||
+      (subjectList && subjectList[0] && subjectList[0].id);
+
+    const valueItem = valueMap[subjectId] || {};
+
+    const gradeValue = Object.keys(valueItem).map(key => key * 1);
+
+    return (
+      <div id={this.id} className={styles['select-checkbox']}>
+        <Select open={this.state.open} value={selectedValue.length ? selectedValue.join('、') : undefined}
+                placeholder="请选择"
+                getPopupContainer={triggerNode => triggerNode.parentNode}
+                onFocus={(e) => {
+                  this.setState({open: true});
+                }}
+                dropdownRender={() => (
+                  <Flex className={styles['select-checkbox-dropdown']}>
+                    <Flex.Item className={styles['col-item']}>
+                      <h3>科目</h3>
+                      <div>
+                        {
+                          subjectList.map(it =>
+                            <div key={it.id}
+                                 className={
+                                   classnames(styles['teach-scope-subject'], {
+                                     [styles['selected']]: valueMap[it.id],
+                                     [styles['current']]: subjectId === it.id,
+                                   })
+                                 }
+                                 onClick={() => {
+                                   this.setState({subjectId: it.id});
+                                 }}
+                            >
+                              {it.name}
+                            </div>
+                          )
+                        }
+                      </div>
+                    </Flex.Item>
+                    <Flex.Item className={styles['col-item']}>
+                      <h3>年级</h3>
+                      <Checkbox.Group value={gradeValue} onChange={v => {
+                        const vi = {};
+                        v.forEach(gradeId => {
+                          vi[gradeId] = {
+                            subjectId,
+                            gradeId,
+                            subjectName: subjectMap[subjectId].name,
+                            gradeName: gradeMap[gradeId].name
+                          }
+                        });
+                        valueMap[subjectId] = vi;
+                        const vv = Object.values(valueMap).reduce((arr, it) => arr.concat(Object.values(it)), []);
+                        onChange(vv);
+                      }}>
+                        {
+                          gradeList.map(it =>
+                            <div key={it.id}>
+                              <Checkbox value={it.id}>{it.name}</Checkbox>
+                            </div>
+                          )
+                        }
+                      </Checkbox.Group>
+                    </Flex.Item>
+                  </Flex>
+                )}/>
+      </div>
     )
   }
 }

@@ -69,19 +69,28 @@ export default class StudentList extends Component {
 
     const {pathname, query} = location;
 
-    const title = '学生列表';
+    const gradeMap = gradeList.reduce((map, it) => {
+      map[it.id] = it;
+      return map;
+    }, {});
+
+    const classMap = classList.reduce((map, it) => {
+      map[it.id] = it;
+      return map;
+    }, {});
+
+    const title = (
+      query.klassId && classMap[query.klassId] ?
+        classMap[query.klassId].name
+        :
+        query.gradeId && gradeMap[query.gradeId] ?
+          gradeMap[query.gradeId].name
+          :
+          ''
+    ) + (query.gender === 'true' ? '男' : query.gender === 'false' ? '女' : '') + '学生列表';
 
     const breadcrumb = ['管理', '学生管理', title];
 
-    // const gradeMap = gradeList.reduce((map, it) => {
-    //   map[it.id] = it;
-    //   return map;
-    // }, {});
-    //
-    // const classMap = classList.reduce((map, it) => {
-    //   map[it.id] = it;
-    //   return map;
-    // }, {});
 
     const buttons = [
       {
@@ -149,7 +158,7 @@ export default class StudentList extends Component {
       {
         title: '操作',
         key: 'operate',
-        width: 100,
+        // width: 100,
         render: (id, item) => (
           <TableCellOperation
             operations={{
@@ -159,15 +168,15 @@ export default class StudentList extends Component {
               remove: {
                 onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
               },
-              timetable: {
-                children: '课表',
-                onClick: () => {
-                  dispatch(routerRedux.push({
-                    pathname: TimetableStudent,
-                    query: {studentId: id, gradeId: item.gradeId, name: item.name}
-                  }))
-                }
-              }
+              // timetable: {
+              //   children: '课表',
+              //   onClick: () => {
+              //     dispatch(routerRedux.push({
+              //       pathname: TimetableStudent,
+              //       query: {studentId: id, gradeId: item.gradeId, name: item.name}
+              //     }))
+              //   }
+              // }
             }}
           />
         ),

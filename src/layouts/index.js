@@ -195,29 +195,29 @@ function Side(props) {
         }
       ],
     },
-    {
-      key: 'other',
-      title: '其他',
-      items: [
-        {
-          title: '',
-          items: [
-            {
-              link: '/manages/meter',
-              title: '个人中心'
-            },
-            {
-              link: '/manages/user',
-              title: '常见问题',
-            },
-            {
-              link: '/manages/price',
-              title: '下载中心',
-            }
-          ]
-        }
-      ],
-    },
+    // {
+    //   key: 'other',
+    //   title: '其他',
+    //   items: [
+    //     {
+    //       title: '',
+    //       items: [
+    //         {
+    //           link: '/manages/meter',
+    //           title: '个人中心'
+    //         },
+    //         {
+    //           link: '/manages/user',
+    //           title: '常见问题',
+    //         },
+    //         {
+    //           link: '/manages/price',
+    //           title: '下载中心',
+    //         }
+    //       ]
+    //     }
+    //   ],
+    // },
   ];
 
   return (
