@@ -74,7 +74,7 @@ export default class ManagesTimetable extends Component {
         title: '学期', key: 'semesterId', width: 120,
         render: v => semesterMap[v] ? (semesterMap[v].academicYear + '学年第' + semesterMap[v].semesterType + '学期') : v
       },
-      {title: '开始时间', key: 'startTime', render: v => moment(v).format('hh:mm:ss')},
+      {title: '开始时间', key: 'startTime', render: v => moment(v).format('HH:mm:ss')},
       {title: '时长', key: 'interval', render: v => v ? v + '分钟' : ''},
       {title: '创建时间', key: 'dateCreated'},
       {
@@ -134,7 +134,7 @@ export default class ManagesTimetable extends Component {
     let {gradeId, semesterId, startTime, interval} = props.item || {};
 
     if(startTime || startTime === 0){
-      startTime = moment(startTime).format('hh:mm:ss');
+      startTime = moment(startTime).format('HH:mm:ss');
     }
 
 

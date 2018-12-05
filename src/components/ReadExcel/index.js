@@ -45,11 +45,11 @@ export default class ReadExcel extends Component {
               let flag = false;
               const cell = colList.reduce((o, col) => {
                 if (sheet[col + i]) {
-                  o[cols[col]] = sheet[col + i] ? sheet[col + i].v : undefined;
+                  o[cols[col]] = sheet[col + i] ? {value: sheet[col + i].v} : undefined;
                   flag = true;
                 }
                 return o;
-              }, {id: i, [INDEX]: i});
+              }, {index: i});
               flag && list.push(cell);
             }
 
@@ -85,26 +85,29 @@ export default class ReadExcel extends Component {
         <Tabs>
           {
             Object.entries(data).map(([sheetName, sheet]) =>
-              <Tabs.TabPane key={sheetName} tab={sheetName}>
+              <Tabs.TabPane key={sheetName} tab={`${sheetName}(${sheet.list.length}行)`}>
                 <Table className="list-table"
+                       pagination={false}
                        columns={stdColumns([
-                         ...sheet.headers.map(key => ({key, title: key})),
+                         {title: '行号', key: 'index', width: 30},
+                         ...sheet.headers.map(key => ({key, title: key, render: v => v && v.value})),
                          {
-                           title: '操作', key: INDEX,
-                           render: (id, row) => (
+                           title: '操作', key: 'operate',
+                           render: (id, row, index) => (
                              <TableCellOperation
                                operations={{
                                  remove: () => {
-                                   this.setState({visible: true, item: row})
+                                   data[sheetName].list.splice(index, 1);
+                                   this.setState({data: {...data}});
                                  },
                                }}
                              />
                            ),
                          },
-                         ])}
+                       ])}
                        bordered
                        dataSource={sheet.list}
-                       rowKey={'id'}
+                       rowKey="index"
                 />
               </Tabs.TabPane>
             )

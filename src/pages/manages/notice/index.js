@@ -64,7 +64,7 @@ export default class ManagesNotice extends Component {
       // {title: '内容', key: 'content',},
       {title: '图片', key: 'picUrl', render: v => v ? <img src={v} width={50}/> : ''},
       {title: '链接', key: 'newsUrl', width: 40, render: v => v ? <a href={v} target="_blank">查看</a> : ''},
-      {title: '发布时间', key: 'newsTime', width: 120, render: v => moment(v).format('YYYY-MM-DD hh:mm:ss')},
+      {title: '发布时间', key: 'newsTime', width: 120, render: v => moment(v).format('YYYY-MM-DD HH:mm:ss')},
       // {title: '创建时间', key: 'dateCreated'},
       {
         title: '操作',
