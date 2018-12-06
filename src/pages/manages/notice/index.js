@@ -57,18 +57,18 @@ export default class ManagesNotice extends Component {
     }, {});
 
     const columns = [
-      {title: 'ID', key: 'id', width:40,},
-      {title: '类型', key: 'type', width:40, render: v => NoticeTypeEnum[v] || v},
+      {title: 'ID', key: 'id', width: 40,},
+      {title: '类型', key: 'type', width: 40, render: v => NoticeTypeEnum[v] || v},
       {title: '年级', key: 'gradeId', width: 40, render: v => gradeMap[v] ? gradeMap[v].name : v},
-      {title: '标题', key: 'title', width: 250, tac: false},
+      {title: '标题', key: 'title', width: 220, tac: false},
       // {title: '内容', key: 'content',},
-      {title: '图片', key: 'picUrl', render: v => v ? <img src={v} width={50}/> : ''},
+      {title: '图片', key: 'picUrl', width: 50, render: v => v ? <img src={v} width={50}/> : ''},
       {title: '链接', key: 'newsUrl', width: 40, render: v => v ? <a href={v} target="_blank">查看</a> : ''},
-      {title: '发布时间', key: 'newsTime', width: 120, render: v => moment(v).format('YYYY-MM-DD HH:mm:ss')},
+      {title: '发布者', key: 'publisher', width: 40},
+      {title: '发布时间', key: 'newsTime', width: 90, render: v => moment(v).format('YYYY-MM-DD HH:mm:ss')},
       // {title: '创建时间', key: 'dateCreated'},
       {
-        title: '操作',
-        key: 'operate',
+        title: '操作',key: 'operate',
         render: (id, row) => (
           <TableCellOperation
             operations={{
