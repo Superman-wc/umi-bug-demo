@@ -153,6 +153,7 @@ class ManagesNoticeModal extends Component {
             if (item && item.id) {
               payload.id = item.id;
             }
+            payload.newsTime = payload.newsTime.valueOf();
             onOk(payload);
           }
         })
