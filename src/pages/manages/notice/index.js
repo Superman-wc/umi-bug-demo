@@ -123,10 +123,10 @@ export default class ManagesNotice extends Component {
     let {type, gradeId, newsTime, title, picUrl, newsUrl, content} = props.item || {};
 
     return {
-      type: Form.createFormField({value: type || undefined}),
+      type: Form.createFormField({value: type && type.toString() || undefined}),
       gradeId: Form.createFormField({value: gradeId || undefined}),
       title: Form.createFormField({value: title || undefined}),
-      newsTime: Form.createFormField({value: newsTime || undefined}),
+      newsTime: Form.createFormField({value: newsTime && moment(newsTime) || undefined}),
       picUrl: Form.createFormField({value: picUrl || undefined}),
       newsUrl: Form.createFormField({value: newsUrl || undefined}),
       content: Form.createFormField({value: content || undefined}),
@@ -222,7 +222,7 @@ class ManagesNoticeModal extends Component {
           <Form.Item label="图片" {...wrapper}>
             {
               getFieldDecorator('picUrl', {
-                rules: [{message: '请输入图片', required: true}]
+                // rules: [{message: '请输入图片', required: true}]
               })(
                 <Input maxLength={255} placeholder="请输入图片"/>
               )
@@ -234,6 +234,16 @@ class ManagesNoticeModal extends Component {
                 rules: [{message: '请输入链接', required: true}]
               })(
                 <Input maxLength={255} placeholder="请输入链接"/>
+              )
+            }
+          </Form.Item>
+
+          <Form.Item label="发布时间" {...wrapper}>
+            {
+              getFieldDecorator('newsTime', {
+                rules: [{message: '请输入链接', required: true}]
+              })(
+                <DatePicker showTime={true} format="YYYY-MM-DD HH:mm:ss" />
               )
             }
           </Form.Item>
