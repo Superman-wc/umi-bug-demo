@@ -1,13 +1,14 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import {Form, Modal, Input, notification, Radio,} from 'antd';
+import {Form, Modal, Input, notification, Radio, Button, Select} from 'antd';
 import {ManagesClass, ManagesGrade, ManagesStudent as namespace} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import styles from './index.less';
 import ExcelImportModal from '../../../components/ExcelImport';
 import ReadExcel from '../../../components/ReadExcel';
+import {ClassTypeEnum} from "../../../utils/Enum";
 
 @connect(state => ({
   total: state[namespace].total,
@@ -184,6 +185,7 @@ export default class StudentList extends Component {
     const importModalProps = {
       title: '导入学生',
       visible: this.state.importModalVisible,
+      gradeList, classList,
       onCancel: () => this.setState({importModalVisible: false}),
       templateUrl: 'https://res.yunzhiyuan100.com/hii/学生名单录入模板（请勿随意更改模板格式，否则无法导入数据！）.xlsx',
       excelImport: ({excelUrl}) => {
@@ -312,23 +314,91 @@ class StudentModal extends Component {
 }
 
 
+@Form.create({})
 class ImportStudentModal extends Component {
+
+  state = {};
+
   render() {
-    const {
-      visible, onCancel, onOk,
+    let {
+      visible, onCancel, onOk, gradeList = [], classList = [],
+      form: {getFieldDecorator, validateFieldsAndScroll}
     } = this.props;
     const modalProps = {
       width: 1000,
       visible,
       title: '导入学生',
       onCancel,
+      destroyOnClose: true,
+      className: styles['import-student-modal'],
       onOk: () => {
 
-      }
+      },
+      footer: (
+        <div>
+          {
+            this.state.data ?
+              <Button onClick={() => this.setState({data: null})}>重新上传</Button>
+              :
+              null
+          }
+          <Button onClick={onCancel}>取消</Button>
+          <Button type="primary" onClick={() => modalProps.onOk()}>确定</Button>
+        </div>
+      )
     };
+    const wrapper = {
+      labelCol: {span: 5},
+      wrapperCol: {span: 16}
+    };
+    classList = classList.filter(it => it.gradeId === this.state.gradeId && it.type === ClassTypeEnum.行政班);
+
+    const fields = {
+      '学号': {rules: [{required: true, message: '请输入学号'}, {pattern:/^\d{8}$/g, message:'请输入8位数字学号'}]},
+      '姓名': {rules: [{required: true, message: '请输入姓名'}]},
+    };
+
+
     return (
       <Modal {...modalProps}>
-        <ReadExcel/>
+        <ReadExcel fields={fields} {...this.state} onChange={(state) => this.setState(state)}/>
+        {
+          this.state.data ?
+            <Form layout="inline" style={{margin: '10px 20px'}}>
+              <Form.Item label="年级" {...wrapper}>
+                {
+                  getFieldDecorator('gradeId', {
+                    rules: [{message: '请选择年级', required: true}]
+                  })(
+                    <Select placehold="请选择年级" style={{width: 200}} onChange={(gradeId) => this.setState({gradeId})}>
+                      {
+                        gradeList.map(it =>
+                          <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
+                        )
+                      }
+                    </Select>
+                  )
+                }
+              </Form.Item>
+              <Form.Item label="班级" {...wrapper}>
+                {
+                  getFieldDecorator('klassId', {
+                    rules: [{message: '请选择班级', required: true}]
+                  })(
+                    <Select placehold="请选择班级" style={{width: 200}}>
+                      {
+                        classList.map(it =>
+                          <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
+                        )
+                      }
+                    </Select>
+                  )
+                }
+              </Form.Item>
+            </Form>
+            :
+            null
+        }
       </Modal>
     )
   }

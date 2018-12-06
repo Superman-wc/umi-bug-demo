@@ -102,9 +102,9 @@ export default class MeterList extends Component {
 
 @Form.create({
   mapPropsToFields(props) {
-    const {deviceName, device} = props.item || {};
+    const {name, device} = props.item || {};
     return {
-      name: Form.createFormField({value: deviceName || undefined}),
+      name: Form.createFormField({value: name || undefined}),
       device: Form.createFormField({value: device || undefined}),
     }
   }
