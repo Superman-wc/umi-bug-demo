@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
 import {Form, Row, Col, message, Modal, Select, Input, notification} from 'antd';
-import {ManagesClass, ManagesDevice, ManagesRoom as namespace, ManagesTeacher} from '../../../utils/namespace';
+import {ManagesClass, ManagesDevice, ManagesRoom as namespace} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import {ClassTypeEnum} from "../../../utils/Enum";
@@ -11,14 +11,24 @@ import ExcelImportModal from '../../../components/ExcelImport';
 @connect(state => ({
   total: state[namespace].total,
   list: state[namespace].list,
-  loading: state[namespace].loading
+  loading: state[namespace].loading,
+  deviceMap: state[ManagesDevice].deviceMap,
 }))
 export default class MeterList extends Component {
 
   state = {};
 
+  componentDidMount() {
+    this.props.dispatch({
+      type: ManagesDevice + '/list',
+      payload: {
+        s: 10000
+      }
+    });
+  }
+
   render() {
-    const {list, total, loading, location, dispatch} = this.props;
+    const {list, total, loading, location, dispatch, deviceMap} = this.props;
 
     const {pathname, query} = location;
 
@@ -53,7 +63,7 @@ export default class MeterList extends Component {
       {title: 'ID', key: 'id'},
       {title: '名称', key: 'name'},
       {title: '容纳学生数', key: 'capacity'},
-      {title:'设备', key:'device'},
+      {title: '设备', key: 'device', width:120, render: v => v ? `${v} (${deviceMap[v] && deviceMap[v].name || ''})` : ''},
       {
         title: '操作',
         key: 'operate',
@@ -92,7 +102,7 @@ export default class MeterList extends Component {
       onCancel: () => this.setState({importModalVisible: false}),
       templateUrl: 'https://res.yunzhiyuan100.com/hii/教室管理录入模板（请勿随意更改模板格式，否则无法导入数据！）.xlsx',
       excelImport: (excelUrl) => {
-        return new Promise((resolve, reject)=>{
+        return new Promise((resolve, reject) => {
           dispatch({
             type: namespace + '/excelImport',
             payload: {
@@ -150,7 +160,7 @@ class RoomModal extends Component {
 
   render() {
     const {
-      visible, onCancel, onOk, item, deviceList=[],
+      visible, onCancel, onOk, item, deviceList = [],
       form: {getFieldDecorator, validateFieldsAndScroll}
     } = this.props;
     const modalProps = {

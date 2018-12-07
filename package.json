@@ -40,6 +40,7 @@
     "particles.js": "^2.0.0",
     "react-router-breadcrumbs-hoc": "^2.1.4",
     "react-transition-group": "^2.4.0",
+    "warning": "^4.0.2",
     "xlsx": "^0.14.1"
   }
 }

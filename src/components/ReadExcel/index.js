@@ -9,55 +9,97 @@ import styles from './index.less';
 import classnames from 'classnames';
 import Schema from 'async-validator';
 import {pipes} from '../../utils/pipe';
+import warning from 'warning';
+
+
+function CellError({errors}) {
+  return (
+    <ul>
+      {
+        errors.map((it, index) =>
+          <li key={index}>{it.message}</li>
+        )
+      }
+    </ul>
+  )
+}
+
+function Cell(props) {
+  const {value, errors} = props;
+
+  return (
+    <span className={[errors ? styles['error'] : '', value ? '' : styles['null-value']].join(' ')}>
+      {value}
+      {
+        errors ?
+          <CellError errors={errors}/>
+          :
+          null
+      }
+    </span>
+  )
+}
 
 function ReadExcelView(props) {
   const {data = {}, onChange} = props;
 
   const sheets = Object.entries(data);
 
+
   return (
-    sheets.length ?
-      <section className="list-table-container">
-        <Tabs>
-          {
-            sheets.map(([sheetName, sheet]) =>
-              <Tabs.TabPane key={sheetName} tab={`${sheetName}(共${sheet.list.length}行)`}>
-                <Table className="list-table"
-                       pagination={false}
-                       columns={stdColumns([
-                         {title: '行号', key: 'index', width: 30},
-                         ...sheet.headers.map(key => ({key, title: key, render: v => v && v.value})),
-                         {
-                           title: '操作', key: 'operate',
-                           render: (id, row, index) => (
-                             <TableCellOperation
-                               operations={{
-                                 remove: () => {
-                                   data[sheetName].list.splice(index, 1);
-                                   onChange({...data});
-                                 },
-                               }}
-                             />
-                           ),
-                         },
-                       ])}
-                       bordered
-                       dataSource={sheet.list}
-                       rowKey="index"
-                />
-              </Tabs.TabPane>
-            )
-          }
-        </Tabs>
-      </section>
-      :
-      null
-  )
+    <section className="list-table-container">
+      {
+        sheets.length ?
+          <Tabs>
+            {
+              sheets.map(([sheetName, sheet]) =>
+                <Tabs.TabPane key={sheetName} tab={`${sheetName}(共${sheet.list.length}行)`}>
+                  <Table className="list-table"
+                         pagination={false}
+                         columns={stdColumns([
+                           {title: '行号', key: 'index', width: 30},
+                           ...sheet.headers.map(key => ({
+                             key,
+                             title: key,
+                             render: v => v ? <Cell {...v} /> : null
+                           })),
+                           {
+                             title: '操作', key: 'operate',
+                             render: (id, row, index) => (
+                               <TableCellOperation
+                                 operations={{
+                                   remove: () => {
+                                     data[sheetName].list.splice(index, 1);
+                                     onChange({...data});
+                                   },
+                                 }}
+                               />
+                             ),
+                           },
+                         ])}
+                         bordered
+                         dataSource={sheet.list}
+                         rowKey="index"
+                  />
+                </Tabs.TabPane>
+              )
+            }
+          </Tabs>
+          :
+          null
+      }
+    </section>
+  );
+
 
 }
 
 export default class ReadExcel extends Component {
+
   static read = read;
+  static validate = validate;
+  static transform = transform;
+
   state = {};
 
   render() {
@@ -71,37 +113,9 @@ export default class ReadExcel extends Component {
       onChange: files => {
         if (files && files.length) {
           console.log('读取Excel内容', files[0].name);
-          ReadExcel.read(files[0], fields).then(data => {
-            if (fields) {
-              const descriptor = Object.entries(fields).reduce((map, [key, options]) => {
-                if (options.rules) {
-                  map[key] = options.rules
-                }
-                return map;
-              }, {});
-
-              const sheets = Object.values(data);
-
-              return pipes(
-                rs => new Promise((resolve) => {
-                  const validator = new Schema(descriptor);
-                  validator.validate(
-                    Object.entries(rs).reduce((map, [key, o]) => {
-                      map[key] = o.value;
-                      return map;
-                    }, {}),
-                    (errors, o) => {
-                      console.log(errors, o);
-                      if (errors) {
-
-                      }
-                      resolve(rs);
-                    });
-                })
-              )(...data);
-            }
-            return data;
-          }).then(data => onChange({data}));
+          ReadExcel.read(files[0])
+            .then(data => fields ? ReadExcel.validate(data, fields) : data)
+            .then(data => onChange({data}));
         }
       },
       selectFileEnable: !data,
@@ -113,9 +127,7 @@ export default class ReadExcel extends Component {
       <FileInput {...props}>
         {
           data ?
-            <ReadExcelView data={data} onChange={(data) => {
-              onChange({data});
-            }}/>
+            <ReadExcelView data={data} onChange={(data) => onChange({data})}/>
             :
             '选择文件或拖放文件'
         }
@@ -125,10 +137,11 @@ export default class ReadExcel extends Component {
 }
 
 
-export function read(file, fields) {
+export function read(file) {
   return new Promise((resolve, reject) => {
     const name = file.name;
     const reader = new FileReader();
+
     reader.onload = (e) => {
       try {
         const wb = XLSX.read(e.target.result, {type: 'binary'});
@@ -183,7 +196,94 @@ export function read(file, fields) {
     };
     reader.onerror = reject;
     reader.readAsBinaryString(file);
+  })
+}
+
+export function validate(data = {}, fields = {}) {
+  const fieldKeys = [];
+  const descriptor = Object.entries(fields).reduce((map, [key, options]) => {
+    fieldKeys.push(key);
+    if (options.rules) {
+      map[key] = options.rules
+    }
+    return map;
+  }, {});
+
+  const sheets = Object.entries(data).reduce((arr, [name, sheet]) => {
+    arr.push({name, ...sheet});
+    return arr;
+  }, []);
+
+  return pipes(
+    sheet => {
+      return pipes(
+        rs => new Promise((resolve) => {
+          const validator = new Schema(descriptor);
+          validator.validate(
+            Object.entries(rs).reduce((map, [key, o]) => {
+              map[key] = o.value;
+              return map;
+            }, {}),
+            (errors) => {
+              if (errors && errors.length) {
+                const em = errors.reduce((map, {message, field}) => {
+                  const es = map[field] || [];
+                  es.push({message});
+                  map[field] = es;
+                  return map;
+                }, {});
+                fieldKeys.forEach(key => {
+                  if (em[key]) {
+                    rs[key] = rs[key] || {};
+                    rs[key].errors = em[key];
+                  } else if (rs[key]) {
+                    delete rs[key].errors;
+                  }
+                });
+              }
+              resolve(rs);
+            });
+        })
+      )(...sheet.list).then((list) => {
+        sheet.list = list;
+        return sheet;
+      })
+    }
+  )(...sheets).then((sheets) => {
+    return sheets.reduce((map, sheet) => {
+      map[sheet.name] = sheet;
+      return map;
+    }, {})
   });
+}
+
+export function transform(data, fields = {}) {
+  const fieldList = Object.entries(fields).reduce((list, [key, options]) => {
+    list.push({key, k: options && options.key || options || key});
+    return list;
+  }, []);
+
+  let errors = [];
+  const list = Object.values(data).reduce((list, sheet) => {
+    sheet.list.reduce((list, it) => {
+      list.push(fieldList.reduce((o, {key, k}) => {
+        const m = it[key];
+        if (m) {
+          if (m.errors) {
+            errors = errors.concat(m.errors);
+          }
+          o[k] = m.value;
+        }
+        return o;
+      }, {}));
+      return list;
+    }, list);
+    return list;
+  }, []);
+  if (errors.length) {
+    return {errors};
+  }
+  return {list};
 }
 
 

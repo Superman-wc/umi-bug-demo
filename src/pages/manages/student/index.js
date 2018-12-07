@@ -324,6 +324,27 @@ class ImportStudentModal extends Component {
       visible, onCancel, onOk, gradeList = [], classList = [],
       form: {getFieldDecorator, validateFieldsAndScroll}
     } = this.props;
+
+    const fields = {
+      '学号': {
+        key: 'code',
+        rules: [{required: true, message: '请输入学号'}, {pattern: /^\d{8}$/g, message: '请输入8位数字学号'}],
+      },
+      '姓名': {
+        key: 'name',
+        rules: [{required: true, message: '请输入姓名'}]
+      },
+      '性别': {
+        key: 'gender',
+      },
+      '选考科目': {
+        key: 'electionExaminationCourseEntityList'
+      },
+      '学考科目': {
+        key: 'studyExaminationCourseEntityList'
+      }
+    };
+
     const modalProps = {
       width: 1000,
       visible,
@@ -332,7 +353,18 @@ class ImportStudentModal extends Component {
       destroyOnClose: true,
       className: styles['import-student-modal'],
       onOk: () => {
-
+        let {errors, list} = ReadExcel.transform(this.state.data, fields);
+        if(errors){
+          Modal.error({title:`数据还有${errors.length}处错误`, content:'请修改Excel文件内的错误内容后再导入' });
+        }else{
+          validateFieldsAndScroll((errors, payload)=>{
+            if(errors){
+              console.error(errors);
+            }else{
+              console.log(payload, list);
+            }
+          })
+        }
       },
       footer: (
         <div>
@@ -353,10 +385,7 @@ class ImportStudentModal extends Component {
     };
     classList = classList.filter(it => it.gradeId === this.state.gradeId && it.type === ClassTypeEnum.行政班);
 
-    const fields = {
-      '学号': {rules: [{required: true, message: '请输入学号'}, {pattern:/^\d{8}$/g, message:'请输入8位数字学号'}]},
-      '姓名': {rules: [{required: true, message: '请输入姓名'}]},
-    };
+
 
 
     return (
