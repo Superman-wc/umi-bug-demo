@@ -12,7 +12,7 @@ import ExcelImportModal from '../../../components/ExcelImport';
   total: state[namespace].total,
   list: state[namespace].list,
   loading: state[namespace].loading,
-  deviceMap: state[ManagesDevice].deviceMap,
+  deviceList: state[ManagesDevice].list,
 }))
 export default class MeterList extends Component {
 
@@ -28,7 +28,12 @@ export default class MeterList extends Component {
   }
 
   render() {
-    const {list, total, loading, location, dispatch, deviceMap} = this.props;
+    const {list, total, loading, location, dispatch, deviceList=[]} = this.props;
+
+    const deviceMap = deviceList.reduce((map, it)=>{
+      map[it.device] = it;
+      return map;
+    }, {});
 
     const {pathname, query} = location;
 
