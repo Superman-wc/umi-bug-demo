@@ -12,18 +12,6 @@ import {pipes} from '../../utils/pipe';
 import warning from 'warning';
 
 
-function CellError({errors}) {
-  return (
-    <ul>
-      {
-        errors.map((it, index) =>
-          <li key={index}>{it.message}</li>
-        )
-      }
-    </ul>
-  )
-}
-
 function Cell(props) {
   const {value, errors} = props;
   let title = null;
@@ -34,18 +22,12 @@ function Cell(props) {
   return (
     <span className={[errors ? styles['error'] : '', value ? '' : styles['null-value']].join(' ')} title={title}>
       {value || title}
-      {/*{*/}
-      {/*errors ?*/}
-      {/*<CellError errors={errors}/>*/}
-      {/*:*/}
-      {/*null*/}
-      {/*}*/}
     </span>
   )
 }
 
 function ReadExcelView(props) {
-  const {data = {}, onChange} = props;
+  const {data = {}, onChange, fields={}} = props;
 
   const sheets = Object.entries(data);
 
@@ -63,8 +45,10 @@ function ReadExcelView(props) {
                          columns={stdColumns([
                            {title: '行号', key: 'index', width: 30},
                            ...sheet.headers.map(key => ({
+                             ...fields[key],
                              key,
                              title: key,
+
                              render: v => v ? <Cell {...v} /> : null
                            })),
                            {
@@ -131,7 +115,7 @@ export default class ReadExcel extends Component {
       <FileInput {...props}>
         {
           data ?
-            <ReadExcelView data={data} onChange={(data) => onChange({data})}/>
+            <ReadExcelView data={data} fields={fields} onChange={(data) => onChange({data})}/>
             :
             '选择文件或拖放文件'
         }
