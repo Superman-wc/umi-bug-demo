@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
+import router from 'umi/router';
 import {Form, Row, Col, message, Modal, Select, DatePicker, Input, notification, Checkbox, Button} from 'antd';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
@@ -83,7 +84,7 @@ export default class MeterList extends Component {
         render: (id, row) => (
           <TableCellOperation
             operations={{
-              look: () => dispatch(routerRedux.push({pathname: ManagesStudent, query: {klassId: id}})),
+              look: () => router.push({pathname: ManagesStudent, query: {klassId: id.toString()}}),
               edit: () => this.setState({visible: true, item: row}),
               remove: {
                 onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),

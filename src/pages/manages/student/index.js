@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
 import {Form, Modal, Input, notification, Radio, Button, Select} from 'antd';
-import {ManagesClass, ManagesGrade, ManagesStudent as namespace} from '../../../utils/namespace';
+import {ManagesClass, ManagesGrade, ManagesStudent as namespace, ManagesSubject} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import styles from './index.less';
@@ -16,7 +16,6 @@ import {ClassTypeEnum} from "../../../utils/Enum";
   loading: state[namespace].loading,
   gradeList: state[ManagesGrade].list,
   classList: state[ManagesClass].list,
-
 }))
 export default class StudentList extends Component {
 
@@ -62,15 +61,10 @@ export default class StudentList extends Component {
       return map;
     }, {});
 
-    const title = (
-      query.klassId && classMap[query.klassId] ?
-        classMap[query.klassId].name
-        :
-        query.gradeId && gradeMap[query.gradeId] ?
-          gradeMap[query.gradeId].name
-          :
-          ''
-    ) + (query.gender === 'true' ? '男' : query.gender === 'false' ? '女' : '') + '学生列表';
+    const grade = gradeMap[query.gradeId] || {};
+    const klass = classMap[query.klassId] || {};
+
+    const title = (klass.name || grade.name || '') + (query.gender === 'true' ? '男' : query.gender === 'false' ? '女' : '') + '学生列表';
 
     const breadcrumb = ['管理', '学生管理', title];
 
@@ -86,17 +80,23 @@ export default class StudentList extends Component {
           this.setState({visible: true, item: null});
         },
       },
-      {
-        key: 'import',
-        type: 'primary',
-        children: '导入',
-        title: '导入',
-        icon: 'import',
-        onClick: () => {
-          this.setState({importModalVisible: true});
-        },
-      },
     ];
+
+    if (query.klassId && klass && klass.type === ClassTypeEnum.行政班) {
+
+      buttons.push(
+        {
+          key: 'import',
+          type: 'primary',
+          children: '导入' + (klass.name || '') + '学生',
+          title: '导入',
+          icon: 'import',
+          onClick: () => {
+            this.setState({importModalVisible: true});
+          },
+        }
+      )
+    }
 
     let filterClassList = classList;
     if (query.gradeId) {
@@ -183,20 +183,26 @@ export default class StudentList extends Component {
     };
 
     const importModalProps = {
-      title: '导入学生',
+      title: '导入' + (klass.name || '') + '学生',
       visible: this.state.importModalVisible,
-      gradeList, classList,
       onCancel: () => this.setState({importModalVisible: false}),
-      templateUrl: 'https://res.yunzhiyuan100.com/hii/学生名单录入模板（请勿随意更改模板格式，否则无法导入数据！）.xlsx',
-      excelImport: ({excelUrl}) => {
-        return new Promise((resolve, reject) => {
-          dispatch({
-            type: namespace + '/excelImport',
-            payload: {
-              excelUrl
-            },
-            resolve, reject
-          });
+      onOk: (payload) => {
+        Modal.confirm({
+          title: '导入学生二次确认',
+          content: '此操作将清除原有' + klass.name + '学生，原有课表等信息需要重新构建, 确定需要导入吗？',
+          onOk: () => {
+            payload.klassId = query.klassId;
+            dispatch({
+              type: namespace + '/excelImport',
+              payload,
+              resolve: ({list, total}) => {
+                notification.success({
+                  message:'导入' + (klass.name || '') + '学生，共计'+total+'条记录'
+                });
+                this.setState({importModalVisible: false});
+              }
+            })
+          }
         })
       }
     };
@@ -314,15 +320,28 @@ class StudentModal extends Component {
 }
 
 
-@Form.create({})
+@connect(state => ({
+  subjectNameMap: ((list = []) => {
+    return list.reduce((map, it) => {
+      map[it.name] = it;
+      return map;
+    }, {});
+  })(state[ManagesSubject].list),
+}))
 class ImportStudentModal extends Component {
 
   state = {};
 
+  componentDidMount() {
+    this.props.dispatch({
+      type: ManagesSubject + '/list',
+      payload: {s: 10000}
+    })
+  }
+
   render() {
     let {
-      visible, onCancel, onOk, gradeList = [], classList = [],
-      form: {getFieldDecorator, validateFieldsAndScroll}
+      title, visible, onCancel, onOk, subjectNameMap = {},
     } = this.props;
 
     const fields = {
@@ -336,34 +355,118 @@ class ImportStudentModal extends Component {
       },
       '性别': {
         key: 'gender',
+        rules: [{pattern: /男|女/g, message: '请输入"男"或"女"'}],
       },
-      '选考科目': {
-        key: 'electionExaminationCourseEntityList'
+      '选考1': {
+        key: 'election1',
+        rules: [{
+          type: 'enum',
+          enum: ['物理', '化学', '生物', '政治', '历史', '地理', '技术'],
+          message: '请输入"物理"、"化学"、"生物"、"政治"、"历史"、"地理"、"技术"其中一个'
+        }]
       },
-      '学考科目': {
-        key: 'studyExaminationCourseEntityList'
+      '选考1排名': {
+        key: 'election1Rank',
+        rules: [{
+          pattern: /^\d+$/g,
+          message: '请输入自然数'
+        }]
+      },
+      '选考2': {
+        key: 'election2',
+        rules: [{
+          type: 'enum',
+          enum: ['物理', '化学', '生物', '政治', '历史', '地理', '技术'],
+          message: '请输入"物理"、"化学"、"生物"、"政治"、"历史"、"地理"、"技术"其中一个'
+        }]
+      },
+      '选考2排名': {
+        key: 'election2Rank',
+        rules: [{
+          pattern: /^\d+$/g,
+          message: '请输入自然数'
+        }]
+      },
+      '选考3': {
+        key: 'election3',
+        rules: [{
+          type: 'enum',
+          enum: ['物理', '化学', '生物', '政治', '历史', '地理', '技术'],
+          message: '请输入"物理"、"化学"、"生物"、"政治"、"历史"、"地理"、"技术"其中一个'
+        }]
+      },
+      '选考3排名': {
+        key: 'election3Rank',
+        rules: [{
+          pattern: /^\d+$/g,
+          message: '请输入自然数'
+        }]
+      },
+      '学考': {
+        key: 'studyExaminationSubjectIds',
+        width: 100,
+        rules: [
+          {
+            transform(value) {
+              return value ? value.split('/') : value;
+            },
+            validator(rule, value, callback, source, options) {
+              const errors = [];
+              if (value && Array.isArray(value)) {
+                value.forEach((it, index) => {
+                  if (!/^物理|化学|生物|政治|历史|地理|技术$/g.test(it)) {
+                    errors.push(new Error(`第${index + 1}个"${it}"不是"物理、化学、生物、政治、历史、地理、技术"中的一个`));
+                  }
+                })
+              }
+              callback(errors);
+            }
+          }
+        ]
       }
     };
 
     const modalProps = {
       width: 1000,
       visible,
-      title: '导入学生',
+      title,
       onCancel,
       destroyOnClose: true,
       className: styles['import-student-modal'],
       onOk: () => {
         let {errors, list} = ReadExcel.transform(this.state.data, fields);
-        if(errors){
-          Modal.error({title:`数据还有${errors.length}处错误`, content:'请修改Excel文件内的错误内容后再导入' });
-        }else{
-          validateFieldsAndScroll((errors, payload)=>{
-            if(errors){
-              console.error(errors);
-            }else{
-              console.log(payload, list);
+        if (errors) {
+          Modal.error({title: `数据还有${errors.length}处错误`, content: '请修改Excel文件内的错误内容后再导入'});
+        } else {
+          list.forEach(it => {
+            if (it.studyExaminationSubjectIds) {
+              it.studyExaminationSubjectIds = it.studyExaminationSubjectIds.split('/').reduce((arr, sn) => {
+                const subject = subjectNameMap[sn];
+                if (subject) {
+                  arr.push(subject.id);
+                }
+                return arr;
+              }, []).join(',')
             }
-          })
+            const electionExaminationSubjectEntityList = [];
+            for (let i = 1; i <= 3; i++) {
+              if (it['election' + i]) {
+                const sn = it['election' + i];
+                const subject = subjectNameMap[sn];
+                if (subject) {
+                  const election = {id: subject.id, name: subject.name};
+                  if (it['election' + i + 'Rank']) {
+                    election.rank = parseInt(it['election' + i + 'Rank']);
+                  }
+                  electionExaminationSubjectEntityList.push(election);
+                }
+              }
+              delete it['election' + i];
+              delete it['election' + i + 'Rank'];
+            }
+            it.electionExaminationSubjectEntityList = electionExaminationSubjectEntityList;
+          });
+          onOk({studentImportList: JSON.stringify(list)});
         }
       },
       footer: (
@@ -383,51 +486,11 @@ class ImportStudentModal extends Component {
       labelCol: {span: 5},
       wrapperCol: {span: 16}
     };
-    classList = classList.filter(it => it.gradeId === this.state.gradeId && it.type === ClassTypeEnum.行政班);
-
-
 
 
     return (
       <Modal {...modalProps}>
         <ReadExcel fields={fields} {...this.state} onChange={(state) => this.setState(state)}/>
-        {
-          this.state.data ?
-            <Form layout="inline" style={{margin: '10px 20px'}}>
-              <Form.Item label="年级" {...wrapper}>
-                {
-                  getFieldDecorator('gradeId', {
-                    rules: [{message: '请选择年级', required: true}]
-                  })(
-                    <Select placehold="请选择年级" style={{width: 200}} onChange={(gradeId) => this.setState({gradeId})}>
-                      {
-                        gradeList.map(it =>
-                          <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
-                        )
-                      }
-                    </Select>
-                  )
-                }
-              </Form.Item>
-              <Form.Item label="班级" {...wrapper}>
-                {
-                  getFieldDecorator('klassId', {
-                    rules: [{message: '请选择班级', required: true}]
-                  })(
-                    <Select placehold="请选择班级" style={{width: 200}}>
-                      {
-                        classList.map(it =>
-                          <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
-                        )
-                      }
-                    </Select>
-                  )
-                }
-              </Form.Item>
-            </Form>
-            :
-            null
-        }
       </Modal>
     )
   }

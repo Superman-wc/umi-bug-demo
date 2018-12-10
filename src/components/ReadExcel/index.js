@@ -26,16 +26,20 @@ function CellError({errors}) {
 
 function Cell(props) {
   const {value, errors} = props;
+  let title = null;
+  if (errors && errors.length) {
+    title = errors.map(it => it.message).join('\n')
+  }
 
   return (
-    <span className={[errors ? styles['error'] : '', value ? '' : styles['null-value']].join(' ')}>
-      {value}
-      {
-        errors ?
-          <CellError errors={errors}/>
-          :
-          null
-      }
+    <span className={[errors ? styles['error'] : '', value ? '' : styles['null-value']].join(' ')} title={title}>
+      {value || title}
+      {/*{*/}
+        {/*errors ?*/}
+          {/*<CellError errors={errors}/>*/}
+          {/*:*/}
+          {/*null*/}
+      {/*}*/}
     </span>
   )
 }

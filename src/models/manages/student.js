@@ -17,6 +17,12 @@ export default Model(
         });
       },
     },
+    reducers: {
+      excelImportSuccess(state, action) {
+        const {list = [], total = 0} = action.result;
+        return {...state, list, total, loading: false};
+      }
+    }
   },
   {
     list,
