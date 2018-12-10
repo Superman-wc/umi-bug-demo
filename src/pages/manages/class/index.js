@@ -15,20 +15,33 @@ import {
 } from '../../../utils/namespace';
 import styles from './index.less';
 import {ClassTypeEnum, Enums} from '../../../utils/Enum';
-import ExcelImportModal from '../../../components/ExcelImport';
+// import ExcelImportModal from '../../../components/ExcelImport';
+import ExcelImportModal, {buildImportStudentProps} from '../../../components/ExcelImportModal';
 
 @connect(state => ({
   total: state[namespace].total,
   list: state[namespace].list,
   loading: state[namespace].loading,
   gradeList: state[ManagesGrade].list,
+  subjectList: state[ManagesSubject].list,
 }))
 export default class MeterList extends Component {
 
   state = {};
 
+  componentDidMount() {
+    this.fetchSubjectList();
+  }
+
+  fetchSubjectList() {
+    this.props.dispatch({
+      type: ManagesSubject + '/list',
+      payload: {s: 10000}
+    })
+  }
+
   render() {
-    const {list, total, loading, location, dispatch, gradeList = []} = this.props;
+    const {list, total, loading, location, dispatch, gradeList = [], subjectList = []} = this.props;
 
     const {pathname, query} = location;
 
@@ -80,7 +93,7 @@ export default class MeterList extends Component {
       {title: '班主任', key: 'teacherName',},
       {title: '教室', key: 'roomName'},
       {
-        title: '操作', key: 'operate',
+        title: '操作', key: 'operate', width: 100, tac: false,
         render: (id, row) => (
           <TableCellOperation
             operations={{
@@ -89,6 +102,12 @@ export default class MeterList extends Component {
               remove: {
                 onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
               },
+              'import': row.type === ClassTypeEnum.行政班 ? {
+                children: '导入学生',
+                onClick: () => {
+                  this.setState({importStudentModalVisible: true, item: row});
+                }
+              } : null,
             }}
           />
         ),
@@ -111,23 +130,23 @@ export default class MeterList extends Component {
       }
     };
 
-    const importModalProps = {
-      title: '导入班级',
-      visible: this.state.importModalVisible,
-      onCancel: () => this.setState({importModalVisible: false}),
-      templateUrl: 'https://res.yunzhiyuan100.com/hii/班级管理录入模板（请勿随意更改模板格式，否则无法导入数据！）.xlsx',
-      excelImport: (excelUrl) => {
-        return new Promise((resolve, reject) => {
-          dispatch({
-            type: namespace + '/excelImport',
-            payload: {
-              excelUrl
-            },
-            resolve, reject
-          });
-        })
-      }
-    };
+    // const importModalProps = {
+    //   title: '导入班级',
+    //   visible: this.state.importModalVisible,
+    //   onCancel: () => this.setState({importModalVisible: false}),
+    //   templateUrl: 'https://res.yunzhiyuan100.com/hii/班级管理录入模板（请勿随意更改模板格式，否则无法导入数据！）.xlsx',
+    //   excelImport: (excelUrl) => {
+    //     return new Promise((resolve, reject) => {
+    //       dispatch({
+    //         type: namespace + '/excelImport',
+    //         payload: {
+    //           excelUrl
+    //         },
+    //         resolve, reject
+    //       });
+    //     })
+    //   }
+    // };
 
     return (
       <ListPage
@@ -142,7 +161,19 @@ export default class MeterList extends Component {
         title={title}
       >
         <ClassModal {...classModalProps} />
-        <ExcelImportModal {...importModalProps} />
+        {
+          this.state.importStudentModalVisible && this.state.item ?
+            <ExcelImportModal {...buildImportStudentProps({
+              klass: this.state.item,
+              visible: true,
+              onCancel: () => this.setState({importStudentModalVisible: false}),
+              dispatch, subjectList
+            })} />
+            :
+            null
+        }
+
+        {/*<ExcelImportModal {...importModalProps} />*/}
       </ListPage>
     );
   }

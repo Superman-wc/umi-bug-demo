@@ -6,9 +6,9 @@ import {ManagesClass, ManagesGrade, ManagesStudent as namespace, ManagesSubject}
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import styles from './index.less';
-import ExcelImportModal from '../../../components/ExcelImport';
-import ReadExcel from '../../../components/ReadExcel';
+import ExcelImportModal, {buildImportStudentProps} from '../../../components/ExcelImportModal';
 import {ClassTypeEnum} from "../../../utils/Enum";
+
 
 @connect(state => ({
   total: state[namespace].total,
@@ -16,6 +16,7 @@ import {ClassTypeEnum} from "../../../utils/Enum";
   loading: state[namespace].loading,
   gradeList: state[ManagesGrade].list,
   classList: state[ManagesClass].list,
+  subjectList: state[ManagesSubject].list,
 }))
 export default class StudentList extends Component {
 
@@ -24,6 +25,7 @@ export default class StudentList extends Component {
   componentDidMount() {
     this.fetchGradeList();
     this.fetchClassList();
+    this.fetchSubjectList();
   }
 
   fetchGradeList() {
@@ -42,10 +44,17 @@ export default class StudentList extends Component {
     });
   }
 
+  fetchSubjectList() {
+    this.props.dispatch({
+      type: ManagesSubject + '/list',
+      payload: {s: 10000}
+    })
+  }
+
   render() {
     const {
       list, total, loading,
-      gradeList = [], classList = [],
+      gradeList = [], classList = [], subjectList = [],
       location, dispatch
     } = this.props;
 
@@ -182,31 +191,13 @@ export default class StudentList extends Component {
       }
     };
 
-    const importModalProps = {
-      title: '导入' + (klass.name || '') + '学生',
+    const importModalProps = buildImportStudentProps({
+      klass,
       visible: this.state.importModalVisible,
       onCancel: () => this.setState({importModalVisible: false}),
-      onOk: (payload) => {
-        Modal.confirm({
-          title: '导入学生二次确认',
-          content: '此操作将清除原有' + klass.name + '学生，原有课表等信息需要重新构建, 确定需要导入吗？',
-          onOk: () => {
-            payload.klassId = query.klassId;
-            dispatch({
-              type: namespace + '/excelImport',
-              payload,
-              resolve: ({list, total}) => {
-                notification.success({
-                  message: '导入' + (klass.name || '') + '学生，共计' + total + '条记录'
-                });
-                this.setState({importModalVisible: false});
-              }
-            })
-          }
-        })
-      }
-    };
-
+      subjectList,
+      dispatch,
+    });
 
     return (
       <ListPage
@@ -231,7 +222,7 @@ export default class StudentList extends Component {
         }}
       >
         <StudentModal {...studentModalProps} />
-        <ImportStudentModal {...importModalProps} />
+        <ExcelImportModal {...importModalProps} />
       </ListPage>
     )
   }
@@ -320,207 +311,3 @@ class StudentModal extends Component {
 }
 
 
-@connect(state => ({
-  subjectNameMap: ((list = []) => {
-    return list.reduce((map, it) => {
-      map[it.name] = it;
-      return map;
-    }, {});
-  })(state[ManagesSubject].list),
-}))
-class ImportStudentModal extends Component {
-
-  state = {};
-
-  componentDidMount() {
-    this.props.dispatch({
-      type: ManagesSubject + '/list',
-      payload: {s: 10000}
-    })
-  }
-
-  render() {
-    let {
-      title, visible, onCancel, onOk, subjectNameMap = {},
-    } = this.props;
-
-    const fields = {
-      '学号': {
-        key: 'code',
-        rules: [{required: true, message: '请输入学号'}, {pattern: /^\d{8}$/g, message: '请输入8位数字学号'}],
-      },
-      '姓名': {
-        key: 'name',
-        rules: [{required: true, message: '请输入姓名'}]
-      },
-      '性别': {
-        key: 'gender',
-        rules: [{pattern: /男|女/g, message: '请输入"男"或"女"'}],
-      },
-      '选考1': {
-        key: 'election1',
-        rules: [{
-          type: 'enum',
-          enum: ['物理', '化学', '生物', '政治', '历史', '地理', '技术'],
-          message: '请输入"物理"、"化学"、"生物"、"政治"、"历史"、"地理"、"技术"其中一个'
-        }]
-      },
-      '选考1排名': {
-        key: 'election1Rank',
-        rules: [{
-          pattern: /^\d+$/g,
-          message: '请输入自然数'
-        }]
-      },
-      '选考2': {
-        key: 'election2',
-        rules: [{
-          type: 'enum',
-          enum: ['物理', '化学', '生物', '政治', '历史', '地理', '技术'],
-          message: '请输入"物理"、"化学"、"生物"、"政治"、"历史"、"地理"、"技术"其中一个'
-        }, {
-          validator(rule, value, callback, source, options){
-            const errors = [];
-            if(source['选考2'] && source['选考1'] === source['选考2']){
-              errors.push([new Error('选考1与选考2相同')])
-            }
-            callback(errors);
-          }
-        }]
-      },
-      '选考2排名': {
-        key: 'election2Rank',
-        rules: [{
-          pattern: /^\d+$/g,
-          message: '请输入自然数'
-        }]
-      },
-      '选考3': {
-        key: 'election3',
-        rules: [{
-          type: 'enum',
-          enum: ['物理', '化学', '生物', '政治', '历史', '地理', '技术'],
-          message: '请输入"物理"、"化学"、"生物"、"政治"、"历史"、"地理"、"技术"其中一个'
-        },{
-          validator(rule, value, callback, source, options){
-            const errors = [];
-            if(source['选考3']) {
-              if (source['选考1'] === source['选考3']) {
-                errors.push([new Error('选考1与选考3相同')]);
-              }
-              if (source['选考2'] === source['选考3']) {
-                errors.push([new Error('选考2与选考3相同')]);
-              }
-            }
-            callback(errors);
-          }
-        }]
-      },
-      '选考3排名': {
-        key: 'election3Rank',
-        rules: [{
-          pattern: /^\d+$/g,
-          message: '请输入自然数'
-        }]
-      },
-      '学考': {
-        key: 'studyExaminationSubjectIds',
-        width: 100,
-        rules: [
-          {
-            transform(value) {
-              return value ? value.split('/') : value;
-            },
-            validator(rule, value, callback, source, options) {
-              const errors = [];
-              const sn = {};
-              if (value && Array.isArray(value)) {
-                value.forEach((it, index) => {
-                  if (!/^物理|化学|生物|政治|历史|地理|技术$/g.test(it)) {
-                    errors.push(new Error(`第${index + 1}个"${it}"不是"物理、化学、生物、政治、历史、地理、技术"中的一个`));
-                  }else{
-                    if(sn[it]){
-                      errors.push(new Error(`${it}学考科目已经存在`));
-                    }else {
-                      sn[it] = it;
-                    }
-                  }
-                })
-              }
-              callback(errors);
-            }
-          }
-        ]
-      }
-    };
-
-    const modalProps = {
-      width: 1000,
-      visible,
-      title,
-      onCancel,
-      destroyOnClose: true,
-      className: styles['import-student-modal'],
-      onOk: () => {
-        let {errors, list} = ReadExcel.transform(this.state.data, fields);
-        if (errors) {
-          Modal.error({title: `数据还有${errors.length}处错误`, content: '请修改Excel文件内的错误内容后再导入'});
-        } else {
-          list.forEach(it => {
-            if (it.studyExaminationSubjectIds) {
-              it.studyExaminationSubjectIds = it.studyExaminationSubjectIds.split('/').reduce((arr, sn) => {
-                const subject = subjectNameMap[sn];
-                if (subject) {
-                  arr.push(subject.id);
-                }
-                return arr;
-              }, []).join(',')
-            }
-            const electionExaminationSubjectEntityList = [];
-            for (let i = 1; i <= 3; i++) {
-              if (it['election' + i]) {
-                const sn = it['election' + i];
-                const subject = subjectNameMap[sn];
-                if (subject) {
-                  const election = {id: subject.id, name: subject.name};
-                  if (it['election' + i + 'Rank']) {
-                    election.rank = parseInt(it['election' + i + 'Rank']);
-                  }
-                  electionExaminationSubjectEntityList.push(election);
-                }
-              }
-              delete it['election' + i];
-              delete it['election' + i + 'Rank'];
-            }
-            it.electionExaminationSubjectEntityList = electionExaminationSubjectEntityList;
-          });
-          onOk({studentImportList: JSON.stringify(list)});
-        }
-      },
-      footer: (
-        <div>
-          <a href="https://res.yunzhiyuan100.com/smart-campus/学生名单录入模板.xls" target="_blank" style={{marginRight:'1em'}}>模板文件下载</a>
-          {
-            this.state.data ?
-              <Button onClick={() => this.setState({data: null})}>重新上传</Button>
-              :
-              null
-          }
-          <Button onClick={onCancel}>取消</Button>
-          <Button type="primary" onClick={() => modalProps.onOk()}>确定</Button>
-        </div>
-      )
-    };
-    const wrapper = {
-      labelCol: {span: 5},
-      wrapperCol: {span: 16}
-    };
-
-
-    return (
-      <Modal {...modalProps}>
-        <ReadExcel fields={fields} {...this.state} onChange={(state) => this.setState(state)}/>
-      </Modal>
-    )
-  }
-}

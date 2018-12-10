@@ -35,10 +35,10 @@ function Cell(props) {
     <span className={[errors ? styles['error'] : '', value ? '' : styles['null-value']].join(' ')} title={title}>
       {value || title}
       {/*{*/}
-        {/*errors ?*/}
-          {/*<CellError errors={errors}/>*/}
-          {/*:*/}
-          {/*null*/}
+      {/*errors ?*/}
+      {/*<CellError errors={errors}/>*/}
+      {/*:*/}
+      {/*null*/}
       {/*}*/}
     </span>
   )
@@ -261,7 +261,7 @@ export function validate(data = {}, fields = {}) {
   });
 }
 
-export function transform(data, fields = {}) {
+export function transform(data = {}, fields = {}) {
   const fieldList = Object.entries(fields).reduce((list, [key, options]) => {
     list.push({key, k: options && options.key || options || key});
     return list;
