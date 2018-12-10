@@ -197,7 +197,7 @@ export default class StudentList extends Component {
               payload,
               resolve: ({list, total}) => {
                 notification.success({
-                  message:'导入' + (klass.name || '') + '学生，共计'+total+'条记录'
+                  message: '导入' + (klass.name || '') + '学生，共计' + total + '条记录'
                 });
                 this.setState({importModalVisible: false});
               }
@@ -378,6 +378,14 @@ class ImportStudentModal extends Component {
           type: 'enum',
           enum: ['物理', '化学', '生物', '政治', '历史', '地理', '技术'],
           message: '请输入"物理"、"化学"、"生物"、"政治"、"历史"、"地理"、"技术"其中一个'
+        }, {
+          validator(rule, value, callback, source, options){
+            const errors = [];
+            if(source['选考2'] && source['选考1'] === source['选考2']){
+              errors.push([new Error('选考1与选考2相同')])
+            }
+            callback(errors);
+          }
         }]
       },
       '选考2排名': {
@@ -393,6 +401,19 @@ class ImportStudentModal extends Component {
           type: 'enum',
           enum: ['物理', '化学', '生物', '政治', '历史', '地理', '技术'],
           message: '请输入"物理"、"化学"、"生物"、"政治"、"历史"、"地理"、"技术"其中一个'
+        },{
+          validator(rule, value, callback, source, options){
+            const errors = [];
+            if(source['选考3']) {
+              if (source['选考1'] === source['选考3']) {
+                errors.push([new Error('选考1与选考3相同')]);
+              }
+              if (source['选考2'] === source['选考3']) {
+                errors.push([new Error('选考2与选考3相同')]);
+              }
+            }
+            callback(errors);
+          }
         }]
       },
       '选考3排名': {
@@ -412,10 +433,17 @@ class ImportStudentModal extends Component {
             },
             validator(rule, value, callback, source, options) {
               const errors = [];
+              const sn = {};
               if (value && Array.isArray(value)) {
                 value.forEach((it, index) => {
                   if (!/^物理|化学|生物|政治|历史|地理|技术$/g.test(it)) {
                     errors.push(new Error(`第${index + 1}个"${it}"不是"物理、化学、生物、政治、历史、地理、技术"中的一个`));
+                  }else{
+                    if(sn[it]){
+                      errors.push(new Error(`${it}学考科目已经存在`));
+                    }else {
+                      sn[it] = it;
+                    }
                   }
                 })
               }
