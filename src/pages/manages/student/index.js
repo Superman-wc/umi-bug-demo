@@ -499,6 +499,7 @@ class ImportStudentModal extends Component {
       },
       footer: (
         <div>
+          <a href="https://res.yunzhiyuan100.com/smart-campus/学生名单录入模板.xls" target="_blank" style={{marginRight:'1em'}}>模板文件下载</a>
           {
             this.state.data ?
               <Button onClick={() => this.setState({data: null})}>重新上传</Button>
