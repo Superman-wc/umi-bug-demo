@@ -1,14 +1,20 @@
 import React from 'react';
+import {connect} from 'dva';
 import {Timeline} from 'antd';
 import Page from '../../components/Page';
 import styles from './index.less';
+import {Authenticate} from "../../utils/namespace";
 
 
-export default function Home({location, dispatch}) {
+export default connect(state => ({
+  profile: state[Authenticate].authenticate || {}
+}))(function Home({location, dispatch, profile}) {
 
   const breadcrumb = ['系统更新日志'];
 
-  const title = '欢迎使用布谷科技智慧校园系统';
+  const schoolName = profile && profile.schoolName || '';
+
+  const title = '欢迎使用布谷科技智慧校园系统' + (schoolName ? ' - ' + schoolName : '');
 
   const headerOperation = <Page.Header.Operation dispatch={dispatch}/>;
   const header = <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>;
@@ -56,4 +62,4 @@ export default function Home({location, dispatch}) {
     </Page>
 
   );
-};
+});

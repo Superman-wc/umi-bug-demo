@@ -105,21 +105,19 @@ export default class StudentList extends Component {
     ];
 
     const columns = [
-      {title: 'ID', key: 'id'},
-      {title: '姓名', key: 'name'},
-      {title: '工号', key: 'code'},
-      {title: '手机号', key: 'mobile'},
+      {title: 'ID', key: 'id', width: 40,},
+      {title: '姓名', key: 'name', width: 50,},
+      {title: '工号', key: 'code', width: 40},
+      {title: '手机号', key: 'mobile', width: 80},
       {
-        title: '教学范围',
-        key: 'teachScopeList',
+        title: '教学范围', key: 'teachScopeList', width: 120, tac: false,
         render: v => v && v.map(it =>
           <span className={styles['subject-item']}
                 key={[it.gradeId, it.subjectId].join('-')}>{it.gradeName + it.subjectName}</span>
         )
       },
       {
-        title: '任课班级',
-        key: 'klassTeacherList',
+        title: '任课班级', key: 'klassTeacherList', width: 200, tac: false,
         render: v => v && v.map(it =>
           <span className={styles['subject-item']}
                 key={[it.klassId, it.subjectId].join('-')}>{it.klassName + it.subjectName}</span>
@@ -545,7 +543,7 @@ class TeachSubjectGradeScopeCheckbox extends Component {
                         {
                           gradeList.map(it =>
                             <div key={it.id}>
-                              <Checkbox value={it.id}>{it.name}</Checkbox>
+                              <Checkbox value={it.id}>{it.name + '（' + it.schoolYear + '级）'}</Checkbox>
                             </div>
                           )
                         }

@@ -55,7 +55,20 @@ export default class CourseUniqueList extends Component {
 
     const {pathname, query} = location;
 
-    const title = '课程列表';
+    const gradeMap = gradeList.reduce((map, it) => {
+      map[it.id] = it;
+      return map;
+    }, {});
+
+    const subjectMap = subjectList.reduce((map, it) => {
+      map[it.id] = it;
+      return map;
+    }, {});
+
+    const grade = gradeMap[query.gradeId] || {};
+    const subject = subjectMap[query.subjectId] || {};
+
+    const title = (grade.name && (grade.name + '（' + grade.schoolYear + '级）') || '') + (subject.name || '') + '课程列表';
 
     const breadcrumb = ['管理', '课程管理', title];
 
@@ -75,8 +88,9 @@ export default class CourseUniqueList extends Component {
     const columns = [
       {title: 'ID', key: 'id'},
       {
-        title: '年级', key: 'gradeId', render: (v, row) => row.gradeName,
-        filters: gradeList.map(it => ({value: it.id, text: it.name})),
+        title: '年级', key: 'gradeId', width: 80,
+        render: (v, row) => row.gradeName + '（' + gradeMap[row.gradeId].schoolYear + '级）',
+        filters: gradeList.map(it => ({value: it.id, text: it.name + '（' + it.schoolYear + '级' + '）'})),
         filtered: !!query.gradeId,
         filterMultiple: false,
         filteredValue: query.gradeId ? [query.gradeId] : [],
@@ -88,7 +102,7 @@ export default class CourseUniqueList extends Component {
         filterMultiple: false,
         filteredValue: query.subjectId ? [query.subjectId] : [],
       },
-      {title: '名称', key: 'name'},
+      {title: '名称', key: 'name', width: 100},
       {ttile: '类型', key: 'type', render: v => CourseTypeEnum[v]},
       {
         title: '行政班', key: 'belongToExecutiveClass', render: v => v ? '是' : '',

@@ -11,5 +11,5 @@ export async function create({subjectIds}) {
 
 
 export async function all() {
-  return request('/api/8queen/subject-all', {method: 'GET'});
+  return request('/api/8queen/subject?all=1', {method: 'GET'});
 }

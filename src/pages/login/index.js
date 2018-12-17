@@ -20,8 +20,8 @@ export default class LoginPage extends Component {
         <Spin spinning={!!loading} size="large" tip="正在登录...">
           <div className={styles['login-box']}>
             <div className={styles['login-box-left']}>
-              <img src={require('./images/logo.png')} width={100}/>
-              <h1>智慧校园系统</h1>
+              <img src="https://res.yunzhiyuan100.com/smart-campus/logo-blue.png" width={150}/>
+              <h1>智慧校园</h1>
             </div>
             <div className={styles['line']}/>
             <Form layout="horizontal">

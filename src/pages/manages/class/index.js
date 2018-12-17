@@ -31,8 +31,14 @@ export default class MeterList extends Component {
     const {list, total, loading, location, dispatch, gradeList = []} = this.props;
 
     const {pathname, query} = location;
+    const gradeMap = gradeList.reduce((map, it) => {
+      map[it.id] = it;
+      return map;
+    }, {});
 
-    const title = '班级列表';
+    const grade = gradeMap[query.gradeId] || {};
+
+    const title = (grade.name && (grade.name + '（' + grade.schoolYear + '级）') || '') + '班级列表';
 
     const breadcrumb = ['管理', '班级管理', title];
 
@@ -62,8 +68,9 @@ export default class MeterList extends Component {
     const columns = [
       {title: 'ID', key: 'id'},
       {
-        title: '年级', key: 'gradeId', render: (v, row) => row.gradeName,
-        filters: gradeList.map(it => ({value: it.id, text: it.name})),
+        title: '年级', key: 'gradeId', width: 70,
+        render: (v, row) => row.gradeName + '（' + gradeMap[row.gradeId].schoolYear + '级）',
+        filters: gradeList.map(it => ({value: it.id, text: it.name + '（' + it.schoolYear + '级' + '）'})),
         filtered: !!query.gradeId,
         filterMultiple: false,
         filteredValue: query.gradeId ? [query.gradeId] : [],

@@ -1,11 +1,12 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Select, DatePicker, Input, notification} from 'antd';
-import {ManagesClass, ManagesGrade as namespace} from '../../../utils/namespace';
+import {Form, Modal, Input, notification, Select} from 'antd';
+import {ManagesGrade as namespace, ManagesTimetable} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
-import {Enums, SemesterTypeEnum} from "../../../utils/Enum";
+import router from 'umi/router';
+import {GradeIndexEnum, Enums} from "../../../utils/Enum";
 
 
 @connect(state => ({
@@ -49,6 +50,12 @@ export default class MeterList extends Component {
         render: (id, row) => (
           <TableCellOperation
             operations={{
+              timetable: {
+                onClick: () => {
+                  router.push({pathname: ManagesTimetable, query: {gradeIndex: row.index.toString()}})
+                },
+                children: '课时配置'
+              },
               edit: () => this.setState({visible: true, item: row}),
               remove: {
                 onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
@@ -97,8 +104,9 @@ export default class MeterList extends Component {
 
 @Form.create({
   mapPropsToFields(props) {
-    const {name, schoolYear} = props.item || {};
+    const {name, schoolYear, gradeIndex} = props.item || {};
     return {
+      gradeIndex: Form.createFormField({value: gradeIndex ? gradeIndex.toString() : undefined}),
       name: Form.createFormField({value: name || undefined}),
       schoolYear: Form.createFormField({value: schoolYear || undefined}),
     }
@@ -112,7 +120,7 @@ class GradeModal extends Component {
     } = this.props;
     const modalProps = {
       visible,
-      title: item && item.id ? '修改学期' : '创建学期',
+      title: item && item.id ? '修改年级' : '创建年级',
       onCancel,
       onOk: () => {
         validateFieldsAndScroll((errors, payload) => {
@@ -122,6 +130,7 @@ class GradeModal extends Component {
             if (item && item.id) {
               payload.id = item.id;
             }
+            payload.name = GradeIndexEnum[payload.index];
             onOk(payload);
           }
         })
@@ -136,10 +145,16 @@ class GradeModal extends Component {
         <Form layout="horizontal">
           <Form.Item label="年级" {...wrapper}>
             {
-              getFieldDecorator('name', {
-                rules: [{message: '请输入年级', required: true}]
+              getFieldDecorator('gradeIndex', {
+                rules: [{message: '请选择年级', required: true}]
               })(
-                <Input maxLength={64}/>
+                <Select placehold="请选择年级">
+                  {
+                    Enums(GradeIndexEnum).map(it =>
+                      <Select.Option key={it.value} value={it.value}>{it.name}</Select.Option>
+                    )
+                  }
+                </Select>
               )
             }
           </Form.Item>
@@ -148,7 +163,7 @@ class GradeModal extends Component {
               getFieldDecorator('schoolYear', {
                 rules: [{message: '请输入入学年份', required: true}]
               })(
-                <Input maxLength={64}/>
+                <Input maxLength={64} disabled={!!(item && item.id)}/>
               )
             }
           </Form.Item>

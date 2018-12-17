@@ -2,11 +2,15 @@ import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
 import moment from 'moment';
-import {Form, Row, Col, message, Modal, Select, DatePicker, Input, notification, Switch} from 'antd';
+import {Form, Row, Col, message, Modal, Select, Button, Input, notification, Tabs} from 'antd';
 import {ManagesGrade, ManagesSemester, ManagesTimetable as namespace} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
-import {SemesterTypeEnum, Enums} from "../../../utils/Enum";
+import {SemesterTypeEnum, Enums, WEEK, GradeIndexEnum, EnableStatusEnum} from "../../../utils/Enum";
+import Page from '../../../components/Page';
+import PageHeaderOperation from '../../../components/Page/HeaderOperation';
+import Flex from "../../../components/Flex";
+import router from "umi/router";
 
 
 @connect(state => ({
@@ -40,9 +44,24 @@ export default class ManagesTimetable extends Component {
 
     const {pathname, query} = location;
 
-    const title = '课时列表';
+    const semesterMap = semesterList.reduce((map, it) => {
+      map[it.id] = it;
+      return map;
+    }, {});
 
-    const breadcrumb = ['管理', '课时管理', title];
+    const gradeMap = gradeList.reduce((map, it) => {
+      map[it.id] = it;
+      return map;
+    }, {});
+
+    const title = [
+      query.semesterType ? semesterName(semesterMap[query.semesterType]) : '',
+      query.gradeIndex && gradeMap[query.gradeIndex] ? gradeMap[query.gradeIndex].name : '',
+      query.dayOfWeek ? WEEK[query.dayOfWeek] : '',
+      '课时列表'
+    ].filter(it => !!it);
+
+    const breadcrumb = ['管理', '课时管理', title[title.length - 1]];
 
     const buttons = [
       {
@@ -57,22 +76,32 @@ export default class ManagesTimetable extends Component {
       },
     ];
 
-    const semesterMap = semesterList.reduce((map, it) => {
-      map[it.id] = it;
-      return map;
-    }, {});
-
-    const gradeMap = gradeList.reduce((map, it) => {
-      map[it.id] = it;
-      return map;
-    }, {});
 
     const columns = [
       {title: 'ID', key: 'id'},
-      {title: '年级', key: 'gradeId', render: v => gradeMap[v] ? gradeMap[v].name : v},
       {
-        title: '学期', key: 'semesterId', width: 120,
-        render: v => semesterMap[v] ? (semesterMap[v].academicYear + '学年第' + semesterMap[v].semesterType + '学期') : v
+        title: '年级', key: 'gradeIndex',
+        render: v => GradeIndexEnum[v] || v,
+        filters: Enums(GradeIndexEnum).map(it => ({value: it.value, text: it.name})),
+        filtered: !!query.gradeIndex,
+        filterMultiple: false,
+        filteredValue: query.gradeIndex ? [query.gradeIndex] : [],
+      },
+      {
+        title: '学期', key: 'semesterType',
+        render: v => SemesterTypeEnum[v] || v,
+        filters: Enums(EnableStatusEnum).map(it => ({value: it.value, text: it.name})),
+        filtered: !!query.semesterType,
+        filterMultiple: false,
+        filteredValue: query.semesterType ? [query.semesterType] : [],
+      },
+      {
+        title: '星期', key: 'dayOfWeek',
+        render: v => WEEK[v + 1] || v,
+        filters: Enums(WEEK).map(it => ({value: it.value - 1, text: it.name})),
+        filtered: !!query.dayOfWeek,
+        filterMultiple: false,
+        filteredValue: query.dayOfWeek ? [query.dayOfWeek] : [],
       },
       {title: '开始时间', key: 'startTime', render: v => moment(v).format('HH:mm:ss')},
       {title: '时长', key: 'interval', render: v => v ? v + '分钟' : ''},
@@ -94,12 +123,12 @@ export default class ManagesTimetable extends Component {
     ];
 
     const managesTimetableModalProps = {
-      gradeList, semesterList,
       visible: this.state.visible,
       item: this.state.item,
       onCancel: () => this.setState({visible: false}),
       onOk: (payload) => {
         console.log(payload);
+        this.setState({item: payload});
         dispatch({
           type: namespace + (payload.id ? '/modify' : '/create'),
           payload,
@@ -121,7 +150,7 @@ export default class ManagesTimetable extends Component {
         list={list}
         total={total}
         pagination
-        title={title}
+        title={title.join('')}
       >
         <ManagesTimetableModal {...managesTimetableModalProps}/>
       </ListPage>
@@ -131,26 +160,26 @@ export default class ManagesTimetable extends Component {
 
 @Form.create({
   mapPropsToFields(props) {
-    let {gradeId, semesterId, startTime, interval} = props.item || {};
+    let {gradeIndex, semesterType, startTime, interval, dayOfWeek} = props.item || {};
 
-    if(startTime || startTime === 0){
+    if (startTime || startTime === 0) {
       startTime = moment(startTime).format('HH:mm:ss');
     }
 
-
     return {
-      gradeId: Form.createFormField({value: gradeId || undefined}),
-      semesterId: Form.createFormField({value: semesterId || undefined}),
+      gradeIndex: Form.createFormField({value: gradeIndex ? gradeIndex.toString() : undefined}),
+      semesterType: Form.createFormField({value: semesterType ? semesterType.toString() : undefined}),
       startTime: Form.createFormField({value: startTime || undefined}),
       interval: Form.createFormField({value: interval || undefined}),
+      dayOfWeek: Form.createFormField({value: (dayOfWeek || dayOfWeek === 0) ? (dayOfWeek + 1).toString() : undefined}),
     }
   }
 })
 class ManagesTimetableModal extends Component {
   render() {
     const {
-      visible, onCancel, onOk, item, gradeList = [], semesterList = [],
-      form: {getFieldDecorator, validateFieldsAndScroll, setFields, getFieldValue, setFieldsValue}
+      visible, onCancel, onOk, item,
+      form: {getFieldDecorator, validateFieldsAndScroll, setFields, getFieldValue}
     } = this.props;
     const modalProps = {
       visible,
@@ -165,6 +194,8 @@ class ManagesTimetableModal extends Component {
               payload.id = item.id;
             }
             payload.startTime = moment('1970-01-01 ' + payload.startTime).valueOf();
+            payload.dayOfWeek = (parseInt(payload.dayOfWeek, 10) - 1).toString();
+
             onOk(payload);
           }
         })
@@ -180,13 +211,13 @@ class ManagesTimetableModal extends Component {
         <Form layout="horizontal">
           <Form.Item label="年级" {...wrapper}>
             {
-              getFieldDecorator('gradeId', {
+              getFieldDecorator('gradeIndex', {
                 rules: [{message: '请选择年级', required: true}]
               })(
                 <Select placeholder="请选择年级" style={selectStyle} disabled={!!(item && item.id)}>
                   {
-                    gradeList.map(it =>
-                      <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
+                    Enums(GradeIndexEnum).map(it =>
+                      <Select.Option key={it.value} value={it.value}>{it.name}</Select.Option>
                     )
                   }
                 </Select>
@@ -195,15 +226,28 @@ class ManagesTimetableModal extends Component {
           </Form.Item>
           <Form.Item label="学期" {...wrapper}>
             {
-              getFieldDecorator('semesterId', {
+              getFieldDecorator('semesterType', {
                 rules: [{message: '请选择学期', required: true}]
               })(
                 <Select placeholder="请选择" style={selectStyle} disabled={!!(item && item.id)}>
                   {
-                    semesterList.map(it =>
-                      <Select.Option key={it.id} value={it.id}>
-                        {it.academicYear + '学年第' + it.semesterType + '学期'}
-                      </Select.Option>
+                    Enums(SemesterTypeEnum).map(it =>
+                      <Select.Option key={it.value} value={it.value}>{it.name}</Select.Option>
+                    )
+                  }
+                </Select>
+              )
+            }
+          </Form.Item>
+          <Form.Item label="星期" {...wrapper}>
+            {
+              getFieldDecorator('dayOfWeek', {
+                rules: [{message: '请选择星期', required: true}]
+              })(
+                <Select placeholder="请选择星期" style={selectStyle} disabled={!!(item && item.id)}>
+                  {
+                    Enums(WEEK).map((it) =>
+                      <Select.Option key={it.value} value={it.value}>{it.name}</Select.Option>
                     )
                   }
                 </Select>
@@ -254,6 +298,10 @@ class ManagesTimetableModal extends Component {
                         });
                       }
                     }
+                  } else {
+                    setTimeout(() => {
+                      setFields({startTime: {value}});
+                    });
                   }
                 }}/>
               )
@@ -268,9 +316,207 @@ class ManagesTimetableModal extends Component {
               )
             }
           </Form.Item>
-
         </Form>
       </Modal>
     )
   }
 }
+
+function semesterName(it) {
+  return it ? (it.academicYear + '学年第' + it.semesterType + '学期') : '';
+}
+
+/**
+ * 还是先不实现表格形式的编辑形式
+ */
+class TimetableConfigPage extends Component {
+
+  state = {};
+
+  render() {
+    const {
+      loading, location, dispatch,
+    } = this.props;
+
+    const {pathname, query} = location;
+
+    const title = [
+      query.gradeIndex ? GradeIndexEnum[query.gradeIndex] : '',
+      query.semesterType ? SemesterTypeEnum[query.semesterType] : '',
+      '课时列表'
+    ].filter(it => !!it);
+
+    const breadcrumb = ['管理', '课时管理', title[title.length - 1]];
+
+    const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={[]}/>;
+    const header = (
+      <Page.Header breadcrumb={breadcrumb} title={title.join('')} operation={headerOperation}/>
+    );
+
+    console.log(this.state);
+
+    return (
+      <Page header={header}
+            location={location}
+            loading={!!loading}
+      >
+        <Tabs type="card" style={{margin: 10}} activeKey={query.gradeIndex} onChange={(gradeIndex) => {
+          router.replace({pathname, query: {...query, gradeIndex}});
+        }}>
+          {
+            Enums(GradeIndexEnum).map(grade =>
+              <Tabs.TabPane key={grade.value} tab={grade.name}>
+                <Tabs type="card" activeKey={query.semesterType} onChange={(semesterType => {
+                  router.replace({pathname, query: {...query, semesterType}});
+                })}>
+                  {
+                    Enums(SemesterTypeEnum).map(semester =>
+                      <Tabs.TabPane key={semester.value} tab={semester.name}>
+                        <WeekStartTimeInterval
+                          value={this.state.list}
+                          onChange={(list) => {
+                            this.setState({list});
+                          }}/>
+                      </Tabs.TabPane>
+                    )
+                  }
+                </Tabs>
+              </Tabs.TabPane>
+            )
+          }
+        </Tabs>
+      </Page>
+    )
+  }
+}
+
+class WeekStartTimeInterval extends Component {
+
+  onPlus = () => {
+    const {value, onChange} = this.props;
+    if (onChange) {
+      const arr = value || [];
+      onChange([...arr, {dayOfWeek: arr.length, list: []}]);
+    }
+  };
+
+  render() {
+    const {value, onChange} = this.props;
+    const arr = value || [];
+    return (
+      <Flex>
+        {
+          value && value.length ?
+            value.map((it, index) =>
+              <Flex.Item key={it.dayOfWeek} style={{padding: 5, maxWidth: 200}}>
+                <DayStartTimeInterval value={it} onChange={(v) => {
+                  value[index] = v;
+                  onChange && onChange([...value]);
+                }}/>
+              </Flex.Item>
+            )
+            :
+            null
+        }
+        {
+          arr.length < 7 ?
+            <Button icon="plus" onClick={this.onPlus}>添加{WEEK[arr.length + 1]}</Button>
+            :
+            null
+        }
+      </Flex>
+    )
+  }
+}
+
+class DayStartTimeInterval extends Component {
+
+  onAdd = () => {
+    const {onChange, value} = this.props;
+    if (onChange) {
+      onChange({...value, list: [...(value && value.list || []), {}]});
+    }
+  };
+
+  render() {
+    const {onChange, value} = this.props;
+    const dayOfWeek = value && value.dayOfWeek || 0;
+    const list = value && value.list || [];
+    return (
+      <div>
+        <h3 style={{textAlign: 'center'}}>{WEEK[dayOfWeek + 1]}</h3>
+        {
+          list && list.length ?
+            list.map((it, index) =>
+              <StartTimeInterval key={dayOfWeek + '-' + index} value={it} style={{marginBottom: 15}} onChange={(v) => {
+                list[index] = v;
+                onChange && onChange({...value, list: [...list]});
+              }}/>
+            )
+            :
+            null
+        }
+        <Button icon="plus" style={{width: '100%'}} onClick={this.onAdd}>添加</Button>
+      </div>
+    )
+  }
+}
+
+class StartTimeInterval extends Component {
+
+  onStartTimeChange = e => {
+    const {onChange, value = {}} = this.props;
+    if (onChange) {
+      let ev = e.target.value.replace(/[^\d\:]/g, '');
+      let v = value && value.startTime || '';
+      let interval = value && value.interval;
+      if (ev.length === 2 || ev.length === 5) {
+        if (v.length < value.length) {
+          onChange({startTime: ev + ':', interval});
+        }
+      } else if (ev.length === 1) {
+        if (parseInt(ev, 10) > 2) {
+          if (v.length < value.length) {
+            onChange({startTime: '0' + ev + ':', interval});
+          }
+        }
+      } else if (ev.length === 4) {
+        if (parseInt(ev.substr(3, 1), 10) > 5) {
+          if (v.length < ev.length) {
+            onChange({startTime: ev.substr(0, 3) + '0' + ev.substr(3, 1) + ':', interval});
+          }
+        }
+      } else if (ev.length === 7) {
+        if (parseInt(ev.substr(6, 1), 10) > 5) {
+          if (v.length < ev.length) {
+            onChange({startTime: ev.substr(0, 6) + '0' + ev.substr(6, 1), interval});
+          }
+        }
+      } else {
+        onChange({startTime: ev + ':', interval});
+      }
+    }
+  };
+  onIntervalChange = e => {
+    const {onChange, value} = this.props;
+    onChange && onChange({...value, interval: e.target.value});
+  };
+
+  render() {
+    const {style, value} = this.props;
+
+    return (
+      <Input.Group style={style}>
+        <Input placeholder="起始时间"
+               onChange={this.onStartTimeChange}
+               value={value && value.startTime}
+               style={{display: 'block', width: '60%'}}/>
+        <Input placeholder="时长"
+               onChange={this.onIntervalChange}
+               value={value && value.interval}
+               style={{display: 'block', width: '40%', marginLeft: -1}}/>
+      </Input.Group>
+    );
+  }
+}
+
