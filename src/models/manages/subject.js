@@ -12,7 +12,7 @@ export default Model(
           if (pathname === namespace) {
             dispatch({
               type: 'list',
-              payload: {...query, s:10000, p:1},
+              payload: {...query, s: 10000, p: 1},
             });
             dispatch({
               type: 'all'
@@ -23,7 +23,10 @@ export default Model(
     },
     reducers: {
       createSuccess(state, action) {
-        return {...state, list:action.result, loading: false};
+        return {...state, list: action.result, loading: false};
+      },
+      allSuccess(state, action) {
+        return {...state, all: action.result.list || [], loading: false};
       }
     }
   },

@@ -17,8 +17,8 @@ export async function modify(data) {
   return request('/admin/api/auth/profile/' + data.id, {data, method: 'PUT'});
 }
 
-export async function menu() {
-  return request('/admin/api/auth/menu/my-menu', {method: 'GET'});
+export async function menu(data) {
+  return request('/api/1.0/admin/auth/menu/my-menu', {data,method: 'GET'});
 }
 
 export async function dataImportPermission() {

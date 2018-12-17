@@ -73,7 +73,7 @@ export default class StudentList extends Component {
     const grade = gradeMap[query.gradeId] || {};
     const klass = classMap[query.klassId] || {};
 
-    const title = (klass.name || grade.name || '') + (query.gender === 'true' ? '男' : query.gender === 'false' ? '女' : '') + '学生列表';
+    const title = (klass.name || (grade.name && (grade.name+'（'+grade.schoolYear+'级）')) || '') + (query.gender === 'true' ? '男' : query.gender === 'false' ? '女' : '') + '学生列表';
 
     const breadcrumb = ['管理', '学生管理', title];
 
@@ -118,7 +118,7 @@ export default class StudentList extends Component {
       {title: '姓名', key: 'name'},
       {
         title: '年级', key: 'gradeId',
-        filters: gradeList.map(it => ({value: it.id, text: it.name})),
+        filters: gradeList.map(it => ({value: it.id, text: it.name+'（'+it.schoolYear+'级'+'）'})),
         filtered: !!query.gradeId,
         filterMultiple: false,
         filteredValue: query.gradeId ? [query.gradeId] : [],

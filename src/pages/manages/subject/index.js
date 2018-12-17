@@ -1,16 +1,10 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import moment from 'moment';
-import {Form, Row, Col, message, Modal, Select, DatePicker, Input, notification, Checkbox, Button} from 'antd';
+import {Form, Row, Col, notification, Checkbox, Button} from 'antd';
 import {ManagesSubject as namespace} from '../../../utils/namespace';
-import ListPage from '../../../components/ListPage';
-import TableCellOperation from '../../../components/TableCellOperation';
-import {SemesterTypeEnum, Enums} from "../../../utils/Enum";
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
-
-
 
 
 @connect(state => ({
@@ -22,11 +16,9 @@ import PageHeaderOperation from '../../../components/Page/HeaderOperation';
 @Form.create({
   mapPropsToFields(props) {
     const {list = []} = props;
-    const ret = {
+    return {
       subjectIds: Form.createFormField({value: list && list.length ? list.map(it => it.id) : undefined})
-    }
-    console.log(ret, list);
-    return ret;
+    };
   }
 })
 export default class SubjectListPage extends Component {
@@ -35,54 +27,16 @@ export default class SubjectListPage extends Component {
 
   render() {
     const {
-      all, list, total, loading, location, dispatch,
+      all = [], loading, location, dispatch,
       form: {getFieldDecorator, validateFieldsAndScroll}
     } = this.props;
-
-    const {pathname, query} = location;
-
-    console.log(list);
 
     const title = '科目列表';
 
     const breadcrumb = ['管理', '科目管理', title];
 
-    const buttons = [
-      {
-        key: 'create',
-        type: 'primary',
-        children: '创建',
-        title: '创建',
-        icon: 'plus',
-        onClick: () => {
-          this.setState({visible: true, item: null});
-        },
-      },
-    ];
 
-    const columns = [
-      {title: 'ID', key: 'id'},
-      {title: '名称', key: 'name'},
-      {title: '代号', key: 'code'},
-      {title: '创建时间', key: 'dateCreated'},
-      {
-        title: '操作',
-        key: 'operate',
-        render: (id, row) => (
-          <TableCellOperation
-            operations={{
-              edit: () => this.setState({visible: true, item: row}),
-              remove: {
-                onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
-              },
-            }}
-          />
-        ),
-      },
-    ];
-
-
-    const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={buttons}/>;
+    const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={[]}/>;
     const header = (
       <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>
     );
@@ -114,11 +68,13 @@ export default class SubjectListPage extends Component {
             }
           })
         }}>
-          <Form.Item label={
-            <span
-              style={{fontSize: 18, marginBottom: '1em', display: 'inline-block'}}>请选择学校开设的科目
-            </span>
-          }  {...wrapper}>
+          <Form.Item {...wrapper}
+                     label={
+                       <span style={{fontSize: 18, marginBottom: '1em', display: 'inline-block'}}>
+                         请选择学校开设的科目
+                       </span>
+                     }
+          >
             {
               getFieldDecorator('subjectIds', {
                 rules: [{message: '请输入科目名称', required: true}]
@@ -140,8 +96,6 @@ export default class SubjectListPage extends Component {
           </Form.Item>
           <div><Button htmlType="submit" type="primary" style={{width: 200, display: 'block'}}>确定</Button></div>
         </Form>
-
-
       </Page>
     );
   }

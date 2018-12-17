@@ -1,6 +1,7 @@
 import Model from 'dva-model';
-import {list, create, modify, remove, } from '../../services/manages/timetable';
+import {list, create, modify, remove,} from '../../services/manages/timetable';
 import {ManagesTimetable as namespace} from '../../utils/namespace';
+import {GradeIndexEnum, SemesterTypeEnum, WEEK} from "../../utils/Enum";
 
 export default Model(
   {
@@ -11,7 +12,13 @@ export default Model(
           if (pathname === namespace) {
             dispatch({
               type: 'list',
-              payload: {...query},
+              payload: {
+                // gradeIndex: GradeIndexEnum.高一,
+                // semesterType: SemesterTypeEnum.上学期,
+                // dayOfWeek: WEEK.星期一 - 1,
+                // s:70,
+                ...query
+              },
             });
           }
         });
