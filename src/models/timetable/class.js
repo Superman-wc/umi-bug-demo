@@ -1,5 +1,5 @@
 import Model, {RestfulReducers} from 'dva-model';
-import {list, create, modify, remove, available, swap, cancel} from '../../services/timetable/lecture';
+import {list, create, modify, remove, available, swap, cancel} from '../../services/timetable/class';
 import {TimetableClass as namespace} from '../../utils/namespace';
 
 
