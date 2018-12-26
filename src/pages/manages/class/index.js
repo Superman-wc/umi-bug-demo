@@ -82,7 +82,7 @@ export default class MeterList extends Component {
       {title: 'ID', key: 'id'},
       {
         title: '年级', key: 'gradeId', width: 70,
-        render: (v, row) => row.gradeName + '（' + gradeMap[row.gradeId].schoolYear + '级）',
+        render: (v, row) => row.gradeName + '（' + (gradeMap[row.gradeId] && gradeMap[row.gradeId].schoolYear || '') + '级）',
         filters: gradeList.map(it => ({value: it.id, text: it.name + '（' + it.schoolYear + '级' + '）'})),
         filtered: !!query.gradeId,
         filterMultiple: false,

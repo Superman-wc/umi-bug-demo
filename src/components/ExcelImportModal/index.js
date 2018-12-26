@@ -28,7 +28,7 @@ export default class ExcelImportModal extends Component {
         <div>
           {
             templateUrl ?
-              <a href={templateUrl} target="_blank" style={{marginRight: '1em'}}>模板文件下载</a>
+              <a href={templateUrl} target="_blank" rel="noopener noreferrer" style={{marginRight: '1em'}}>模板文件下载</a>
               :
               null
           }
@@ -58,7 +58,7 @@ export default class ExcelImportModal extends Component {
   }
 }
 
-export function buildImportStudentProps({klass, onCancel, visible, subjectList=[], onOk, dispatch}) {
+export function buildImportStudentProps({klass, onCancel, visible, subjectList = [], onOk, dispatch}) {
 
   const subjectNameMap = subjectList.reduce((map, it) => {
     map[it.name] = it;
@@ -226,11 +226,13 @@ export function buildImportStudentProps({klass, onCancel, visible, subjectList=[
             delete it['election' + i + 'Rank'];
           }
           it.electionExaminationSubjectEntityList = electionExaminationSubjectEntityList;
+          it.gender = it.gender === '男';
         });
         Modal.confirm({
           title: '导入学生二次确认',
           content: '此操作将清除原有' + klass.name + '学生，原有课表等信息需要重新构建, 确定需要导入吗？',
           onOk: () => {
+            console.log(payload);
             onOk(payload);
           }
         })

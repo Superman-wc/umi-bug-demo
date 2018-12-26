@@ -27,7 +27,7 @@ function Cell(props) {
 }
 
 function ReadExcelView(props) {
-  const {data = {}, onChange, fields={}} = props;
+  const {data = {}, onChange, fields = {}} = props;
 
   const sheets = Object.entries(data);
 
@@ -42,6 +42,7 @@ function ReadExcelView(props) {
                 <Tabs.TabPane key={sheetName} tab={`${sheetName}(共${sheet.list.length}行)`}>
                   <Table className="list-table"
                          pagination={false}
+                         scroll={{y: 600}}
                          columns={stdColumns([
                            {title: '行号', key: 'index', width: 30},
                            ...sheet.headers.map(key => ({
