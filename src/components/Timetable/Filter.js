@@ -6,6 +6,7 @@ import {list as fetchKlassList} from "../../services/manages/class";
 import {list as fetchGradeList} from "../../services/manages/grade";
 import {list as fetchTeacherList} from "../../services/manages/teacher";
 import {list as fetchCourseList} from "../../services/manages/course";
+import {list as fetchSubjectList} from '../../services/manages/subject';
 
 /**
  * 可根据年级、班级、科目、教师、学生进行筛选操作
@@ -18,34 +19,41 @@ export default class Filter extends Component {
 
   componentDidMount() {
     this.fetchGradeList();
+    this.fetchSubjectList();
   }
 
   fetchGradeList = () => {
-    fetchGradeList().then(({result: {list}}) => {
+    fetchGradeList({s: 10000}).then(({result: {list}}) => {
       this.setState({gradeList: list});
     })
   };
 
   fetchKlassList = (gradeId) => {
-    fetchKlassList({gradeId, s:10000}).then(({result: {list}}) => {
+    fetchKlassList({gradeId, s: 10000}).then(({result: {list}}) => {
       this.setState({klassList: list});
     });
   };
 
   fetchCourseList = (gradeId) => {
-    fetchCourseList({gradeId, s:10000}).then(({result: {list}}) => {
+    fetchCourseList({gradeId, s: 10000}).then(({result: {list}}) => {
       this.setState({courseList: list});
     });
   };
 
-  fetchTeacherList = (gradeId, courseId) => {
-    fetchTeacherList({gradeId, courseId, s:10000}).then(({result: {list}}) => {
+  fetchSubjectList = () => {
+    fetchSubjectList({s: 10000}).then(({result: {list}}) => {
+      this.setState({subjectList: list});
+    })
+  };
+
+  fetchTeacherList = (gradeId, subjectId) => {
+    fetchTeacherList({gradeId, subjectId, s: 10000}).then(({result: {list}}) => {
       this.setState({teacherList: list});
     });
   };
 
   fetchStudentList = (gradeId, klassId) => {
-    fetchStudentList({gradeId, klassId, s:100000}).then(({result: {list}}) => {
+    fetchStudentList({gradeId, klassId, s: 100000}).then(({result: {list}}) => {
       this.setState({studentList: list});
     });
   };
@@ -57,8 +65,14 @@ export default class Filter extends Component {
       klassId: undefined, courseId: undefined, teacherId: undefined, studentId: undefined, type: undefined
     });
     // 如果是教师课表或科目筛选
-    if (this.props.type === 'teacher' || this.props.type === 'course') {
-      this.fetchCourseList(gradeId);
+    if (this.props.type === 'teacher'){
+      const {subjectId} = this.state;
+      if(subjectId){
+        this.fetchTeacherList(gradeId, subjectId);
+      }
+    }
+    else if (this.props.type === 'course') {
+      // this.fetchCourseList(gradeId);
     }
     // 如果是班级课表或学生课表
     else if (this.props.type === 'klass' || this.props.type === 'student') {
@@ -87,14 +101,27 @@ export default class Filter extends Component {
   onCourseChange = courseId => {
     this.setState({
       courseId,
+      // teacherList: [],
+      // teacherId: undefined,
+    });
+    const {gradeId} = this.state;
+    // if (this.props.type === 'teacher') {
+    //   this.fetchTeacherList(gradeId, courseId);
+    // }
+    this.props.onChange && this.props.onChange('course', {gradeId, courseId});
+  };
+
+  onSubjectChange = subjectId =>{
+    this.setState({
+      subjectId,
       teacherList: [],
       teacherId: undefined,
     });
     const {gradeId} = this.state;
     if (this.props.type === 'teacher') {
-      this.fetchTeacherList(gradeId, courseId);
+      this.fetchTeacherList(gradeId, subjectId);
     }
-    this.props.onChange && this.props.onChange('course', {gradeId, courseId});
+    this.props.onChange && this.props.onChange('subject', {gradeId, subjectId});
   };
 
   onTeacherChange = teacherId => {
@@ -116,7 +143,15 @@ export default class Filter extends Component {
   onWeekIndexChange = week => {
     this.setState({week});
     const {gradeId, courseId, klassId, studentId, teacherId, type} = this.state;
-    this.props.onChange('week', {weekIndex: week.format('YYYYWW'), gradeId, courseId, klassId, studentId, teacherId, type});
+    this.props.onChange('week', {
+      weekIndex: week.format('YYYYWW'),
+      gradeId,
+      courseId,
+      klassId,
+      studentId,
+      teacherId,
+      type
+    });
   };
 
   onTypeChange = type => {
@@ -130,16 +165,17 @@ export default class Filter extends Component {
     const {type, disabled} = this.props;
 
     const {
-      gradeList = [], klassList = [], courseList = [], teacherList = [], studentList = [],
-      gradeId, klassId, courseId, teacherId, studentId
+      gradeList = [], klassList = [], courseList = [], subjectList=[], teacherList = [], studentList = [],
+      gradeId, klassId, courseId, teacherId, studentId, subjectId,
     } = this.state;
 
     const selectStyle = {width: 120};
 
     return (
-      <Form layout="inline" >
+      <Form layout="inline">
         <Form.Item label="年级">
-          <Select disabled={disabled} placeholder="请选择" value={gradeId} onChange={this.onGradeChange} style={selectStyle}>
+          <Select disabled={disabled} placeholder="请选择" value={gradeId} onChange={this.onGradeChange}
+                  style={selectStyle}>
             {
               gradeList.map(it =>
                 <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
@@ -151,7 +187,8 @@ export default class Filter extends Component {
           type === 'klass' || type === 'student' ?
             <Fragment>
               <Form.Item label="班级">
-                <Select disabled={disabled} placeholder={gradeId ? '请选择' : '请先选择年级'} value={klassId} onChange={this.onKlassChange}
+                <Select disabled={disabled} placeholder={gradeId ? '请选择' : '请先选择年级'} value={klassId}
+                        onChange={this.onKlassChange}
                         style={selectStyle}>
                   {
                     klassList.map(it =>
@@ -163,7 +200,8 @@ export default class Filter extends Component {
               {
                 type === 'student' ?
                   <Form.Item label="学生">
-                    <Select disabled={disabled} placeholder={gradeId ? klassId ? '请选择' : '请先选择班级' : '请先选择年级'} value={studentId}
+                    <Select disabled={disabled} placeholder={gradeId ? klassId ? '请选择' : '请先选择班级' : '请先选择年级'}
+                            value={studentId}
                             onChange={this.onStudentChange} style={selectStyle}>
                       {
                         studentList.map(it =>
@@ -177,10 +215,11 @@ export default class Filter extends Component {
               }
             </Fragment>
             :
-            type === 'course' || type === 'teacher' ?
+            type === 'course' ?
               <Fragment>
                 <Form.Item label="科目">
-                  <Select disabled={disabled} placeholder={gradeId ? '请选择' : '请先选择年级'} value={courseId} onChange={this.onCourseChange}
+                  <Select disabled={disabled} placeholder={gradeId ? '请选择' : '请先选择年级'} value={courseId}
+                          onChange={this.onCourseChange}
                           style={selectStyle}>
                     {
                       courseList.map(it =>
@@ -189,24 +228,35 @@ export default class Filter extends Component {
                     }
                   </Select>
                 </Form.Item>
-                {
-                  type === 'teacher' ?
-                    <Form.Item label="教师">
-                      <Select disabled={disabled} placeholder={gradeId ? courseId ? '请选择' : '请先选择科目' : '请先选择年级'} value={teacherId}
-                              onChange={this.onTeacherChange} style={selectStyle}>
-                        {
-                          teacherList.map(it =>
-                            <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
-                          )
-                        }
-                      </Select>
-                    </Form.Item>
-                    :
-                    null
-                }
               </Fragment>
               :
-              null
+              type === 'subject' || type === 'teacher' ?
+                <Fragment>
+                  <Form.Item label="科目">
+                    <Select disabled={disabled} placeholder={'请选择'} value={subjectId}
+                            onChange={this.onSubjectChange}
+                            style={selectStyle}>
+                      {
+                        subjectList.map(it =>
+                          <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
+                        )
+                      }
+                    </Select>
+                  </Form.Item>
+                  <Form.Item label="教师">
+                    <Select disabled={disabled} placeholder={gradeId ? subjectId ? '请选择' : '请先选择科目' : '请先选择年级'}
+                            value={teacherId}
+                            onChange={this.onTeacherChange} style={selectStyle}>
+                      {
+                        teacherList.map(it =>
+                          <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
+                        )
+                      }
+                    </Select>
+                  </Form.Item>
+                </Fragment>
+                :
+                null
         }
         {
           type === 'grade' ?

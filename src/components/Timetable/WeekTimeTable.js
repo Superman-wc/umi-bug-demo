@@ -19,11 +19,11 @@ export default class WeekTimeTable extends Component {
     timetable: transformLectureListToWeekTimetable([])
   };
 
-  componentDidMount(){
+  componentDidMount() {
     this[MOUNT] = true;
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps, nextContent) {
     if (nextProps.list !== this.props.list) {
       this.setTimetable(nextProps.list);
     }
