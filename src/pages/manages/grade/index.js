@@ -52,7 +52,7 @@ export default class MeterList extends Component {
             operations={{
               timetable: {
                 onClick: () => {
-                  router.push({pathname: ManagesTimetable, query: {gradeIndex: row.index.toString()}})
+                  router.push({pathname: ManagesTimetable, query: {gradeIndex: row.gradeIndex.toString()}})
                 },
                 children: '课时配置'
               },

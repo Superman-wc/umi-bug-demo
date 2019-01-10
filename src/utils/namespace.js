@@ -13,6 +13,10 @@ export const ManagesSubject = '/manages/subject';
 export const ManagesDevice = '/manages/device';
 export const ManagesTimetable = '/manages/timetable';
 export const ManagesNotice = '/manages/notice';
+export const ManagesDashboard = '/manages/dashboard';
+export const ManagesStudentArrangePlan = '/manages/student-arrange-plan';
+export const ManagesLectureArrangePlan = '/manages/lecture-arrange-plan';
+
 
 
 export const TimetableLecture = '/timetable/lecture';

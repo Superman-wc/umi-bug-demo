@@ -3,6 +3,11 @@ export interface EnumValue {
   value: string
 }
 
+export const enum BuildingTypeEnum {
+  教学区 = 1,
+  生活区 = 2
+}
+
 export const enum GradeIndexEnum {
   高一 = 10,
   高二 = 11,

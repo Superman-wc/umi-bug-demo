@@ -22,7 +22,6 @@ function checkHttpStatus(response) {
   }
 
   if (response.status === 403) {
-    set('token', null);
     router.replace('/403');
   }
 

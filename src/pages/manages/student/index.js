@@ -180,6 +180,7 @@ export default class StudentList extends Component {
       item: this.state.item,
       onCancel: () => this.setState({visible: false}),
       onOk: (payload) => {
+        payload.klassId = query.klassId;
         dispatch({
           type: namespace + (payload.id ? '/modify' : '/create'),
           payload,

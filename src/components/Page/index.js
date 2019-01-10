@@ -8,12 +8,12 @@ import './Page.less';
 
 const prefixCls = 'page-wrapper';
 
-export default function Page({ children, header, footer, loading }) {
+export default function Page({ children, header, footer, loading ,className, mainClassName}) {
   return (
     <Spin spinning={!!loading}>
-      <Flex direction="column" className={prefixCls}>
+      <Flex direction="column" className={classnames(prefixCls, className)}>
         {header}
-        <Flex isItem direction="column" className={prefixCls + '-main'}>
+        <Flex isItem direction="column" className={classnames(prefixCls + '-main', mainClassName)}>
           {children}
         </Flex>
         {footer}
