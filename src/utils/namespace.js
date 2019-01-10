@@ -18,6 +18,7 @@ export const ManagesStudentArrangePlan = '/manages/student-arrange-plan';
 export const ManagesLectureArrangePlan = '/manages/lecture-arrange-plan';
 
 
+export const ManagesLeave = '/manages/leave';
 
 export const TimetableLecture = '/timetable/lecture';
 export const TimetableGrade = '/timetable/grade';
