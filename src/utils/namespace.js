@@ -14,6 +14,7 @@ export const ManagesDevice = '/manages/device';
 export const ManagesTimetable = '/manages/timetable';
 export const ManagesNotice = '/manages/notice';
 
+export const ManagesLeave = '/manages/leave';
 
 export const TimetableLecture = '/timetable/lecture';
 export const TimetableGrade = '/timetable/grade';
