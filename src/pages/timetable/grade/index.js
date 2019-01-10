@@ -73,14 +73,18 @@ export default class GradeTimeTable extends Component {
     }, {}));
 
     const timetableProps = {
-      lectureList: list, now,
-      periodList, roomList,
+      now,
+      periodList,
+      roomList,
+      lectureList: list,
       gradeId: this.state.gradeId,
       selectedLecture: this.state.selectedLecture,
       onSelect: (selectedLecture) => {
         this.setState({selectedLecture});
       },
     };
+
+    console.log(timetableProps);
 
     return (
       <Page header={header} loading={!!loading}>

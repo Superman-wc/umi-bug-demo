@@ -43,7 +43,7 @@ export default class ArrangePlanList extends Component {
 
     const columns = [
       // {title: 'ID', key: 'id'},
-      {title: '方案名称', key: 'planName', width: 300,},
+      {title: '方案名称', key: 'name', width: 300,},
       {title: '选考分班', key: 'electionExaminationPlanName',width: 200,},
       {title: '学考分班', key: 'studyExaminationPlanName', width: 200,},
       {title: '年级', key: 'gradeName', width: 120,},

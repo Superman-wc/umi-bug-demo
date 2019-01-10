@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import {Button, Card, Tabs} from 'antd';
+import {Button, Card, Tabs, Empty} from 'antd';
 import classNames from 'classnames';
 import Moment from 'moment';
 import {Authenticate, ManagesStudentArrangePlan as namespace} from '../../../utils/namespace';
@@ -9,6 +9,7 @@ import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
 import styles from './$id.less';
 import Flex from '../../../components/Flex';
+
 
 @connect(state => ({
   profile: state[Authenticate].authenticate || {},
@@ -130,7 +131,7 @@ export default class DashboardPage extends Component {
                     }}/>
                   )
                   :
-                  <div style={{textAlign: 'center', padding: 50}}>暂无方案</div>
+                  <Empty description="暂无方案"/>
               }
             </Tabs.TabPane>
 
@@ -153,7 +154,7 @@ export default class DashboardPage extends Component {
                     }}/>
                   )
                   :
-                  <div style={{textAlign: 'center', padding: 50}}>暂无方案</div>
+                  <Empty description="暂无方案"/>
               }
             </Tabs.TabPane>
 
@@ -172,7 +173,7 @@ function Plan({item = {}, loading, load}) {
         item ?
           <Flex>
             <div style={{width: '40%', marginRight: 20}}>
-              <h1>{item.planName}</h1>
+              <h1>{item.name}</h1>
               <div style={{marginBottom: 15}}>
                 <a style={{marginRight: 50}}>重命名</a>
                 <span>{new Moment(item.dateCreated).format('YYYY-MM-DD HH:mm:ss')}</span>
@@ -250,7 +251,7 @@ function TimeslotKlassPlanList({list = []}) {
 
             {
               arr.map(it =>
-                <Flex.Item key={it.klassName} className={styles['cell']}>
+                <Flex.Item key={it.klassName} className={classNames(styles['cell'], styles[it.subjectCode])}>
                   {it.klassName}<br/>{`男${it.femaleNum} / 女${it.maleNum}`}
                 </Flex.Item>
               )

@@ -24,6 +24,7 @@ export type CourseTableProps = {
   onEdit?: (lecture: ILecture) => void;
   selectedLecture: ILecture;
   now?: { startTime: number };
+  className?: string
 }
 
 export default class CourseTable extends Component<CourseTableProps, any> {
@@ -69,7 +70,7 @@ export default class CourseTable extends Component<CourseTableProps, any> {
   };
 
   componentDidUpdate() {
-    console.timeEnd('render');
+    // console.timeEnd('render');
     this.onResize();
   }
 
@@ -129,7 +130,7 @@ export default class CourseTable extends Component<CourseTableProps, any> {
   };
 
   render() {
-    console.time('render');
+    // console.time('render');
     const {
       periodList = [],
       roomList = [],
@@ -139,6 +140,7 @@ export default class CourseTable extends Component<CourseTableProps, any> {
       onEdit,
       selectedLecture,
       now,
+      className,
     } = this.props;
     const {width, height, scrollOffset} = this.state;
     const weekWidth = 30;
@@ -186,11 +188,11 @@ export default class CourseTable extends Component<CourseTableProps, any> {
         map[it.dayOfWeek] = week;
         return map;
       }, {});
-      const weekComponents:JSX.Element[] =[];
+      const weekComponents: JSX.Element[] = [];
       const WEEK = ['一', '二', '三', '四', '五', '六', '日'];
       let weekTop = 0;
       let periodTop = 0;
-      const periodComponents:JSX.Element[] = [];
+      const periodComponents: JSX.Element[] = [];
       let periodIndex = 0;
       Object.keys(weekPeriod).forEach(key => {
         const periods = weekPeriod[key];
@@ -263,7 +265,7 @@ export default class CourseTable extends Component<CourseTableProps, any> {
     //   return new Rect(x, y, w, h).isOverlap(rect2);
     // };
 
-    const renderLectureList = ((list:ILecture[]) => {
+    const renderLectureList = ((list: ILecture[]) => {
       const table = {};
       const viewEndCol = Math.min(viewStartCol + viewColCount, roomList.length - 1);
       const viewEndRow = Math.min(viewStartRow + viewRowCount, periodList.length - 1);
@@ -272,8 +274,8 @@ export default class CourseTable extends Component<CourseTableProps, any> {
       //
       // console.log(JSON.stringify(range), scrollOffset.x, scrollOffset.y);
 
-      list.forEach((it:ILecture) => {
-        if(it.room) {
+      list.forEach((it: ILecture) => {
+        if (it.room) {
           const col = roomIndexMap[it.room.id];
           if (col >= viewStartCol && col <= viewEndCol) {
             const row = periodIndexMap[it.period.id];
@@ -300,7 +302,7 @@ export default class CourseTable extends Component<CourseTableProps, any> {
               )
             }
           }
-        }else{
+        } else {
           console.error('没有教室的课表单元', it);
         }
       });
@@ -346,7 +348,7 @@ export default class CourseTable extends Component<CourseTableProps, any> {
     return (
 
 
-      <div ref={this[ELEMENT]} className={styles['timetable']}
+      <div ref={this[ELEMENT]} className={classnames(styles['timetable'], className)}
            onWheel={this.onWheel}
            onMouseMove={this.onMouseMove}
            onMouseUp={this.onMouseUp}>

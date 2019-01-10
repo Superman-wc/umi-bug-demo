@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import { Button, Card, Tabs, Row, Col} from 'antd';
+import {Button, Card, Tabs, Row, Col, Empty} from 'antd';
 import classNames from 'classnames';
 import Moment from 'moment';
 import {Authenticate, ManagesLectureArrangePlan as namespace} from '../../../utils/namespace';
@@ -9,7 +9,7 @@ import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
 import styles from './$id.less';
 import Flex from '../../../components/Flex';
-
+import TimeTable from '../../../components/Timetable/CourseTable';
 
 
 @connect(state => ({
@@ -59,9 +59,9 @@ export default class DashboardPage extends Component {
     const schoolName = profile && profile.schoolName || '';
 
 
-    const title = schoolName + '分班方案详情';
+    const title = schoolName + '排课方案详情';
 
-    const breadcrumb = ['选班排课', '分班详情'];
+    const breadcrumb = ['选班排课', '排课详情'];
 
     const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={[
       {
@@ -74,6 +74,8 @@ export default class DashboardPage extends Component {
 
     const {selectedKey = "对比方案"} = this.state;
 
+    console.log(list);
+
     return (
       <Page header={header} mainClassName={styles['arrange-plan-page']}
             location={location}
@@ -82,7 +84,7 @@ export default class DashboardPage extends Component {
 
           {
             item ?
-              <h1>{item.gradeName} - {item.electionExamination ? '选考' : '学考'}</h1>
+              <h1>{item.gradeName}</h1>
               :
               null
           }
@@ -132,32 +134,10 @@ export default class DashboardPage extends Component {
                     }}/>
                   )
                   :
-                  <div style={{textAlign: 'center', padding: 50}}>暂无方案</div>
+                  <Empty description="暂无方案"/>
               }
             </Tabs.TabPane>
 
-            <Tabs.TabPane tab={`可配套${item && item.electionExamination ? '学考' : '选考'}方案`} key="配套方案">
-              {
-                item && selectedKey === '配套方案' && list.length ?
-                  list.map(it =>
-                    <Plan key={it.id} item={it} loading={it.loading} load={(id) => {
-                      it.loading = true;
-                      dispatch({
-                        type: namespace + '/set',
-                        payload: {
-                          list: [...list]
-                        }
-                      });
-                      dispatch({
-                        type: namespace + '/fetchDetail',
-                        payload: {id},
-                      })
-                    }}/>
-                  )
-                  :
-                  <div style={{textAlign: 'center', padding: 50}}>暂无方案</div>
-              }
-            </Tabs.TabPane>
 
           </Tabs>
         </div>
@@ -173,8 +153,8 @@ function Plan({item = {}, loading, load}) {
       {
         item ?
           <Flex>
-            <div style={{width: '40%', marginRight: 20}}>
-              <h1>{item.planName}</h1>
+            <div style={{width: '30%', flexBasis: '30%', paddingRight: 20, flexShrink: 0}}>
+              <h1>{item.name}</h1>
               <div style={{marginBottom: 15}}>
                 <a style={{marginRight: 50}}>重命名</a>
                 <span>{new Moment(item.dateCreated).format('YYYY-MM-DD HH:mm:ss')}</span>
@@ -187,15 +167,13 @@ function Plan({item = {}, loading, load}) {
                 }
               </div>
               <p>{item.memo}</p>
-            </div>
-            <Flex.Item>
               <h2>基础参数</h2>
               <Row className={styles['base-params']}>
-                <Col span={4}>
+                <Col span={6}>
                   <label>年级</label>
                   <p>{item.gradeIndexName}</p>
                 </Col>
-                <Col span={8}>
+                <Col span={18}>
                   <label>教学计划</label>
                   <p>{`${item.semesterAcademicYear}学年第${item.semesterType}学期`}</p>
                 </Col>
@@ -203,31 +181,38 @@ function Plan({item = {}, loading, load}) {
                   <label>相关师资</label>
                   <p>{item.teacherNum}</p>
                 </Col>
-                <Col span={6}>
+                <Col span={18}>
                   <label>相关场地</label>
                   <p>{item.roomNum}</p>
                 </Col>
-                <Col span={12}>
+                <Col span={24}>
                   <label>选考分班</label>
                   <p>{item.electionExaminationPlanName}</p>
                 </Col>
-                <Col span={12}>
+                <Col span={24}>
                   <label>学考分班</label>
                   <p>{item.studyExaminationPlanName}</p>
                 </Col>
 
 
               </Row>
-              <h2>师资分班</h2>
-              <TeacherKlassStatisticVMList list={item.teacherKlassStatisticVMList||[]} />
+            </div>
+            <Flex.Item style={{maxWidth: '70%'}}>
               {
-                !item.subjectKlassPlanVMList || !item.timeslotKlassPlanVMList ?
+                item.lectureVMList && item.teacherKlassStatisticVMList ?
+                  <Fragment>
+
+                    <h2>师资分班</h2>
+                    <TeacherKlassStatisticVMList list={item.teacherKlassStatisticVMList || []}/>
+                    <h2>年级课表</h2>
+                    <LectureVMList list={item.lectureVMList || []}/>
+                  </Fragment>
+                  :
                   <Flex align="middle" justify="center">
                     <Button onClick={() => load(item.id)}>查看详情</Button>
                   </Flex>
-                  :
-                  null
               }
+
             </Flex.Item>
           </Flex>
           :
@@ -237,29 +222,27 @@ function Plan({item = {}, loading, load}) {
   )
 }
 
-function TeacherKlassStatisticVMList({list=[]}){
-  const subjectMap = list.reduce((map, it)=>{
-    const subject = map[it.subjectId] || {id:it.subjectId, name:it.subjectName, teacherList:[]};
+function TeacherKlassStatisticVMList({list = []}) {
+  const subjectMap = list.reduce((map, it) => {
+    const subject = map[it.subjectId] || {id: it.subjectId, name: it.subjectName, teacherList: []};
     subject.teacherList.push(it);
     map[it.subjectId] = subject;
     return map;
   }, {});
-
-  console.log(list, subjectMap);
-
   return (
     <Tabs>
       {
-        Object.entries(subjectMap).map(([id, subject])=>
+        Object.entries(subjectMap).map(([id, subject]) =>
           <Tabs.TabPane tab={subject.name} key={id}>
             {
-              subject.teacherList.map(teacher=>
-                <Flex key={teacher.teacherId} style={{height:'auto'}}>
-                  <div style={{width:60}}>{teacher.teacherName}</div>
+              subject.teacherList.map(teacher =>
+                <Flex className={styles['teacher-detail']} key={teacher.teacherId}>
+                  <div className={styles['teacher-name']}>{teacher.teacherName}</div>
+                  <div style={{width: 100}}>{`每周课时：${teacher.workCountOfWeek}`}</div>
                   <Flex.Item>
                     {
-                      teacher.klassVMList.map(klass=>
-                        <span key={klass.id} style={{display:'inline-block', width:100}}>{klass.name}</span>
+                      teacher.klassVMList.map(klass =>
+                        <span key={klass.id} style={{display: 'inline-block', width: 100}}>{klass.name}</span>
                       )
                     }
                   </Flex.Item>
@@ -270,5 +253,31 @@ function TeacherKlassStatisticVMList({list=[]}){
         )
       }
     </Tabs>
+  )
+}
+
+function LectureVMList({list = []}) {
+
+  const periodMap = {};
+  const roomList = Object.values(list.reduce((map, it) => {
+    const {id, name} = it.room;
+    map[id] = {id, name: name.trim()};
+    periodMap[it.period.id] = it.period;
+    return map;
+  }, {})).sort((a, b) => a.name - b.name);
+  const periodList = Object.values(periodMap);
+
+  const timetableProps = {
+    periodList,
+    roomList,
+    lectureList: list,
+  };
+
+  console.log(periodList);
+
+  return (
+    <div style={{height: (Math.min(periodList.length, 4) * 90 + 45) || 0, display: 'flex'}}>
+      <TimeTable {...timetableProps} />
+    </div>
   )
 }
