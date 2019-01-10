@@ -5,11 +5,11 @@ export async function list(data) {
 }
 
 export async function item({id}) {
-  return request('/api/hii/1.0/admin/staff/' + id, {method: 'GET'});
+  return request('/api/1.0/admin/staff/' + id, {method: 'GET'});
 }
 
 export async function modify(data) {
-  return request('/api/hii/1.0/admin/staff/' + data.id, {data, method: 'PUT'});
+  return request('/api/1.0/admin/staff/' + data.id, {data, method: 'PUT'});
 }
 
 export async function create(data) {
@@ -17,5 +17,5 @@ export async function create(data) {
 }
 
 export async function remove({id}) {
-  return request('/api/hii/1.0/admin/staff/' + id, {method: 'DELETE'});
+  return request('/api/1.0/admin/staff/' + id, {method: 'DELETE'});
 }

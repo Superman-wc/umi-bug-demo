@@ -79,19 +79,23 @@ export default class StudentList extends Component {
 
 
     const buttons = [
-      {
-        key: 'create',
-        type: 'primary',
-        children: '创建',
-        title: '创建',
-        icon: 'plus',
-        onClick: () => {
-          this.setState({visible: true, item: null});
-        },
-      },
+
     ];
 
     if (query.klassId && klass && klass.type === ClassTypeEnum.行政班) {
+
+      buttons.push(
+        {
+          key: 'create',
+          type: 'primary',
+          children: '创建',
+          title: '创建',
+          icon: 'plus',
+          onClick: () => {
+            this.setState({visible: true, item: null});
+          },
+        }
+      );
 
       buttons.push(
         {
