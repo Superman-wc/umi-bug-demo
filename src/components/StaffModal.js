@@ -78,13 +78,13 @@ export default class StaffModal extends Component {
                     )
                   }
                 </Form.Item>
-                <Form.Item label="用户名" {...formItemLayout} hasFeedback>
-                  {
-                    getFieldDecorator('username', {})(
-                      <Input placeholder="请输入账户名"/>
-                    )
-                  }
-                </Form.Item>
+                {/*<Form.Item label="用户名" {...formItemLayout} hasFeedback>*/}
+                  {/*{*/}
+                    {/*getFieldDecorator('username', {})(*/}
+                      {/*<Input placeholder="请输入账户名"/>*/}
+                    {/*)*/}
+                  {/*}*/}
+                {/*</Form.Item>*/}
                 <Form.Item label="密码" {...formItemLayout} hasFeedback>
                   {
                     getFieldDecorator('password', {

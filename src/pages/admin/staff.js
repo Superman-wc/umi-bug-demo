@@ -52,7 +52,7 @@ export default class StaffList extends Component {
     const columns = [
       {title: 'ID', key: 'id',},
       {title: '手机号', key: 'mobile', width: 80},
-      {title: '用户名', key: 'username', width: 100, tac: false,},
+      // {title: '用户名', key: 'username', width: 100, tac: false,},
       {title: '昵名', key: 'nick', width: 100, tac: false,},
       {
         title: '角色', key: 'authorities', width: 200, tac: false,
