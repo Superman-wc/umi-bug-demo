@@ -63,6 +63,7 @@ export default class LeaveList extends Component {
       {title: '请假开始时间', key: 'startTime', width: 100, type: 'dateTime'},
       {title: '请假结束时间', key: 'endTime', width: 100, type: 'dateTime'},
       {title: '教师', key: 'teacherName', width: 100,},
+      {title: '登记时间', key: 'dateCreated', width: 100,},
     ];
 
 

@@ -250,7 +250,7 @@ function TimeslotKlassPlanList({list = []}) {
                  style={{width: '12.5%'}}>{`第${timeslot * 1 + 1}节`}</div>
 
             {
-              arr.map(it =>
+              arr.sort((a, b) => a.subjectId - b.subjectId).map(it =>
                 <Flex.Item key={it.klassName} className={classNames(styles['cell'], styles[it.subjectCode])}>
                   {it.klassName}<br/>{`男${it.femaleNum} / 女${it.maleNum}`}
                 </Flex.Item>

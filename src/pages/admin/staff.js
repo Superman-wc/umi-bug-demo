@@ -63,7 +63,7 @@ export default class StaffList extends Component {
       {
         title: '状态', key: 'status', width: 80,
         render: (status, item) =>
-          (item.authorities && item.authorities.find(it => it.id === 'ROLE_APPADMIN')) ?
+          (item.authorities && item.authorities.find(it => it.name === 'ROLE_APPADMIN')) ?
             '--'
             :
             <Switch checkedChildren={'已启用'} unCheckedChildren={'已禁用'}
@@ -84,7 +84,7 @@ export default class StaffList extends Component {
       {
         title: '操作', key: 'operation', width: 120,
         render: (id, item) =>
-          (item.authorities && item.authorities.find(it => it.id === 'ROLE_APPADMIN')) ?
+          (item.authorities && item.authorities.find(it => it.name === 'ROLE_APPADMIN')) ?
             '--'
             :
             <TableCellOperation operations={{
