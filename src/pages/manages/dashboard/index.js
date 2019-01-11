@@ -2,19 +2,26 @@ import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
 import {Form, Row, Col, notification, Checkbox, Button, Card, Table, Radio} from 'antd';
-import {Authenticate, ManagesDashboard as namespace, ManagesTeacher, ManagesSemester, ManagesRoom} from '../../../utils/namespace';
+import {
+  Authenticate,
+  ManagesDashboard as namespace,
+  ManagesTeacher,
+  ManagesSemester,
+  ManagesRoom,
+  ManagesLectureArrangePlan,
+  ManagesStudentArrangePlan
+} from '../../../utils/namespace';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
 import styles from './index.less';
 import {stdColumns} from '../../../components/ListPage';
 import {GradeIndexEnum, BuildingTypeEnum, Enums} from '../../../utils/Enum';
 import router from 'umi/router';
+import classNames from 'classnames';
 
 
 @connect(state => ({
   profile: state[Authenticate].authenticate || {},
-
-
   semester: state[namespace].semester,
   student: state[namespace].student,
   teacher: state[namespace].teacher,
@@ -22,7 +29,7 @@ import router from 'umi/router';
   building: state[namespace].building,
   timetable: state[namespace].timetable,
   electionExamination: state[namespace].electionExamination,
-  studentArrangePlan: state[namespace].studentArrangePlan,
+  activatedPlan: state[namespace].activatedPlan,
   loading: state[namespace].loading,
 }))
 export default class DashboardPage extends Component {
@@ -66,6 +73,13 @@ export default class DashboardPage extends Component {
         ...query
       }
     });
+
+    dispatch({
+      type: namespace + '/activatedPlan',
+      payload: {
+        ...query
+      }
+    });
     // dispatch({
     //   type: namespace + '/studentArrangePlan',
     //   payload: {
@@ -80,7 +94,7 @@ export default class DashboardPage extends Component {
       loading, location, dispatch,
       profile,
       semester, student, teacher, teacherCount, building, timetable, electionExamination,
-      studentArrangePlan
+      activatedPlan
     } = this.props;
 
     const {pathname, query} = location;
@@ -88,6 +102,8 @@ export default class DashboardPage extends Component {
     const gradeIndex = query.gradeIndex || GradeIndexEnum.高一.toString();
 
     const gradeIndex2 = query.gradeIndex2 || GradeIndexEnum.高一.toString();
+
+    const gradeIndex3 = query.gradeIndex3 || GradeIndexEnum.高一.toString();
 
     const buildingType = query.buildingType || BuildingTypeEnum.教学区.toString();
 
@@ -101,6 +117,8 @@ export default class DashboardPage extends Component {
     const header = (
       <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>
     );
+
+    console.log(activatedPlan);
 
     return (
       <Page header={header} mainClassName={styles['dashboard-page']}
@@ -123,11 +141,21 @@ export default class DashboardPage extends Component {
                 });
               }}
             />
-            <Card className={styles['card-header-not-top-border']} title="分班排课" style={{marginTop: -10}} loading
-                  extra={<a>管理</a>}
-            >
+            <ActivatedPlanCard
+              activatedPlan={activatedPlan} loading={!activatedPlan}
+              value={gradeIndex3}
+              onChange={e => {
+                router.replace({pathname, query: {...query, gradeIndex3: e.target.value}});
+                dispatch({
+                  type: namespace + '/activatedPlan',
+                  payload: {
+                    ...query,
+                    gradeIndex3: e.target.value
+                  }
+                });
+              }}
+            />
 
-            </Card>
           </Col>
           <Col span={12} style={{paddingLeft: 5}}>
             <StudentCard student={student} value={gradeIndex} loading={!student} onChange={e => {
@@ -160,7 +188,7 @@ function SemesterCard({semester, loading}) {
   return (
     <Card className={styles['current-semester']}
           title="当前学期" loading={loading}
-          extra={<a onClick={()=>router.push(ManagesSemester)}>修改</a>} >
+          extra={<a onClick={() => router.push(ManagesSemester)}>修改</a>}>
       {semester && semester.academicYear}学年第{semester && semester.semesterType}学期
     </Card>
   )
@@ -224,6 +252,75 @@ function ElectionExaminationCard({electionExamination, loading, value, onChange}
   )
 }
 
+function ActivatedPlanCard({activatedPlan, loading, value, onChange}) {
+
+  const {electionExaminationPlan = {}, studyExaminationPlan = {}, lecturePlan = {}} = activatedPlan || {};
+
+  return (
+    <Card className={classNames(styles['card-header-not-top-border'], styles['activated-plan'])}
+          title="分班排课" style={{marginTop: -10}}
+          loading={loading}
+          extra={
+            <Radio.Group value={value} onChange={onChange}>
+              {
+                Enums(GradeIndexEnum).map(it =>
+                  <Radio.Button key={it.value} value={it.value}>{it.name}</Radio.Button>
+                )
+              }
+            </Radio.Group>
+          }
+    >
+      <h3>
+        当前分班方案
+        <a style={{float: 'right'}}
+           onClick={() => router.push({pathname: ManagesStudentArrangePlan})}>
+          查看更多
+        </a>
+      </h3>
+      <Row>
+        <Col span={12}>
+          <h4>选考方案：{electionExaminationPlan.name}</h4>
+          {
+            electionExaminationPlan.courseKlassVMList && electionExaminationPlan.courseKlassVMList.length ?
+              <ul>
+                {
+                  electionExaminationPlan.courseKlassVMList.map(it =>
+                    <li key={it.courseId}>{it.courseName}：{it.klassNum}个班</li>
+                  )
+                }
+              </ul>
+              :
+              null
+          }
+        </Col>
+        <Col span={12}>
+          <h4>学考方案：{studyExaminationPlan.name}</h4>
+          {
+            studyExaminationPlan.courseKlassVMList && studyExaminationPlan.courseKlassVMList.length ?
+              <ul>
+                {
+                  studyExaminationPlan.courseKlassVMList.map(it =>
+                    <li key={it.courseId}>{it.courseName}：{it.klassNum}个班</li>
+                  )
+                }
+              </ul>
+              :
+              null
+          }
+        </Col>
+      </Row>
+      <h3>当前排课方案</h3>
+      <p>
+        {lecturePlan.name}
+        <a style={{float: 'right'}}
+           onClick={() => router.push({pathname: ManagesLectureArrangePlan + '/' + lecturePlan.id})}>
+          打开方案管理
+        </a>
+      </p>
+    </Card>
+  )
+}
+
 function StudentCard({value, onChange, student, loading}) {
   return (
     <Card title="学生数据" loading={loading}
@@ -255,7 +352,7 @@ function TeacherCard({teacher, loading, teacherCount}) {
   return (
     <Card className={styles['card-header-not-top-border']} title="师资数据" style={{marginTop: -10}}
           loading={loading}
-          extra={<a onClick={()=>router.push(ManagesTeacher)}>管理</a>}
+          extra={<a onClick={() => router.push(ManagesTeacher)}>管理</a>}
     >
       <h3>可教学人数：{teacherCount}人</h3>
       <ul className={styles['teacher-list']}>
@@ -281,7 +378,7 @@ function BuildingCard({value, building, loading, onChange}) {
                   )
                 }
               </Radio.Group>
-              <a style={{marginLeft: '1em'}} onClick={()=>router.push(ManagesRoom)}>管理</a>
+              <a style={{marginLeft: '1em'}} onClick={() => router.push(ManagesRoom)}>管理</a>
             </Fragment>
           }
     >

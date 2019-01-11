@@ -1,6 +1,6 @@
 import Model from 'dva-model';
 import {
-  building, electionExamination, semester, student, teacher, timetable
+  building, electionExamination, semester, student, teacher, timetable, activatedPlan,
 } from '../../services/manages/dashboard';
 import {ManagesDashboard as namespace} from '../../utils/namespace';
 
@@ -41,11 +41,11 @@ export default Model(
       timetableSuccess(state, action){
         const {list, total} = action.result;
         return {...state, timetable: list, timetableTotal: total, loading:false};
-      }
+      },
 
     }
   },
   {
-    building, electionExamination, semester, student, teacher, timetable
+    building, electionExamination, semester, student, teacher, timetable, activatedPlan,
   }
 );

@@ -33,19 +33,19 @@ export default class Core extends Component {
            onClick={(e) => {
              if (this.isRoot(e.target)) {
                this.props.onSelectElement && this.props.onSelectElement(this.element, {isRoot: true});
-             }else{
+             } else {
                this.props.onSelectElement && this.props.onSelectElement(e.target, {isRoot: false});
              }
            }}
       >
         <rect data-desc="光标" x="100" y="50" width="20" height="20" fill="#cd0000">
-          <animate attributeName="x" from="0" to="500" dur="2s" repeatCount="indefinite" />
+          {/*<animate attributeName="x" from="0" to="500" dur="2s" repeatCount="indefinite" />*/}
         </rect>
         <circle cx="100" cy="50" r="40" stroke="black" strokeWidth="2" fill="red"/>
-        <ellipse cx="300" cy="150" rx="200" ry="80" fill="rgb(200,100,50)" stroke="rgb(0,0,100)" strokeWidth="2" />
-        <line x1="0" y1="0" x2="300" y2="300" style={{stroke:'rgb(99,99,99)', strokeWidth:2}}/>
-        <polygon points="220,100 300,210 170,250" fill="#ccc" stroke="#000" strokeWidth="10" />
-        <polyline points="0,0 0,20 20,20 20,40 40,40 40,60" fill="#ccc" stroke="#000" strokeWidth="10" />
+        <ellipse cx="300" cy="150" rx="200" ry="80" fill="rgb(200,100,50)" stroke="rgb(0,0,100)" strokeWidth="2"/>
+        <line x1="0" y1="0" x2="300" y2="300" style={{stroke: 'rgb(99,99,99)', strokeWidth: 2}}/>
+        <polygon points="220,100 300,210 170,250" fill="#ccc" stroke="#000" strokeWidth="10"/>
+        <polyline points="0,0 0,20 20,20 20,40 40,40 40,60" fill="#ccc" stroke="#000" strokeWidth="10"/>
         <path d="M153 334
 C153 334 151 334 151 334
 C151 339 153 344 156 344
@@ -59,7 +59,9 @@ C131 294 111 311 111 334
 C111 361 131 384 156 384
 C186 384 211 361 211 334
 C211 300 186 274 156 274" fill="#ccc" stroke="#000" strokeWidth="10"/>
-        <text x="400" y="500" fontSize="40" width="200" height="200" fill="#f00">中国人不打中国人</text>
+        <text x="400" y="500" fontSize="40" width="200" height="200" fill="#f00">
+          中国人<tspan dy={10} fill="#00f">不打</tspan><tspan dy="-10">中国人</tspan>
+        </text>
         <g>
           <text x="500" y="600">[ A ] [ B ] [ C ]</text>
         </g>
@@ -69,3 +71,7 @@ C211 300 186 274 156 274" fill="#ccc" stroke="#000" strokeWidth="10"/>
     )
   }
 }
+
+export const TagAttributes = {
+  text: {fontSize: {type:'number'}},
+};

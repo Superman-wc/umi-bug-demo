@@ -51,3 +51,11 @@ export async function timetable() {
   return request('/api/8queen/statistic/timeTable', {method: 'GET'});
 }
 
+/**
+ * 数据总览-当前分班排课方案
+ * @param gradeIndex3      类型 10-高一 11-高二 12-高三
+ * @returns {Promise<*>}
+ */
+export async function activatedPlan({gradeIndex3 = 10}) {
+  return request('/api/8queen/statistic/activatedPlan', {data: {gradeIndex: gradeIndex3}, method: 'GET'});
+}
