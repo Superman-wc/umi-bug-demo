@@ -316,13 +316,13 @@ function ActivatedPlanCard({activatedPlan, loading, value, onChange}) {
         </Col>
       </Row>
       <h3>当前排课方案</h3>
-      <p>
+      <h4>
         {lecturePlan.name}
         <a style={{float: 'right'}}
            onClick={() => router.push({pathname: ManagesLectureArrangePlan + '/' + lecturePlan.id})}>
           打开方案管理
         </a>
-      </p>
+      </h4>
     </Card>
   )
 }
