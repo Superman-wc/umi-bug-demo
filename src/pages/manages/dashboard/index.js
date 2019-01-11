@@ -279,7 +279,7 @@ function ActivatedPlanCard({activatedPlan, loading, value, onChange}) {
       </h3>
       <Row>
         <Col span={12}>
-          <h4>选考方案：{electionExaminationPlan && electionExaminationPlan.name}</h4>
+          <h4>选考方案：{electionExaminationPlan && electionExaminationPlan.name || '无'}</h4>
           {
             electionExaminationPlan && electionExaminationPlan.courseKlassVMList && electionExaminationPlan.courseKlassVMList.length ?
               <ul>
@@ -297,7 +297,7 @@ function ActivatedPlanCard({activatedPlan, loading, value, onChange}) {
           }
         </Col>
         <Col span={12}>
-          <h4>学考方案：{studyExaminationPlan && studyExaminationPlan.name}</h4>
+          <h4>学考方案：{studyExaminationPlan && studyExaminationPlan.name || '无'}</h4>
           {
             studyExaminationPlan && studyExaminationPlan.courseKlassVMList && studyExaminationPlan.courseKlassVMList.length ?
               <ul>
@@ -317,7 +317,7 @@ function ActivatedPlanCard({activatedPlan, loading, value, onChange}) {
       </Row>
       <h3>当前排课方案</h3>
       <h4>
-        {lecturePlan && lecturePlan.name}
+        {lecturePlan && lecturePlan.name || '无'}
         <a style={{float: 'right'}}
            onClick={() => router.push({pathname: ManagesLectureArrangePlan + '/' + lecturePlan.id})}>
           打开方案管理
