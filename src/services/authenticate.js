@@ -18,32 +18,7 @@ export async function modify(data) {
 }
 
 export async function menu(data) {
-  return request('/api/1.0/admin/auth/menu/my-menu', {data,method: 'GET'}).then(res=>{
-    if(res.result.menus){
-      res.result.menus.push({
-        category: "管理",
-        controllerName: "/manages/device",
-        id: -1,
-        link: "/manages/device",
-        title: "设备管理",
-      });
-      res.result.menus.push({
-        category: "管理",
-        controllerName: "/manages/notice",
-        id: -2,
-        link: "/manages/notice",
-        title: "新闻公告",
-      });
-      res.result.menus.push({
-        category: "排课",
-        controllerName: "/timetable/build",
-        id: -2,
-        link: "/timetable/build",
-        title: "构建课表",
-      });
-    }
-    return res;
-  });
+  return request('/api/1.0/admin/auth/menu/my-menu', {data,method: 'GET'});
 }
 
 export async function dataImportPermission() {
