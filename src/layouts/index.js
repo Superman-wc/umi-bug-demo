@@ -331,12 +331,12 @@ class App extends Component {
 
     return (
       <LocaleProvider locale={zhCN}>
-        <Flex>
+        <div className={styles['layout']}>
           <UserSide {...userSideProps}  />
-          <Flex.Item className={styles['main']}>
+          <div className={styles['main']}>
             {this.props.children}
-          </Flex.Item>
-        </Flex>
+          </div>
+        </div>
       </LocaleProvider>
     );
   }

@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import {Button, Card, Tabs, Row, Col, Empty} from 'antd';
+import {Button, Card, Tabs, Row, Col, Empty, Spin} from 'antd';
 import classNames from 'classnames';
 import Moment from 'moment';
 import {Authenticate, ManagesLectureArrangePlan as namespace} from '../../../utils/namespace';
@@ -149,11 +149,12 @@ export default class DashboardPage extends Component {
 
 function Plan({item = {}, loading, load}) {
   return (
-    <Card loading={!!loading} className={styles['plan-item']}>
+    <Spin spinning={!!loading}>
+      <Row className={styles['plan-item']}>
       {
         item ?
-          <Flex>
-            <div style={{width: '30%', flexBasis: '30%', paddingRight: 20, flexShrink: 0}}>
+          <Fragment>
+            <Col span={8} className={styles['plan-item-left']}>
               <h1>{item.name}</h1>
               <div style={{marginBottom: 15}}>
                 <a style={{marginRight: 50}}>重命名</a>
@@ -196,8 +197,8 @@ function Plan({item = {}, loading, load}) {
 
 
               </Row>
-            </div>
-            <Flex.Item style={{maxWidth: '70%'}}>
+            </Col>
+            <Col span={16} className={styles['plan-item-main']}>
               {
                 item.lectureVMList && item.teacherKlassStatisticVMList ?
                   <Fragment>
@@ -213,12 +214,13 @@ function Plan({item = {}, loading, load}) {
                   </Flex>
               }
 
-            </Flex.Item>
-          </Flex>
+            </Col>
+          </Fragment>
           :
           null
       }
-    </Card>
+      </Row>
+    </Spin>
   )
 }
 
@@ -239,7 +241,7 @@ function TeacherKlassStatisticVMList({list = []}) {
                 <Flex className={styles['teacher-detail']} key={teacher.teacherId}>
                   <div className={styles['teacher-name']}>{teacher.teacherName}</div>
                   <div style={{width: 100}}>{`每周课时：${teacher.workCountOfWeek}`}</div>
-                  <Flex.Item>
+                  <Flex.Item >
                     {
                       teacher.klassVMList.map(klass =>
                         <span key={klass.id} style={{display: 'inline-block', width: 100}}>{klass.name}</span>

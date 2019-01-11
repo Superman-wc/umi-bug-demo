@@ -68,7 +68,7 @@ export default class CourseUniqueList extends Component {
     const grade = gradeMap[query.gradeId] || {};
     const subject = subjectMap[query.subjectId] || {};
 
-    const title = (grade.name && (grade.name + '（' + grade.schoolYear + '级）') || '') + (subject.name || '') + '课程列表';
+    const title = (grade.name && (grade.name + '（' + (grade && grade.schoolYear) + '级）') || '') + (subject.name || '') + '课程列表';
 
     const breadcrumb = ['管理', '课程管理', title];
 
@@ -89,7 +89,7 @@ export default class CourseUniqueList extends Component {
       {title: 'ID', key: 'id'},
       {
         title: '年级', key: 'gradeId', width: 80,
-        render: (v, row) => row.gradeName + '（' + gradeMap[row.gradeId].schoolYear + '级）',
+        render: (v, row) => row.gradeName + '（' + (gradeMap[row.gradeId] && gradeMap[row.gradeId].schoolYear) + '级）',
         filters: gradeList.map(it => ({value: it.id, text: it.name + '（' + it.schoolYear + '级' + '）'})),
         filtered: !!query.gradeId,
         filterMultiple: false,
