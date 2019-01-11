@@ -285,7 +285,10 @@ function ActivatedPlanCard({activatedPlan, loading, value, onChange}) {
               <ul>
                 {
                   electionExaminationPlan.courseKlassVMList.map(it =>
-                    <li key={it.courseId}>{it.courseName}：{it.klassNum}个班</li>
+                    <li key={it.courseId}>
+                      <label style={{width:60, textAlign:'right', display:'inline-block'}}>{it.courseName}：</label>
+                      <span>{it.klassNum}个班</span>
+                    </li>
                   )
                 }
               </ul>
@@ -300,7 +303,10 @@ function ActivatedPlanCard({activatedPlan, loading, value, onChange}) {
               <ul>
                 {
                   studyExaminationPlan.courseKlassVMList.map(it =>
-                    <li key={it.courseId}>{it.courseName}：{it.klassNum}个班</li>
+                    <li key={it.courseId}>
+                      <label style={{width:60, textAlign:'right', display:'inline-block'}}>{it.courseName}：</label>
+                      <span>{it.klassNum}个班</span>
+                    </li>
                   )
                 }
               </ul>
