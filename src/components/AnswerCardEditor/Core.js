@@ -75,3 +75,4 @@ C211 300 186 274 156 274" fill="#ccc" stroke="#000" strokeWidth="10"/>
 export const TagAttributes = {
   text: {fontSize: {type:'number'}},
 };
+
