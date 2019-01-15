@@ -172,7 +172,7 @@ function Plan({item = {}, loading, load}) {
       {
         item ?
           <Flex>
-            <div style={{width: '40%', marginRight: 20}}>
+            <div style={{width: '30%', marginRight: 20}}>
               <h1>{item.name}</h1>
               <div style={{marginBottom: 15}}>
                 <a style={{marginRight: 50}}>重命名</a>
@@ -190,22 +190,34 @@ function Plan({item = {}, loading, load}) {
             <Flex.Item>
               {
                 item.subjectKlassPlanVMList && item.subjectKlassPlanVMList.length ?
-                  <Flex className={classNames(styles['subject-klass-plan'], styles['table'])}>
-                    <Flex.Item className={styles['table-th']}>
-                      <div className={styles['cell']}>学科</div>
-                      <div className={styles['cell']}>分层</div>
-                      <div className={styles['cell']}>非分层</div>
-                    </Flex.Item>
-                    {
-                      item.subjectKlassPlanVMList.map(it =>
-                        <Flex.Item key={it.subjectName}>
-                          <div className={styles['cell']}>{it.subjectName}</div>
-                          <div className={styles['cell']}>{it.hierarchyNum || '-'}</div>
-                          <div className={styles['cell']}>{it.noHierarchyNum || '-'}</div>
-                        </Flex.Item>
-                      )
-                    }
-                  </Flex>
+                  <table className={classNames(styles['table'], styles['subject-klass-plan'])} style={{marginBottom: 10}}>
+                    <tbody>
+                    <tr>
+                      <th style={{width:'8%'}}>学科</th>
+                      {
+                        item.subjectKlassPlanVMList.map(it =>
+                          <td key={it.subjectName}>{it.subjectName}</td>
+                        )
+                      }
+                    </tr>
+                    <tr>
+                      <th>分层</th>
+                      {
+                        item.subjectKlassPlanVMList.map(it =>
+                          <td key={it.subjectName}>{it.hierarchyNum || '-'}</td>
+                        )
+                      }
+                    </tr>
+                    <tr>
+                      <th>非分层</th>
+                      {
+                        item.subjectKlassPlanVMList.map(it =>
+                          <td key={it.subjectName}>{it.noHierarchyNum || '-'}</td>
+                        )
+                      }
+                    </tr>
+                    </tbody>
+                  </table>
                   :
                   null
               }
@@ -241,24 +253,28 @@ function TimeslotKlassPlanList({list = []}) {
   }, {});
 
   return (
-    <div className={classNames(styles['timeslot-klass-plan'], styles['table'])}>
+    <table className={styles['table']}>
+      <tbody>
       {
         Object.entries(table).map(([timeslot, arr]) =>
-          <Flex key={timeslot} className={styles['timeslot-klass-plan-row']}>
+          <tr key={timeslot}>
 
-            <div className={classNames(styles['table-th'], styles['cell'])}
-                 style={{width: '12.5%'}}>{`第${timeslot * 1 + 1}节`}</div>
+            <th style={{width: '8%'}}>{`第${timeslot * 1 + 1}组`}</th>
 
             {
               arr.sort((a, b) => a.subjectId - b.subjectId).map(it =>
-                <Flex.Item key={it.klassName} className={classNames(styles['cell'], styles[it.subjectCode])}>
-                  {it.klassName}<br/>{`男${it.femaleNum} / 女${it.maleNum}`}
-                </Flex.Item>
+                <td key={it.klassName} className={classNames(styles['cell'], styles[it.subjectCode])}>
+                  <h4>{it.klassName}</h4>
+                  <p>男：{it.femaleNum}</p>
+                  <p>女：{it.maleNum}</p>
+                  <p>共：<strong>{it.femaleNum + it.maleNum}</strong></p>
+                </td>
               )
             }
-          </Flex>
+          </tr>
         )
       }
-    </div>
+      </tbody>
+    </table>
   )
 }
