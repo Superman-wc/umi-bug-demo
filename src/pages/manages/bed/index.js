@@ -3,9 +3,7 @@ import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
 import {Form, Row, Col, message, Modal, Select, Input, notification} from 'antd';
 import {
-  ManagesClass,
-  ManagesDevice,
-  ManagesBuilding as namespace,
+  ManagesBed as namespace,
   ManagesDormitory,
   ManagesClassRoom
 } from '../../../utils/namespace';
@@ -19,7 +17,6 @@ import router from "umi/router";
   total: state[namespace].total,
   list: state[namespace].list,
   loading: state[namespace].loading,
-  deviceList: state[ManagesDevice].list,
 }))
 export default class MeterList extends Component {
 
@@ -35,40 +32,37 @@ export default class MeterList extends Component {
   }
 
   render() {
-    const {list, total, loading, location, dispatch, deviceList = []} = this.props;
-
-    const deviceMap = deviceList.reduce((map, it) => {
-      map[it.device] = it;
-      return map;
-    }, {});
+    const {list, total, loading, location, dispatch,} = this.props;
 
     const {pathname, query} = location;
 
-    const title = '楼层列表';
+    const title = (query.name||'')+'床位列表';
 
-    const breadcrumb = ['管理', '楼层管理', title];
+    const breadcrumb = ['管理', '寝室管理', title];
 
     const buttons = [
-      {
-        key: 'create',
-        type: 'primary',
-        children: '创建',
-        title: '创建',
-        icon: 'plus',
-        onClick: () => {
-          this.setState({visible: true, item: null});
-        },
-      },
+      // {
+      //   key: 'create',
+      //   type: 'primary',
+      //   children: '创建',
+      //   title: '创建',
+      //   icon: 'plus',
+      //   onClick: () => {
+      //     this.setState({visible: true, item: null});
+      //   },
+      // },
       {
         key: 'rollback'
       }
     ];
 
     const columns = [
-      {title: 'ID', key: 'id'},
-      {title: '名称', key: 'name'},
-      {title: '类型', key: 'type', render: v => BuildingTypeEnum[v] || v},
-      {title: '总楼层', key: 'layerTotal',},
+      // {title: 'ID', key: 'id'},
+      {title: '床号', key: 'name'},
+      {title: '班级', key: 'unitName',},
+      {title: '学生', key: 'studentName'},
+      {title: '学生照片', key: 'avatar', render: v => v ? <img width={60} src={v+'!avatar'}/> : '', width:100,},
+
       {
         title: '操作',
         key: 'operate',
@@ -118,7 +112,7 @@ export default class MeterList extends Component {
         pagination
         title={title}
       >
-        <BuildingModal {...roomModalProps} />
+        <BedModal {...roomModalProps} />
       </ListPage>
     );
   }
@@ -136,7 +130,7 @@ export default class MeterList extends Component {
     }
   }
 })
-class BuildingModal extends Component {
+class BedModal extends Component {
 
   render() {
     const {
@@ -145,7 +139,7 @@ class BuildingModal extends Component {
     } = this.props;
     const modalProps = {
       visible,
-      title: item && item.id ? '修改楼层' : '创建楼层',
+      title: item && item.id ? '修改床位' : '创建床位',
       onCancel,
       onOk: () => {
         validateFieldsAndScroll((errors, payload) => {

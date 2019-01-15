@@ -54,7 +54,7 @@ export default class LeaveList extends Component {
         title: '学生', key: 'studentName', width: 200, render: (v, item) =>
           <Flex style={{height: 'auto'}} align="middle" justify="center">
             <div style={{textAlign: 'right', width: 120}}>
-              <img src={item.avatar + '!t'} style={{marginRight: 10, width: 80, height: 80}}/>
+              <img src={item.avatar + '!avatar'} style={{marginRight: 10, width: 80}}/>
             </div>
             <Flex.Item style={{fontSize: 20, textAlign: 'left'}}>
               <div>{item.unitName}</div>
