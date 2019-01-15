@@ -22,7 +22,11 @@ export default class StudentTimeTable extends Component {
 
     const breadcrumb = ['排课', '课表', title];
 
-    const buttons = [];
+    const buttons = [
+      {
+        key:'rollback'
+      }
+    ];
 
     const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={buttons}/>;
     const header = (

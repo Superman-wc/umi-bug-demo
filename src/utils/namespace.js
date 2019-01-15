@@ -16,6 +16,8 @@ export const ManagesNotice = '/manages/notice';
 export const ManagesDashboard = '/manages/dashboard';
 export const ManagesStudentArrangePlan = '/manages/student-arrange-plan';
 export const ManagesLectureArrangePlan = '/manages/lecture-arrange-plan';
+export const ManagesBuilding = '/manages/building';
+export const ManagesClassRoom = '/manages/class-room';
 
 
 export const ManagesLeave = '/manages/leave';

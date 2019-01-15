@@ -48,6 +48,9 @@ export default class ManagesNotice extends Component {
           this.setState({visible: true, item: null});
         },
       },
+      {
+        key:'rollback'
+      }
     ];
 
 

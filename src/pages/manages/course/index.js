@@ -83,6 +83,9 @@ export default class CourseUniqueList extends Component {
           this.setState({visible: true, item: {}});
         },
       },
+      {
+        key:'rollback'
+      }
     ];
 
     const columns = [

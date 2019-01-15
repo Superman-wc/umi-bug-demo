@@ -1,5 +1,5 @@
   import Model from 'dva-model';
-import {list, create, modify, remove, all} from '../../services/manages/subject';
+import {list, create, all} from '../../services/manages/subject';
 import {ManagesSubject as namespace} from '../../utils/namespace';
 import subjectAllCache from '../../caches/manages/subject-all';
 

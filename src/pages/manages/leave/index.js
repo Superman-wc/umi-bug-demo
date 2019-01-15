@@ -44,7 +44,9 @@ export default class LeaveList extends Component {
             ...query
           }
         });
-      }
+      },
+    },{
+      key:'rollback'
     }];
 
     const columns = [

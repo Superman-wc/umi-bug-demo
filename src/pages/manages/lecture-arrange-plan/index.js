@@ -39,6 +39,9 @@ export default class ArrangePlanList extends Component {
           this.setState({visible: true, item: null});
         },
       },
+      {
+        key:'rollback'
+      }
     ];
 
     const columns = [

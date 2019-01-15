@@ -79,7 +79,9 @@ export default class StudentList extends Component {
 
 
     const buttons = [
-
+      {
+        key:'rollback'
+      }
     ];
 
     if (query.klassId && klass && klass.type === ClassTypeEnum.行政班) {

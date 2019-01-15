@@ -74,6 +74,9 @@ export default class ManagesTimetable extends Component {
           this.setState({visible: true, item: null});
         },
       },
+      {
+        key:'rollback'
+      }
     ];
 
 

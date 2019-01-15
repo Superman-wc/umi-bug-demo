@@ -4,6 +4,7 @@ import {connect} from 'dva';
 import {Link, routerRedux} from 'dva/router';
 import {Button, Icon, Popconfirm, Popover, Tooltip} from 'antd';
 import {Authenticate} from '../../utils/namespace';
+import router from 'umi/router';
 
 @connect(state => ({
   user: state[Authenticate].authenticate,
@@ -37,7 +38,8 @@ export default class HeaderOperation extends Component {
         icon: 'rollback',
         onClick: e => {
           e.preventDefault();
-          dispatch(routerRedux.goBack());
+          router.goBack();
+          // dispatch(routerRedux.goBack());
         },
       },
       rollback: {
@@ -45,7 +47,7 @@ export default class HeaderOperation extends Component {
         icon: 'rollback',
         onClick: e => {
           e.preventDefault();
-          dispatch(routerRedux.goBack());
+          router.goBack();
         },
       },
       add: {

@@ -43,6 +43,9 @@ export default class MeterList extends Component {
           this.setState({visible: true, item: null});
         },
       },
+      {
+        key:'rollback'
+      }
     ];
 
     const columns = [

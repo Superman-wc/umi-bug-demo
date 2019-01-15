@@ -102,6 +102,9 @@ export default class StudentList extends Component {
           this.setState({importModalVisible: true});
         },
       },
+      {
+        key:'rollback'
+      }
     ];
 
     const columns = [

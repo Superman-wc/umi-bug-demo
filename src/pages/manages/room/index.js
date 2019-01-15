@@ -62,6 +62,9 @@ export default class MeterList extends Component {
           this.setState({importModalVisible: true});
         },
       },
+      {
+        key:'rollback'
+      }
     ];
 
     const columns = [

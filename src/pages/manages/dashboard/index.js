@@ -113,7 +113,11 @@ export default class DashboardPage extends Component {
 
     const breadcrumb = ['选班排课', '数据概览'];
 
-    const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={[]}/>;
+    const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={[
+      {
+        key:'rollback'
+      }
+    ]}/>;
     const header = (
       <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>
     );
