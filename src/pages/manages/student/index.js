@@ -120,15 +120,16 @@ export default class StudentList extends Component {
 
     const columns = [
       {title: 'ID', key: 'id'},
-      {title: '学号', key: 'code'},
-      {title: '姓名', key: 'name'},
+      {title: '学号', key: 'code', width:80},
+      {title: '姓名', key: 'name', width:100},
       {
         title: '年级', key: 'gradeId',
         filters: gradeList.map(it => ({value: it.id, text: it.name+'（'+it.schoolYear+'级'+'）'})),
         filtered: !!query.gradeId,
         filterMultiple: false,
         filteredValue: query.gradeId ? [query.gradeId] : [],
-        render: (gradeId, row) => row.gradeName
+        render: (gradeId, row) => row.gradeName,
+        width:70,
       },
       {
         title: '班级', key: 'klassId',
@@ -137,6 +138,7 @@ export default class StudentList extends Component {
         filterMultiple: false,
         filteredValue: query.klassId ? [query.klassId] : [],
         render: (classId, row) => row.klassName,
+        width:100,
       },
       {
         title: '性别', key: 'gender', render: v => v ? '男' : '女',
@@ -144,19 +146,23 @@ export default class StudentList extends Component {
         filtered: !!query.gender,
         filterMultiple: false,
         filteredValue: query.gender ? [query.gender] : [],
+        width:70,
       },
       {
-        title: '选考科目', key: 'electionExaminationCourseEntityList', width: 100,
+        title:'照片', key:'avatar', render:v=>v?<img src={v+'!avatar'} width={40} />:'', width:60,
+      },
+      {
+        title: '选考科目', key: 'electionExaminationCourseEntityList', width: 120,
         render: list => list ? list.map(it => <span className={styles['separate']} key={it.id}>{it.name}</span>) : ''
       },
       {
-        title: '学考科目', key: 'studyExaminationCourseEntityList', width: 100,
+        title: '学考科目', key: 'studyExaminationCourseEntityList', width: 120,
         render: list => list ? list.map(it => <span className={styles['separate']} key={it.id}>{it.name}</span>) : ''
       },
       {
         title: '操作',
         key: 'operate',
-        // width: 100,
+        width: 100,
         render: (id, item) => (
           <TableCellOperation
             operations={{

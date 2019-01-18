@@ -1,12 +1,16 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import {Form, Radio, Row, Col, message, Modal, Select, Input, notification, Cascader, Spin} from 'antd';
-import {ManagesBed, ManagesBuilding, ManagesDevice, ManagesDormitory as namespace} from '../../../utils/namespace';
+import {Form, Cascader, Row, Col, message, Modal, Select, Input, notification, Spin} from 'antd';
+import {
+  ManagesClassroom as namespace,
+  ManagesPew, ManagesBuilding
+} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
-import {BuildingTypeEnum, Enums} from "../../../utils/Enum";
+import {BuildingTypeEnum} from "../../../utils/Enum";
 import router from 'umi/router';
+
 
 @connect(state => ({
   total: state[namespace].total,
@@ -14,16 +18,21 @@ import router from 'umi/router';
   loading: state[namespace].loading,
   buildingList: state[ManagesBuilding].list,
 }))
-export default class MeterList extends Component {
+export default class ClassroomList extends Component {
 
   state = {};
 
   componentDidMount() {
+    // this.props.dispatch({
+    //   type: ManagesDevice + '/list',
+    //   payload: {
+    //     s: 10000
+    //   }
+    // });
     this.props.dispatch({
       type: ManagesBuilding + '/list',
       payload: {
-        s: 10000,
-        type: BuildingTypeEnum.生活区
+        type: BuildingTypeEnum.教学区
       }
     });
   }
@@ -33,9 +42,9 @@ export default class MeterList extends Component {
 
     const {pathname, query} = location;
 
-    const title = (query.buildingName || '') + '寝室列表';
+    const title = '教室列表';
 
-    const breadcrumb = ['管理', '寝室管理', title];
+    const breadcrumb = ['管理', '教室管理', title];
 
     const buttons = [
       {
@@ -55,25 +64,27 @@ export default class MeterList extends Component {
 
     const columns = [
       {title: 'ID', key: 'id'},
-      {title: '楼宇', key: 'buildingName'},
-      {title: '楼层', key: 'layerName'},
-      {title: '编号', key: 'code'},
-      {title: '寝室', key: 'name'},
-      {title: '床位数', key: 'bedCount'},
-      {title: '男/女', key: 'gender', render: v => v ? '男生' : '女生'},
+      {title: '楼层', key: 'buildingName', render: (v, it) => v + it.layerName},
+      {title: '教室', key: 'name',},
+      {title: '座位(行x列)', key: 'rowTotal', render: (v, it) => `${v || 0}x${it.columnTotal || 0}`},
       {
         title: '操作',
         key: 'operate',
         render: (id, row) => (
           <TableCellOperation
             operations={{
-              // edit: () => this.setState({visible: true, item: row}),
+              edit: () => this.setState({visible: true, item: row}),
               remove: {
                 onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
               },
               look: () => router.push({
-                pathname: ManagesBed,
-                query: {dormitoryId: id, name: row.name, gender: row.gender}
+                pathname: ManagesPew,
+                query: {
+                  classroomId: id,
+                  name: row.buildingName + row.layerName + row.name,
+                  rowTotal: row.rowTotal,
+                  columnTotal: row.columnTotal
+                }
               })
             }}
           />
@@ -81,10 +92,10 @@ export default class MeterList extends Component {
       },
     ];
 
-    const roomModalProps = {
-      loading: !!loading,
+    const classroomModalProps = {
       visible: this.state.visible,
       item: this.state.item,
+      loading,
       buildingList,
       onCancel: () => this.setState({visible: false}),
       onOk: (payload) => {
@@ -96,7 +107,8 @@ export default class MeterList extends Component {
             this.setState({visible: false});
           }
         })
-      }
+      },
+
     };
 
 
@@ -112,7 +124,7 @@ export default class MeterList extends Component {
         pagination
         title={title}
       >
-        <DormitoryModal {...roomModalProps} />
+        <ClassroomModal {...classroomModalProps} />
       </ListPage>
     );
   }
@@ -121,8 +133,8 @@ export default class MeterList extends Component {
 
 @Form.create({
   mapPropsToFields(props) {
+    const {code, name, rowTotal, columnTotal, layerId} = props.item || {};
     const {buildingList = []} = props;
-    const {code, name, type, layerId, bedCount, gender} = props.item || {};
 
     let buildingId;
 
@@ -138,66 +150,60 @@ export default class MeterList extends Component {
     return {
       code: Form.createFormField({value: code || undefined}),
       name: Form.createFormField({value: name || undefined}),
-      type: Form.createFormField({value: type && type.toString() || undefined}),
       layerId: Form.createFormField({value: (buildingId && layerId) ? [buildingId, layerId] : undefined}),
-      bedCount: Form.createFormField({value: bedCount || undefined}),
-      gender: Form.createFormField({value: gender || undefined}),
+      rowTotal: Form.createFormField({value: rowTotal || undefined}),
+      columnTotal: Form.createFormField({value: columnTotal || undefined}),
+      // type: Form.createFormField({value: type && type.toString() || undefined}),
+      // layerTotal: Form.createFormField({value: layerTotal || undefined}),
     }
   }
 })
-class DormitoryModal extends Component {
+class ClassroomModal extends Component {
 
   render() {
     const {
-      visible, onCancel, onOk, item, buildingList = [], loading, defaultBuildingId,
+      visible, onCancel, onOk, item, buildingList = [], loading,
       form: {getFieldDecorator, validateFieldsAndScroll, getFieldValue}
     } = this.props;
+
+    const buildings = buildingList.map(it => {
+      const {id, name, layerList} = it;
+      return {
+        value: id, label: name, children: layerList.map(({id, name}) => ({value: id, label: name}))
+      };
+    });
+
     const modalProps = {
       visible,
-      title: item && item.id ? '修改楼层' : '创建楼层',
+      title: item && item.id ? '修改教室' : '创建教室',
       onCancel,
       onOk: () => {
         validateFieldsAndScroll((errors, payload) => {
           if (errors) {
             console.error(errors);
           } else {
+            payload.layerId = payload.layerId[1];
             if (item && item.id) {
               payload.id = item.id;
             }
-            payload.layerId = payload.layerId[1];
             console.log(payload);
             onOk(payload);
           }
         })
-      },
-      okButtonProps: {
-        loading,
       }
     };
     const wrapper = {
       labelCol: {span: 5},
       wrapperCol: {span: 16}
     };
-
-    const buildings = buildingList.map(it => {
-      const {id, name, layerList = []} = it;
-      return {
-        label: name, value: id,
-        children: layerList.map(layer => {
-          const {id, name} = layer;
-          return {label: name, value: id};
-        })
-      }
-    });
-
     return (
       <Modal {...modalProps}>
-        <Spin spinning={loading}>
+        <Spin spinning={!!loading}>
           <Form layout="horizontal">
-            <Form.Item label="楼层" {...wrapper}>
+            <Form.Item label="楼层名" {...wrapper}>
               {
                 getFieldDecorator('layerId', {
-                  rules: [{message: '请选择楼层', required: true}],
+                  rules: [{message: '请选择楼层', required: true}]
                 })(
                   <Cascader placeholder="请选择楼层" options={buildings} onChange={value => {
                     // if (value && value[0] && value[1]) {
@@ -210,50 +216,47 @@ class DormitoryModal extends Component {
                 )
               }
             </Form.Item>
-            <Form.Item label="寝室编号" {...wrapper}>
+            <Form.Item label="编号" {...wrapper}>
               {
                 getFieldDecorator('code', {
-                  rules: [{message: '请输入寝室编号', required: true}]
+                  rules: [{message: '请输入编号', required: true}]
                 })(
-                  <Input placeholder="请输入编号，例如:102" maxLength={64} onChange={e => {
+                  <Input placeholder="请输入编号" maxLength={64} onChange={(e) => {
                     // const {value} = e.target;
-                    // if (value) {
-                    //   const layerId = getFieldValue('layerId');
-                    //   if (layerId && layerId[0] && layerId[1]) {
-                    //     this.autoName(layerId[0], layerId[1], value);
-                    //   }
+                    //
+                    // const layerId = getFieldValue('layerId');
+                    // if (layerId && layerId[0] && layerId[1]) {
+                    //   this.autoName(layerId[0], layerId[1], value);
                     // }
+
                   }}/>
                 )
               }
             </Form.Item>
-            <Form.Item label="寝室名" {...wrapper}>
+            <Form.Item label="名称" {...wrapper}>
               {
                 getFieldDecorator('name', {
-                  rules: [{message: '请输入寝室名', required: true}]
+                  rules: [{message: '请输入名称', required: true}]
                 })(
-                  <Input maxLength={64}/>
+                  <Input placeholder="请输入名称" maxLength={64}/>
                 )
               }
             </Form.Item>
-            <Form.Item label="请选择" {...wrapper}>
+            <Form.Item label="座位行数" {...wrapper}>
               {
-                getFieldDecorator('gender', {
-                  rules: [{message: '请选择', required: true}]
+                getFieldDecorator('rowTotal', {
+                  rules: [{message: '请输入座位行数', required: true}]
                 })(
-                  <Radio.Group>
-                    <Radio value={true}>男寝室</Radio>
-                    <Radio value={false}>女寝室</Radio>
-                  </Radio.Group>
+                  <Input placeholder="请输入座位行数" maxLength={64}/>
                 )
               }
             </Form.Item>
-            <Form.Item label="床位数" {...wrapper}>
+            <Form.Item label="座位列数" {...wrapper}>
               {
-                getFieldDecorator('bedCount', {
-                  rules: [{message: '请输入床位数', required: true}]
+                getFieldDecorator('columnTotal', {
+                  rules: [{message: '请输入座位列数', required: true}]
                 })(
-                  <Input maxLength={64}/>
+                  <Input placeholder="请输入座位列数" maxLength={64}/>
                 )
               }
             </Form.Item>
@@ -272,7 +275,7 @@ class DormitoryModal extends Component {
   //       const name = building.name + layer.name + code;
   //       setFieldsValue({name});
   //     }
-  //   }else{
+  //   } else {
   //     setFieldsValue({name: ''});
   //   }
   // }

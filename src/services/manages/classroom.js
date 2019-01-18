@@ -15,3 +15,7 @@ export async function create(data) {
 export async function remove({id}) {
   return request('/api/hii/1.0/admin/school/classroom/' + id, {method: 'DELETE'});
 }
+
+export async function clearStudent({id}) {
+  return request('/api/hii/1.0/admin/school/classroom/' + id, {method: 'PATCH'});
+}

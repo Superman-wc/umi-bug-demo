@@ -1,6 +1,6 @@
 import Model from 'dva-model';
-import {list, create, modify, remove} from '../../services/manages/class-room';
-import {ManagesClassRoom as namespace} from '../../utils/namespace';
+import {list, create, modify, remove, clearStudent} from '../../services/manages/classroom';
+import {ManagesClassroom as namespace} from '../../utils/namespace';
 
 export default Model(
   {
@@ -23,5 +23,6 @@ export default Model(
     create,
     modify,
     remove,
+    clearStudent,
   }
 );

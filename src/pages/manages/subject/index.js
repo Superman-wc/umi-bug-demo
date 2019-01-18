@@ -36,11 +36,7 @@ export default class SubjectListPage extends Component {
     const breadcrumb = ['管理', '科目管理', title];
 
 
-    const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={[
-      {
-        key:'rollback'
-      }
-    ]}/>;
+    const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={[{key:'rollback'}]}/>;
     const header = (
       <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>
     );

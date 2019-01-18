@@ -1,15 +1,18 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Select, Input, notification} from 'antd';
+import {Form, Row, Col, message, Modal, Select, Input, notification, Cascader} from 'antd';
 import {
+  ManagesGrade,
+  ManagesClass,
+  ManagesStudent,
   ManagesBed as namespace,
   ManagesDormitory,
-  ManagesClassRoom
+  ManagesClassroom
 } from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
-import {BuildingTypeEnum, Enums} from "../../../utils/Enum";
+import {BuildingTypeEnum, ClassTypeEnum, Enums} from "../../../utils/Enum";
 import router from "umi/router";
 
 
@@ -18,25 +21,24 @@ import router from "umi/router";
   list: state[namespace].list,
   loading: state[namespace].loading,
 }))
-export default class MeterList extends Component {
+class BedList extends Component {
 
   state = {};
 
-  componentDidMount() {
-    // this.props.dispatch({
-    //   type: ManagesDevice + '/list',
-    //   payload: {
-    //     s: 10000
-    //   }
-    // });
-  }
+  // componentDidMount() {
+  //   const {dispatch} = this.props;
+  //   dispatch({
+  //     type: ManagesGrade + '/list',
+  //   });
+  // }
+
 
   render() {
-    const {list, total, loading, location, dispatch,} = this.props;
+    const {list, total, loading, location, dispatch} = this.props;
 
     const {pathname, query} = location;
 
-    const title = (query.name||'')+'床位列表';
+    const title = (query.name || '') + '床位列表';
 
     const breadcrumb = ['管理', '寝室管理', title];
 
@@ -61,7 +63,7 @@ export default class MeterList extends Component {
       {title: '床号', key: 'name'},
       {title: '班级', key: 'unitName',},
       {title: '学生', key: 'studentName'},
-      {title: '学生照片', key: 'avatar', render: v => v ? <img width={60} src={v+'!avatar'}/> : '', width:100,},
+      {title: '学生照片', key: 'avatar', render: v => v ? <img width={60} src={v + '!avatar'}/> : '', width: 100,},
 
       {
         title: '操作',
@@ -69,35 +71,23 @@ export default class MeterList extends Component {
         render: (id, row) => (
           <TableCellOperation
             operations={{
-              edit: () => this.setState({visible: true, item: row}),
-              remove: {
-                onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
-              },
-              look: () => router.push({
-                pathname: row.type === BuildingTypeEnum.生活区 ? ManagesDormitory : ManagesClassRoom,
-                query: {buildingId: id, buildingType: row.type}
-              })
+              edit: () => this.props.onStateChange({visible: true, item: row}),
+              reset:{
+                children:'重置',
+                onConfirm: () => dispatch({type: namespace + '/modify', payload: {id}}),
+              }
+              // remove: {
+              //   onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
+              // },
+              // look: () => router.push({
+              //   pathname: row.type === BuildingTypeEnum.生活区 ? ManagesDormitory : ManagesClassRoom,
+              //   query: {buildingId: id, buildingType: row.type}
+              // })
             }}
           />
         ),
       },
     ];
-
-    const roomModalProps = {
-      visible: this.state.visible,
-      item: this.state.item,
-      onCancel: () => this.setState({visible: false}),
-      onOk: (payload) => {
-        dispatch({
-          type: namespace + (payload.id ? '/modify' : '/create'),
-          payload,
-          resolve: () => {
-            notification.success({message: (payload.id ? '修改' : '创建') + '楼层成功'});
-            this.setState({visible: false});
-          }
-        })
-      }
-    };
 
 
     return (
@@ -111,32 +101,78 @@ export default class MeterList extends Component {
         total={total}
         pagination
         title={title}
-      >
-        <BedModal {...roomModalProps} />
-      </ListPage>
+      />
     );
   }
 }
 
+export default class BedListPageWrapperComponent extends Component {
+  state = {};
 
-@Form.create({
-  mapPropsToFields(props) {
-    const {code, name, type, layerTotal} = props.item || {};
-    return {
-      // code: Form.createFormField({value: code || undefined}),
-      name: Form.createFormField({value: name || undefined}),
-      type: Form.createFormField({value: type && type.toString() || undefined}),
-      layerTotal: Form.createFormField({value: layerTotal || undefined}),
+  render() {
+
+    const bedModalProps = {
+      visible: this.state.visible,
+      item: this.state.item,
+      onCancel: () => this.setState({visible: false}),
+    };
+
+    const onStateChange = (state) => {
+      this.setState(state);
+    };
+
+    return (
+      <div>
+        <BedList {...this.props} {...this.state} onStateChange={onStateChange}/>
+        <BedModal {...this.props} {...this.state} onStateChange={onStateChange} {...bedModalProps} />
+      </div>
+    )
+  }
+
+}
+
+
+@Form.create()
+@connect(state => ({
+  gradeList: state[ManagesGrade].list,
+}))
+class BedModal extends Component {
+
+  state = {
+    gradeList: []
+  };
+
+  componentDidMount() {
+    const {dispatch} = this.props;
+    dispatch({
+      type: ManagesGrade + '/list',
+    });
+  }
+
+  UNSAFE_componentWillReceiveProps(nextProps, nextContent) {
+    if (nextProps.gradeList !== this.props.gradeList) {
+      console.log('init gradeList');
+      this.setState({
+        gradeList: (list => list.map(({id, name}) => ({
+          label: name,
+          value: id,
+          isLeaf: false,
+          type: 'grade'
+        })))(nextProps.gradeList || [])
+      });
     }
   }
-})
-class BedModal extends Component {
 
   render() {
     const {
-      visible, onCancel, onOk, item,
-      form: {getFieldDecorator, validateFieldsAndScroll}
+      visible, onCancel, item,
+      form: {getFieldDecorator, validateFieldsAndScroll},
+      dispatch, location: {query},
     } = this.props;
+
+    const {gradeList, student} = this.state;
+    console.log('selectedOptions=', student);
+
     const modalProps = {
       visible,
       title: item && item.id ? '修改床位' : '创建床位',
@@ -149,8 +185,16 @@ class BedModal extends Component {
             if (item && item.id) {
               payload.id = item.id;
             }
+            payload.studentId = payload.studentId[2];
             console.log(payload);
-            onOk(payload);
+            dispatch({
+              type: namespace + (payload.id ? '/modify' : '/create'),
+              payload,
+              resolve: () => {
+                notification.success({message: (payload.id ? '修改' : '创建') + '楼层成功'});
+                this.props.onStateChange({visible: false});
+              }
+            })
           }
         })
       }
@@ -162,48 +206,98 @@ class BedModal extends Component {
     return (
       <Modal {...modalProps}>
         <Form layout="horizontal">
-          <Form.Item label="楼层名" {...wrapper}>
+          <Form.Item label="学生" {...wrapper}>
             {
-              getFieldDecorator('name', {
-                rules: [{message: '请输入楼层名', required: true}]
-              })(
-                <Input maxLength={64}/>
-              )
-            }
-          </Form.Item>
-          {/*<Form.Item label="编号" {...wrapper}>*/}
-          {/*{*/}
-          {/*getFieldDecorator('code', {*/}
-          {/*// rules: [{message: '请输入编号', required: true}]*/}
-          {/*})(*/}
-          {/*<Input maxLength={64}/>*/}
-          {/*)*/}
-          {/*}*/}
-          {/*</Form.Item>*/}
-          <Form.Item label="类型" {...wrapper}>
-            {
-              getFieldDecorator('type', {
-                rules: [{message: '请输入选择类型', required: true}]
-              })(
-                <Select placeholder="请选择">
-                  {
-                    Enums(BuildingTypeEnum).map(it =>
-                      <Select.Option key={it.value} value={it.value}>{it.name}</Select.Option>
-                    )
+              getFieldDecorator('studentId', {
+                rules: [{
+                  message: '请选择学生', required: true, validator: (rule, value, callback) => {
+                    if (value && value.length === 3) {
+                      callback();
+                    } else {
+                      callback(new Error(rule.message));
+                    }
                   }
-                </Select>
-              )
-            }
-          </Form.Item>
-          <Form.Item label="总楼层" {...wrapper}>
-            {
-              getFieldDecorator('layerTotal', {
-                rules: [{message: '请输入总楼层', required: true}]
+                },]
               })(
-                <Input maxLength={64}/>
+                <Cascader
+                  placeholder="请选择学生"
+                  allowClear
+                  options={gradeList}
+                  changeOnSelect
+                  loadData={selectedOptions => {
+
+                    const targetOption = selectedOptions[selectedOptions.length - 1];
+                    targetOption.loading = true;
+                    this.setState({gradeList: [...gradeList]});
+
+                    if (targetOption.type === 'grade') {
+                      dispatch({
+                        type: ManagesClass + '/list',
+                        payload: {
+                          s: 10000,
+                          type: ClassTypeEnum.行政班,
+                          gradeId: targetOption.value
+                        },
+                        resolve: (({list = []} = {}) => {
+                          targetOption.loading = false;
+                          targetOption.children = list.map(({id, name}) => ({
+                            label: name,
+                            value: id,
+                            isLeaf: false,
+                            type: 'klass'
+                          }));
+                          this.setState({gradeList: [...gradeList]});
+                        }),
+                      })
+                    }
+                    else if (targetOption.type === 'klass') {
+                      dispatch({
+                        type: ManagesStudent + '/list',
+                        payload: {
+                          s: 10000,
+                          klassId: targetOption.value
+                        },
+                        resolve: ({list = []} = {}) => {
+                          console.log(list);
+                          targetOption.loading = false;
+                          targetOption.children = list.filter(it => it.gender.toString() === query.gender.toString()).map(({id, name, gender, avatar}) => ({
+                            gender, avatar,
+                            label: name + '(' + (gender ? '男' : '女') + ')',
+                            value: id,
+                            isLeaf: true,
+                            type: 'student'
+                          }));
+                          this.setState({gradeList: [...gradeList]});
+                        }
+                      })
+                    }
+
+                  }}
+                  onChange={([gradeId, klassId, studentId]) => {
+                    console.log(gradeId, klassId, studentId);
+                    if (gradeId, klassId, studentId) {
+                      const grade = gradeList.find(it => it.value === gradeId);
+                      if (grade && grade.children) {
+                        const klass = grade.children.find(it => it.value === klassId);
+                        if (klass && klass.children) {
+                          const student = klass.children.find(it => it.value === studentId);
+                          this.setState({student});
+                        }
+                      }
+                    } else {
+                      this.setState({student: null});
+                    }
+                  }}
+                />
               )
             }
           </Form.Item>
+          {
+            student && student.avatar ?
+              <img src={student.avatar} width={100} style={{display: 'block', margin: 'auto'}}/>
+              :
+              null
+          }
         </Form>
       </Modal>
     )

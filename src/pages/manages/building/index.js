@@ -7,7 +7,7 @@ import {
   ManagesDevice,
   ManagesBuilding as namespace,
   ManagesDormitory,
-  ManagesClassRoom
+  ManagesClassroom
 } from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
@@ -80,8 +80,8 @@ export default class MeterList extends Component {
                 onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
               },
               look: () => router.push({
-                pathname: row.type === BuildingTypeEnum.生活区 ? ManagesDormitory : ManagesClassRoom,
-                query: {buildingId: id, buildingType: row.type}
+                pathname: row.type === BuildingTypeEnum.生活区 ? ManagesDormitory : ManagesClassroom,
+                query: {buildingId: id, buildingType: row.type, buildingName: row.name}
               })
             }}
           />
