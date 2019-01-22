@@ -10,7 +10,8 @@ import {
   Modal,
   notification,
   Cascader,
-  Popover
+  Popover,
+  Empty
 } from 'antd';
 import {
   ManagesGrade,
@@ -69,7 +70,9 @@ class PewItem extends Component {
                 dispatch({
                   type: namespace + '/modify',
                   payload: {
-                    id: item.id
+                    id: item.id,
+                    columnIdx: item.columnIdx,
+                    rowIdx: item.rowIdx
                   }
                 })
               }}>
@@ -340,7 +343,7 @@ class PewList extends Component {
       else {
         const pewItem = findPewItem(target);
         if (pewItem) {
-          const {id, studentId,rowIdx, columnIdx} = pewItem.dataset;
+          const {id, studentId, rowIdx, columnIdx} = pewItem.dataset;
           if (!studentId) {
             this.props.dispatch({
               type: namespace + '/modify',
@@ -401,14 +404,15 @@ class PewList extends Component {
       }
       else if (targetOption.type === 'klass') {
         this.props.dispatch({
-          type: ManagesStudent + '/list',
+          type: ManagesStudent + '/position',
           payload: {
             s: 10000,
             klassId: targetOption.value
           },
           resolve: ({list = []} = {}) => {
             targetOption.loading = false;
-            targetOption.children = list.map(({id, name, gender, avatar}) => ({
+            targetOption.children = list.map(({id, name, gender, avatar, ...props}) => ({
+              ...props,
               gender, avatar,
               label: name,
               value: id,
@@ -423,25 +427,42 @@ class PewList extends Component {
     }
   });
 
-  renderTreeNodes = data => data.map(it =>
+  renderTreeNodes = (data, visible) => data.map(it =>
     <Tree.TreeNode
       title={
         it.type === 'student' ?
-          it.avatar ?
-            <Popover placement="left" content={<img src={it.avatar + '!avatar'} width={100} height={150}/>}>
+          <Popover placement="left" content={
+            <div>
+              {
+                it.avatar ?
+                  <img src={it.avatar + '!avatar'} width={100} height={150}
+                       style={{margin: 'auto', display: 'block'}}/>
+                  :
+                  <div className="tac">无照片</div>
+              }
+              {
+                it.pewId ?
+                  <div className="tac">
+                    {it.buildingName}
+                    {it.layerName}
+                    {it.classroomName}
+                    <br/>
+                    {it.rowIdx + '行'}
+                    {it.columnIdx + '列'}
+                  </div>
+                  :
+                  <div className="tac">无座位</div>
+              }
+            </div>
+          }>
                 <span draggable
                       onDragOver={e => e.preventDefault()}
                       onDragStart={(e) => {
                         e.dataTransfer.setData('dataRef', JSON.stringify(it));
                       }}
+                      style={{color: it.pewId ? '#333' : '#1b2389'}}
                 >{it.label}</span>
-            </Popover>
-            :
-            <span draggable
-                  onDragStart={(e) => {
-                    e.dataTransfer.setData('dataRef', JSON.stringify(it));
-                  }}
-            >{it.label}</span>
+          </Popover>
           :
           it.label
       }
@@ -451,7 +472,12 @@ class PewList extends Component {
     >
       {
         it.children ?
-          this.renderTreeNodes(it.children)
+          this.renderTreeNodes(
+            it.type === 'klass' && !visible ?
+              it.children.filter(m => !m.pewId)
+              :
+              it.children,
+            visible)
           :
           null
       }
@@ -530,11 +556,18 @@ class PewList extends Component {
         {
           this.state.visibleStudentTree ?
             <div className={styles['student-tree']}>
-              <Tree loadData={this.loadGradeKlassStudentData}>
-                {
-                  this.renderTreeNodes(gradeList)
-                }
-              </Tree>
+              <div>
+                <Button onClick={() => this.setState({visibleAllStudent: !this.state.visibleAllStudent})}>
+                  {this.state.visibleAllStudent ? '只显示没有位置的学生' : '显示全部学生'}
+                </Button>
+              </div>
+              <div>
+                <Tree loadData={this.loadGradeKlassStudentData}>
+                  {
+                    this.renderTreeNodes(gradeList || [], this.state.visibleAllStudent)
+                  }
+                </Tree>
+              </div>
             </div>
             :
             null

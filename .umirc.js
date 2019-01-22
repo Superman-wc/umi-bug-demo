@@ -19,6 +19,7 @@ export default {
   hash: true,
   targets: {
     ie: 9,
+    ios: 8.4
   },
   browserslist: [
     "> 1%",

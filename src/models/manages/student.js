@@ -1,5 +1,5 @@
 import Model from 'dva-model';
-import {list, create, modify, remove, excelImport} from '../../services/manages/student';
+import {list, create, modify, remove, excelImport, position} from '../../services/manages/student';
 import {ManagesStudent as namespace} from '../../utils/namespace';
 
 export default Model(
@@ -30,5 +30,6 @@ export default Model(
     modify,
     remove,
     excelImport,
+    position,
   }
 );

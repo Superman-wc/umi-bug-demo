@@ -19,3 +19,7 @@ export async function remove({id}) {
 export async function excelImport({klassId, gradeId, studentImportList}) {
   return request('/api/8queen/student/import', {data: {klassId, gradeId, studentImportList}, method: 'POST'})
 }
+
+export async function position({klassId, studentId, type=1,}) {
+  return request('/api/hii/1.0/admin/school/studentPosition', {data: {studentId, unitId: klassId, type,}, method: 'GET'})
+}
