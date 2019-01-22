@@ -91,6 +91,7 @@ export default class MeterList extends Component {
     const roomModalProps = {
       visible: this.state.visible,
       item: this.state.item,
+      deviceList,
       onCancel: () => this.setState({visible: false}),
       onOk: (payload) => {
         dispatch({
@@ -142,9 +143,7 @@ export default class MeterList extends Component {
   }
 }
 
-@connect(state => ({
-  deviceList: state[ManagesDevice].list,
-}))
+
 @Form.create({
   mapPropsToFields(props) {
     const {deviceId, name, capacity} = props.item || {};
@@ -156,15 +155,6 @@ export default class MeterList extends Component {
   }
 })
 class RoomModal extends Component {
-
-  componentDidMount() {
-    if (!this.props.deviceList) {
-      this.props.dispatch({
-        type: ManagesDevice + '/list',
-        payload: {s: 10000}
-      })
-    }
-  }
 
   render() {
     const {

@@ -12,9 +12,6 @@ export default class ExcelImportModal extends Component {
     let {
       title, visible, onCancel, onOk, fields, templateUrl
     } = this.props;
-
-    console.log(this.props);
-
     const modalProps = {
       visible, title, onCancel,
       width: 1000, destroyOnClose: true,
@@ -273,7 +270,7 @@ export function buildImportTeacherProps({visible, onOk, onCancel, dispatch}) {
   return {
     title: '导入教师',
     visible,
-    templateUrl: 'https://res.yunzhiyuan100.com/smart-campus/学生名单录入模板.xls',
+    templateUrl: 'https://res.yunzhiyuan100.com/smart-campus/老师管理录入模板.xlsx',
     fields: {
       '姓名': {
         key: 'name',

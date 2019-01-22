@@ -44,12 +44,15 @@ function ReadExcelView(props) {
                          pagination={false}
                          scroll={{y: 600}}
                          columns={stdColumns([
-                           {title: '行号', key: 'index', width: 30},
+                           {
+                             title: '行号',
+                             key: 'index',
+                             width: 30
+                           },
                            ...sheet.headers.map(key => ({
                              ...fields[key],
                              key,
                              title: key,
-
                              render: v => v ? <Cell {...v} /> : null
                            })),
                            {
