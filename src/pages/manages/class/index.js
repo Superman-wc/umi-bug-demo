@@ -66,16 +66,16 @@ export default class MeterList extends Component {
           this.setState({visible: true, item: null});
         },
       },
-      {
-        key: 'import',
-        type: 'primary',
-        children: '导入',
-        title: '导入',
-        icon: 'import',
-        onClick: () => {
-          this.setState({importModalVisible: true});
-        },
-      },
+      // {
+      //   key: 'import',
+      //   type: 'primary',
+      //   children: '导入',
+      //   title: '导入',
+      //   icon: 'import',
+      //   onClick: () => {
+      //     this.setState({importModalVisible: true});
+      //   },
+      // },
       {
         key:'rollback'
       }

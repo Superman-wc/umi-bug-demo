@@ -13,9 +13,10 @@ import {
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import styles from './index.less';
-import ExcelImportModal from '../../../components/ExcelImport';
+// import ExcelImportModal from '../../../components/ExcelImport';
 import Flex from '../../../components/Flex';
 import {ClassTypeEnum} from "../../../utils/Enum";
+import ExcelImportModal, {buildImportTeacherProps} from '../../../components/ExcelImportModal';
 
 
 @connect(state => ({
@@ -103,24 +104,24 @@ export default class StudentList extends Component {
         },
       },
       {
-        key:'rollback'
+        key: 'rollback'
       }
     ];
 
     const columns = [
       {title: 'ID', key: 'id', width: 40,},
-      {title: '姓名', key: 'name', width: 50,},
-      {title: '工号', key: 'code', width: 40},
-      {title: '手机号', key: 'mobile', width: 80},
+      {title: '姓名', key: 'name', width: 60,},
+      {title: '工号', key: 'code', width: 60},
+      {title: '手机号', key: 'mobile', width: 120},
       {
-        title: '教学范围', key: 'teachScopeList', width: 120, tac: false,
+        title: '教学范围', key: 'teachScopeList', width: 250,
         render: v => v && v.map(it =>
           <span className={styles['subject-item']}
                 key={[it.gradeId, it.subjectId].join('-')}>{it.gradeName + it.subjectName}</span>
         )
       },
       {
-        title: '任课班级', key: 'klassTeacherList', width: 200, tac: false,
+        title: '任课班级', key: 'klassTeacherList', width: 250,
         render: v => v && v.map(it =>
           <span className={styles['subject-item']}
                 key={[it.klassId, it.subjectId].join('-')}>{it.klassName + it.subjectName}</span>
@@ -129,7 +130,7 @@ export default class StudentList extends Component {
       {
         title: '操作',
         key: 'operate',
-        // width: 80,
+        width: 100,
         render: (id, row) => (
           <TableCellOperation
             operations={{
@@ -163,23 +164,23 @@ export default class StudentList extends Component {
       }
     };
 
-    const importModalProps = {
-      title: '导入教师',
-      visible: this.state.importModalVisible,
-      onCancel: () => this.setState({importModalVisible: false}),
-      templateUrl: 'https://res.yunzhiyuan100.com/hii/老师管理录入模板（请勿随意更改模板格式，否则无法导入数据！）.xlsx',
-      excelImport: (excelUrl) => {
-        return new Promise((resolve, reject) => {
-          dispatch({
-            type: namespace + '/excelImport',
-            payload: {
-              excelUrl
-            },
-            resolve, reject
-          });
-        })
-      }
-    };
+    // const importModalProps = {
+    //   title: '导入教师',
+    //   visible: this.state.importModalVisible,
+    //   onCancel: () => this.setState({importModalVisible: false}),
+    //   templateUrl: 'https://res.yunzhiyuan100.com/hii/老师管理录入模板（请勿随意更改模板格式，否则无法导入数据！）.xlsx',
+    //   excelImport: (excelUrl) => {
+    //     return new Promise((resolve, reject) => {
+    //       dispatch({
+    //         type: namespace + '/excelImport',
+    //         payload: {
+    //           excelUrl
+    //         },
+    //         resolve, reject
+    //       });
+    //     })
+    //   }
+    // };
 
     return (
       <ListPage
@@ -195,7 +196,18 @@ export default class StudentList extends Component {
         scrollHeight={176}
       >
         <TeacherModal {...teacherModalProps}/>
-        <ExcelImportModal {...importModalProps} />
+        {
+          this.state.importModalVisible  ?
+            <ExcelImportModal {...buildImportTeacherProps({
+              visible: this.state.importModalVisible,
+              onCancel: () => this.setState({importModalVisible: false}),
+              dispatch,
+            })} />
+            :
+            null
+        }
+
+        {/*<ExcelImportModal {...importModalProps} />*/}
       </ListPage>
     )
   }

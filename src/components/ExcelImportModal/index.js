@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Modal, Button, notification} from 'antd';
 import ReadExcel from "../ReadExcel";
 import styles from './index.less';
-import {ManagesStudent} from "../../utils/namespace";
+import {ManagesStudent, ManagesTeacher} from "../../utils/namespace";
 
 export default class ExcelImportModal extends Component {
 
@@ -12,6 +12,9 @@ export default class ExcelImportModal extends Component {
     let {
       title, visible, onCancel, onOk, fields, templateUrl
     } = this.props;
+
+    console.log(this.props);
+
     const modalProps = {
       visible, title, onCancel,
       width: 1000, destroyOnClose: true,
@@ -236,6 +239,60 @@ export function buildImportStudentProps({klass, onCancel, visible, subjectList =
             onOk(payload);
           }
         })
+      }
+      else {
+        onCancel();
+      }
+    }
+  };
+}
+
+export function buildImportTeacherProps({visible, onOk, onCancel, dispatch}) {
+
+  if (!onOk) {
+    onOk = (payload) => {
+      dispatch({
+        type: ManagesTeacher + '/excelImport',
+        payload: {
+          teacherImportList: JSON.stringify(payload.list)
+        },
+        resolve: ({list, total}) => {
+          notification.success({
+            message: '导入教师，共计' + total + '条记录'
+          });
+          onCancel();
+          dispatch({
+            type: ManagesTeacher + '/list',
+            payload: {}
+          })
+        }
+      })
+    }
+  }
+
+  return {
+    title: '导入教师',
+    visible,
+    templateUrl: 'https://res.yunzhiyuan100.com/smart-campus/学生名单录入模板.xls',
+    fields: {
+      '姓名': {
+        key: 'name',
+        rules: [{required: true, message: '请输入姓名'}]
+      },
+      '手机号': {
+        key: 'mobile',
+        rules: [{pattern: /\d{11}/g, message: '请输入11位手机号码'}],
+      },
+      '工号': {
+        key: 'code',
+        rules: [{required: true, message: '请输入工号'}],
+      },
+    },
+    onCancel,
+    onOk: (payload) => {
+      if (payload.list) {
+        console.log(payload);
+        onOk(payload);
       }
       else {
         onCancel();
