@@ -19,12 +19,8 @@ export default {
   hash: true,
   targets: {
     ie: 9,
-    ios: 8.4
+    ios: 8.4,
   },
-  browserslist: [
-    "> 1%",
-    "last 2 versions"
-  ],
   proxy: {
     "/api/hii/*": {
       "target": "http://smart-campus-mp.yunzhiyuan100.com.cn/",
