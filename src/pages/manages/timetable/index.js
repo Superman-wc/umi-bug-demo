@@ -75,7 +75,7 @@ export default class ManagesTimetable extends Component {
         },
       },
       {
-        key:'rollback'
+        key: 'rollback'
       }
     ];
 
@@ -93,7 +93,7 @@ export default class ManagesTimetable extends Component {
       {
         title: '学期', key: 'semesterType',
         render: v => SemesterTypeEnum[v] || v,
-        filters: Enums(EnableStatusEnum).map(it => ({value: it.value, text: it.name})),
+        filters: Enums(SemesterTypeEnum).map(it => ({value: it.value, text: it.name})),
         filtered: !!query.semesterType,
         filterMultiple: false,
         filteredValue: query.semesterType ? [query.semesterType] : [],
@@ -150,7 +150,7 @@ export default class ManagesTimetable extends Component {
         loading={!!loading}
         columns={columns}
         breadcrumb={breadcrumb}
-        list={list}
+        list={list && query.dayOfWeek ? list.sort((a, b) => a.startTime - b.startTime) : list}
         total={total}
         pagination
         title={title.join('')}

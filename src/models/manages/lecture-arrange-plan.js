@@ -1,5 +1,5 @@
 import Model from 'dva-model';
-import {list, item} from '../../services/manages/lecture-arrange-plan';
+import {list, item, release} from '../../services/manages/lecture-arrange-plan';
 import {ManagesLectureArrangePlan as namespace} from '../../utils/namespace';
 
 export default Model(
@@ -34,6 +34,6 @@ export default Model(
 
   },
   {
-    list, item, fetchDetail: item
+    list, item, fetchDetail: item, release,
   }
 );

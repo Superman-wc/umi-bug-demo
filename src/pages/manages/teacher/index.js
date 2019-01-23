@@ -110,21 +110,23 @@ export default class StudentList extends Component {
 
     const columns = [
       {title: 'ID', key: 'id', width: 40,},
-      {title: '姓名', key: 'name', width: 60,},
-      {title: '工号', key: 'code', width: 60},
+      {title: '姓名', key: 'name', width: 80,},
+      {title: '工号', key: 'code', width: 80},
       {title: '手机号', key: 'mobile', width: 120},
       {
-        title: '教学范围', key: 'teachScopeList', width: 250,
+        title: '教学范围', key: 'teachScopeList', width: 150,
         render: v => v && v.map(it =>
           <span className={styles['subject-item']}
                 key={[it.gradeId, it.subjectId].join('-')}>{it.gradeName + it.subjectName}</span>
         )
       },
       {
-        title: '任课班级', key: 'klassTeacherList', width: 250,
+        title: '任课班级', key: 'klassTeacherList', width: 350,
         render: v => v && v.map(it =>
           <span className={styles['subject-item']}
-                key={[it.klassId, it.subjectId].join('-')}>{it.klassName + it.subjectName}</span>
+                key={[it.klassId, it.subjectId].join('-')}>
+            {it.klassName + (it.klassName.indexOf(it.subjectName) >= 0 ? '': it.subjectName )}
+            </span>
         )
       },
       {
@@ -197,7 +199,7 @@ export default class StudentList extends Component {
       >
         <TeacherModal {...teacherModalProps}/>
         {
-          this.state.importModalVisible  ?
+          this.state.importModalVisible ?
             <ExcelImportModal {...buildImportTeacherProps({
               visible: this.state.importModalVisible,
               onCancel: () => this.setState({importModalVisible: false}),

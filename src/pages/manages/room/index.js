@@ -28,9 +28,9 @@ export default class MeterList extends Component {
   }
 
   render() {
-    const {list, total, loading, location, dispatch, deviceList=[]} = this.props;
+    const {list, total, loading, location, dispatch, deviceList = []} = this.props;
 
-    const deviceMap = deviceList.reduce((map, it)=>{
+    const deviceMap = deviceList.reduce((map, it) => {
       map[it.device] = it;
       return map;
     }, {});
@@ -52,29 +52,35 @@ export default class MeterList extends Component {
           this.setState({visible: true, item: null});
         },
       },
+      // {
+      //   key: 'import',
+      //   type: 'primary',
+      //   children: '导入',
+      //   title: '导入',
+      //   icon: 'import',
+      //   onClick: () => {
+      //     this.setState({importModalVisible: true});
+      //   },
+      // },
       {
-        key: 'import',
-        type: 'primary',
-        children: '导入',
-        title: '导入',
-        icon: 'import',
-        onClick: () => {
-          this.setState({importModalVisible: true});
-        },
-      },
-      {
-        key:'rollback'
+        key: 'rollback'
       }
     ];
 
     const columns = [
       {title: 'ID', key: 'id'},
-      {title: '名称', key: 'name'},
-      {title: '容纳学生数', key: 'capacity'},
-      {title: '设备', key: 'device', width:120, render: v => v ? `${v} (${deviceMap[v] && deviceMap[v].name || ''})` : ''},
+      {title: '名称', key: 'name', width: 200},
+      {title: '容纳学生数', key: 'capacity', width: 100},
+      {
+        title: '设备',
+        key: 'device',
+        width: 240,
+        render: v => v ? `${v} (${deviceMap[v] && deviceMap[v].name || ''})` : ''
+      },
       {
         title: '操作',
         key: 'operate',
+        width: 100,
         render: (id, row) => (
           <TableCellOperation
             operations={{

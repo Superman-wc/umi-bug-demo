@@ -97,11 +97,7 @@ export default class BuildTimeTable extends Component {
       <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>
     );
 
-    const buttons = [
-      {
-        key:'rollback'
-      }
-    ];
+    const buttons = [];
 
     if (selectedLecture && gradeId) {
       buttons.push({

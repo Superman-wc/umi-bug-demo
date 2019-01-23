@@ -219,7 +219,7 @@ function ElectionExaminationCard({electionExamination, loading, value, onChange}
           <ul className={styles['election-examination-list']}>
             {
               electionExamination && electionExamination.studentStatisticVM && electionExamination.studentStatisticVM.length ?
-                electionExamination.studentStatisticVM.map(it =>
+                electionExamination.studentStatisticVM.sort((a,b)=>b.electionExaminationNum-a.electionExaminationNum).map(it =>
                   <li key={it.subjectName}>{it.subjectName}：{it.electionExaminationNum}</li>
                 )
                 :
@@ -232,7 +232,7 @@ function ElectionExaminationCard({electionExamination, loading, value, onChange}
           <ul className={styles['election-examination-list']}>
             {
               electionExamination && electionExamination.studentStatisticVM && electionExamination.studentStatisticVM.length ?
-                electionExamination.studentStatisticVM.map(it =>
+                electionExamination.studentStatisticVM.sort((a,b)=>b.studyExaminationNum-a.studyExaminationNum).map(it =>
                   <li key={it.subjectName}>{it.subjectName}：{it.studyExaminationNum}</li>
                 )
                 :
@@ -245,7 +245,7 @@ function ElectionExaminationCard({electionExamination, loading, value, onChange}
       <ul className={styles['election-examination-list']}>
         {
           electionExamination && electionExamination.electionExaminationCombinationVM && electionExamination.electionExaminationCombinationVM.length ?
-            electionExamination.electionExaminationCombinationVM.map(it =>
+            electionExamination.electionExaminationCombinationVM.sort((a,b)=>b.combinationNum-a.combinationNum).map(it =>
               <li key={it.combinationName}>{it.combinationName}：{it.combinationNum}</li>
             )
             :

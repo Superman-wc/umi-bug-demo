@@ -75,7 +75,7 @@ export default class MeterList extends Component {
         render: (id, row) => (
           <TableCellOperation
             operations={{
-              edit: () => this.setState({visible: true, item: row}),
+              // edit: () => this.setState({visible: true, item: row}),
               remove: {
                 onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
               },

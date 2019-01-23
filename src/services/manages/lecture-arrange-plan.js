@@ -15,3 +15,12 @@ export async function list({gradeId, semesterId, p = 1, s = 30}) {
 export async function item({id}) {
   return request('/api/8queen/lectureArrangePlan/' + id, {method: 'GET'});
 }
+
+/**
+ * 选班排课方案发布
+ * @param id  方案ID
+ * @returns {Promise<*>}
+ */
+export async function release({id}) {
+  return request('/api/8queen/arrangePlan/release', {data: {id}, method: 'POST'});
+}
