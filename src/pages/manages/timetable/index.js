@@ -174,7 +174,7 @@ export default class ManagesTimetable extends Component {
       semesterType: Form.createFormField({value: semesterType ? semesterType.toString() : undefined}),
       startTime: Form.createFormField({value: startTime || undefined}),
       interval: Form.createFormField({value: interval || undefined}),
-      dayOfWeek: Form.createFormField({value: (dayOfWeek || dayOfWeek === 0) ? (dayOfWeek + 1).toString() : undefined}),
+      dayOfWeek: Form.createFormField({value: (dayOfWeek || dayOfWeek === 0) ? (parseInt(dayOfWeek, 10) + 1).toString() : undefined}),
     }
   }
 })
