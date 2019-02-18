@@ -1,28 +1,30 @@
+
 .daub-rectangle-box {
-  width: 15px;
-  height: 11px;
+  width: 16px;
+  height: 10px;
   position: relative;
   margin: 3px;
+  cursor: default;
   & > div {
     box-sizing: border-box;
-    width: 30px;
-    height: 22px;
-    font-size: 20px;
-    line-height: 20px;
+    width: 32px;
+    height: 20px;
+    font-size: 18px;
+    line-height: 18px;
     text-align: center;
-    border: 1px solid #333;
-    transform: scale(0.5) translate(-15px, -11px);
+    border: 1px solid #111;
+    transform: scale(0.5) translate(-16px, -10px);
   }
   &[data-checked="true"] {
     & > div {
-      background-color: #333;
+      background-color: #111;
     }
   }
 }
 
 .student-code-box {
   display: flex;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid #333;
   position: relative;
   &:after,
   & > input {
@@ -52,7 +54,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-right: 1px solid #ccc;
+  border-right: 1px solid #333;
   padding-bottom: 3px;
   &:last-child {
     border-right: 0;
@@ -65,14 +67,14 @@
   font-size: 16px;
   width: 100%;
   height: 25px;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #333;
   margin-bottom: 3px;
 }
 
 .student-info-box {
-  border: 1px solid #ccc;
+  border: 1px solid #333;
   width: 220px;
-  margin: 50px;
+  margin: 0 10px 10px 0px;
 }
 
 .student-info-header {
@@ -80,5 +82,360 @@
   & > label {
     flex: 1;
     padding: 5px;
+  }
+}
+
+.options-area {
+  display: flex;
+  flex-direction: row;
+  label {
+    width: 24px;
+    text-align: right;
+    &:after {
+      content: '.';
+      margin-right: 5px;
+    }
+  }
+}
+
+.completion-area {
+  display: inline;
+  line-height: 30px;
+  word-break: break-all;
+  //
+  //label {
+  //  display: inline-block;
+  //  //border-bottom: 1px solid #333;
+  //  min-width: 200px;
+  //  height: 30px;
+  //  //background-color: #f0f4f8;
+  //  input {
+  //    border: none;
+  //    height: 30px;
+  //    width: 100%;
+  //    background-color: transparent;
+  //    &:focus, &:active {
+  //      outline: none;
+  //    }
+  //  }
+  //}
+  & > span {
+    //display: inline-block;
+    min-width: 60px;
+    line-height: 30px;
+    //background: #f0f4f8 url('./images/border-bottom@2x.png') repeat left 23px;
+    background-size: 30px 30px;
+    border-bottom: 1px solid #333;
+    padding: 6px 0;
+    background-color: #fff;
+    &:focus {
+      outline: 2px solid #00aaff;
+      box-shadow: 0 0 5px #00aaff;
+    }
+    & > span {
+      //background-color: #ffaa00;
+      display: inline-block;
+      min-width: 120px;
+    }
+  }
+  & + & {
+    margin-left: 1em;
+  }
+}
+
+.completion-box {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  & > div {
+    flex: 1;
+  }
+  & > label {
+    text-align: right;
+    min-width: 24px;
+    line-height: 30px;
+    &:after {
+      content: '.';
+      margin-right: 5px;
+    }
+  }
+}
+
+.subjective-questions-box {
+  margin: 10px 0;
+  & > header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-top: 1px solid #333;
+    border-right: 1px solid #333;
+    border-left: 1px solid #333;
+    padding: 0 -1px;
+    & > div {
+      width: 30px;
+      text-align: center;
+      border-right: 1px solid #333;
+      margin-left: -1px;
+
+      &:first-child {
+        //border-left: 0;
+      }
+    }
+  }
+  & > main {
+    border: 1px solid #333;
+    padding: 5px;
+  }
+}
+
+.answer-page-title {
+  text-align: center;
+  font-size: 18px;
+  line-height: 1.732;
+  padding: 0 60px 0 80px;
+  height: 80px;
+}
+
+.answer-editor-header {
+  width: 100%;
+  height: 30px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  box-shadow: 0 0 10px #ccc;
+  line-height: 30px;
+  display: block;
+  :global {
+    .ant-menu {
+      background: #f3f3f3;
+    }
+    .ant-menu-horizontal {
+      border-bottom-color: #ccc;
+    }
+  }
+}
+
+.answer-editor-page {
+
+  background-color: #f2f2f2; //#fafafa;
+  width: auto !important;
+  height: auto !important;
+  overflow: auto !important;
+
+  .answer-editor {
+    &:before {
+      content: '';
+      display: block;
+      height: 30px;
+    }
+  }
+}
+
+.answer-edit-menu {
+  line-height: 28px !important;
+}
+
+#answer-edit-body {
+  user-select: none;
+  overflow: auto !important;
+  :global {
+    .ant-menu-vertical .ant-menu-item:not(:last-child),
+    .ant-menu-vertical-left .ant-menu-item:not(:last-child),
+    .ant-menu-vertical-right .ant-menu-item:not(:last-child),
+    .ant-menu-inline .ant-menu-item:not(:last-child) {
+      margin-bottom: 0;
+    }
+    .ant-menu-vertical > .ant-menu-item,
+    .ant-menu-vertical-left > .ant-menu-item,
+    .ant-menu-vertical-right > .ant-menu-item,
+    .ant-menu-inline > .ant-menu-item,
+    .ant-menu-vertical > .ant-menu-submenu > .ant-menu-submenu-title,
+    .ant-menu-vertical-left > .ant-menu-submenu > .ant-menu-submenu-title,
+    .ant-menu-vertical-right > .ant-menu-submenu > .ant-menu-submenu-title,
+    .ant-menu-inline > .ant-menu-submenu > .ant-menu-submenu-title {
+      height: 30px;
+      line-height: 30px;
+    }
+  }
+}
+
+.answer-page {
+  color: #000;
+  overflow: auto;
+
+}
+
+.editor-page {
+  display: flex;
+  flex-direction: row;
+  padding: 30px;
+  position: relative;
+  background-color: #fff;
+  box-shadow: 0 0 10px #ccc;
+  margin: 0 auto;
+}
+
+.editor-page-col {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px dashed rgba(255, 170, 0, 0.1);
+  z-index: 1;
+  &:hover {
+    border: 1px dashed rgba(255, 170, 0, 0.4);
+  }
+  &.editor-page-col-focus {
+    border: 1px dashed rgba(29, 165, 122, 0.4);
+  }
+  & + & {
+    margin-left: 10px;
+  }
+  //&:nth-child(3n){
+  //  background-color: #f00;
+  //}
+  //&:nth-child(3n+1){
+  //  background: #0f0;
+  //}
+  //&:nth-child(3n+2){
+  //  background: #00f;
+  //}
+}
+
+.page-qrcode {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+}
+
+.content-editable-area {
+  position: relative;
+
+  &:hover,
+  &.focus {
+    .content-editable-area-input {
+      background-color: rgba(29, 165, 122, 0.05);
+      outline: 1px dashed rgba(29, 165, 122, 0.2);
+    }
+  }
+  &.focus {
+    .content-editable-area-input {
+      background-color: rgba(29, 165, 122, 0.1);
+      outline: 1px dashed rgba(29, 165, 122, 0.35);
+    }
+  }
+
+}
+
+.content-editable-area-input {
+  position: relative;
+  z-index: 1;
+}
+
+.placeholder {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  opacity: 0.3;
+  z-index: 0;
+
+}
+
+.answer-page-title {
+  margin-bottom: 5px;
+  line-height: 27px;
+  .content-editable-area-input {
+    height: 80px;
+    overflow: hidden;
+  }
+  .placeholder {
+    padding: 0 60px 0 80px;
+  }
+}
+
+.choice-question-box {
+  outline: 1px dashed rgba(29, 165, 122, 0);
+}
+
+.able-move-box {
+  background-color: #fff;
+  &.active {
+    outline: 1px dashed rgba(29, 165, 122, 0.5);
+    background-color: rgba(29, 165, 122, 0.3);
+    box-shadow: 0 0 10px rgba(29, 165, 122, 0.7);
+  }
+}
+
+.able-resize-box {
+  position: relative;
+}
+
+.able-resize-box-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 10px;
+  height: 10px;
+  background-color: #888;
+}
+
+.answer-question-box {
+  .question-number{
+    margin-bottom: 5px;
+  }
+  .content-editable-area {
+    line-height: 1.732;
+  }
+}
+
+@media screen {
+
+}
+
+@media print {
+  #answer-edit-body {
+    :global {
+      .ant-menu-submenu-popup {
+        display: none;
+      }
+    }
+  }
+
+  .answer-editor-page {
+    .answer-editor {
+      &:before {
+        content: none;
+      }
+    }
+  }
+
+  .editor-page {
+    margin: 0 0 0 0;
+  }
+
+  .editor-page-col {
+    background-color: transparent;
+  }
+
+  .answer-editor-header {
+    display: none;
+  }
+
+  .content-editable-area-input {
+    background-color: transparent !important;
+    outline: none !important;
+  }
+
+  .editor-page-col {
+    background-color: transparent !important;
+    border: 1px solid transparent !important;
+  }
+
+  .answer-editor-page {
+    background-color: transparent !important;
   }
 }

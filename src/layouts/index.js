@@ -315,7 +315,7 @@ class App extends Component {
 
     const {loading, user, location} = this.props;
     const {pathname} = location;
-    if (pathname === '/login') {
+    if (pathname === '/login' || pathname==='/answer') {
       return this.props.children;
     }
 
