@@ -1,110 +1,17 @@
 import React, {Component, Fragment, createRef} from 'react';
-import {
-  Form,
-  Row,
-  Col,
-  notification,
-  Checkbox,
-  Button,
-  Card,
-  Dropdown,
-  Menu,
-  Icon,
-  Input,
-  InputNumber,
-  Select,
-} from 'antd';
-
-import styles from './answer.less';
-
+import {Form, Checkbox, Button, Menu, Icon, Input, InputNumber, Select} from 'antd';
 import classNames from 'classnames';
 import uuid from 'uuid/v4';
+import styles from './answer.less';
+import {mm2px} from "../../components/AnswerEditor/helper";
+import {PAGE_SIZE} from "../../components/AnswerEditor/const";
+
 import QrCode from '../../components/AnswerCardEditor/QrCode';
 
 const ContentEditable = Symbol('#Answer.ContentEditableArea');
 const AbleMove = Symbol('#Answer.AbleMove');
 
-/**
- * transform样式显性转换成对象类型
- * @param str
- * @returns {{}}
- */
-function transformParse(str = '') {
-  return str.split(/\s+/g).reduce((map, s) => {
-    const m = s.split(/(|)/g);
-    map[m[0]] = m[1];
-    return map;
-  }, {});
-}
 
-/**
- * transform样式对象转换成样式文本
- * @param obj
- * @returns {string}
- */
-function transforStringify(obj = {}) {
-  return Object.entries(obj).reduce((arr, [key, value]) => {
-    arr.push(`${key}(${value})`);
-    return arr;
-  }, []).join(' ')
-}
-
-/**
- * 毫米转英寸
- * @param mm
- * @returns {number}
- */
-function mm2inch(mm) {
-  return mm / 25.4; // 一英寸 = 25.4mm
-}
-
-/**
- * 毫米转像素
- * @param mm
- * @param dpi
- * @returns {number}
- */
-function mm2px(mm, dpi = 96) {
-  return Math.round(mm2inch(mm) * dpi);
-}
-
-/**
- * 纸张大小
- */
-const PAGE_SIZE = {
-  A4: {
-    direction: '纵向',
-    print: {
-      height: 297,
-      width: 210,
-    },
-  },
-  '16K': {
-    direction: '纵向',
-    print: {
-      width: 195,
-      height: 271,
-    },
-  },
-  '8K': {
-    direction: '横向',
-    print: {
-      width: 420,
-      height: 285,
-    },
-  },
-};
-
-/**
- * 转换纸张大小为屏幕像素大小
- */
-Object.keys(PAGE_SIZE).forEach(key => {
-  const {width, height} = PAGE_SIZE[key].print;
-  PAGE_SIZE[key].screen = {
-    width: mm2px(width),
-    height: mm2px(height)
-  }
-});
 
 
 /**
@@ -433,11 +340,12 @@ class Element extends Component {
 
   render() {
 
-    const {element, border, active, focus, hover, onActive, onFocus, onHover, children, className} = this.props;
+    const {element, border, active, focus, hover, onActive, onFocus, onHover, children, className,} = this.props;
 
-    const {x, y, move} = this.state;
+    const {x=0, y=0, move} = this.state;
 
     const style = {...this.props.style, transform: `translateX(${x}px) translateY(${y}px)`};
+
 
     const props = {
       id: element.key,
@@ -461,7 +369,7 @@ class Element extends Component {
       },
       onMouseLeave: () => {
         onHover && onHover(element, false);
-      }
+      },
     };
 
     return (
@@ -1058,7 +966,7 @@ export default class AnswerEditPage extends Component {
         y = Math.max(y, top + height - t);
       }
 
-      if(y) {
+      if (y) {
         y += 10;
       }
 
@@ -1259,7 +1167,7 @@ export default class AnswerEditPage extends Component {
   render() {
 
 
-    console.log(this.state);
+    console.log(JSON.stringify(this.state.file || {}));
 
     return (
       <Fragment>

@@ -38,4 +38,7 @@ export const AdminAuthority = '/admin/authority';
 export const AdminMenu = '/admin/menu';
 
 
+export const AnswerEditor = '/answer/editor';
+
+
 
