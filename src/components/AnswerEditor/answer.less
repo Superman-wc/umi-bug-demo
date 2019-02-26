@@ -81,6 +81,7 @@ StudentInfoBox.js
   border: 1px solid #333;
   min-width: 169px;
 }
+
 .student-info-header {
   display: flex;
   & > label {
@@ -88,8 +89,6 @@ StudentInfoBox.js
     padding: 5px;
   }
 }
-
-
 
 /**
 Placeholder.js
@@ -147,7 +146,7 @@ ContentEditableArea.js
   position: relative;
   line-height: 1.5;
 
-  &:hover{
+  &:hover {
     .html-input {
       background-color: rgba(29, 165, 122, 0.05);
       outline: 1px dashed rgba(29, 165, 122, 0.2);
@@ -170,32 +169,32 @@ ContentEditableArea.js
 /**
 PaddingEditor.js
  */
-.padding-editor{
+.padding-editor {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  width:180px;
-  &>div{
-    width:60px;
+  width: 180px;
+  & > div {
+    width: 60px;
   }
 }
 
 /**
 CreateFilePanel.js
  */
-.create-file-panel{
-    padding:50px;
-    width:700px;
-    margin:0 auto;
-    label{
-      font-size:14px;
-    }
+.create-file-panel {
+  padding: 50px;
+  width: 700px;
+  margin: 0 auto;
+  label {
+    font-size: 14px;
+  }
 }
 
 /**
 AttributePanel.js
  */
-.attribute-panel{
+.attribute-panel {
   background-color: #fff;
 }
 
@@ -226,11 +225,13 @@ Element.js
     cursor: move;
   }
 }
+
 body[data-move="true"] {
   .element {
     outline: 10px solid rgba(255, 0, 0, 0.6);
   }
 }
+
 /**
 AnswerQuestionBox.js
  */
@@ -268,6 +269,7 @@ CompletionQuestionBox.js
     }
   }
 }
+
 /**
 ChoiceQuestionBox.js
  */
@@ -286,6 +288,7 @@ ChoiceQuestionBox.js
     }
   }
 }
+
 /**
 TitleBox.js
  */
@@ -328,11 +331,11 @@ Editor.js
       line-height: 30px;
     }
   }
-  hr{
-    border:0;
-    border-top:1px solid #ccc;
-    height:0;
-    width:100%;
+  hr {
+    border: 0;
+    border-top: 1px solid #ccc;
+    height: 0;
+    width: 100%;
   }
 }
 
@@ -350,6 +353,96 @@ Editor.js
   }
 }
 
+/**
+EditorHeader.js
+ */
+.editor-header {
+  width: 100%;
+  height: 30px;
+  position: fixed;
+  display: flex;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  box-shadow: 0 0 10px #ccc;
+  line-height: 30px;
+  border-bottom: 1px solid #ccc;
+  background: #f3f3f3;
+
+  :global {
+    .ant-menu {
+      background: #f3f3f3;
+    }
+    .ant-menu-horizontal {
+      border-bottom-color: transparent;
+    }
+  }
+}
+
+.editor-menu {
+  line-height: 28px !important;
+}
+
+/**
+EditorRightPanel.js
+ */
+.editor-right-panel {
+  position: fixed;
+  z-index: 999;
+  top: 30px;
+  right: 0;
+  bottom: 0;
+  width: 230px;
+  background-color: #f0f0f0;
+  border-left: 1px solid #ccc;
+  box-shadow: 0 0 10px #ccc;
+  padding-top: 20px;
+}
+
+/**
+EditorBody.js
+ */
+.editor-body {
+  color: #000;
+}
+
+/**
+EditorFile.js
+ */
+.editor-file {
+  position: relative;
+}
+
+/**
+EditorPage.js
+ */
+.editor-page {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  background-color: #fff;
+  box-shadow: 0 0 10px #ccc;
+  margin: 50px auto;
+  &.active {
+    box-shadow: 0 0 20px #888;
+  }
+}
+
+/**
+EditorColumn.js
+ */
+.editor-column {
+  background-color: rgba(255, 255, 255, 0.1);
+  outline: 1px dashed rgba(128, 128, 128, 0.3);
+  z-index: 1;
+  position: relative;
+  &:hover {
+    outline: 1px dashed rgba(255, 170, 0, 0.5);
+  }
+  &.active {
+    outline: 1px dashed rgba(255, 170, 0, 0.8);
+  }
+}
 
 @media print {
   .element {

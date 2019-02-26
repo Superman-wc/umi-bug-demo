@@ -4,7 +4,7 @@ import Element from "./Element";
 import ContentEditableArea from "./ContentEditableArea";
 import SubjectiveQuestionsBox from "./SubjectiveQuestionsBox";
 
-export default class CompletionBox extends Component {
+export default class CompletionQuestionBox extends Component {
 
   static attributes = {
     startNumber: {

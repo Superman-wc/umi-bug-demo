@@ -1,0 +1,79 @@
+import React, {Fragment} from 'react';
+import {AnswerEditor as namespace} from "../../utils/namespace";
+import TitleBox from "./TitleBox";
+import StudentInfoBox from "./StudentInfoBox";
+import ChoiceQuestionBox from "./ChoiceQuestionBox";
+import CompletionQuestionBox from "./CompletionQuestionBox";
+import AnswerQuestionBox from "./AnswerQuestionBox";
+
+const ElementTypes = {
+  'student-info': StudentInfoBox,
+  'choice-question': ChoiceQuestionBox,
+  'answer-question': AnswerQuestionBox,
+  'completion-question': CompletionQuestionBox
+};
+
+export default function EditorElement({element, ...restProps}) {
+
+  const {activeElementKey, focusElementKey, dispatch} = restProps;
+
+  const props = {
+    ...restProps,
+    value: element,
+    onChange: () => {
+    },
+    onActive: () => {
+      console.log('激活组件', element.key);
+      const payload = {activeElementKey: element.key};
+      const eleClass = ElementTypes[element.type];
+      if (eleClass && eleClass.attributes) {
+        // payload.attributePanelConfig = Object.entries(eleClass.attributes).reduce((map, [key, obj]) => {
+        //   map[key] = {
+        //     ...obj,
+        //     value: element[key],
+        //     onChange: (value) => {
+        //       setTimeout(() => {
+        //         payload.attributePanelConfig.value = value;
+        //         element[key] = value;
+        //         this.setState({...this.state});
+        //       });
+        //     }
+        //   };
+        //   return map;
+        // }, {});
+        payload.showAttributePanel = true;
+      } else {
+        payload.showAttributePanel = false;
+      }
+      dispatch({
+        type: namespace + '/set',
+        payload
+      });
+    },
+    active: element.key === activeElementKey,
+    focus: element.key === focusElementKey,
+  };
+  return (
+
+    <Fragment key={element.key}>
+      {
+        element.type === 'page-title' ?
+          <TitleBox {...props}/>
+          :
+          element.type === 'student-info' ?
+            <StudentInfoBox {...props}/>
+            :
+            element.type === 'choice-question' ?
+              <ChoiceQuestionBox {...props}/>
+              :
+              element.type === 'completion-question' ?
+                <CompletionQuestionBox {...props}/>
+                :
+                element.type === 'answer-question' ?
+                  <AnswerQuestionBox {...props}/>
+                  :
+                  null
+      }
+    </Fragment>
+  )
+}

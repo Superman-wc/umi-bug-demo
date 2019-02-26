@@ -2,15 +2,9 @@ import React from 'react';
 import {Form, Button, Input, InputNumber} from 'antd';
 import styles from './answer.less';
 
-@Form.create({
-  mapPropsToFields: ({config}) => {
-    return Object.entries(config).reduce((map, [key, setting]) => {
-      map[key] = Form.createFormField({value: setting.value});
-      return map;
-    }, {});
-  }
-})
-export default function AttributePanel(props) {
+
+
+function AttributePanel(props) {
 
   const {config = {}, form: {getFieldDecorator}, onDelete} = props;
 
@@ -45,3 +39,12 @@ export default function AttributePanel(props) {
     </Form>
   )
 }
+
+export default Form.create({
+  mapPropsToFields: ({config}) => {
+    return Object.entries(config).reduce((map, [key, setting]) => {
+      map[key] = Form.createFormField({value: setting.value});
+      return map;
+    }, {});
+  }
+})(AttributePanel);

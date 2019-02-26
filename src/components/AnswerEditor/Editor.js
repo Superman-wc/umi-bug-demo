@@ -1,25 +1,15 @@
 import React, {Component, Fragment, createRef} from 'react';
-import { Form, Checkbox, Button, Menu, Icon, Input, InputNumber, Select} from 'antd';
 import classNames from 'classnames';
 import uuid from 'uuid/v4';
 import styles from './answer.less';
 import {mm2px} from "./helper";
 import {PAGE_SIZE} from "./const";
 import QrCode from "./QrCode";
-import CreateFilePanel from "./CreateFilePanel";
-import AttributePanel from "./AttributePanel";
-import TitleBox from "./TitleBox";
-import StudentInfoBox from "./StudentInfoBox";
-import ChoiceQuestionBox from "./ChoiceQuestionBox";
-import CompletionQuestionBox from "./CompletionQuestionBox";
-import AnswerQuestionBox from "./AnswerQuestionBox";
+import EditorHeader from './EditorHeader';
+import EditorRightPanel from './EditorRightPanel';
+import EditorBody from './EditorBody';
 
-const ElementTypes = {
-  'student-info': StudentInfoBox,
-  'choice-question': ChoiceQuestionBox,
-  'answer-question': AnswerQuestionBox,
-  'completion-question': CompletionQuestionBox
-};
+
 
 export default class Editor extends Component {
 
@@ -344,237 +334,16 @@ export default class Editor extends Component {
 
   render() {
 
-
-    console.log(this.state);
-
     return (
       <Fragment>
-        {this.renderEditorHeader()}
-
-        <main className={styles['editor-body']}>
-          {
-            this.state.file ?
-              this.renderFile(this.state.file)
-              :
-              <CreateFilePanel onSubmit={(config) => {
-                setTimeout(() => {
-                  this.createFile(config);
-                });
-              }}/>
-          }
-        </main>
-        {
-          this.state.file ?
-            this.renderEditorRightPanel()
-            :
-            null
-        }
+        <EditorHeader />
+        <EditorBody />
+        <EditorRightPanel />
       </Fragment>
     );
   }
 
-  renderEditorHeader = () => {
-    const menu = [
-      {
-        key: 'file', icon: 'mail', title: '文件',
-        items: [
-          {key: 'new', title: '新建'},
-          {key: 'open', title: '打开'},
-          {key: 'save', title: '保存', disabled: !this.state.file},
-          {key: 'save-as', title: '另存为', disabled: !this.state.file},
-          {key: 'print', title: '打印', disabled: !this.state.file},
-        ]
-      }, {
-        key: 'insert', icon: 'appstore', title: '插入', disabled: !this.state.file,
-        items: [
-          {key: 'page-title', title: '标题'},
-          {key: 'student-info', title: '学生信息'},
-          {key: 'choice-question', title: '选择题'},
-          {key: 'completion-question', title: '填空题'},
-          {key: 'answer-question', title: '解答题'}
-        ]
-      }
-    ];
-    return (
-      <section className={styles['editor-header']}>
-        <Menu
-          className={styles['edit-menu']}
-          onClick={this.handleMenuClick}
-          mode="horizontal"
-          selectable={false}
-        >
-          {
-            menu.map(sm =>
-              <Menu.SubMenu key={sm.key} disabled={sm.disabled}
-                            title={<span><Icon type={sm.icon}/><span>{sm.title}</span></span>}>
-                {
-                  sm.items.map(it =>
-                    <Menu.Item key={it.key} disabled={sm.disabled || it.disabled}>{it.title}</Menu.Item>
-                  )
-                }
-              </Menu.SubMenu>
-            )
-          }
-        </Menu>
-      </section>
-    )
-  };
 
-  renderEditorRightPanel = () => {
-    return (
-      <section className={styles['editor-right-panel']}>
-        {
-          this.state.activeElementKey ?
-            <AttributePanel config={this.state.attributePanelConfig || {}} onDelete={() => {
-              this.handleDeleteElement();
-            }}/>
-            :
-            null
-        }
-      </section>
-    )
-  };
-
-  renderFile = (file) => {
-    return (
-      <div className={styles['editor-file']}>
-        {
-          file.pages.map(this.renderPage)
-        }
-      </div>
-    )
-  };
-
-  renderPage = (page, pageIndex) => {
-    const style = {
-      width: page.width,
-      height: page.height,
-      padding: page.padding.map(it => it + 'px').join(' '),
-    };
-    const className = classNames(styles['editor-page'], {
-      [styles['active']]: this.state.activePageKey === page.key,
-    });
-    return (
-      <div key={page.key} id={page.key} className={className} style={style} onClick={() => {
-        this.setState({activePageKey: page.key});
-      }}>
-        {
-          page.cols.map((col, colIndex) => this.renderCol(col, {
-            pageKey: page.key,
-            pageIndex,
-            colIndex,
-            colKey: col.key
-          }))
-        }
-        {
-          this.state.qrCode && pageIndex === 0 ?
-            this.renderQrCode()
-            :
-            null
-        }
-      </div>
-    )
-  };
-
-  renderCol = (col, index) => {
-    const props = {
-      id: col.key,
-      className: classNames(styles['editor-col'], {
-        [styles['active']]: this.state.activeColKey === col.key
-      }),
-      style: {width: col.width, marginLeft: index.colIndex !== 0 ? col.colSpan : 0},
-      onClick: () => {
-        this.setState({activeColKey: col.key});
-      }
-    };
-    return (
-      <div key={col.key} {...props}>
-        {
-          col.elements.map((ele, elementIndex) => this.renderElement(ele, {
-            ...index,
-            elementIndex,
-            elementKey: ele.key
-          }))
-        }
-      </div>
-    )
-  };
-
-  renderElement = (ele, index) => {
-    const props = {
-      index,
-      value: ele,
-      onChange: () => {
-        setTimeout(() => {
-          this.setState({...this.state})
-        });
-      },
-      onActive: (ele) => {
-        setTimeout(() => {
-          this.activeElement(ele.key);
-        });
-      },
-      onFocus: (ele) => {
-        setTimeout(() => {
-          this.setState({focusKey: ele.key});
-        });
-      },
-      style: {zIndex: index},
-      active: ele.key === this.state.activeElementKey,
-      focus: ele.key === this.state.focusElementKey,
-    };
-    return (
-
-      <Fragment key={ele.key}>
-        {
-          ele.type === 'page-title' ?
-            <TitleBox {...props}/>
-            :
-            ele.type === 'student-info' ?
-              <StudentInfoBox {...props}/>
-              :
-              ele.type === 'choice-question' ?
-                <ChoiceQuestionBox {...props}/>
-                :
-                ele.type === 'completion-question' ?
-                  <CompletionQuestionBox {...props}/>
-                  :
-                  ele.type === 'answer-question' ?
-                    <AnswerQuestionBox {...props}/>
-                    :
-                    null
-        }
-      </Fragment>
-    )
-  };
-
-  activeElement = (key) => {
-    console.log('激活组件', key);
-    const state = {activeElementKey: key};
-    const ele = this.getElement(key);
-    const eleClass = ElementTypes[ele.type];
-    if (eleClass && eleClass.attributes) {
-      const config = Object.entries(eleClass.attributes).reduce((map, [key, obj]) => {
-        map[key] = {
-          ...obj,
-          value: ele[key],
-          onChange: (value) => {
-            setTimeout(() => {
-              config[key].value = value;
-              ele[key] = value;
-              this.setState({...this.state});
-            });
-          }
-        };
-        return map;
-      }, {});
-      state.attributePanelConfig = config;
-      state.showAttributePanel = true;
-    } else {
-      state.showAttributePanel = false;
-    }
-    this.setState(state);
-  };
 
   handleDeleteElement = () => {
     const {activeElementKey} = this.state;
@@ -604,3 +373,6 @@ export default class Editor extends Component {
       null
   }
 }
+
+
+
