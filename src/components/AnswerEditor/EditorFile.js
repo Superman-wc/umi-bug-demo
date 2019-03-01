@@ -1,24 +1,36 @@
-import React from 'react';
+import React, {Component} from 'react';
 import {connect} from 'dva';
 import styles from './answer.less';
 import {AnswerEditor as namespace} from "../../utils/namespace";
 import EditorPage from './EditorPage';
 
 
-function EditorFile(props) {
-  const {file, ...pageProps} = props;
-  return (
-    <div className={styles['editor-file']}>
-      {
-        file.pages && file.pages.length ?
-          file.pages.map(page =>
-            <EditorPage key={page.key} page={page} {...pageProps}/>
-          )
-          :
-          null
-      }
-    </div>
-  )
+class EditorFile extends Component {
+  componentDidMount() {
+    this.props.dispatch({type: namespace + '/buildQrCode', payload: {str: '12345'}});
+  }
+
+  render() {
+    const {file, ...pageProps} = this.props;
+    pageProps.file = file;
+    const {print: {w}} = file || {};
+    const style = {
+      minWidth: w + 100,
+      padding: 50
+    };
+    return (
+      <div className={styles['editor-file']} style={style}>
+        {
+          file.pages && file.pages.length ?
+            file.pages.map(page =>
+              <EditorPage key={page.key} page={page} {...pageProps}/>
+            )
+            :
+            null
+        }
+      </div>
+    )
+  }
 }
 
 export default connect(state => ({

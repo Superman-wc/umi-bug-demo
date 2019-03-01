@@ -27,20 +27,26 @@ export default function EditorElement({element, ...restProps}) {
       const payload = {activeElementKey: element.key};
       const eleClass = ElementTypes[element.type];
       if (eleClass && eleClass.attributes) {
-        // payload.attributePanelConfig = Object.entries(eleClass.attributes).reduce((map, [key, obj]) => {
-        //   map[key] = {
-        //     ...obj,
-        //     value: element[key],
-        //     onChange: (value) => {
-        //       setTimeout(() => {
-        //         payload.attributePanelConfig.value = value;
-        //         element[key] = value;
-        //         this.setState({...this.state});
-        //       });
-        //     }
-        //   };
-        //   return map;
-        // }, {});
+        payload.attributePanelConfig = Object.entries(eleClass.attributes).reduce((map, [key, obj]) => {
+          map[key] = {
+            ...obj,
+            value: element[key],
+            onChange: (value) => {
+
+              dispatch({
+                type: namespace + '/setElementAttribute',
+                payload: {
+                  key, value
+                }
+              });
+              obj.onChange && obj.onChange({self: obj, key, value, dispatch, element});
+
+
+              console.log(element, key, value);
+            }
+          };
+          return map;
+        }, {});
         payload.showAttributePanel = true;
       } else {
         payload.showAttributePanel = false;

@@ -5,7 +5,8 @@ import AttributePanel from "./AttributePanel";
 import {AnswerEditor as namespace} from "../../utils/namespace";
 
 function EditorRightPanel(props){
-  const {file, activeElementKey, attributePanelConfig={}} = props;
+  const {file, ...attributeProps} = props;
+  const {activeElementKey} = attributeProps;
   return (
     <Fragment>
       {
@@ -13,9 +14,7 @@ function EditorRightPanel(props){
           <section className={styles['editor-right-panel']}>
             {
               activeElementKey ?
-                <AttributePanel config={attributePanelConfig || {}} onDelete={() => {
-                  this.handleDeleteElement();
-                }}/>
+                <AttributePanel {...attributeProps} />
                 :
                 null
             }

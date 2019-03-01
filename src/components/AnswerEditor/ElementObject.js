@@ -1,9 +1,15 @@
-import uuid from 'uuid/v4';
+// import uuid from 'uuid/v4';
 
 const MAP = {};
 
+function uuid() {
+  return [Date.now(), uuid.cid++].join('-');
+}
+
+uuid.cid = 0;
+
 export function create(opt) {
-  if(opt.key){
+  if (opt.key) {
     remove(opt.key);
   }
   const obj = {

@@ -84,6 +84,12 @@ export const enum WEEK {
   星期日 = 7,
 }
 
+export const enum QuestionTypeEnum {
+  单选题 = 1,
+  多选题 = 2,
+  判断题 = 3,
+}
+
 export function Enums(e?: any): Array<EnumValue> {
   return Object.keys(e).reduce((sum, value) => {
     if (parseInt(value, 10) >= 0) {

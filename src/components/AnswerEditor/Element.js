@@ -88,18 +88,18 @@ export default class Element extends Component {
         [styles['move']]: move
       }),
       style,
-      onMouseDown: this.handleMouseDown,
+      // onMouseDown: this.handleMouseDown,
       children,
       onClick: () => {
         onActive && onActive(element);
-        onFocus && onFocus(element);
+        // onFocus && onFocus(element);
       },
-      onMouseEnter: () => {
-        onHover && onHover(element, true);
-      },
-      onMouseLeave: () => {
-        onHover && onHover(element, false);
-      },
+      // onMouseEnter: () => {
+      //   onHover && onHover(element, true);
+      // },
+      // onMouseLeave: () => {
+      //   onHover && onHover(element, false);
+      // },
     };
 
     return (

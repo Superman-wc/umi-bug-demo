@@ -3,9 +3,10 @@ import classNames from 'classnames';
 import styles from './answer.less';
 import {AnswerEditor as namespace} from "../../utils/namespace";
 import EditorColumn from './EditorColumn';
+import EditorElement from './EditorElement';
 
 export default function EditorPage(props) {
-  const {page, ...columnProps} = props;
+  const {page, file, ...columnProps} = props;
   const {dispatch, activePageKey} = columnProps;
   const style = {
     width: page.width,
@@ -16,6 +17,18 @@ export default function EditorPage(props) {
     [styles['active']]: activePageKey === page.key,
   });
 
+  const qrCodeStyle = {
+    top: page.padding[0] - 14,
+    left: page.padding[3] - 14
+  };
+
+  const elementsBoxStyle = {
+    top: page.padding[0],
+    right: page.padding[1],
+    bottom: page.padding[2],
+    left: page.padding[3]
+  };
+
   return (
     <div id={page.key} className={className} style={style} onClick={() => {
       dispatch({
@@ -25,11 +38,20 @@ export default function EditorPage(props) {
         }
       });
     }}>
+
+
       {
-        page.columns.map(column =>
-          <EditorColumn key={column.key} column={column} {...columnProps} />
+        page.columns.map((column, index) =>
+          <EditorColumn index={index} key={column.key} column={column} {...columnProps} />
         )
       }
+      {
+        file && file.qrCode ?
+          <img style={qrCodeStyle} className={styles['qr-code']} src={file.qrCode}/>
+          :
+          null
+      }
+
     </div>
   )
 }

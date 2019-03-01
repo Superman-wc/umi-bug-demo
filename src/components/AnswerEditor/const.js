@@ -30,13 +30,13 @@ const PAGE_SIZE = {
 /**
  * 转换纸张大小为屏幕像素大小
  */
-Object.keys(PAGE_SIZE).forEach(key => {
-  const {width, height} = PAGE_SIZE[key].print;
-  PAGE_SIZE[key].screen = {
-    width: mm2px(width),
-    height: mm2px(height)
-  }
-});
+// Object.keys(PAGE_SIZE).forEach(key => {
+//   const {width, height} = PAGE_SIZE[key].print;
+//   PAGE_SIZE[key].screen = {
+//     width: mm2px(width),
+//     height: mm2px(height)
+//   }
+// });
 
 export {
   PAGE_SIZE

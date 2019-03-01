@@ -8,7 +8,7 @@ import EditorFile from './EditorFile';
 
 function EditorBody(props) {
   const {file, dispatch} = props;
-  console.log(file);
+  // console.log(file);
   return (
     <main className={styles['editor-body']}>
       {

@@ -22,11 +22,11 @@ function EditorHeader(props) {
       items: [
         {key: 'addPage', title: '添加纸张'},
         {key: 'addColumn', title: '添加列', disabled: !activePageKey},
-        {key: 'page-title', title: '标题'},
-        {key: 'student-info', title: '学生信息'},
-        {key: 'choice-question', title: '选择题'},
-        {key: 'completion-question', title: '填空题'},
-        {key: 'answer-question', title: '解答题'}
+        {key: 'addTitleBox', title: '标题', dispatch: !activeColumnKey},
+        {key: 'student-info', title: '学生信息', dispatch: !activeColumnKey},
+        {key: 'addChoiceQuestion', title: '选择题', dispatch: !activeColumnKey},
+        {key: 'addCompletionQuestion', title: '填空题', dispatch: !activeColumnKey},
+        {key: 'addAnswerQuestion', title: '解答题', dispatch: !activeColumnKey}
       ]
     }
   ];
@@ -36,6 +36,7 @@ function EditorHeader(props) {
     mode: 'horizontal',
     selectable: false,
     onClick: ({key, keyPath}) => {
+      console.log(key, keyPath);
       dispatch({
         type: namespace + '/' + key,
         payload: {
