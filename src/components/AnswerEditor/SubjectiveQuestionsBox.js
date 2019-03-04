@@ -10,10 +10,14 @@ import {Score} from "./Score";
  * @constructor
  */
 export default function SubjectiveQuestionsBox({children, score = 1}) {
+  const props = {
+    role:'box',
+    'data-type':'subjective-question',
+  };
   return (
     <div className={styles['subjective-questions-box']}>
       <Score value={score}/>
-      <main>
+      <main {...props}>
         {children}
       </main>
     </div>

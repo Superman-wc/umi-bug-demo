@@ -47,12 +47,23 @@ export default function EditorPage(props) {
       }
       {
         file && file.qrCode ?
-          <img style={qrCodeStyle} className={styles['qr-code']} src={file.qrCode}/>
+          <QrCodeView style={qrCodeStyle} className={styles['qr-code']} src={file.qrCode}/>
           :
           null
       }
 
     </div>
+  )
+}
+
+function QrCodeView(props){
+  const imgProps = {
+    ...props,
+    role:'box',
+    'data-type':'qr-code',
+  };
+  return (
+    <img {...imgProps}/>
   )
 }
 

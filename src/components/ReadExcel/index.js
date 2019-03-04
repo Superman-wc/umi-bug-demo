@@ -1,7 +1,5 @@
 import React, {Component} from 'react';
-import {connect} from 'dva';
-import {message, Modal, Button, Progress, Table, Tabs} from 'antd';
-import XLSX from 'xlsx';
+import {Table, Tabs} from 'antd';
 import {stdColumns} from '../ListPage';
 import TableCellOperation from '../TableCellOperation';
 import FileInput from '../FileInput';
@@ -9,7 +7,6 @@ import styles from './index.less';
 import classnames from 'classnames';
 import Schema from 'async-validator';
 import {pipes} from '../../utils/pipe';
-import warning from 'warning';
 
 
 function Cell(props) {
@@ -135,56 +132,60 @@ export function read(file) {
     const reader = new FileReader();
 
     reader.onload = (e) => {
-      try {
-        const wb = XLSX.read(e.target.result, {type: 'binary'});
-        console.log(name, wb);
-        const {Sheets} = wb;
-        const data = Object.entries(Sheets).reduce((map, [sheetName, sheet]) => {
-          const ref = sheet['!ref'];
-          if (ref) {
-            const [refStart, refEnd] = ref.split(':') || [];
-            if (refStart && refEnd) {
-              let [, refStartCol, refStartRow] = refStart.match(/^([A-Z]+)(\d+)$/) || [];
-              let [, refEndCol, refEndRow] = refEnd.match(/^([A-Z]+)(\d+)$/) || [];
 
-              refStartRow = refStartRow * 1;
-              refEndRow = refEndRow * 1;
+      import('xlsx').then(XLSX=>{
+        try {
+          const wb = XLSX.read(e.target.result, {type: 'binary'});
+          console.log(name, wb);
+          const {Sheets} = wb;
+          const data = Object.entries(Sheets).reduce((map, [sheetName, sheet]) => {
+            const ref = sheet['!ref'];
+            if (ref) {
+              const [refStart, refEnd] = ref.split(':') || [];
+              if (refStart && refEnd) {
+                let [, refStartCol, refStartRow] = refStart.match(/^([A-Z]+)(\d+)$/) || [];
+                let [, refEndCol, refEndRow] = refEnd.match(/^([A-Z]+)(\d+)$/) || [];
 
-              const refStartColIndex = ColCharToIndex(refStartCol);
-              const refEndColIndex = ColCharToIndex(refEndCol);
+                refStartRow = refStartRow * 1;
+                refEndRow = refEndRow * 1;
 
-              const cols = {};
-              const colList = [];
-              for (let i = refStartColIndex; i <= refEndColIndex; i++) {
-                const col = IndexToColChar(i);
-                colList.push(col);
-                cols[col] = sheet[col + refStartRow].v;
-              }
-              const list = [];
-              for (let i = refStartRow + 1; i <= refEndRow; i++) {
-                let flag = false;
-                const cell = colList.reduce((o, col) => {
-                  if (sheet[col + i]) {
-                    o[cols[col]] = sheet[col + i] ? {value: sheet[col + i].v.toString()} : undefined;
-                    flag = true;
-                  }
-                  return o;
-                }, {index: i});
-                flag && list.push(cell);
-              }
+                const refStartColIndex = ColCharToIndex(refStartCol);
+                const refEndColIndex = ColCharToIndex(refEndCol);
 
-              map[sheetName] = {
-                headers: colList.map(key => cols[key]),
-                list
+                const cols = {};
+                const colList = [];
+                for (let i = refStartColIndex; i <= refEndColIndex; i++) {
+                  const col = IndexToColChar(i);
+                  colList.push(col);
+                  cols[col] = sheet[col + refStartRow].v;
+                }
+                const list = [];
+                for (let i = refStartRow + 1; i <= refEndRow; i++) {
+                  let flag = false;
+                  const cell = colList.reduce((o, col) => {
+                    if (sheet[col + i]) {
+                      o[cols[col]] = sheet[col + i] ? {value: sheet[col + i].v.toString()} : undefined;
+                      flag = true;
+                    }
+                    return o;
+                  }, {index: i});
+                  flag && list.push(cell);
+                }
+
+                map[sheetName] = {
+                  headers: colList.map(key => cols[key]),
+                  list
+                }
               }
             }
-          }
-          return map;
-        }, {});
-        resolve(data);
-      } catch (ex) {
-        reject(ex);
-      }
+            return map;
+          }, {});
+          resolve(data);
+        } catch (ex) {
+          reject(ex);
+        }
+      });
+
     };
     reader.onerror = reject;
     reader.readAsBinaryString(file);

@@ -70,16 +70,15 @@ export default class Element extends Component {
 
   render() {
 
-    const {element, border, active, focus, hover, onActive, onFocus, onHover, children, className,} = this.props;
+    const {role, element, border, active, focus, hover, onActive, onFocus, onHover, children, className,} = this.props;
 
-    const {x=0, y=0, move} = this.state;
+    const {x = 0, y = 0, move} = this.state;
 
     const style = {...this.props.style, transform: `translateX(${x}px) translateY(${y}px)`};
 
 
     const props = {
       id: element.key,
-      'data-type': element.type,
       className: classNames(className, styles['element'], {
         [styles['active']]: active,
         [styles['focus']]: focus,
@@ -101,6 +100,10 @@ export default class Element extends Component {
       //   onHover && onHover(element, false);
       // },
     };
+
+    if (role) {
+      Object.assign(props, role);
+    }
 
     return (
       <div {...props} />

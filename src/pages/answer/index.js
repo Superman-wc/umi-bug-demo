@@ -1,11 +1,27 @@
-import React, {Component, Fragment, createRef} from 'react';
-import {Form, Checkbox, Button, Menu, Icon, Input, InputNumber, Select} from 'antd';
-import styles from './answer.less';
-import AnswerEditor from '../../components/AnswerEditor';
+import React from 'react';
+import dynamic from 'umi/dynamic';
+// import AnswerEditor from '../../components/AnswerEditor';
 
+const AnswerPage = dynamic({
+  loader: ()=>{
+    return new Promise(resolve=>{
+      import('../../components/AnswerEditor').then((AnswerEditor)=>{
+        resolve(()=>{
+          console.log('render AnswerEditor', AnswerEditor);
+          // 动态加载的组件注意
+          return (
+            <AnswerEditor.default />
+          );
+        });
+      })
+    })
+  }
+});
 
-export default function AnswerPage() {
-  return (
-    <AnswerEditor/>
-  )
-}
+export default AnswerPage;
+
+// function AnswerPage() {
+//   return (
+//     <AnswerEditor/>
+//   )
+// }

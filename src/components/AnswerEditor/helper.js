@@ -52,3 +52,7 @@ export function html2text(html){
   div.innerHTML = html;
   return div.innerText;
 }
+
+export function text2html(text){
+  return text.replace(/\n/g, '<br/>')
+}

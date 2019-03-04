@@ -37,9 +37,14 @@ function AttributePanel(props) {
                       }
                     </Select>
                     :
-                    <Input onChange={(e) => {
-                      setting.onChange && setting.onChange(e.target.value);
-                    }}/>
+                    setting.type === 'textarea' ?
+                      <Input.TextArea autosize={{minRows: 3, maxRows: 10}} onChange={(e) => {
+                        setting.onChange && setting.onChange(e.target.value);
+                      }}/>
+                      :
+                      <Input onChange={(e) => {
+                        setting.onChange && setting.onChange(e.target.value);
+                      }}/>
               )
             }
           </Form.Item>
@@ -62,7 +67,13 @@ function AttributePanel(props) {
 export default Form.create({
   mapPropsToFields: ({attributePanelConfig = {}}) => {
     return Object.entries(attributePanelConfig || {}).reduce((map, [key, setting]) => {
-      map[key] = Form.createFormField({value: setting.value});
+
+      if (setting.type === 'textarea') {
+        map[key] = Form.createFormField({value: setting.value.replace('<br/>', '\n')});
+      } else {
+        map[key] = Form.createFormField({value: setting.value});
+      }
+
       return map;
     }, {});
   }

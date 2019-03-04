@@ -1,14 +1,21 @@
 import React, {Component, Fragment, createRef} from 'react';
 import {connect} from 'dva';
-import {Form, Checkbox, Button, Menu, Icon, Input, InputNumber, Select, DatePicker, Cascader} from 'antd';
+import {Form, Checkbox, Button, Menu, Icon, Spin, InputNumber, Select, DatePicker, Cascader} from 'antd';
 import classNames from 'classnames';
 import uuid from 'uuid/v4';
 import styles from './answer.less';
 import PaddingEditor from "./PaddingEditor";
 import {PAGE_SIZE} from "./const";
-import {AnswerEditor as namespace, ManagesGrade, ManagesClass, ManagesSubject} from "../../utils/namespace";
+import {
+  AnswerEditor as namespace,
+  Authenticate,
+  ManagesGrade,
+  ManagesClass,
+  ManagesSubject
+} from "../../utils/namespace";
 import locale from 'antd/lib/date-picker/locale/zh_CN';
 import moment from 'moment';
+import {AnswerCardTypeEnum, Enums} from "../../utils/Enum";
 
 
 class CreateFilePanel extends Component {
@@ -78,10 +85,11 @@ class CreateFilePanel extends Component {
   render() {
 
     const {
-      dispatch, form: {getFieldDecorator, validateFieldsAndScroll, getFieldValue, setFieldsValue},
+      dispatch, form: {getFieldDecorator, validateFieldsAndScroll},
+      profile, loading,
     } = this.props;
 
-    const {gradeList = [], subjectList = [], classMap={}, gradeMap={}} = this.state;
+    const {gradeList = [], subjectList = [], classMap = {}, gradeMap = {}} = this.state;
 
     const wrapper = {labelCol: {span: 8}, wrapperCol: {span: 14}};
 
@@ -90,16 +98,25 @@ class CreateFilePanel extends Component {
       className: styles['create-file-panel'],
       hideRequiredMark: true,
       onSubmit: (e) => {
+        console.log(e);
         e.preventDefault();
         e.stopPropagation();
         validateFieldsAndScroll((errors, payload) => {
           if (errors) {
             console.error(errors);
           } else {
-            console.log(payload);
+            const year = payload.info.date.year();
+            const grade = gradeMap[payload.info.grade[0]];
+            const klass = classMap[payload.info.grade[1]];
+            const subjectMap = subjectList.reduce((map, it) => {
+              map[it.id] = it;
+              return map;
+            }, {});
+            const subject = subjectMap[payload.info.subject];
 
+            payload.content.title = `${year}年${profile.schoolName}${klass ? klass.label : grade.label + '年级'}${AnswerCardTypeEnum[payload.info.type]}\n${subject.name}答题卡 (${payload.info.date.format('YYYY.MM.DD')})`;
 
-
+            console.log(payload, year, grade, klass, subject);
 
 
             dispatch({
@@ -117,45 +134,34 @@ class CreateFilePanel extends Component {
         date: {
           label: '日期',
           ...wrapper,
+          fieldOptions: {
+            initialValue: moment(),
+            rules: [{required: true, message: '必须填写'}]
+          },
           children: (
-            <DatePicker locale={locale} onChange={(v) => {
-              // const year = v.year();
-              // let title = getFieldValue('content.title');
-              // title = title.replace(/\d{4}/g, year);
-              // setFieldsValue({
-              //   'content.title': title
-              // });
-            }}/>
+            <DatePicker locale={locale}/>
           )
         },
         grade: {
           label: '年级/班级',
           ...wrapper,
+          fieldOptions: {
+            initialValue: [1],
+            rules: [{required: true, message: '必须填写'}]
+          },
           children: (
-            <Cascader style={{width: 150}} options={gradeList} placeholder="请选择年级班级" changeOnSelect
-                      onChange={([gradeId, classId]) => {
-                        // const grade = gradeMap[gradeId];
-                        // const klass = classMap[classId];
-                        // let title = getFieldValue('content.title');
-                        // if(grade){
-                        //   title = title.replace(/高一|高二|高三/g, grade.label);
-                        // }
-                        // if(klass){
-                        //   // title = title.replace(/年级/)
-                        // }
-                        // setFieldsValue({
-                        //   'content.title': title
-                        // });
-                      }}/>
+            <Cascader style={{width: 150}} options={gradeList} placeholder="请选择年级班级" changeOnSelect/>
           )
         },
         subject: {
           label: '学科',
           ...wrapper,
+          fieldOptions: {
+            initialValue: subjectList && subjectList.length && subjectList[0].id,
+            rules: [{required: true, message: '必须填写'}]
+          },
           children: (
-            <Select style={{width: 150}} placeholder="请选择学科" onChange={(v) => {
-
-            }}>
+            <Select style={{width: 150}} placeholder="请选择学科">
               {
                 subjectList.map((subject) =>
                   <Select.Option key={subject.id} value={subject.id}>{subject.name}</Select.Option>
@@ -164,18 +170,37 @@ class CreateFilePanel extends Component {
             </Select>
           )
         },
-      },
-      content: {
-        title: {
-          label: '考试或作业名称',
-          help: '例如：2019年杭州第十四中学康桥校区高一年级暑假作业检测',
+        type: {
+          label: '类型',
           ...wrapper,
           fieldOptions: {
-            initialValue: '2019年杭州第十四中学康桥校区高一年级暑假作业检测\n综合答题卡',
-            rules: [{required: true, message: '必须填写'}]
+            initialValue: AnswerCardTypeEnum.课后作业.toString(),
+            rules: [{required: true, message: '必须选择'}],
           },
-          children: <Input.TextArea placeholder="请输入考试或作业名称" autosize={{maxRows: 3, minRows: 1}}/>
-        },
+          children: (
+            <Select style={{width: 150}} placeholder="请选择学科" onChange={(v) => {
+
+            }}>
+              {
+                Enums(AnswerCardTypeEnum).map((type) =>
+                  <Select.Option key={type.value} value={type.value}>{type.name}</Select.Option>
+                )
+              }
+            </Select>
+          )
+        }
+      },
+      content: {
+        // title: {
+        //   label: '考试或作业名称',
+        //   help: '例如：2019年杭州第十四中学康桥校区高一年级暑假作业检测',
+        //   ...wrapper,
+        //   fieldOptions: {
+        //     initialValue: '2019年杭州第十四中学康桥校区高一年级暑假作业检测\n综合答题卡',
+        //     rules: [{required: true, message: '必须填写'}]
+        //   },
+        //   children: <Input.TextArea placeholder="请输入考试或作业名称" autosize={{maxRows: 3, minRows: 1}}/>
+        // },
         choiceCount: {
           label: '选择题数量',
           help: '判断题、单选题、多选题统一设置数量',
@@ -279,35 +304,40 @@ class CreateFilePanel extends Component {
     };
 
     return (
-      <Form {...formProps}>
-        {
-          Object.entries(itemMap).map(([group, items], index) =>
-            <Fragment key={group}>
-              {
-                index ?
-                  <hr style={{marginBottom: '2em'}}/>
-                  :
-                  null
-              }
-              {
-                Object.entries(items).map(([key, {fieldOptions, children, ...itemProps}]) =>
-                  <Form.Item key={key} {...itemProps}>
-                    {
-                      getFieldDecorator(`${group}.${key}`, fieldOptions)(children)
-                    }
-                  </Form.Item>
-                )
-              }
-            </Fragment>
-          )
-        }
-        <Form.Item wrapperCol={{offset: 8, span: 14}}>
-          <Button type="primary" htmlType="submit" style={{width: 120}}>创建</Button>
-          <Button type="danger" htmlType="reset" style={{width: 120, marginLeft: '1em'}}>重置</Button>
-        </Form.Item>
-      </Form>
+      <Spin spinning={!!loading}>
+        <Form {...formProps}>
+          {
+            Object.entries(itemMap).map(([group, items], index) =>
+              <Fragment key={group}>
+                {
+                  index ?
+                    <hr style={{marginBottom: '2em'}}/>
+                    :
+                    null
+                }
+                {
+                  Object.entries(items).map(([key, {fieldOptions, children, ...itemProps}]) =>
+                    <Form.Item key={key} {...itemProps}>
+                      {
+                        getFieldDecorator(`${group}.${key}`, fieldOptions)(children)
+                      }
+                    </Form.Item>
+                  )
+                }
+              </Fragment>
+            )
+          }
+          <Form.Item wrapperCol={{offset: 8, span: 14}}>
+            <Button type="primary" htmlType="submit" style={{width: 120}}>创建</Button>
+            <Button type="danger" htmlType="reset" style={{width: 120, marginLeft: '1em'}}>重置</Button>
+          </Form.Item>
+        </Form>
+      </Spin>
     );
   }
 }
 
-export default connect()(Form.create()(CreateFilePanel))
+export default connect(state => ({
+  profile: state[Authenticate].authenticate,
+  loading: state[ManagesGrade].loading || state[ManagesClass].loading || state[ManagesSubject].loading,
+}))(Form.create()(CreateFilePanel))

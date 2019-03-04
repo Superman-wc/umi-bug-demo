@@ -3,7 +3,7 @@ import {AnswerEditor as namespace} from '../../utils/namespace';
 import QrCode from './QrCode';
 import version from './version';
 import {PAGE_SIZE} from "./const";
-import {mm2px} from "./helper";
+import {mm2px, text2html} from "./helper";
 import * as ElementObject from './ElementObject';
 import {QuestionTypeEnum} from "../../utils/Enum";
 
@@ -39,7 +39,7 @@ function createFile(state, action) {
 
     const file = ElementObject.create({
       version,
-      name: '新建文件',
+      name: title.replace(/\n/g, ''),
       id: null,
       print: {
         dpi,
@@ -92,7 +92,7 @@ function createFile(state, action) {
     const firstPage = file.pages[0];
     const firstCol = firstPage.columns[0];
 
-    firstCol.elements.push(ElementObject.create({type: 'page-title', title}));
+    firstCol.elements.push(ElementObject.create({type: 'page-title', title: text2html(title)}));
 
     firstCol.elements.push(ElementObject.create({
       type: 'student-info',
@@ -362,6 +362,87 @@ function buildQrCodeSuccess(state, action) {
   return {...state, file: ElementObject.create(file)}
 }
 
+function createPosition(state) {
+  const {file} = state;
+  const pages = file.pages.map(page => {
+    const pageElement = document.getElementById(page.key);
+    const {x, y} = pageElement.getBoundingClientRect();
+    const qrCode = toRole(pageElement.querySelector('img[data-type="qr-code"]'), x, y);
+    qrCode.width = 72;
+    qrCode.height = 72;
+    qrCode.x += 14;
+    qrCode.y += 14;
+    const elements = [
+      qrCode
+    ];
+    page.columns.forEach(col => {
+      const colElement = document.getElementById(col.key);
+      const children = colElement.querySelectorAll(`[role="column"] > [role="box"]`);
+      for (let box of children) {
+        if (box.dataset.type === 'choice-question') {
+          for (let choiceEle of box.children) {
+            const roleChoice = toRole(choiceEle, x, y);
+            const subList = choiceEle.querySelectorAll('[role="box"]');
+            if (subList.length) {
+              roleChoice.children = [];
+              for (let subBox of subList) {
+                roleChoice.children.push(toRole(subBox, x, y));
+              }
+            }
+            roleChoice.number = parseInt(roleChoice.number, 10);
+            elements.push(roleChoice);
+          }
+        } else {
+          const roleBox = toRole(box, x, y);
+          const subList = box.querySelectorAll('[role="box"]');
+          if (subList.length) {
+            roleBox.children = [];
+            for (let subBox of subList) {
+              roleBox.children.push(toRole(subBox, x, y));
+            }
+            if (roleBox.type === 'completion-question') {
+              const items = [];
+              const c = [];
+              roleBox.children.forEach(it => {
+                if (it.type === 'sub-completion-question') {
+                  items.push(it);
+                } else {
+                  c.push(it);
+                }
+              });
+              roleBox.children = c;
+              roleBox.items = items;
+            }
+          }
+          if (roleBox.number) {
+            roleBox.number = parseInt(roleBox.number, 10);
+          }
+          elements.push(roleBox);
+        }
+      }
+    });
+    return elements;
+  });
+  return {
+    print: {
+      ...file.print,
+      width: file.print.w,
+      height: file.print.h + 1,
+      w: file.print.width,
+      h: file.print.height,
+    },
+    pages
+  };
+}
+
+
+function toRole(ele, ox = 0, oy = 0) {
+  const {x, y, width, height} = ele.getBoundingClientRect();
+  const ret = {x: x - ox, y: y - oy, width, height, ...ele.dataset};
+  delete ret.checked;
+  return ret;
+}
+
 
 export default Model(
   {
@@ -386,6 +467,11 @@ export default Model(
       setElementAttribute,
       autoQuestionNumber(state) {
         return {...state, file: ElementObject.create(autoQuestionNumber(state.file))};
+      },
+      save(state) {
+        const ret = createPosition(state);
+        console.log(JSON.stringify(ret));
+        return state;
       }
     }
   },

@@ -2,7 +2,7 @@ import React, {Component, createRef} from 'react';
 import classNames from 'classnames';
 import styles from './answer.less';
 import Placeholder from "./Placeholder";
-import {html2text} from './helper';
+import {html2text, text2html} from './helper';
 
 const ContentEditable = Symbol('#AnswerEditor.ContentEditableArea');
 
@@ -10,9 +10,10 @@ export default class ContentEditableArea extends Component {
 
   constructor(props) {
     super(...arguments);
+    const value = props.value || props.defaultValue || '';
     this.state = {
-      value: props.defaultValue,
-      text: props.defaultValue ? html2text(props.defaultValue) : ''
+      value: value,
+      text: value ? html2text(value) : ''
     };
     this.ref = createRef();
   }
@@ -34,7 +35,12 @@ export default class ContentEditableArea extends Component {
         this.setState({value: ele.innerHTML, text: ele.innerText});
       }
     };
-    const handleKeyUp = () => this.setState({value: ele.innerHTML, text: ele.innerText});
+    const handleKeyUp = () => {
+      if(ele.innerHTML !== this.state.innerHTML){
+        this.setState({value: ele.innerHTML, text: ele.innerText});
+        this.props.onChange && this.props.onChange({value: ele.innerHTML, text: ele.innerText});
+      }
+    };
     const handleInput = () => this.setState({value: ele.innerHTML, text: ele.innerText});
     const handlePaste = (e) => {
       e.preventDefault();
@@ -58,15 +64,26 @@ export default class ContentEditableArea extends Component {
     this[ContentEditable] = ele;
   }
 
-  get value() {
-    return this.state.innerHTML;
+  UNSAFE_componentWillReceiveProps(nextProps, nextContent){
+    if(nextProps.value && nextProps.value !== this.state.value){
+      const value = nextProps.value ? text2html(nextProps.value) : nextProps.value;
+      const ele = this[ContentEditable];
+      console.log(value);
+      ele.innerHTML = value;
+      this.setState({value: ele.innerHTML, text: ele.innerText});
+    }
   }
 
-  set value(value) {
-    const ele = this[ContentEditable];
-    ele.innerHTML = value;
-    this.setState({value: ele.innerHTML, text: ele.innerText});
-  }
+  // get value() {
+  //   return this.state.innerHTML;
+  // }
+  //
+  // set value(value) {
+  //   const ele = this[ContentEditable];
+  //   console.log(value);
+  //   ele.innerHTML = value;
+  //   this.setState({value: ele.innerHTML, text: ele.innerText});
+  // }
 
   render() {
     const props = {

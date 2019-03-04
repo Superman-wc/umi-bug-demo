@@ -22,7 +22,8 @@ export default function EditorColumn({index, column, ...elementProps}) {
           activeColumnKey: column.key
         }
       });
-    }
+    },
+    role: 'column'
   };
   return (
     <div key={column.key} {...props}>

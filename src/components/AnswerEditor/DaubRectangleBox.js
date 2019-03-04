@@ -10,8 +10,16 @@ import styles from './answer.less';
  * @constructor
  */
 export default function DaubRectangleBox({checked, text, onClick}) {
+  const props = {
+    role: 'box',
+    'date-type': 'daub-rectangle-box',
+    'data-value': text,
+    'data-checked': checked,
+    className: styles['daub-rectangle-box'],
+    onClick,
+  };
   return (
-    <div data-checked={checked} className={styles['daub-rectangle-box']} onClick={onClick}>
+    <div {...props}>
       <div>{text}</div>
     </div>
   )

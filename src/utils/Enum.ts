@@ -90,6 +90,18 @@ export const enum QuestionTypeEnum {
   判断题 = 3,
 }
 
+export const enum AnswerCardTypeEnum {
+  课后作业 = 1,
+  暑假作业 = 2,
+  寒假作业 = 3,
+  单元测试 = 4,
+  期中测试 = 5,
+  期末测试 = 6,
+  月考 = 7,
+
+}
+
+
 export function Enums(e?: any): Array<EnumValue> {
   return Object.keys(e).reduce((sum, value) => {
     if (parseInt(value, 10) >= 0) {

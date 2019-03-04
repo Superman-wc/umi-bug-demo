@@ -10,11 +10,21 @@ import styles from './answer.less';
 export function Score({value = 10}) {
   const scores = [];
   for (let i = 0; i <= value; i++) {
+    const props = {
+      role: 'box',
+      'data-type': 'score',
+      'data-value': i
+    };
     scores.push(
-      <div key={i}>{i}</div>
+      <div key={i} {...props}>{i}</div>
     )
   }
+  const props = {
+    className:styles['score'],
+    role: 'box',
+    'data-type': 'score-list'
+  };
   return (
-    <div className={styles['score']}>{scores}</div>
+    <div {...props}>{scores}</div>
   )
 }

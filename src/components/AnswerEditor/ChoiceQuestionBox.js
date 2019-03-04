@@ -6,12 +6,18 @@ import {QuestionTypeEnum} from '../../utils/Enum';
 import {AnswerEditor as namespace} from "../../utils/namespace";
 
 export function OptionArea({number = 1, count = 4, value, type = QuestionTypeEnum.单选题, onChange}) {
+
+  const props = {
+    className: styles['options-area'],
+    role:'box',
+    'data-type': 'choice-question',
+    'data-number': number,
+    'data-sub-type': type,
+    'data-value': value,
+  };
+
   return (
-    <div className={styles['options-area']}
-         data-question={number}
-         data-question-type={type}
-         data-question-value={value}
-    >
+    <div {...props}>
       <label>{number}</label>
       {
         type === QuestionTypeEnum.判断题 ?
@@ -75,8 +81,20 @@ export default function ChoiceQuestionBox({value = {}, ...props}) {
       />
     )
   }
+
+  const eleProps = {
+    ...props,
+    className: styles['choice-question-box'],
+    element: value,
+    ableMove: true,
+    role: {
+      role:'box',
+      'data-type': value.type,
+    },
+  };
+
   return (
-    <Element className={styles['choice-question-box']} {...props} element={value} ableMove>
+    <Element {...eleProps}>
       {ret}
     </Element>
   )
@@ -94,9 +112,9 @@ ChoiceQuestionBox.attributes = {
     fieldOptions: {
       initialValue: 10,
     },
-    onChange({dispatch}){
+    onChange({dispatch}) {
       dispatch({
-        type: namespace+'/autoQuestionNumber',
+        type: namespace + '/autoQuestionNumber',
       });
     }
   },

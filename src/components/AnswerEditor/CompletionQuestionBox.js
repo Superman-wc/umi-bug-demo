@@ -12,8 +12,16 @@ class CompletionQuestion extends Component {
 
   render() {
     const {number, defaultValue} = this.props;
+
+    const props = {
+      className: styles['completion-question'],
+      role:'box',
+      'data-type': 'sub-completion-question',
+      'data-sub-number': number,
+    };
+
     return (
-      <div className={styles['completion-question']}>
+      <div {...props}>
         {
           number ?
             <label>({number})</label>
@@ -49,57 +57,6 @@ export default class CompletionQuestionBox extends Component {
     }
   };
 
-  ref = createRef();
-
-  UNSAFE_componentWillReceiveProps(nextProps, nextContent) {
-    if (
-      nextProps.value && this._render_content_args !== JSON.stringify(nextProps.value)
-    ) {
-      // console.log('render content', JSON.stringify(nextProps.value), this._render_content_args);
-      // this.ref.current.value = this.renderContent(nextProps.value);
-    }
-  }
-
-  renderContent = (value = {}) => {
-    const {number = 1, score = 1, count = 3} = value || {};
-    this._render_content_args = JSON.stringify(value || {});
-    const ret = [];
-    const line = '<u>　　　　　　　　　　　　</u>';
-    if (score) {
-
-      let str = `<div>${number}.`;
-      if (count < 2) {
-        str += `（${score}分）${line}`;
-      } else {
-        const s = [];
-        for (let j = 1; j <= count; j++) {
-          s.push(`（${j}）${line}`);
-        }
-        str += `（${score}分）${s.join('　　')}`;
-      }
-      str += '</div>';
-      ret.push(str);
-
-    } else {
-
-      let str = `<div>${number}.`;
-      if (count < 2) {
-        str += `${line}`;
-      } else {
-        const s = [];
-        for (let j = 1; j <= count; j++) {
-          s.push(`（${j}）${line}`);
-        }
-        str += `${s.join('　　')}`;
-      }
-      str += '</div>';
-      ret.push(str);
-
-    }
-
-    return ret.join('<br/>');
-  };
-
   render() {
     const {value = {}, ...props} = this.props;
     const {score = 1, number = 1, count = 3} = value || {};
@@ -109,16 +66,27 @@ export default class CompletionQuestionBox extends Component {
         <CompletionQuestion key={i} number={count > 1 ? i + 1 : 0}/>
       )
     }
+
+    const eleProps = {
+      ...props,
+      className:styles['completion-question-box'],
+      element:value,
+      border: true,
+      ableMove:'y',
+      role: {
+        role:'box',
+        'data-type': value.type,
+        'data-number':number,
+      },
+    };
+
     return (
-      <Element className={styles['completion-question-box']} {...props} element={value} border ableMove="y">
+      <Element {...eleProps}>
         <SubjectiveQuestionsBox score={score}>
           <label>
             {number}.（{score}分）
           </label>
-          {
-            list
-          }
-          {/*<ContentEditableArea ref={this.ref} defaultValue={this.renderContent(this.props.value || {})}/>*/}
+          {list}
         </SubjectiveQuestionsBox>
       </Element>
     )

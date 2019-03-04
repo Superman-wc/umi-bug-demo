@@ -10,7 +10,8 @@ const ElementTypes = {
   'student-info': StudentInfoBox,
   'choice-question': ChoiceQuestionBox,
   'answer-question': AnswerQuestionBox,
-  'completion-question': CompletionQuestionBox
+  'completion-question': CompletionQuestionBox,
+  // 'page-title': TitleBox,
 };
 
 export default function EditorElement({element, ...restProps}) {
@@ -49,6 +50,7 @@ export default function EditorElement({element, ...restProps}) {
         }, {});
         payload.showAttributePanel = true;
       } else {
+        payload.attributePanelConfig = {};
         payload.showAttributePanel = false;
       }
       dispatch({

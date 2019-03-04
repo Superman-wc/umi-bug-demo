@@ -19,7 +19,7 @@ export default {
   hash: true,
   targets: {
     ie: 9,
-    ios: 8.4,
+    ios: '8.4',
   },
   proxy: {
     "/api/hii/*": {
@@ -43,5 +43,10 @@ export default {
   theme: {
     "@primary-color": "#1DA57A",
     "@font-size-base": "12px",
-  }
+  },
+  // externals: {
+  //   react: 'window.React',
+  //   'react-dom': 'window.ReactDOM'
+  // }
+  treeShaking: true,
 }

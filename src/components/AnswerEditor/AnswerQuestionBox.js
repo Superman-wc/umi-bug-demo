@@ -12,8 +12,22 @@ import ContentEditableArea from "./ContentEditableArea";
  */
 export default function AnswerQuestionBox({value = {}, ...props}) {
   const {number = 1, score = 1} = value || {};
+
+  const eleProps = {
+      ...props,
+      className: styles['answer-question-box'],
+      element: value,
+      border: true,
+      ableMove: 'y',
+      role: {
+        role: 'box',
+        'data-type': value.type,
+        'data-number': number,
+      },
+    };
+
   return (
-    <Element className={styles['answer-question-box']} {...props} element={value} border ableMove="y">
+    <Element {...eleProps}>
       <SubjectiveQuestionsBox score={score}>
         <div className={styles['question-number']}>
           {number}.

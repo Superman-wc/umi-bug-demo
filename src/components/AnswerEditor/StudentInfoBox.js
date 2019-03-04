@@ -76,9 +76,19 @@ class StudentCodeBox extends Component {
  * @constructor
  */
 export default function StudentInfoBox({value, onChange, style, ...props}) {
-  const _style = {...style, width: (value.length || 8) * 28 + 1};
+  const eleProps = {
+    ...props,
+    className:styles['student-info-box'],
+    style: {...style, width: (value.length || 8) * 28 + 1},
+    element: value,
+    border: true,
+    role: {
+      role:'box',
+      'data-type': value.type,
+    },
+  };
   return (
-    <Element className={styles['student-info-box']} style={_style} {...props} element={value} border>
+    <Element {...eleProps}>
       <div className={styles['student-info-header']}>
         <label>班级：</label>
         <label>姓名：</label>
