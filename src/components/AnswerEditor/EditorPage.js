@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import styles from './answer.less';
 import {AnswerEditor as namespace} from "../../utils/namespace";
 import EditorColumn from './EditorColumn';
-import EditorElement from './EditorElement';
 
 export default function EditorPage(props) {
   const {page, file, ...columnProps} = props;
@@ -22,12 +21,6 @@ export default function EditorPage(props) {
     left: page.padding[3] - 14
   };
 
-  const elementsBoxStyle = {
-    top: page.padding[0],
-    right: page.padding[1],
-    bottom: page.padding[2],
-    left: page.padding[3]
-  };
 
   return (
     <div id={page.key} className={className} style={style} onClick={() => {

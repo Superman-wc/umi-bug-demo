@@ -1,4 +1,18 @@
 /**
+Uploader.js
+*/
+.uploader {
+  position: relative;
+  input[type="file"] {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+/**
 DaubRectangleBox.js
  */
 .daub-rectangle-box {
@@ -129,7 +143,7 @@ CreateFilePanel.js
 AttributePanel.js
  */
 .attribute-panel {
-  background-color: #fff;
+  background-color: transparent;
 }
 
 /**
@@ -240,8 +254,23 @@ AnswerQuestionBox.js
  */
 .answer-question-box {
   width: 100%;
-  .question-number {
+  .question-toolbar {
+    display: flex;
+    flex-direction: row;
     margin-bottom: 5px;
+    .question-tools-upload {
+      background-color: #ffaa00;
+      width:100px;
+      :global {
+        .ant-btn {
+          height: 23px;
+          line-height: 23px;
+        }
+      }
+    }
+  }
+  .question-number {
+    //margin-bottom: 5px;
   }
   .content-editable-area {
     line-height: 1.732;
@@ -528,29 +557,35 @@ EditorColumn.js
   .html-input,
   .active,
   .focus,
-  .editor-column{
+  .editor-column {
     outline: none !important;
     background-color: transparent !important;
   }
+
+  .uploader,
   .editor-header,
-  .editor-right-panel{
+  .editor-right-panel {
     display: none !important;
   }
-  .editor-file{
+
+  .editor-file {
     padding: 0 !important;
   }
-  .editor-page{
+
+  .editor-page {
     box-shadow: none !important;
-    margin:0 !important;
+    margin: 0 !important;
     outline: none !important;
   }
-  #editor{
-    padding:0 !important;
+
+  #editor {
+    padding: 0 !important;
     background-color: transparent !important;
   }
-  html,body{
-    height:auto !important;
-    width:auto !important;
+
+  html, body {
+    height: auto !important;
+    width: auto !important;
     overflow: auto !important;
   }
 }

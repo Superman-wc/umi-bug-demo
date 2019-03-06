@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import styles from './answer.less';
-import {AnswerEditor as namespace} from "../../utils/namespace";
+import {AnswerEditor as namespace, Authenticate} from "../../utils/namespace";
 import EditorPage from './EditorPage';
 
 
@@ -38,4 +38,5 @@ export default connect(state => ({
   activePageKey: state[namespace].activePageKey,
   activeColumnKey: state[namespace].activeColumnKey,
   activeElementKey: state[namespace].activeElementKey,
+  profile: state[Authenticate].authenticate
 }))(EditorFile);

@@ -7,15 +7,14 @@ import EditorFile from './EditorFile';
 
 
 function EditorBody(props) {
-  const {file, dispatch} = props;
-  // console.log(file);
+  const {file} = props;
   return (
     <main className={styles['editor-body']}>
       {
         file ?
           <EditorFile file={file}/>
           :
-          <CreateFilePanel dispatch={dispatch}/>
+          <CreateFilePanel/>
       }
     </main>
   )
