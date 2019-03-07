@@ -214,6 +214,13 @@ function findActivePage(state) {
   }
 }
 
+function findIndexActivePage(state) {
+  const {file, activePageKey} = state;
+  if (activePageKey && file && file.pages && file.pages.length) {
+    return file.pages.findIndex(page => page.key === activePageKey);
+  }
+}
+
 function findActiveColumn(state) {
   const page = findActivePage(state);
   const {activeColumnKey} = state;
@@ -222,11 +229,28 @@ function findActiveColumn(state) {
   }
 }
 
+function findIndexActiveColumn(state) {
+  const page = findActivePage(state);
+  const {activeColumnKey} = state;
+  if (page && page.columns && page.columns.length && activeColumnKey) {
+    return page.columns.findIndex(col => col.key === activeColumnKey);
+  }
+}
+
+
 function findActiveElement(state) {
   const column = findActiveColumn(state);
   const {activeElementKey} = state;
   if (activeElementKey && column && column.elements && column.elements.length) {
     return column.elements.find(ele => ele.key === activeElementKey);
+  }
+}
+
+function findIndexActiveElement(state) {
+  const column = findActiveColumn(state);
+  const {activeElementKey} = state;
+  if (activeElementKey && column && column.elements && column.elements.length) {
+    return column.elements.findIndex(ele => ele.key === activeElementKey);
   }
 }
 
@@ -251,6 +275,20 @@ function addColumn(state) {
   return {...state, file: ElementObject.create(file)};
 }
 
+function removeActiveColumn(state) {
+  const {activeColumnKey} = state;
+  const obj = ElementObject.remove(activeColumnKey);
+  const page = findActivePage(state);
+  if (obj && page) {
+    const index = page.columns.findIndex(col => obj.key === col.key);
+    if (index >= 0) {
+      page.columns.splice(index, 1);
+      return {...state, activeColumnKey: null, file: ElementObject.create(autoQuestionNumber(state.file))};
+    }
+  }
+  return state;
+}
+
 function newFile() {
   ElementObject.clear();
   return {};
@@ -267,7 +305,7 @@ function removeActiveElement(state) {
       return {...state, activeElementKey: null, file: ElementObject.create(autoQuestionNumber(state.file))};
     }
   }
-  return {...state};
+  return state;
 }
 
 function autoQuestionNumber(file) {
@@ -351,10 +389,17 @@ function addTitleBox(state) {
 
 function setElementAttribute(state, action) {
   const {key, value} = action.payload;
+  const pageIndex = findIndexActivePage(state);
+  const columnIndex = findIndexActiveColumn(state);
+  const elementIndex = findIndexActiveElement(state);
   const ele = findActiveElement(state);
-  if (ele) {
-    ele[key] = value;
+  if (ele && pageIndex >= 0 && columnIndex >= 0 && elementIndex >= 0) {
     const {file, attributePanelConfig} = state;
+    file.pages[pageIndex].columns[columnIndex].elements[elementIndex] = {
+      ...ele,
+      [key]: value,
+    };
+    console.log(ele, key, value);
     if (attributePanelConfig[key]) {
       attributePanelConfig[key].value = value;
     }
@@ -540,10 +585,8 @@ function checkContentOverflow(state) {
               }
               if (height > firstEleOffset.height) {
                 prevCol.elements.push(column.elements.shift());
-                if (column.elements.length === 0) {
-                  page.columns.splice(columnIndex, 1);
-                }
-                if (page.columns.length === 0) {
+                const pageHasElementCount = page.columns.reduce((sum, col) => (sum + col.elements.length), 0);
+                if (!pageHasElementCount) {
                   pages.splice(pageIndex, 1);
                 }
                 return true;
@@ -555,6 +598,27 @@ function checkContentOverflow(state) {
     }
   }
   return false;
+}
+
+function buildElementOffset(state) {
+  const {file} = state;
+  file.pages.forEach(page => {
+    page.columns.forEach(column => {
+      column.elements.forEach(element => {
+        element.offset = offset(element.key);
+      });
+      column.offset = offset(column.key);
+    });
+    page.offset = offset(page.key);
+  });
+  file.offset = offset(file.key);
+  return {...state, file: ElementObject.create(file)};
+}
+
+function offset(id) {
+  const node = document.getElementById(id);
+  const {x, y, width, height} = node ? node.getBoundingClientRect() : {};
+  return {x, y, width, height};
 }
 
 
@@ -585,13 +649,16 @@ export default Model(
           type: file.id ? 'modify' : 'create',
           payload: file,
         });
-      }
+      },
+
     },
     reducers: {
+      buildElementOffset,
       createFile,
       newFile,
       addPage,
       removeActiveElement,
+      removeActiveColumn,
       addColumn,
       addTitleBox,
       buildQrCodeSuccess,

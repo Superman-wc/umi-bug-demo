@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Component} from 'react';
 import styles from './answer.less';
 import Element from "./Element";
 import SubjectiveQuestionsBox from "./SubjectiveQuestionsBox";
@@ -12,79 +12,85 @@ import {AnswerEditor as namespace} from "../../utils/namespace";
  * @returns {*}
  * @constructor
  */
-export default function AnswerQuestionBox({value = {}, ...props}) {
-  const {number = 1, score = 1, content = ''} = value || {};
+export default class AnswerQuestionBox extends Component {
 
-  const {profile, dispatch} = props;
-
-  const eleProps = {
-    ...props,
-    className: styles['answer-question-box'],
-    element: value,
-    border: true,
-    ableMove: 'y',
-    role: {
-      role: 'box',
-      'data-type': value.type,
-      'data-number': number,
+  static attributes = {
+    number: {
+      type: 'number', label: '题号',
+      fieldOptions: {
+        initialValue: 1,
+      }
+    },
+    score: {
+      type: 'number', label: '分值',
+      fieldOptions: {
+        initialValue: 10,
+      }
     },
   };
 
-  return (
-    <Element {...eleProps}>
-      <SubjectiveQuestionsBox score={score}>
-        <div className={styles['question-toolbar']}>
-          <label className={styles['question-number']}>
-            {number}.
-            {score ? `（${score}分）` : null}
-          </label>
-          <Uploader qiNiuYunConfig={buildQiniuConfig(profile && profile.token)}
-                    success={({url}) => {
-                      document.execCommand('insertImage', false, url);
-                      // dispatch({
-                      //   type: namespace + '/setElementAttribute',
-                      //   payload: {
-                      //     key: 'img',
-                      //     value: url
-                      //   }
-                      // })
-                    }}>
-            <a>上传图片</a>
-          </Uploader>
-        </div>
-        {/*{*/}
-          {/*value.img ?*/}
-            {/*<img src={value.img} style={{maxWidth: '100%', maxHeight: '100%', position: 'absolute', zIndex: 10}}/>*/}
-            {/*:*/}
-            {/*null*/}
-        {/*}*/}
-        <ContentEditableArea value={content || '<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>'}
-                             onChange={(e => {
-                               props.dispatch({
-                                 type: namespace + '/setElementAttribute',
-                                 payload: {
-                                   key: 'content',
-                                   value: e.value
-                                 }
-                               })
-                             })}/>
 
-      </SubjectiveQuestionsBox>
-    </Element>
-  )
+  shouldComponentUpdate(nextProps, nextState, nextContent) {
+    const {value} = nextProps;
+    const oldValue = this.props.value || {};
+    return value && (
+      value.number !== oldValue.number ||
+      value.score !== oldValue.score ||
+      value.content !== oldValue.content
+    )
+  }
+
+
+  render() {
+    const {value = {}, ...props} = this.props;
+    const {number = 1, score = 1, content = ''} = value || {};
+
+    const {profile, dispatch} = props;
+
+    const eleProps = {
+      ...props,
+      className: styles['answer-question-box'],
+      element: value,
+      border: true,
+      ableMove: 'y',
+      role: {
+        role: 'box',
+        'data-type': value.type,
+        'data-number': number,
+      },
+    };
+
+    console.log('render AnswerQuestionBox');
+
+    return (
+      <Element {...eleProps}>
+        <SubjectiveQuestionsBox score={score}>
+          <div className={styles['question-toolbar']}>
+            <label className={styles['question-number']}>
+              {number}.
+              {score ? `（${score}分）` : null}
+            </label>
+            <Uploader qiNiuYunConfig={buildQiniuConfig(profile && profile.token)}
+                      success={({url}) => {
+                        document.execCommand('insertImage', false, url);
+                      }}>
+              <a>上传图片</a>
+            </Uploader>
+          </div>
+          <ContentEditableArea value={content || '<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>'}
+                               onChange={(e => {
+                                 props.dispatch({
+                                   type: namespace + '/setElementAttribute',
+                                   payload: {
+                                     key: 'content',
+                                     value: e.value
+                                   }
+                                 })
+                               })}/>
+
+        </SubjectiveQuestionsBox>
+      </Element>
+    )
+  }
+
 }
-
-AnswerQuestionBox.attributes = {
-  number: {
-    type: 'number', label: '题号',
-    fieldOptions: {
-      initialValue: 1,
-    }
-  },
-  score: {
-    type: 'number', label: '分值',
-    fieldOptions: {
-      initialValue: 10,
-    }
-  },
-};

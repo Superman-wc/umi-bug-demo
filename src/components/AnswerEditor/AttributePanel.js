@@ -7,7 +7,13 @@ import {Enums} from '../../utils/Enum';
 
 function AttributePanel(props) {
 
-  const {attributePanelConfig = {}, activeElementKey, form: {getFieldDecorator}, dispatch} = props;
+  const {
+    attributePanelConfig = {},
+    activeElementKey,
+    activeColumnKey,
+    form: {getFieldDecorator},
+    dispatch
+  } = props;
 
   const formProps = {
     layout: 'horizontal',
@@ -59,6 +65,17 @@ function AttributePanel(props) {
             }
           })
         }}>删除</Button>
+      </Form.Item>
+      <hr/>
+      <Form.Item wrapperCol={{offset: 8, span: 14}}>
+        <Button onClick={() => {
+          dispatch({
+            type: namespace + '/removeActiveColumn',
+            payload: {
+              key: activeColumnKey
+            }
+          })
+        }}>删除列</Button>
       </Form.Item>
     </Form>
   )

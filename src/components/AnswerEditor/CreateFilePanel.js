@@ -24,62 +24,65 @@ class CreateFilePanel extends Component {
 
   componentDidMount() {
     const {dispatch} = this.props;
-    Promise.all([
-      new Promise((resolve, reject) => {
-        dispatch({
-          type: ManagesGrade + '/list',
-          payload: {
-            s: 1000
-          },
-          resolve,
-          reject
-        })
-      }),
-      new Promise((resolve, reject) => {
-        dispatch({
-          type: ManagesClass + '/list',
-          payload: {
-            s: 10000
-          },
-          resolve,
-          reject
-        })
-      }),
-      new Promise((resolve, reject) => {
-        dispatch({
-          type: ManagesSubject + '/list',
-          payload: {
-            s: 10000
-          },
-          resolve,
-          reject
-        })
-      }),
-    ]).then(([gradeModel, classModel, subjectModel]) => {
-      const gradeList = gradeModel.list || [];
-      const classList = classModel.list || [];
-      const subjectList = subjectModel.list || [];
+    const {gradeList, subjectList, classMap, gradeMap} = this.state;
+    if (!gradeList || !subjectList || !classMap || !gradeMap) {
+      Promise.all([
+        new Promise((resolve, reject) => {
+          dispatch({
+            type: ManagesGrade + '/list',
+            payload: {
+              s: 1000
+            },
+            resolve,
+            reject
+          })
+        }),
+        new Promise((resolve, reject) => {
+          dispatch({
+            type: ManagesClass + '/list',
+            payload: {
+              s: 10000
+            },
+            resolve,
+            reject
+          })
+        }),
+        new Promise((resolve, reject) => {
+          dispatch({
+            type: ManagesSubject + '/list',
+            payload: {
+              s: 10000
+            },
+            resolve,
+            reject
+          })
+        }),
+      ]).then(([gradeModel, classModel, subjectModel]) => {
+        const gradeList = gradeModel.list || [];
+        const classList = classModel.list || [];
+        const subjectList = subjectModel.list || [];
 
-      const gradeMap = gradeList.reduce((map, {id, name}) => {
-        map[id] = {value: id, label: name, children: []};
-        return map;
-      }, {});
+        const gradeMap = gradeList.reduce((map, {id, name}) => {
+          map[id] = {value: id, label: name, children: []};
+          return map;
+        }, {});
 
-      const classMap = classList.reduce((map, {id, name, gradeId}) => {
-        const grade = gradeMap[gradeId];
-        const klass = {value: id, label: name, gradeId};
-        grade.children.push(klass);
-        map[id] = klass;
-        return map;
-      }, {});
+        const classMap = classList.reduce((map, {id, name, gradeId}) => {
+          const grade = gradeMap[gradeId];
+          const klass = {value: id, label: name, gradeId};
+          grade.children.push(klass);
+          map[id] = klass;
+          return map;
+        }, {});
 
-      this.setState({
-        gradeList: Object.values(gradeMap),
-        subjectList: subjectList.reverse(),
-        classMap,
-        gradeMap,
-      });
-    })
+        this.setState({
+          gradeList: Object.values(gradeMap),
+          subjectList: subjectList.reverse(),
+          classMap,
+          gradeMap,
+        });
+      })
+    }
   }
 
   render() {

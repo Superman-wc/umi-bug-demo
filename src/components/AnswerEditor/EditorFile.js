@@ -10,6 +10,9 @@ const CheckContentOverflow = Symbol('EditorFile#checkContentOverflow');
 
 class EditorFile extends Component {
   componentDidMount() {
+    this.props.dispatch({
+      type: namespace+'/buildElementOffset',
+    });
     this.checkContentOverflow('componentDidMount');
   }
 
@@ -24,7 +27,7 @@ class EditorFile extends Component {
       this.props.dispatch({
         type: namespace + '/checkContentOverflow',
       });
-    }, 50);
+    });
   };
 
   render() {
@@ -45,7 +48,7 @@ class EditorFile extends Component {
             :
             null
         }
-        <div className={styles['editor-file']} style={style}>
+        <div id={file.key} className={styles['editor-file']} style={style}>
           {
             file.pages && file.pages.length ?
               file.pages.map((page, index) =>
