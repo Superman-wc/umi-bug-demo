@@ -1,40 +1,45 @@
-import React from 'react';
+import React, {Component} from 'react';
 import classNames from 'classnames';
 import styles from './answer.less';
 import {AnswerEditor as namespace} from "../../utils/namespace";
 import EditorElement from './EditorElement';
 
-export default function EditorColumn({index, column, ...elementProps}) {
-  const {dispatch, activeColumnKey} = elementProps;
-  const props = {
-    id: column.key,
-    className: classNames(styles['editor-column'], {
-      [styles['active']]: activeColumnKey === column.key
-    }),
-    style: {
-      width: column.width,
-      marginLeft: index !== 0 ? column.colSpan : 0
-    },
-    onClick: () => {
-      dispatch({
-        type: namespace + '/set',
-        payload: {
-          activeColumnKey: column.key
+export default class EditorColumn extends Component{
+  render() {
+    const {index, column, ...elementProps} = this.props;
+    const {dispatch, activeColumnKey} = elementProps;
+    const props = {
+      id: column.key,
+      className: classNames(styles['editor-column'], {
+        [styles['active']]: activeColumnKey === column.key
+      }),
+      style: {
+        width: column.width,
+        marginLeft: index !== 0 ? column.colSpan : 0
+      },
+      onClick: () => {
+        dispatch({
+          type: namespace + '/set',
+          payload: {
+            activeColumnKey: column.key
+          }
+        });
+      },
+      role: 'column'
+    };
+    return (
+      <div key={column.key} {...props}>
+        {
+          column.elements && column.elements.length ?
+            column.elements.map(element =>
+              <EditorElement key={element.key} element={element} {...elementProps} />
+            )
+            :
+            null
         }
-      });
-    },
-    role: 'column'
-  };
-  return (
-    <div key={column.key} {...props}>
-      {
-        column.elements && column.elements.length ?
-          column.elements.map(element =>
-            <EditorElement key={element.key} element={element} {...elementProps} />
-          )
-          :
-          null
-      }
-    </div>
-  )
+      </div>
+    )
+  }
 }
+
+

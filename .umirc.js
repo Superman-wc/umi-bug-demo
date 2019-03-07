@@ -38,6 +38,11 @@ export default {
       // "target": "https://timetabling.yunzhiyuan100.com/",
       "changeOrigin": true,
       // "pathRewrite": { "^/api" : "" }
+    },
+    "/api/examiner/*": {
+      "target":"http://smart-campus.yunzhiyuan100.com.cn/",
+      // "target": "http://192.168.1.253:8000/",
+      "changeOrigin": true
     }
   },
   theme: {

@@ -7,7 +7,7 @@ import {Tooltip, Icon, Spin, Menu, LocaleProvider} from 'antd';
 import zhCN from 'antd/lib/locale-provider/zh_CN';
 import classnames from 'classnames';
 import Flex from '../components/Flex';
-import {Authenticate as namespace} from '../utils/namespace';
+import {Authenticate as namespace, AnswerEditor} from '../utils/namespace';
 import styles from './index.less';
 
 import {MenuCategoryEnum, URLResourceCategoryEnum} from "../utils/Enum";
@@ -106,125 +106,6 @@ function Side(props) {
   }, []);
 
 
-  // const menu = [
-  //   {
-  //     key: 'manages',
-  //     title: '管理',
-  //     items: [
-  //       {
-  //         items: [
-  //           {
-  //             link: '/manages/semester',
-  //             title: '学期管理'
-  //           },
-  //           {
-  //             link: '/manages/grade',
-  //             title: '年级管理',
-  //           },
-  //           {
-  //             link: '/manages/subject',
-  //             title: '科目管理',
-  //           },
-  //           {
-  //             link: '/manages/class',
-  //             title: '班级管理',
-  //           },
-  //           {
-  //             link: '/manages/student',
-  //             title: '学生管理',
-  //           },
-  //           {
-  //             link: '/manages/teacher',
-  //             title: '师资管理',
-  //           },
-  //           {
-  //             link: '/manages/course',
-  //             title: '课程管理',
-  //           },
-  //           {
-  //             link: '/manages/room',
-  //             title: '教室管理',
-  //           },
-  //           {
-  //             link: '/manages/period',
-  //             title: '课表配置',
-  //           },
-  //           {
-  //             link: '/manages/timetable',
-  //             title: '课时配置',
-  //           },
-  //           {
-  //             link: '/manages/device',
-  //             title: '设备管理',
-  //           },
-  //           {
-  //             link: '/manages/notice',
-  //             title: '公告新闻',
-  //           }
-  //         ]
-  //       }
-  //     ],
-  //   },
-  //   {
-  //     key: 'timetable',
-  //     title: '排课',
-  //     items: [
-  //       {
-  //         title: '',
-  //         items: [
-  //           {
-  //             link: '/timetable/build',
-  //             title: '构建课表'
-  //           },
-  //           {
-  //             link: '/timetable/grade',
-  //             title: '年级课表'
-  //           },
-  //           {
-  //             link: '/timetable/class',
-  //             title: '班级课表',
-  //           },
-  //           {
-  //             link: '/timetable/teacher',
-  //             title: '教师课表',
-  //           },
-  //           {
-  //             link: '/timetable/student',
-  //             title: '学生课表',
-  //           }
-  //         ]
-  //       }
-  //     ],
-  //   },
-  //   {
-  //     key: 'admin',
-  //     title: '管理员',
-  //     items: [
-  //       {
-  //         title: '',
-  //         items: [
-  //           {
-  //             link: '/admin/menu',
-  //             title: '菜单管理'
-  //           },
-  //           {
-  //             link: '/admin/authority',
-  //             title: '角色管理',
-  //           },
-  //           {
-  //             link: '/admin/staff',
-  //             title: '操作员管理',
-  //           },
-  //           {
-  //             link: '/admin/url-resource',
-  //             title: '权限资源',
-  //           }
-  //         ]
-  //       }
-  //     ],
-  //   },
-  // ];
-
   return (
     <Flex direction="column" className={classnames(styles['side'], {[styles['min-side']]: isMin})}
           onTransitionEnd={(e) => {
@@ -315,7 +196,7 @@ class App extends Component {
 
     const {loading, user, location} = this.props;
     const {pathname} = location;
-    if (pathname === '/login' || pathname==='/answer') {
+    if (pathname === '/login' || pathname === AnswerEditor + '/editor') {
       return this.props.children;
     }
 

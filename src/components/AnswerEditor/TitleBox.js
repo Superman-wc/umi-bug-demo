@@ -9,7 +9,16 @@ import ChoiceQuestionBox from "./ChoiceQuestionBox";
 export default function TitleBox({value = {}, ...props}) {
   return (
     <Element  {...props} className={styles['title-box']} element={value}>
-      <ContentEditableArea placeholder="请输入标题" value={value.title} />
+      <ContentEditableArea placeholder="请输入标题" value={value.title} onChange={(e)=>{
+        console.log(e);
+        props.dispatch({
+          type: namespace + '/setElementAttribute',
+          payload: {
+            key: 'title',
+            value: e.value
+          }
+        });
+      }} />
     </Element>
   )
 }

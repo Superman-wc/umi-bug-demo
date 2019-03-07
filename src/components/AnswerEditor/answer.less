@@ -12,6 +12,7 @@ Uploader.js
     height: 100%;
   }
 }
+
 /**
 DaubRectangleBox.js
  */
@@ -111,6 +112,10 @@ ContentEditableArea.js
     position: relative;
     z-index: 1;
     word-break: break-word;
+    img {
+      float: left;
+      max-width: 70%;
+    }
   }
 }
 
@@ -260,7 +265,7 @@ AnswerQuestionBox.js
     margin-bottom: 5px;
     .question-tools-upload {
       background-color: #ffaa00;
-      width:100px;
+      width: 100px;
       :global {
         .ant-btn {
           height: 23px;
@@ -274,6 +279,10 @@ AnswerQuestionBox.js
   }
   .content-editable-area {
     line-height: 1.732;
+    .html-input {
+      float: left;
+      width: 100%;
+    }
   }
 }
 
@@ -488,6 +497,12 @@ EditorFile.js
   position: relative;
 }
 
+.editor-message-bar {
+  position: fixed;
+  z-index: 10;
+  width:100%;
+}
+
 /**
 EditorPage.js
  */
@@ -521,6 +536,12 @@ EditorPage.js
         margin-top: 0;
       }
     }
+  }
+  .editor-page-code{
+    position: absolute;
+    bottom:15px;
+    left:50%;
+    margin-left: -18px;
   }
 }
 
@@ -581,6 +602,12 @@ EditorColumn.js
   #editor {
     padding: 0 !important;
     background-color: transparent !important;
+
+    :global {
+      .ant-menu-submenu-popup {
+        display: none;
+      }
+    }
   }
 
   html, body {

@@ -13,7 +13,7 @@ import {AnswerEditor as namespace} from "../../utils/namespace";
  * @constructor
  */
 export default function AnswerQuestionBox({value = {}, ...props}) {
-  const {number = 1, score = 1} = value || {};
+  const {number = 1, score = 1, content = ''} = value || {};
 
   const {profile, dispatch} = props;
 
@@ -40,24 +40,34 @@ export default function AnswerQuestionBox({value = {}, ...props}) {
           </label>
           <Uploader qiNiuYunConfig={buildQiniuConfig(profile && profile.token)}
                     success={({url}) => {
-                      dispatch({
-                        type: namespace + '/setElementAttribute',
-                        payload: {
-                          key: 'img',
-                          value: url
-                        }
-                      })
+                      document.execCommand('insertImage', false, url);
+                      // dispatch({
+                      //   type: namespace + '/setElementAttribute',
+                      //   payload: {
+                      //     key: 'img',
+                      //     value: url
+                      //   }
+                      // })
                     }}>
             <a>上传图片</a>
           </Uploader>
         </div>
-        {
-          value.img ?
-            <img src={value.img} style={{maxWidth: '100%', maxHeight: '100%', position:'absolute', zIndex:10}}/>
-            :
-            null
-        }
-        <ContentEditableArea defaultValue={'<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>'}/>
+        {/*{*/}
+          {/*value.img ?*/}
+            {/*<img src={value.img} style={{maxWidth: '100%', maxHeight: '100%', position: 'absolute', zIndex: 10}}/>*/}
+            {/*:*/}
+            {/*null*/}
+        {/*}*/}
+        <ContentEditableArea value={content || '<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>'}
+                             onChange={(e => {
+                               props.dispatch({
+                                 type: namespace + '/setElementAttribute',
+                                 payload: {
+                                   key: 'content',
+                                   value: e.value
+                                 }
+                               })
+                             })}/>
 
       </SubjectiveQuestionsBox>
     </Element>

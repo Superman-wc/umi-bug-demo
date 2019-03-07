@@ -118,7 +118,6 @@ class CreateFilePanel extends Component {
 
             console.log(payload, year, grade, klass, subject);
 
-
             dispatch({
               type: namespace + '/createFile',
               payload

@@ -3,15 +3,16 @@ import styles from './answer.less';
 import Element from "./Element";
 import ContentEditableArea from "./ContentEditableArea";
 import SubjectiveQuestionsBox from "./SubjectiveQuestionsBox";
+import {AnswerEditor as namespace} from "../../utils/namespace";
 
 const line = '<u>　　　　　　　　　　　　</u>';
 
 class CompletionQuestion extends Component {
 
-  ref = createRef();
+
 
   render() {
-    const {number, defaultValue} = this.props;
+    const {number, value, onChange} = this.props;
 
     const props = {
       className: styles['completion-question'],
@@ -28,7 +29,7 @@ class CompletionQuestion extends Component {
             :
             null
         }
-        <ContentEditableArea ref={this.ref} defaultValue={defaultValue || line}/>
+        <ContentEditableArea value={value || line} onChange={onChange}/>
       </div>
     )
   }
@@ -59,11 +60,26 @@ export default class CompletionQuestionBox extends Component {
 
   render() {
     const {value = {}, ...props} = this.props;
-    const {score = 1, number = 1, count = 3} = value || {};
+    const {score = 1, number = 1, count = 3, content=[]} = value || {};
     const list = [];
     for (let i = 0; i < count; i++) {
+      const _props = {
+        number:count > 1 ? i + 1 : 0,
+        value: content[i],
+        onChange:(e)=>{
+          const v= [...content];
+          v[i] = e.value;
+          props.dispatch({
+            type: namespace + '/setElementAttribute',
+            payload: {
+              key: 'content',
+              value: v
+            }
+          })
+        }
+      };
       list.push(
-        <CompletionQuestion key={i} number={count > 1 ? i + 1 : 0}/>
+        <CompletionQuestion key={i} {..._props}/>
       )
     }
 

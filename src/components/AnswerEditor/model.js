@@ -1,11 +1,12 @@
 import Model from 'dva-model';
-import {AnswerEditor as namespace} from '../../utils/namespace';
+import {AnswerEditor as namespace,} from '../../utils/namespace';
 import QrCode from './QrCode';
-import version from './version';
+import ver from './version';
 import {PAGE_SIZE} from "./const";
 import {mm2px, text2html} from "./helper";
 import * as ElementObject from './ElementObject';
 import {QuestionTypeEnum} from "../../utils/Enum";
+import {list, create, item, remove, modify} from '../../services/examiner/answer';
 
 
 function calcColWidth(pageWidth, padding, colCount, colSpan) {
@@ -29,7 +30,8 @@ function createFile(state, action) {
           choiceCount = 30,
           completionCount = 5,
           answerCount = 1,
-        }
+        },
+        info = {}
       }
     } = action;
 
@@ -38,7 +40,11 @@ function createFile(state, action) {
     ElementObject.clear();
 
     const file = ElementObject.create({
-      version,
+      gradeId: info.grade[0],
+      unitId: info.grade[1],
+      type: info.type,
+      subjectId: info.subject,
+      ver,
       name: title.replace(/\n/g, ''),
       id: null,
       print: {
@@ -77,8 +83,8 @@ function createFile(state, action) {
         const col = ElementObject.create({
           width: colWidth,
           height: file.print.h,
-          x: j * (colWidth + colSpan),
-          y: 0,
+          // x: j * (colWidth + colSpan),
+          // y: 0,
           elements: [],
           index: j,
           path: [i, j],
@@ -98,21 +104,21 @@ function createFile(state, action) {
       type: 'student-info',
       length: 8,
       code: new Date().getFullYear().toString(),
-      y: 80
+      // y: 80
     }));
 
     if (choiceCount) {
       const ys = choiceCount % 5;
       let gs = Math.ceil(choiceCount / 5) + (ys === 0 ? 1 : 0);
-      const cqw = 114 + 20;
-      const cqh = 92 + 10;
+      // const cqw = 114 + 20;
+      // const cqh = 92 + 10;
       let i = 0;
 
       function createChoiceQuestion(count) {
         return ElementObject.create({
           type: 'choice-question',
-          x: 250 + (i % 3) * cqw,
-          y: 95 + Math.floor(i / 3) * cqh,
+          // x: 250 + (i % 3) * cqw,
+          // y: 95 + Math.floor(i / 3) * cqh,
           startNumber: i * 5 + 1,
           count,
           optionCount: 4,
@@ -130,12 +136,12 @@ function createFile(state, action) {
 
     if (completionCount) {
       const cs = (choiceCount || 0) + 1;
-      const cys = 312;
-      const ch = 71 + 10;
+      // const cys = 312;
+      // const ch = 71 + 10;
       for (let i = 0; i < completionCount; i++) {
         firstCol.elements.push(ElementObject.create({
           type: 'completion-question',
-          y: cys + ch * i,
+          // y: cys + ch * i,
           number: cs + i,
           count: 3,
         }));
@@ -144,12 +150,12 @@ function createFile(state, action) {
 
     if (answerCount) {
       const as = ((choiceCount + completionCount) || 0) + 1;
-      const ays = 717;
-      const ah = 284;
+      // const ays = 717;
+      // const ah = 284;
       for (let i = 0; i < answerCount; i++) {
         firstCol.elements.push(ElementObject.create({
           type: 'answer-question',
-          y: ays + i * ah,
+          // y: ays + i * ah,
           number: as + i,
         }));
       }
@@ -166,7 +172,7 @@ function createFile(state, action) {
 
 }
 
-function addPage(state) {
+function createPage(state) {
   const {file} = state;
   const {print: {w, h, colCount, colSpan, colWidth, padding}, pages} = file;
   const page = ElementObject.create({
@@ -183,14 +189,20 @@ function addPage(state) {
     const col = ElementObject.create({
       width: colWidth,
       height: h,
-      x: j * (colWidth + colSpan),
-      y: 0,
+      // x: j * (colWidth + colSpan),
+      // y: 0,
       elements: [],
       index: j,
       path: [page.index, j]
     });
     page.columns.push(col);
   }
+  return page;
+}
+
+function addPage(state) {
+  const {file} = state;
+  const page = createPage(state);
   file.pages.push(page);
   return {...state, file: ElementObject.create(file)};
 }
@@ -424,6 +436,7 @@ function createPosition(state) {
     return elements;
   });
   return {
+    ver,
     print: {
       ...file.print,
       width: file.print.w,
@@ -443,6 +456,107 @@ function toRole(ele, ox = 0, oy = 0) {
   return ret;
 }
 
+function checkContentOverflow(state) {
+  console.log('checkContentOverflow');
+  const {file} = state;
+  const {pages} = file;
+  for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+    const page = pages[pageIndex];
+    for (let columnIndex = 0; columnIndex < page.columns.length; columnIndex++) {
+      const column = page.columns[columnIndex];
+      if (column.elements.length > 1) {
+        const lastElement = column.elements[column.elements.length - 1];
+        const lastNode = document.getElementById(lastElement.key);
+        const colNode = document.getElementById(column.key);
+        if (colNode && lastNode) {
+
+          const lastOffset = lastNode.getBoundingClientRect();
+          const colOffset = colNode.getBoundingClientRect();
+
+          // 列中最后一个元素的底边如果已经超过了列底边的1/3页底边距
+          // 将此元素移动到下一列的开头， 如果没有下一列，则一添加列，
+          // 如果页面列数已满， 则应该先添加页面
+          if ((lastOffset.y + lastOffset.height) - (colOffset.y + colOffset.height) > page.padding[3] / 3) {
+            let nextCol;
+            // 判断是否存在下一列
+            if (page.columns[columnIndex + 1]) {
+              nextCol = page.columns[columnIndex + 1];
+            }
+            // 如果还可以添加列
+            else if (page.columns.length < page.colCount) {
+              nextCol = ElementObject.create({
+                elements: [],
+                index: page.columns.length
+              });
+              page.columns.push(nextCol);
+            }
+            // 如果还有下一页
+            else if (pages[pageIndex + 1]) {
+              const nextPage = pages[pageIndex + 1];
+              nextCol = nextPage.columns[0];
+            }
+            // 只能添加页了
+            else {
+              const nextPage = createPage(state);
+              pages.push(nextPage);
+              nextCol = nextPage.columns[0];
+            }
+
+            column.elements.splice(column.elements.length - 1, 1);
+            if (nextCol.elements[0] && nextCol.elements[0].type === 'page-title') {
+              const elements = nextCol.elements.splice(0, 1);
+              nextCol.elements = elements.concat(lastElement).concat(nextCol.elements);
+            } else {
+              nextCol.elements.unshift(lastElement);
+            }
+            console.log(`自动将${pageIndex}-${columnIndex}的最后一个元素${lastElement.key}插入到下一列中`)
+            return true
+          }
+        }
+      }
+      let firstElement = column.elements[0];
+      // 如果列的第一个元素不是标题，且不是第一页第一列
+      if (firstElement && firstElement.type !== 'page-title' && pageIndex + columnIndex > 0) {
+        const firstNode = document.getElementById(firstElement.key);
+        if (firstNode) {
+          let prevCol;
+          if (columnIndex > 0) {
+            prevCol = page.columns[columnIndex - 1];
+          } else if (pageIndex > 0) {
+            const prevPage = pages[pageIndex - 1];
+            prevCol = prevPage.columns[prevPage.columns.length - 1];
+          }
+          if (prevCol) {
+            const firstEleOffset = firstNode.getBoundingClientRect();
+            const prevColNode = document.getElementById(prevCol.key);
+            if (prevColNode) {
+              const prevColOffset = prevColNode.getBoundingClientRect();
+              let height = prevColOffset.height;
+              if (prevCol.elements.length) {
+                const prevColLastEle = prevCol.elements[prevCol.elements.length - 1];
+                const prevColLastNode = document.getElementById(prevColLastEle.key);
+                const prevColLastOffset = prevColLastNode.getBoundingClientRect();
+                height = prevColOffset.y + prevColOffset.height - (prevColLastOffset.y + prevColLastOffset.height);
+              }
+              if (height > firstEleOffset.height) {
+                prevCol.elements.push(column.elements.shift());
+                if (column.elements.length === 0) {
+                  page.columns.splice(columnIndex, 1);
+                }
+                if (page.columns.length === 0) {
+                  pages.splice(pageIndex, 1);
+                }
+                return true;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return false;
+}
+
 
 export default Model(
   {
@@ -451,7 +565,27 @@ export default Model(
     state: {},
 
     effects: {
-      buildQrCode
+      buildQrCode,
+      * print() {
+        window.print();
+      },
+      * save(action, saga) {
+        const state = yield saga.select(state => state[namespace]);
+        const data = createPosition(state);
+        const file = JSON.parse(JSON.stringify(state.file || {}));
+        delete file.qrCode;
+        if (!file.id) {
+          delete file.id;
+        }
+        file.title = file.name;
+        file.pages = JSON.stringify(file.pages || []);
+        file.print = JSON.stringify(file.print || {});
+        file.data = JSON.stringify(data || {});
+        yield saga.put({
+          type: file.id ? 'modify' : 'create',
+          payload: file,
+        });
+      }
     },
     reducers: {
       createFile,
@@ -468,13 +602,31 @@ export default Model(
       autoQuestionNumber(state) {
         return {...state, file: ElementObject.create(autoQuestionNumber(state.file))};
       },
-      save(state) {
-        const ret = createPosition(state);
-        console.log(JSON.stringify(ret));
+
+      createSuccess(state, action) {
+        const {result} = action;
+        const {list = []} = state;
+        state.file = result;
+        return {...state, list: [result, ...list], loading: false};
+      },
+
+      checkContentOverflow(state) {
+        if (checkContentOverflow(state)) {
+          return {...state, file: ElementObject.create(state.file)}
+        }
         return state;
-      }
+      },
+
+      // save(state) {
+      //   const ret = createPosition(state);
+      //   console.log(JSON.stringify(ret));
+      //   return state;
+      // },
+
     }
   },
-  {}
+  {
+    list, create, item, remove, modify
+  }
 );
 
