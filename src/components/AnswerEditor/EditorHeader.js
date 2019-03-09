@@ -7,6 +7,7 @@ function EditorHeader(props) {
 
   const {file, dispatch, activePageKey, activeColumnKey} = props;
 
+
   const menu = [
     {
       key: 'file', icon: 'mail', title: '文件',
@@ -23,7 +24,7 @@ function EditorHeader(props) {
         {key: 'addPage', title: '添加纸张'},
         {key: 'addColumn', title: '添加列', disabled: !activePageKey},
         {key: 'addTitleBox', title: '标题', dispatch: !activeColumnKey},
-        {key: 'student-info', title: '学生信息', dispatch: !activeColumnKey},
+        {key: 'addStudentInfoBox', title: '学生信息', dispatch: !activeColumnKey},
         {key: 'addChoiceQuestion', title: '选择题', dispatch: !activeColumnKey},
         {key: 'addCompletionQuestion', title: '填空题', dispatch: !activeColumnKey},
         {key: 'addAnswerQuestion', title: '解答题', dispatch: !activeColumnKey}

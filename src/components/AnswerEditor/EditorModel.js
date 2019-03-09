@@ -1,4 +1,5 @@
 import Model from 'dva-model';
+import {message} from 'antd';
 import {AnswerEditor as namespace,} from '../../utils/namespace';
 import QrCode from './QrCode';
 import ver from './version';
@@ -163,7 +164,7 @@ function createFile(state, action) {
 
 
     return {
-      ...state, file
+      ...state, file, activePageKey: firstPage.key, activeColumnKey: firstCol.key,
     };
   } catch (e) {
     console.error(e);
@@ -379,12 +380,23 @@ function addTitleBox(state) {
   const page = findActivePage(state);
   if (page && page.columns && page.columns.length) {
     const firstCol = page.columns[0];
-    firstCol.elements.unshift(
-      ElementObject.create({type: 'page-title', title: ''})
-    );
-    return {...state, file: ElementObject.create(state.file)};
+    if (!(firstCol.elements[0] && firstCol.elements[0].type === 'page-title')) {
+      firstCol.elements.unshift(
+        ElementObject.create({type: 'page-title', title: ''})
+      );
+      return {...state, file: ElementObject.create(state.file)};
+    } else {
+      message.warning('已经有标题了');
+    }
   }
   return state;
+}
+
+function addStudentInfoBox(state) {
+  return insertQuestion(state, ElementObject.create({
+    type: 'student-info',
+    length: 8,
+  }));
 }
 
 function setElementAttribute(state, action) {
@@ -432,6 +444,13 @@ function createPosition(state) {
     const elements = [
       qrCode
     ];
+
+    const points = pageElement.querySelectorAll('div[data-type="point"]');
+
+    for (let point of points) {
+      elements.push(toRole(point, x, y));
+    }
+
     page.columns.forEach(col => {
       const colElement = document.getElementById(col.key);
       const children = colElement.querySelectorAll(`[role="column"] > [role="box"]`);
@@ -518,10 +537,18 @@ function checkContentOverflow(state) {
           const lastOffset = lastNode.getBoundingClientRect();
           const colOffset = colNode.getBoundingClientRect();
 
-          // 列中最后一个元素的底边如果已经超过了列底边的1/3页底边距
+          // 列中最后一个元素的底边如果已经超过了列底边向上20px
           // 将此元素移动到下一列的开头， 如果没有下一列，则一添加列，
           // 如果页面列数已满， 则应该先添加页面
-          if ((lastOffset.y + lastOffset.height) - (colOffset.y + colOffset.height) > page.padding[3] / 3) {
+          if ((lastOffset.y + lastOffset.height) - (colOffset.y + colOffset.height - 15) > 0) {
+
+            console.log(
+              '下移',
+              lastOffset.y + lastOffset.height,
+              colOffset.y + colOffset.height - 20,
+              (lastOffset.y + lastOffset.height) - (colOffset.y + colOffset.height - 20)
+            );
+
             let nextCol;
             // 判断是否存在下一列
             if (page.columns[columnIndex + 1]) {
@@ -562,9 +589,11 @@ function checkContentOverflow(state) {
       let firstElement = column.elements[0];
       // 如果列的第一个元素不是标题，且不是第一页第一列
       if (firstElement && firstElement.type !== 'page-title' && pageIndex + columnIndex > 0) {
+        // 获取元素的DOM
         const firstNode = document.getElementById(firstElement.key);
         if (firstNode) {
           let prevCol;
+          //
           if (columnIndex > 0) {
             prevCol = page.columns[columnIndex - 1];
           } else if (pageIndex > 0) {
@@ -576,14 +605,20 @@ function checkContentOverflow(state) {
             const prevColNode = document.getElementById(prevCol.key);
             if (prevColNode) {
               const prevColOffset = prevColNode.getBoundingClientRect();
-              let height = prevColOffset.height;
+              let height = prevColOffset.height - 25;
               if (prevCol.elements.length) {
                 const prevColLastEle = prevCol.elements[prevCol.elements.length - 1];
                 const prevColLastNode = document.getElementById(prevColLastEle.key);
                 const prevColLastOffset = prevColLastNode.getBoundingClientRect();
-                height = prevColOffset.y + prevColOffset.height - (prevColLastOffset.y + prevColLastOffset.height);
+                height = prevColOffset.y + prevColOffset.height - 25 - (prevColLastOffset.y + prevColLastOffset.height);
               }
-              if (height > firstEleOffset.height) {
+              if (height - firstEleOffset.height > 0) {
+                console.log(
+                  '上移',
+                  height,
+                  firstEleOffset.height,
+                  height - firstEleOffset.height
+                );
                 prevCol.elements.push(column.elements.shift());
                 const pageHasElementCount = page.columns.reduce((sum, col) => (sum + col.elements.length), 0);
                 if (!pageHasElementCount) {
@@ -628,6 +663,19 @@ export default Model(
 
     state: {},
 
+    subscriptions: {
+      setup({dispatch, history}) {
+        history.listen(({pathname, query}) => {
+          if (pathname === namespace + '/editor') {
+            dispatch({
+              type: 'item',
+              payload: {...query},
+            });
+          }
+        });
+      },
+    },
+
     effects: {
       buildQrCode,
       * print() {
@@ -665,6 +713,7 @@ export default Model(
       addChoiceQuestion,
       addCompletionQuestion,
       addAnswerQuestion,
+      addStudentInfoBox,
       setElementAttribute,
       autoQuestionNumber(state) {
         return {...state, file: ElementObject.create(autoQuestionNumber(state.file))};
@@ -689,6 +738,16 @@ export default Model(
       //   console.log(JSON.stringify(ret));
       //   return state;
       // },
+
+      itemSuccess(state, action) {
+        const {result = {}} = action;
+        const firstPage = result && result.pages && result.pages[0];
+        const activePageKey = firstPage && firstPage.key;
+        const firstCol = firstPage && firstPage.columns && firstPage.columns[0];
+        const activeColumnKey = firstCol && firstCol.key;
+
+        return {...state, file: result, activePageKey, activeColumnKey, loading: false};
+      }
 
     }
   },

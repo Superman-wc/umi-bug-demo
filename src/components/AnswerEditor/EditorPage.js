@@ -17,9 +17,21 @@ export default function EditorPage(props) {
     [styles['active']]: activePageKey === page.key,
   });
 
+  const [top, right, bottom, left] = page.padding;
+
   const qrCodeStyle = {
-    top: page.padding[0] - 14,
-    left: page.padding[3] - 14
+    top: top - 14,
+    left: left - 14
+  };
+
+  const pointLeftStyle = {
+    left,
+    bottom: bottom,
+  };
+
+  const pointRightStyle = {
+    right,
+    bottom: bottom,
   };
 
   const qrCode = file && file.id && file.ver ? `${file.id}#${file.ver}#${index}` : '';
@@ -42,10 +54,17 @@ export default function EditorPage(props) {
       <QrCodeView style={qrCodeStyle} className={styles['qr-code']} value={qrCode}/>
       {
         file.pages.length > 1 ?
-          <div className={styles['editor-page-code']}>第{index+1}页</div>
+          <div className={styles['editor-page-code']} style={{bottom: bottom - 16}}>第{index + 1}页</div>
           :
           null
       }
+      <div role="box" data-type="point"
+           className={styles['editor-page-position-point']}
+           style={pointLeftStyle}/>
+      <div role="box" data-type="point"
+           className={classNames(styles['editor-page-position-point'], styles['right'])}
+           style={pointRightStyle}/>
+      <div className={styles['editor-page-warning']} style={{left: left - 25}}>请不要在答题区外书写或涂抹 ，保持页面干净整洁</div>
     </div>
   )
 }

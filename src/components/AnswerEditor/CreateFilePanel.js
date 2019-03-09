@@ -218,7 +218,7 @@ class CreateFilePanel extends Component {
           help: '此项指填空题大题数量，自动生成每大题下3个小题',
           ...wrapper,
           fieldOptions: {
-            initialValue: 5,
+            initialValue: 4,
             rules: [{required: true, message: '必须填写'}]
           },
           children: <InputNumber style={{width: 60}} min={0} max={20}/>

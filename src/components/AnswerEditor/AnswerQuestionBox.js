@@ -25,6 +25,10 @@ export default class AnswerQuestionBox extends Component {
       type: 'number', label: '分值',
       fieldOptions: {
         initialValue: 10,
+      },
+      props: {
+        min: 1,
+        max: 100
       }
     },
   };
@@ -77,7 +81,7 @@ export default class AnswerQuestionBox extends Component {
               <a>上传图片</a>
             </Uploader>
           </div>
-          <ContentEditableArea value={content || '<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>'}
+          <ContentEditableArea value={content || '<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>'}
                                onChange={(e => {
                                  props.dispatch({
                                    type: namespace + '/setElementAttribute',

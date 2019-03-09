@@ -85,6 +85,7 @@ export default class ExaminerAnswerListPage extends Component {
 
     const columns = [
       {title: 'ID', key: 'id'},
+      {title: '文件', key: 'title', width: 250},
       {title: '版本', key: 'ver', width: 40,},
       {title: '年级', key: 'gradeId', render: v => gradeMap && gradeMap[v] && gradeMap[v].name || v},
       {title: '科目', key: 'subjectId', render: v => subjectMap && subjectMap[v] && subjectMap[v].name || v},
@@ -97,18 +98,7 @@ export default class ExaminerAnswerListPage extends Component {
           <TableCellOperation
             operations={{
               edit: () => {
-                dispatch({
-                  type: namespace + '/item',
-                  payload: {id},
-                  resolve: (res) => {
-                    console.log(res);
-                    dispatch({
-                      type: namespace + '/set',
-                      payload: {file: res}
-                    });
-                    router.push({pathname: namespace + '/editor', query: {id}});
-                  }
-                })
+                router.push({pathname: namespace + '/editor', query: {id}});
               },
               remove: {
                 onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),

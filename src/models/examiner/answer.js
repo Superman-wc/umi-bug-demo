@@ -1,3 +1,3 @@
-import model from "../../components/AnswerEditor/model";
+import model from "../../components/AnswerEditor/EditorModel";
 
 export default model;

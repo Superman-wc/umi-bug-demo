@@ -6,7 +6,7 @@ import {QuestionTypeEnum} from '../../utils/Enum';
 import {AnswerEditor as namespace} from "../../utils/namespace";
 
 
-export function OptionArea ({number = 1, count = 4, value, type = QuestionTypeEnum.单选题, onChange}) {
+export function OptionArea({number = 1, count = 4, value, type = QuestionTypeEnum.单选题, onChange}) {
   const props = {
     className: styles['options-area'],
     role: 'box',
@@ -45,6 +45,10 @@ export default class ChoiceQuestionBox extends Component {
       fieldOptions: {
         initialValue: 10,
       },
+      props: {
+        max: 10,
+        min: 1
+      },
       onChange({dispatch}) {
         dispatch({
           type: namespace + '/autoQuestionNumber',
@@ -73,7 +77,11 @@ export default class ChoiceQuestionBox extends Component {
       label: '选项数量',
       fieldOptions: {
         initialValue: 4,
-      }
+      },
+      props: {
+        max: 8,
+        min: 2
+      },
     },
     answer: {
       type: 'string', label: '答案',

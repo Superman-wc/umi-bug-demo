@@ -28,8 +28,16 @@ function AttributePanel(props) {
             {
               getFieldDecorator(key, setting.fieldOptions)(
                 setting.type === 'number' ?
-                  <InputNumber onChange={(value) => {
-                    setting.onChange && setting.onChange(value);
+                  <InputNumber {...setting.props} onChange={(value) => {
+                    if(setting.props) {
+                      if (typeof setting.props.max === "number") {
+                        value = Math.min(value, setting.props.max);
+                      }
+                      if (typeof setting.props.min === "number") {
+                        value = Math.max(setting.props.min, value);
+                      }
+                    }
+                    setting.onChange && setting.onChange(value || (setting.props && setting.props.min) || 1);
                   }}/>
                   :
                   setting.type === 'enum' ?

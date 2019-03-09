@@ -48,12 +48,20 @@ export default class CompletionQuestionBox extends Component {
       type: 'number', label: '总分数',
       fieldOptions: {
         initialValue: 10,
+      },
+      props: {
+        min: 1,
+        max: 1000
       }
     },
     count: {
       type: 'number', label: '小题数量',
       fieldOptions: {
         initialValue: 5,
+      },
+      props: {
+        min: 1,
+        max: 50
       }
     }
   };

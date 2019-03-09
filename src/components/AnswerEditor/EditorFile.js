@@ -20,11 +20,20 @@ class EditorFile extends Component {
     this.checkContentOverflow('componentDidUpdate');
   }
 
+  componentWillUnmount(){
+    const {dispatch} = this.props;
+    dispatch({
+      type: namespace + '/set',
+      payload: {file: null, activePageKey: null, activeColumnKey: null, activeElementKey: null}
+    })
+  }
+
   checkContentOverflow = (v) => {
     console.log('checkContentOverflow--->', v);
     clearTimeout(this[CheckContentOverflow]);
+    const {dispatch} = this.props;
     this[CheckContentOverflow] = setTimeout(() => {
-      this.props.dispatch({
+      dispatch({
         type: namespace + '/checkContentOverflow',
       });
     });
