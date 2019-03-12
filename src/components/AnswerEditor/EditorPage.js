@@ -33,6 +33,10 @@ export default function EditorPage(props) {
     right,
     bottom: bottom,
   };
+  const pointTopStyle = {
+    top,
+    right,
+  };
 
   const qrCode = file && file.id && file.ver ? `${file.id}#${file.ver}#${index}` : '';
 
@@ -64,6 +68,9 @@ export default function EditorPage(props) {
       <div role="box" data-type="point"
            className={classNames(styles['editor-page-position-point'], styles['right'])}
            style={pointRightStyle}/>
+      <div role="box" data-type="point"
+           className={classNames(styles['editor-page-position-point'], styles['top'])}
+           style={pointTopStyle}/>
       <div className={styles['editor-page-warning']} style={{left: left - 25}}>请不要在答题区外书写或涂抹 ，保持页面干净整洁</div>
     </div>
   )

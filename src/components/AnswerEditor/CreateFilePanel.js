@@ -18,6 +18,8 @@ import moment from 'moment';
 import {AnswerCardTypeEnum, Enums} from "../../utils/Enum";
 
 
+const Mounted = Symbol('#CreateFilePanel@Mounted');
+
 class CreateFilePanel extends Component {
 
   state = {};
@@ -25,6 +27,7 @@ class CreateFilePanel extends Component {
   componentDidMount() {
     const {dispatch} = this.props;
     const {gradeList, subjectList, classMap, gradeMap} = this.state;
+    this[Mounted] = true;
     if (!gradeList || !subjectList || !classMap || !gradeMap) {
       Promise.all([
         new Promise((resolve, reject) => {
@@ -75,7 +78,7 @@ class CreateFilePanel extends Component {
           return map;
         }, {});
 
-        this.setState({
+        this[Mounted] && this.setState({
           gradeList: Object.values(gradeMap),
           subjectList: subjectList.reverse(),
           classMap,
@@ -83,6 +86,10 @@ class CreateFilePanel extends Component {
         });
       })
     }
+  }
+
+  componentWillUnmount() {
+    delete this[Mounted];
   }
 
   render() {
