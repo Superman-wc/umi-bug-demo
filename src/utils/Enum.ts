@@ -84,11 +84,36 @@ export const enum WEEK {
   星期日 = 7,
 }
 
+export const enum ExamTypeEnum {
+  期末考 = 0,
+  期中考 = 1,
+  月考 = 2,
+}
+
+export const enum ExamStatusEnum {
+  未发布 = 0,
+  已发布 = 1,
+}
+
 export function Enums(e?: any): Array<EnumValue> {
   return Object.keys(e).reduce((sum, value) => {
     if (parseInt(value, 10) >= 0) {
-      sum.push({name: e[value], value});
+      sum.push({ name: e[value], value });
     }
     return sum;
   }, new Array<EnumValue>());
+}
+
+export function getNameByValue(arrays, value): string {
+  let name = '-';
+  let v =  value + '';
+  if (arrays && v) {
+    for (let i = 0; i < arrays.length; i++) {
+      if (v === arrays[i].value.toString()) {
+        name = arrays[i].name
+        break;
+      }
+    }
+  }
+  return name;
 }

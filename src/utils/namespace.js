@@ -37,5 +37,6 @@ export const AdminUrlResource = '/admin/url-resource';
 export const AdminAuthority = '/admin/authority';
 export const AdminMenu = '/admin/menu';
 
-
+export const ExamList = '/exam/exam-list'
+export const ExamDetail = '/exam/exam-detail'
 

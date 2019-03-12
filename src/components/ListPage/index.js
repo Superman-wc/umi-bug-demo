@@ -1,8 +1,8 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {connect} from 'dva';
-import {Table} from 'antd';
-import {routerRedux} from 'dva/router';
+import { connect } from 'dva';
+import { Table } from 'antd';
+import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import Page from '../Page';
 import PageHeaderOperation from '../Page/HeaderOperation';
@@ -41,6 +41,7 @@ export function stdColumns(cols) {
       col.key === 'date_created' ||
       col.key === 'last_updated' ||
       col.key === 'lastUpdated' ||
+      col.key === 'releaseTime' ||
       col.type === 'dateTime'
     ) {
       col.render = v => (v ? moment(v).format('YYYY-MM-DD HH:mm:ss') : '');
@@ -92,7 +93,7 @@ export default class ListPage extends Component {
       operations,
       headerChildren,
       dispatch,
-      location: {query, pathname},
+      location: { query, pathname },
       pagination,
       scrollHeight = 175,
       children,
@@ -100,14 +101,14 @@ export default class ListPage extends Component {
       rowKey = 'id',
     } = this.props;
 
-    const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={operations}/>;
+    const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={operations} />;
     const header = (
       <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}>
         {headerChildren}
       </Page.Header>
     );
     const handleTableChange = (pagination, filters, sorter) => {
-      let _query = {...query};
+      let _query = { ...query };
       Object.keys(filters).forEach(key => {
         if (filters[key].length) {
           _query[key] = filters[key].join(',');
@@ -118,7 +119,7 @@ export default class ListPage extends Component {
       _query.p = pagination.current;
       _query.s = pagination.pageSize;
       const __query = this.props.onChange && this.props.onChange(pagination, filters, sorter) || {};
-      dispatch(routerRedux.replace({pathname, query: {..._query, ...__query}}));
+      dispatch(routerRedux.replace({ pathname, query: { ..._query, ...__query } }));
     };
     return (
       <Page header={header} loading={!!loading}>
@@ -132,7 +133,7 @@ export default class ListPage extends Component {
               dataSource={Array.isArray(list) ? list : []}
               pagination={pagination ? paginationConfig(query, total) : false}
               onChange={handleTableChange}
-              scroll={{y: window.innerHeight - (pagination ? scrollHeight : 125)}}
+              scroll={{ y: window.innerHeight - (pagination ? scrollHeight : 125) }}
               rowClassName={rowClassName}
               rowKey={rowKey}
             />

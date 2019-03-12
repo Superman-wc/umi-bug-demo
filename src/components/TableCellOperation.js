@@ -14,6 +14,9 @@ const OperationType = {
   allot: '分配',
   relate: '关联',
   edit: '编辑',
+  preview: '预览',
+  publish: '发布',
+  offline: '下线'
 };
 
 export default function TableCellOperation({ children, operations = {} }) {
