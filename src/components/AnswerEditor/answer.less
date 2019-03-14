@@ -161,7 +161,7 @@ Element.js
   transform: none !important;
   float: left;
   margin: 5px 0;
-  background-color: rgba(255, 255, 255, .75);
+  //background-color: rgba(255, 255, 255, .75);
   border: 1px solid transparent;
   &.hover {
     outline: 1px dashed rgba(208, 189, 61, 1);
@@ -259,6 +259,14 @@ AnswerQuestionBox.js
  */
 .answer-question-box {
   width: 100%;
+  .subjective-questions-box {
+    float: left;
+    width:100%;
+    & > main {
+      float: left;
+      width:100%;
+    }
+  }
   .question-toolbar {
     display: flex;
     flex-direction: row;
@@ -311,6 +319,8 @@ CompletionQuestionBox.js
   //}
 
   .subjective-questions-box {
+    float: left;
+    width: 100%;
     & > main {
       padding: 10px 10px 0 10px;
       float: left;
@@ -371,7 +381,7 @@ ChoiceQuestionBox.js
 TitleBox.js
  */
 .title-box {
-  margin: 0 0 0 -80px;
+  margin: -15px 0 0 -80px;
   width: 100%;
   position: relative;
   line-height: 27px;
@@ -527,6 +537,7 @@ EditorPage.js
         float: left;
         width: 80px;
         height: 80px;
+        margin-top: -15px;
       }
     }
 

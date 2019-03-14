@@ -61,6 +61,7 @@ export default class AnswerQuestionBox extends Component {
         role: 'box',
         'data-type': value.type,
         'data-number': number,
+        'data-score': score,
       },
     };
 

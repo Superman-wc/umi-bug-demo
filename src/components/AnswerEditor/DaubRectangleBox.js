@@ -74,13 +74,13 @@ export function LetterArea({count = 4, value = '', onChange}) {
 export function JudgeArea({value, onChange}) {
   const ret = [];
   ret.push(
-    <DaubRectangleBox key="true" checked={value * 1 === 1} text={'T'} onClick={() => {
-      onChange && onChange(1);
+    <DaubRectangleBox key="true" checked={value === 'T'} text={'T'} onClick={() => {
+      onChange && onChange('T');
     }}/>
   );
   ret.push(
-    <DaubRectangleBox key="false" checked={value * 1 === 0} text={'F'} onClick={() => {
-      onChange && onChange(0);
+    <DaubRectangleBox key="false" checked={value === 'F'} text={'F'} onClick={() => {
+      onChange && onChange('F');
     }}/>
   );
   return ret;

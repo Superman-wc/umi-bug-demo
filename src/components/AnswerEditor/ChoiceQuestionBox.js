@@ -6,7 +6,7 @@ import {QuestionTypeEnum} from '../../utils/Enum';
 import {AnswerEditor as namespace} from "../../utils/namespace";
 
 
-export function OptionArea({number = 1, count = 4, value, type = QuestionTypeEnum.单选题, onChange}) {
+export function OptionArea({score = 1, number = 1, count = 4, value, type = QuestionTypeEnum.单选题, onChange}) {
   const props = {
     className: styles['options-area'],
     role: 'box',
@@ -14,6 +14,7 @@ export function OptionArea({number = 1, count = 4, value, type = QuestionTypeEnu
     'data-number': number,
     'data-sub-type': type,
     'data-value': value,
+    'data-score': score
   };
 
   return (
@@ -88,6 +89,17 @@ export default class ChoiceQuestionBox extends Component {
       fieldOptions: {
         initialValue: '',
       }
+    },
+    score: {
+      type: 'number',
+      label: '每题分数',
+      fieldOptions: {
+        initialValue: 1,
+      },
+      props: {
+        max: 100,
+        min: 1
+      }
     }
   };
 
@@ -114,6 +126,7 @@ export default class ChoiceQuestionBox extends Component {
       optionCount = 4,
       questionType = QuestionTypeEnum.单选题,
       answer = [],
+      score = 1,
       key,
     } = value || {};
     const {dispatch, activeElementKey} = props;
@@ -138,6 +151,7 @@ export default class ChoiceQuestionBox extends Component {
         count: optionCount,
         type: questionType,
         value: answer[i],
+        score,
         onChange: (v) => {
           if (key === activeElementKey) {
             if (questionType * 1 === QuestionTypeEnum.多选题) {

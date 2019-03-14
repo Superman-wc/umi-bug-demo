@@ -4,7 +4,7 @@ import styles from './answer.less';
 
 export default class PaddingEditor extends Component {
   render() {
-    const {value = [60, 45, 60, 45], onChange, min = 45, max = 200} = this.props;
+    const {value = [80, 60, 80, 60], onChange, min = 45, max = 200} = this.props;
     const buildProps = (index) => {
       return {
         style: {width: 60},

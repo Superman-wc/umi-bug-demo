@@ -11,6 +11,7 @@ function AttributePanel(props) {
     attributePanelConfig = {},
     activeElementKey,
     activeColumnKey,
+    score = 0,
     form: {getFieldDecorator},
     dispatch
   } = props;
@@ -29,7 +30,7 @@ function AttributePanel(props) {
               getFieldDecorator(key, setting.fieldOptions)(
                 setting.type === 'number' ?
                   <InputNumber {...setting.props} onChange={(value) => {
-                    if(setting.props) {
+                    if (setting.props) {
                       if (typeof setting.props.max === "number") {
                         value = Math.min(value, setting.props.max);
                       }
@@ -73,17 +74,6 @@ function AttributePanel(props) {
             }
           })
         }}>删除</Button>
-      </Form.Item>
-      <hr/>
-      <Form.Item wrapperCol={{offset: 8, span: 14}}>
-        <Button onClick={() => {
-          dispatch({
-            type: namespace + '/removeActiveColumn',
-            payload: {
-              key: activeColumnKey
-            }
-          })
-        }}>删除列</Button>
       </Form.Item>
     </Form>
   )

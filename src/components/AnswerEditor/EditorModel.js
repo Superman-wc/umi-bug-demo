@@ -8,6 +8,27 @@ import {mm2px, text2html} from "./helper";
 import * as ElementObject from './ElementObject';
 import {QuestionTypeEnum} from "../../utils/Enum";
 import {list, create, item, remove, modify} from '../../services/examiner/answer';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf/dist/jspdf.debug.js';
+import {pipes, pipe} from "../../utils/pipe";
+
+window.html2canvas = html2canvas;
+
+
+function saveToPDF(state) {
+
+  const doc = new jsPDF('p', 'mm', 'a4');
+  console.log(doc);
+
+  const {file} = state;
+
+  pipes(
+    page => doc.addHTML(document.getElementById(page.key))
+  ).then(
+    () => doc.save('a4.pdf')
+  );
+
+}
 
 
 function calcColWidth(pageWidth, padding, colCount, colSpan) {
@@ -415,9 +436,32 @@ function setElementAttribute(state, action) {
     if (attributePanelConfig[key]) {
       attributePanelConfig[key].value = value;
     }
-    return {...state, file: ElementObject.create(file), attributePanelConfig: {...attributePanelConfig}};
+    return {
+      ...state,
+      file: ElementObject.create(calculationTotalScore(file)),
+      attributePanelConfig: {...attributePanelConfig}
+    };
   }
   return state;
+}
+
+function calculationTotalScore(file) {
+  file.score = file.pages.reduce((sum, page) => {
+    return page.columns.reduce((sum, col) => {
+      return col.elements.reduce((sum, ele) => {
+        switch (ele.type) {
+          case 'choice-question':
+            return sum + ele.count * ele.score;
+          case 'completion-question':
+          case 'answer-question':
+            return sum + ele.score;
+          default:
+            return sum;
+        }
+      }, sum);
+    }, sum)
+  }, 0);
+  return file;
 }
 
 function* buildQrCode(action, saga) {
@@ -433,6 +477,7 @@ function buildQrCodeSuccess(state, action) {
 
 function createPosition(state) {
   const {file} = state;
+  calculationTotalScore(file);
   const pages = file.pages.map(page => {
     const pageElement = document.getElementById(page.key);
     const {x, y} = pageElement.getBoundingClientRect();
@@ -501,6 +546,7 @@ function createPosition(state) {
   });
   return {
     ver,
+    score: file.score,
     print: {
       ...file.print,
       width: file.print.w,
@@ -537,17 +583,10 @@ function checkContentOverflow(state) {
           const lastOffset = lastNode.getBoundingClientRect();
           const colOffset = colNode.getBoundingClientRect();
 
-          // 列中最后一个元素的底边如果已经超过了列底边向上20px
+          // 列中最后一个元素的底边如果已经超过了列底边,
           // 将此元素移动到下一列的开头， 如果没有下一列，则一添加列，
           // 如果页面列数已满， 则应该先添加页面
-          if ((lastOffset.y + lastOffset.height) - (colOffset.y + colOffset.height - 15) > 0) {
-
-            console.log(
-              '下移',
-              lastOffset.y + lastOffset.height,
-              colOffset.y + colOffset.height - 20,
-              (lastOffset.y + lastOffset.height) - (colOffset.y + colOffset.height - 20)
-            );
+          if ((lastOffset.y + lastOffset.height) - (colOffset.y + colOffset.height) > 0) {
 
             let nextCol;
             // 判断是否存在下一列
@@ -605,12 +644,12 @@ function checkContentOverflow(state) {
             const prevColNode = document.getElementById(prevCol.key);
             if (prevColNode) {
               const prevColOffset = prevColNode.getBoundingClientRect();
-              let height = prevColOffset.height - 25;
+              let height = prevColOffset.height - 10;
               if (prevCol.elements.length) {
                 const prevColLastEle = prevCol.elements[prevCol.elements.length - 1];
                 const prevColLastNode = document.getElementById(prevColLastEle.key);
                 const prevColLastOffset = prevColLastNode.getBoundingClientRect();
-                height = prevColOffset.y + prevColOffset.height - 25 - (prevColLastOffset.y + prevColLastOffset.height);
+                height = prevColOffset.y + prevColOffset.height - 10 - (prevColLastOffset.y + prevColLastOffset.height);
               }
               if (height - firstEleOffset.height > 0) {
                 console.log(
@@ -698,6 +737,7 @@ export default Model(
           payload: file,
         });
       },
+      saveToPDF,
 
     },
     reducers: {
@@ -722,7 +762,7 @@ export default Model(
       createSuccess(state, action) {
         const {result} = action;
         const {list = []} = state;
-        state.file = result;
+        state.file = calculationTotalScore(result);
         return {...state, list: [result, ...list], loading: false};
       },
 
@@ -745,6 +785,7 @@ export default Model(
         const activePageKey = firstPage && firstPage.key;
         const firstCol = firstPage && firstPage.columns && firstPage.columns[0];
         const activeColumnKey = firstCol && firstCol.key;
+        calculationTotalScore(result);
 
         return {...state, file: result, activePageKey, activeColumnKey, loading: false};
       }

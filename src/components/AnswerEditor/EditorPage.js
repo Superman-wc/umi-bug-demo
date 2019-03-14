@@ -20,21 +20,21 @@ export default function EditorPage(props) {
   const [top, right, bottom, left] = page.padding;
 
   const qrCodeStyle = {
-    top: top - 14,
+    top: top - 14 - 15,
     left: left - 14
   };
 
   const pointLeftStyle = {
     left,
-    bottom: bottom,
+    bottom: bottom - 15,
   };
 
   const pointRightStyle = {
     right,
-    bottom: bottom,
+    bottom: bottom - 15,
   };
   const pointTopStyle = {
-    top,
+    top: top - 15,
     right,
   };
 
@@ -52,13 +52,16 @@ export default function EditorPage(props) {
 
       {
         page.columns.map((column, index) =>
-          <EditorColumn index={index} key={column.key} column={column} {...columnProps} />
+          <EditorColumn
+            key={column.key}
+            style={{marginLeft: index > 0 ? column.colSpan : 0}}
+            column={column} {...columnProps} />
         )
       }
       <QrCodeView style={qrCodeStyle} className={styles['qr-code']} value={qrCode}/>
       {
         file.pages.length > 1 ?
-          <div className={styles['editor-page-code']} style={{bottom: bottom - 16}}>第{index + 1}页</div>
+          <div className={styles['editor-page-code']} style={{bottom: bottom - 20}}>第{index + 1}页</div>
           :
           null
       }

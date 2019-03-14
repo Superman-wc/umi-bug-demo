@@ -101,6 +101,7 @@ export default class CompletionQuestionBox extends Component {
         role:'box',
         'data-type': value.type,
         'data-number':number,
+        'data-score': score,
       },
     };
 

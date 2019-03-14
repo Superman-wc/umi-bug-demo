@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import router from "umi/router";
-import {Form, Modal, notification, Cascader} from 'antd';
+import {Form, Modal, notification, InputNumber, Radio} from 'antd';
 import {
   AnswerEditor as namespace,
   ManagesGrade, ManagesSubject, ManagesClass,
@@ -97,6 +97,9 @@ export default class ExaminerAnswerListPage extends Component {
         render: (id, row) => (
           <TableCellOperation
             operations={{
+              print: () => {
+                this.setState({printModalVisible: true, item: row});
+              },
               edit: () => {
                 router.push({pathname: namespace + '/editor', query: {id}});
               },
@@ -109,19 +112,90 @@ export default class ExaminerAnswerListPage extends Component {
       },
     ];
 
+    const listPageProps = {
+      location,  columns, breadcrumb, list, total, title,
+      operations:buttons,
+      loading: !!loading,
+      pagination: true,
+    };
+
+    const printModalProps = {
+      visible: this.state.printModalVisible,
+      onOk:(payload)=>{
+
+      },
+      onCancel:()=>this.setState({printModalVisible: true})
+    };
 
     return (
-      <ListPage
-        operations={buttons}
-        location={location}
-        loading={!!loading}
-        columns={columns}
-        breadcrumb={breadcrumb}
-        list={list}
-        total={total}
-        pagination
-        title={title}
-      />
+      <ListPage {...listPageProps}>
+        <PrintModal {...printModalProps}/>
+      </ListPage>
     );
+  }
+}
+
+@Form.create({
+  mapPropsToFields(props) {
+    return {
+      count: Form.createFormField({value: undefined})
+    };
+  }
+})
+class PrintModal extends Component {
+  render() {
+
+    const {
+      onOk, onCancel,  visible, loading,
+      form: {getFieldDecorator, validateFieldsAndScroll},
+    } = this.props;
+
+    const modalProps = {
+      visible, loading, onCancel,
+      title: '打印申请',
+      onOk: () => {
+        validateFieldsAndScroll((errors, payload) => {
+          if (errors) {
+            console.error(errors);
+          } else {
+            console.log(payload);
+            onOk && onOk(payload);
+          }
+        })
+      }
+    };
+    const formProps = {
+      layout: 'horizontal',
+    };
+    const formItemProps = {
+      wrapperCol: {span: 16},
+      labelCol: {span: 4}
+    };
+    return (
+      <Modal {...modalProps}>
+        {/*<Form {...formProps}>*/}
+          {/*<Form.Item label="打印份数" {...formItemProps}>*/}
+            {/*{*/}
+              {/*getFieldDecorator('count', {*/}
+                {/*initialValue: 50,*/}
+                {/*rules: [{required: true, message: '请输入打印份数'}]*/}
+              {/*})(*/}
+                {/*<InputNumber min={1} max={1000}/>*/}
+              {/*)*/}
+            {/*}*/}
+          {/*</Form.Item>*/}
+          {/*<Form.Item label="打印要求" {...formItemProps}>*/}
+            {/*{*/}
+              {/*getFieldDecorator('requirement', {*/}
+                {/*initialValue: 50,*/}
+                {/*rules: [{required: true, message: '请输入打印份数'}]*/}
+              {/*})(*/}
+                {/*<Radio.RadioGroup options={[{label: '单面打印', value: 0}, {label: '双面打印', value: 1}]}/>*/}
+              {/*)*/}
+            {/*}*/}
+          {/*</Form.Item>*/}
+        {/*</Form>*/}
+      </Modal>
+    )
   }
 }

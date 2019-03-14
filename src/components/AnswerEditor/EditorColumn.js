@@ -6,7 +6,7 @@ import EditorElement from './EditorElement';
 
 export default class EditorColumn extends Component{
   render() {
-    const {index, column, ...elementProps} = this.props;
+    const {style, column, ...elementProps} = this.props;
     const {dispatch, activeColumnKey} = elementProps;
     const props = {
       id: column.key,
@@ -14,8 +14,8 @@ export default class EditorColumn extends Component{
         [styles['active']]: activeColumnKey === column.key
       }),
       style: {
+        ...style,
         width: column.width,
-        marginLeft: index !== 0 ? column.colSpan : 0
       },
       onClick: () => {
         dispatch({

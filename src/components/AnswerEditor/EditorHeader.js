@@ -17,6 +17,7 @@ function EditorHeader(props) {
         {key: 'save', title: '保存', disabled: !file},
         {key: 'save-as', title: '另存为', disabled: !file},
         {key: 'print', title: '打印', disabled: !file},
+        {key: 'saveToPDF', title: '保存成PDF', disabled: !file}
       ]
     }, {
       key: 'insert', icon: 'appstore', title: '插入', disabled: !file,

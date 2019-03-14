@@ -284,7 +284,7 @@ class CreateFilePanel extends Component {
           help: '纸张边缘留白部分，设置后打印机的边距请设置成"无"',
           ...wrapper,
           fieldOptions: {
-            initialValue: [60, 45, 60, 45],
+            initialValue: [80, 60, 80, 60],
             rules: [{required: true, message: '必须填写'}]
           },
           children: <PaddingEditor/>
