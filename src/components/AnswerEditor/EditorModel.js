@@ -706,10 +706,12 @@ export default Model(
       setup({dispatch, history}) {
         history.listen(({pathname, query}) => {
           if (pathname === namespace + '/editor') {
-            dispatch({
-              type: 'item',
-              payload: {...query},
-            });
+            if(query.id) {
+              dispatch({
+                type: 'item',
+                payload: {...query},
+              });
+            }
           }
         });
       },
