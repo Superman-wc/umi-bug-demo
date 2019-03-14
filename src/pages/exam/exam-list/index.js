@@ -23,11 +23,39 @@ export default class ExamList extends Component {
   state = {};
 
   componentDidMount() {
-
+    if (!this.props.gradeList) {
+      this.props.dispatch({
+        type: ManagesGrade + '/list',
+        payload: { s: 1000 }
+      })
+    }
   }
 
+  // 预览
   onPreview(row) {
-    router.push({ pathname: ExamDetail, query: { id: row.id, name: row.name } });
+    router.push({ pathname: ExamDetail, query: { id: row.id, name: row.name, releaseStatus: row.releaseStatus } });
+  }
+
+  // 上下线
+  onPublishOffline(row) {
+    dispatch({
+      type: namespace + '/examPublishOffline',
+      payload: {
+        id: row.id
+      },
+      resolve: () => {
+        const { query } = this.props.location;
+        dispatch({
+          type: namespace + '/listExam',
+          payload: { ...query },
+        })
+        if (row.releaseStatus == 0) {
+          notification.success({ message: '发布成功' });
+        } else {
+          notification.success({ message: '下线成功' });
+        }
+      }
+    })
   }
 
   render() {
@@ -36,11 +64,12 @@ export default class ExamList extends Component {
     if (listExam) {
       list = listExam.list;
     }
+    console.log(gradeList)
     const gradeMap = gradeList.reduce((map, it) => {
       map[it.id] = it;
       return map;
     }, {});
-    const { pathname, query } = location;
+    const { query } = location;
 
     const title = '考务列表';
 
@@ -57,9 +86,6 @@ export default class ExamList extends Component {
           console.log('exam-list: create')
         },
       },
-      // {
-      //   key: 'rollback'
-      // }
     ];
     const gradeIndexs = Enums(GradeIndexEnum)
     const examTypes = Enums(ExamTypeEnum)
@@ -79,7 +105,7 @@ export default class ExamList extends Component {
         }
       },
       {
-        title: '考试年级', key: 'gradeId', width: 80,
+        title: '考试年级', key: 'gradeId',
         render: (v, row) => getNameByValue(gradeIndexs, row.gradeIndex) + '（' + (gradeMap[row.gradeId] && gradeMap[row.gradeId].schoolYear || '') + '级）',
         filters: gradeList.map(it => ({ value: it.id, text: it.name + '（' + it.schoolYear + '级' + '）' })),
         filtered: !!query.gradeId,
@@ -131,10 +157,24 @@ export default class ExamList extends Component {
                 operations={{
                   preview: () => this.onPreview(row),
                   publish: {
-                    onConfirm: () => { console.log('exam-list: publish') }
+                    onConfirm: () => this.onPublishOffline(row)
                   },
                   remove: {
-                    onConfirm: () => { console.log('exam-list: offline') },
+                    onConfirm: () => {
+                      dispatch({
+                        type: namespace + '/examRemove',
+                        payload: {
+                          id: row.id
+                        },
+                        resolve: () => {
+                          notification.success({ message: '删除成功' })
+                          dispatch({
+                            type: namespace + '/listExam',
+                            payload: { ...query },
+                          })
+                        }
+                      })
+                    },
                   },
                 }}
               />
@@ -145,7 +185,7 @@ export default class ExamList extends Component {
                 operations={{
                   preview: () => this.onPreview(row),
                   offline: {
-                    onConfirm: () => { console.log('exam-list: offline') },
+                    onConfirm: () => this.onPublishOffline(row),
                   },
                 }}
               />

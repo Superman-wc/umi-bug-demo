@@ -81,6 +81,14 @@ export async function examDetail(data) {
 }
 
 /**
+ * 考务上下线
+ * id  考务id
+ */
+export async function examPublishOffline({ id }) {
+  return request('/api/8queen/examActive/' + id, { method: 'PUT' });
+}
+
+/**
  * 考务删除
  * id  考务id
  */

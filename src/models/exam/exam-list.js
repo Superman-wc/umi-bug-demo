@@ -1,5 +1,5 @@
 import Model from 'dva-model';
-import { listExam, examRemove } from '../../services/exam/exam';
+import { listExam, examRemove, examPublishOffline } from '../../services/exam/exam';
 import { ExamList as namespace } from '../../utils/namespace';
 
 export default Model(
@@ -9,7 +9,6 @@ export default Model(
       setup({ dispatch, history }) {
         history.listen(({ pathname, query }) => {
           if (pathname === namespace) {
-            console.log(JSON.stringify(query))
             dispatch({
               type: 'listExam',
               payload: { ...query },
@@ -22,5 +21,6 @@ export default Model(
   {
     listExam,
     examRemove,
+    examPublishOffline
   }
 );

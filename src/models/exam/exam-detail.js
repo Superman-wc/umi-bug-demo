@@ -1,18 +1,17 @@
 import Model from 'dva-model';
-import { examDetail } from '../../services/exam/exam';
+import { examDetail, listStudent, listTeacher, updateTeacherInDetail, removeTeacherInDetail } from '../../services/exam/exam';
 import { ExamDetail as namespace } from '../../utils/namespace';
 
 export default Model(
   {
     namespace,
     state: {
-      examName: null
+      examName: null,
     },
     reducers: {
       updateTitle(state, { payload: { examName } }) {
-        console.log('detail: ', examName)
-        return { ...state, examName }
-      }
+        return { ...state, examName };
+      },
     },
     subscriptions: {
       setup({ dispatch, history }) {
@@ -35,5 +34,9 @@ export default Model(
   },
   {
     examDetail,
+    listStudent,
+    listTeacher,
+    updateTeacherInDetail,
+    removeTeacherInDetail
   }
 );
