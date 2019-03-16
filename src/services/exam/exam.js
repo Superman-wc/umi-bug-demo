@@ -1,6 +1,22 @@
 import request from '../../utils/request';
 
 /**
+ * 考务教室列表
+ * @param {type} 1-教学  2-宿舍 
+ */
+export async function doorPlate({ type }) {
+  return request('/api/8queen/doorPlate', { data: { type }, method: 'GET' })
+}
+
+/**
+ * 教师列表
+ * @param {gradeIndex}
+ */
+export async function teachersByGradeIndex({ gradeIndex }) {
+  return request('/api/8queen/teacher', { data: { gradeIndex, s: 10000 }, method: 'GET' })
+}
+
+/**
  * 考务安排提交
  * endDay 结束日期（时间戳）
  * examType 
