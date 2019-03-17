@@ -1,5 +1,8 @@
 import Model from 'dva-model';
-import { examDetail, listStudent, listTeacher, updateTeacherInDetail, removeTeacherInDetail } from '../../services/exam/exam';
+import {
+  examDetail, listStudent, listTeacher, updateTeacherInDetail,
+  removeTeacherInDetail, examDetailExport
+} from '../../services/exam/exam';
 import { ExamDetail as namespace } from '../../utils/namespace';
 
 export default Model(
@@ -11,6 +14,10 @@ export default Model(
     reducers: {
       updateTitle(state, { payload: { examName } }) {
         return { ...state, examName };
+      },
+      examDetailExportSuccess(state, action) {
+        const exportUrl = action.result;
+        return { ...state, exportUrl, loading: false };
       },
     },
     subscriptions: {
@@ -37,6 +44,7 @@ export default Model(
     listStudent,
     listTeacher,
     updateTeacherInDetail,
-    removeTeacherInDetail
+    removeTeacherInDetail,
+    examDetailExport
   }
 );

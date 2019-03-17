@@ -97,6 +97,14 @@ export async function examDetail(data) {
 }
 
 /**
+ * 考务导出
+ * id  考务id
+ */
+export async function examDetailExport({ id }) {
+  return request('/api/8queen/examActive/export', { data: { id }, method: 'GET' });
+}
+
+/**
  * 考务上下线
  * id  考务id
  */

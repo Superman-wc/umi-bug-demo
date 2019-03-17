@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Form, Cascader, Row, Col, message, Modal, Select, Input, notification, Spin } from 'antd';
+import { notification } from 'antd';
 import moment from 'moment';
 import {
   ExamList as namespace,
   ExamDetail,
+  ExamCreate,
   ManagesGrade
 } from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
@@ -38,6 +39,7 @@ export default class ExamList extends Component {
 
   // 上下线
   onPublishOffline(row) {
+    const { dispatch } = this.props;
     dispatch({
       type: namespace + '/examPublishOffline',
       payload: {
@@ -83,7 +85,7 @@ export default class ExamList extends Component {
         title: '创建',
         icon: 'plus',
         onClick: () => {
-          console.log('exam-list: create')
+          router.push({ pathname: ExamCreate });
         },
       },
     ];
@@ -141,6 +143,26 @@ export default class ExamList extends Component {
       { title: '监考老师数', key: 'teacherNum', },
       { title: '更新时间', key: 'lastUpdated', width: 120, },
       { title: '发布时间', key: 'releaseTime', width: 120, },
+      {
+        title: '状态', key: 'examstate',
+        render: (text, record, index) => {
+          let stateName = '';
+          switch (record.examstate) {
+            case 1:
+              stateName = '创建中'
+              break;
+            case 2:
+              stateName = '创建失败'
+              break;
+            case 3:
+              stateName = '创建成功'
+              break;
+            default:
+              stateName = '-'
+          };
+          return stateName;
+        }
+      },
       {
         title: '操作', key: 'releaseStatus', width: 120,
         filters: [

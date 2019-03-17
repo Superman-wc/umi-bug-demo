@@ -178,8 +178,11 @@ export default class ExamTable extends React.Component {
           }}
           examinationSubjectId={this.state.examinationSubjectId}
           examinationPlaceId={this.state.placeId}
-          onCancel={() => {// 清空监考
-            // this.state.placeId
+          onCancel={() => {
+            this.setState({ teacherModalVisible: false });
+          }}
+          onClear={() => {// 清空监考
+            console.log('clear')
             this.props.dispatch({
               type: namespace + '/removeTeacherInDetail',
               payload: {

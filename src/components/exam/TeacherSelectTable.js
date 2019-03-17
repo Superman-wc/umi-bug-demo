@@ -1,4 +1,4 @@
-import { Table, notification } from 'antd';
+import { Table, Button, notification } from 'antd';
 import React from 'react';
 import { ExamDetail as namespace } from '../../utils/namespace';
 import { connect } from 'dva';
@@ -98,8 +98,7 @@ export default class TeacherSelectTable extends React.Component {
           const teacherItem = record[`teacherItem${i}`]
           if (teacherItem) {
             const teacherTextDisable = styles['teacherTextDisable'];
-            const teacherTextEnable = styles['teacherTextEnable'];
-            const teacherTextChoose = teacherItem.choose ? styles['teacherTextSelected'] : styles['teacherTextEnable'];
+            const btnType = teacherItem.choose ? 'primary' : 'default';
             const selected = teacherItem.selected;
             if (selected) {
               return <span
@@ -107,8 +106,8 @@ export default class TeacherSelectTable extends React.Component {
               >{teacherItem.teacherName}<br />{teacherItem.count}</span>;
             } else {
               if (monitorNum === 1) {// 单选
-                return <span
-                  className={teacherTextEnable}
+                return <Button
+                  type={btnType}
                   onClick={() => {
                     this.props.dispatch({
                       type: namespace + '/updateTeacherInDetail',
@@ -122,10 +121,10 @@ export default class TeacherSelectTable extends React.Component {
                       }
                     })
                   }}
-                >{teacherItem.teacherName}<br />{teacherItem.count}</span>;
+                >{teacherItem.teacherName}<br />{teacherItem.count}</Button>;
               } else {// 多选
-                return <span
-                  className={teacherTextChoose}
+                return <Button
+                  type={btnType}
                   onClick={() => {
                     const teacherId = teacherItem.teacherId;
                     if (teacherSet.has(teacherId)) {
@@ -148,7 +147,7 @@ export default class TeacherSelectTable extends React.Component {
                       }
                     }
                   }}
-                >{teacherItem.teacherName}<br />{teacherItem.count}</span>;
+                >{teacherItem.teacherName}<br />{teacherItem.count}</Button>;
               }
             }
           } else {

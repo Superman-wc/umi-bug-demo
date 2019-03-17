@@ -10,14 +10,18 @@ export default {
     subjectSelectList: [],
     roomSelectList: [],
     dateSelectList: [],
-    oneItem:{},
-    twoItem:{},
-    threeItem:{},
+    oneItem: {},
+    twoItem: {},
+    threeItem: {},
+    tableData: [],
     loading: false,
   },
   reducers: {
     setLoading(state, { payload: { loading } }) {
       return { ...state, loading };
+    },
+    saveTableData(state, { payload: { tableData } }) {
+      return { ...state, tableData }
     },
     saveOneItem(state, { payload: { oneItem } }) {
       return { ...state, oneItem }

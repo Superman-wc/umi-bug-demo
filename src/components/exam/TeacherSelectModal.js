@@ -1,4 +1,4 @@
-import { Table, Modal } from 'antd';
+import { Table, Modal, Button } from 'antd';
 import React from 'react';
 import TeacherSelectTable from './TeacherSelectTable';
 import styles from './exam.less'
@@ -7,7 +7,7 @@ export default class TeacherSelectTableModal extends React.Component {
 
   render() {
     const { title, visible, monitorNum, examinationId, examinationSubjectId, examinationPlaceId,
-      onOk, onCancel, handleClickName, handleMultiClick } = this.props;
+      onOk, onClear, onCancel, handleClickName, handleMultiClick } = this.props;
     let cancelText = '清空监考';
     // if (monitorNum === 1) {
     //   cancelText = '取消'
@@ -25,21 +25,29 @@ export default class TeacherSelectTableModal extends React.Component {
           onOk && onOk();
         }}
       />
+    };
+
+    let footer = null;
+    if (monitorNum === 1) {
+      footer = <div>
+        <Button onClick={onCancel}>取消</Button>
+        <Button type='primary' onClick={onClear}>清空监考</Button>
+      </div>
+    } else {
+      footer = <div>
+        <Button onClick={onCancel}>取消</Button>
+        <Button type='primary' onClick={onClear}>清空监考</Button>
+        <Button type='primary' onClick={onOk}>确定</Button>
+      </div>
     }
+
     return (
       <Modal
         width={1000}
         title={title}
         visible={visible}
-        cancelText={cancelText}
+        footer={footer}
         onCancel={onCancel}
-        onOk={() => {
-          if (monitorNum === 1) {
-            onCancel && onCancel();
-          } else {
-            onOk && onOk();
-          }
-        }}
       >
         <div className={styles['teacherTitle']}>建议选择{monitorNum}位监考老师</div>
         <div>

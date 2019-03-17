@@ -39,6 +39,7 @@
     "keyboardjs": "^2.4.1",
     "particles.js": "^2.0.0",
     "react-color-picker": "^4.0.2",
+    "react-dnd-html5-backend": "^7.2.0",
     "react-router-breadcrumbs-hoc": "^2.1.4",
     "react-transition-group": "^2.4.0",
     "tinycolor2": "^1.4.1",

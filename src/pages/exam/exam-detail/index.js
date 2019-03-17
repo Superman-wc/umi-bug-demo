@@ -1,36 +1,57 @@
 
 import React from 'react'
 import { connect } from 'dva';
-import { Form, Input, Row, Col, message, Modal, Select, notification, Spin, Button } from 'antd';
+import fetch from 'dva/fetch';
+import { Input, notification, Button } from 'antd';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
 import ExamTable from '../../../components/exam/ExamTable'
 import TeacherTable from '../../../components/exam/TeacherTable'
 import styles from './index.less'
 import { ExamDetail as namespace } from '../../../utils/namespace';
-import { ExamStatusEnum, GradeIndexEnum, ExamTypeEnum, Enums, getNameByValue } from '../../../utils/Enum'
+import { GradeIndexEnum, Enums, getNameByValue } from '../../../utils/Enum'
 
 @connect(state => ({
   examDetail: state[namespace].examDetail,
   examName: state[namespace].examName,
+  exportUrl: state[namespace].exportUrl
 }))
 export default class ExamDetail extends React.Component {
 
   state = {
-    value: null
+    value: null,
+    exportLoading: false
   }
-
-  // 编辑考场
-  // edit = () => {
-  // }
 
   // 导出考场
   importTable = () => {
+    this.setState({
+      exportLoading: true
+    })
+    const { location, dispatch } = this.props;
+    const { query } = location;
+    console.log('importTable: ', query.id)
+    dispatch({
+      type: namespace + '/examDetailExport',
+      payload: {
+        id: query.id
+      },
+      resolve: () => {
+        this.downloadFile();
+      }
+    })
   }
 
-  // 导出教师监考
-  // importTeacherTable = () => {
-  // }
+  downloadFile() {
+    const { exportUrl } = this.props;
+    console.log("exportUrl: ", exportUrl);
+    let a = document.getElementById('download-a');
+    a.href = exportUrl;
+    a.click();
+    this.setState({
+      exportLoading: false
+    })
+  }
 
   onSearch(value) {
     this.setState({
@@ -73,7 +94,12 @@ export default class ExamDetail extends React.Component {
               onSearch={value => { this.onSearch(value) }}
             />
             {/* <Button className={styles['button']} type='primary' onClick={this.edit}>编辑</Button> */}
-            <Button className={styles['button']} type='primary' onClick={this.importTable}>导出</Button>
+            <Button
+              className={styles['button']}
+              type='primary'
+              loading={this.state.exportLoading}
+              onClick={this.importTable}>导出</Button>
+            <a id='download-a' href='' download />
           </div>
           <div className={styles['exam-table-container']}>
             <ExamTable examDetail={examDetail} examinationId={query.id}
