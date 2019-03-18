@@ -105,6 +105,29 @@ function Side(props) {
     return arr;
   }, []);
 
+  console.log(menu);
+
+  menu.push({
+    key: 'examiner',
+    title: '电子阅卷',
+    items: [
+      {
+        title: '',
+        items: [
+          {
+            id: 'examiner-list',
+            title: '答题卡制做',
+            link: '/examiner',
+          }, {
+            id: 'examiner-upload',
+            title: '答题卡上传',
+            link: '/examiner/upload'
+          },
+        ]
+      }
+    ]
+  });
+
 
   return (
     <Flex direction="column" className={classnames(styles['side'], {[styles['min-side']]: isMin})}

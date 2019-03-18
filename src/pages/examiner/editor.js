@@ -20,8 +20,8 @@ import AnswerEditor from '../../components/AnswerEditor';
 
 // export default AnswerPage;
 
-export default function AnswerPage() {
+export default function AnswerPage(props) {
   return (
-    <AnswerEditor/>
+    <AnswerEditor {...props}/>
   )
 }

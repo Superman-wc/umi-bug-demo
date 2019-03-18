@@ -51,3 +51,4 @@ export async function create(data) {
 export async function remove({id}) {
   return request('/api/examiner/1.0/answer/' + id, {method: 'DELETE'});
 }
+

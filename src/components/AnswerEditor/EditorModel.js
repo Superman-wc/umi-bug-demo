@@ -11,6 +11,7 @@ import {list, create, item, remove, modify} from '../../services/examiner/answer
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf/dist/jspdf.debug.js';
 import {pipes, pipe} from "../../utils/pipe";
+import router from 'umi/router';
 
 window.html2canvas = html2canvas;
 
@@ -318,11 +319,11 @@ function newFile() {
 
 function removeActiveElement(state) {
   const {activeElementKey} = state;
-  const obj = ElementObject.remove(activeElementKey);
   const col = findActiveColumn(state);
-  if (obj && col) {
-    const index = col.elements.findIndex(ele => obj.key === ele.key);
+  if (col) {
+    const index = col.elements.findIndex(ele => activeElementKey === ele.key);
     if (index >= 0) {
+      ElementObject.remove(activeElementKey);
       col.elements.splice(index, 1);
       return {...state, activeElementKey: null, file: ElementObject.create(autoQuestionNumber(state.file))};
     }
@@ -706,7 +707,7 @@ export default Model(
       setup({dispatch, history}) {
         history.listen(({pathname, query}) => {
           if (pathname === namespace + '/editor') {
-            if(query.id) {
+            if (query.id) {
               dispatch({
                 type: 'item',
                 payload: {...query},
@@ -737,6 +738,8 @@ export default Model(
         yield saga.put({
           type: file.id ? 'modify' : 'create',
           payload: file,
+          resolve: action.resolve,
+          reject: action.reject
         });
       },
       saveToPDF,

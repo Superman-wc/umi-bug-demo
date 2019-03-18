@@ -3,7 +3,7 @@ import {connect} from 'dva';
 import router from "umi/router";
 import {Form, Modal, notification, InputNumber, Radio} from 'antd';
 import {
-  AnswerEditor as namespace,
+  AnswerEditor as namespace, ExaminerPrint,
   ManagesGrade, ManagesSubject, ManagesClass,
 } from '../../utils/namespace';
 import ListPage from '../../components/ListPage';
@@ -18,6 +18,7 @@ import {BuildingTypeEnum, ClassTypeEnum, Enums, AnswerCardTypeEnum} from "../../
   gradeList: state[ManagesGrade].list,
   subjectList: state[ManagesSubject].list,
   klassList: state[ManagesClass].list,
+  loadingPrint: state[ExaminerPrint].loading,
 }))
 export default class ExaminerAnswerListPage extends Component {
 
@@ -47,7 +48,7 @@ export default class ExaminerAnswerListPage extends Component {
   render() {
     const {
       list, total, loading, location, dispatch,
-      gradeList = [], subjectList = [], klassList = []
+      gradeList = [], subjectList = [], klassList = [], loadingPrint
     } = this.props;
 
     const gradeMap = gradeList.reduce((map, it) => {
@@ -90,9 +91,9 @@ export default class ExaminerAnswerListPage extends Component {
       {title: '年级', key: 'gradeId', render: v => gradeMap && gradeMap[v] && gradeMap[v].name || v},
       {title: '科目', key: 'subjectId', render: v => subjectMap && subjectMap[v] && subjectMap[v].name || v},
       {title: '类型', key: 'type', render: v => AnswerCardTypeEnum[v] || v},
-      {title: '创建时间', key: 'dateCreated',},
+      {title: '创建时间', key: 'dateCreated', width: 100,},
       {
-        title: '操作',
+        title: '操作', width: 100,
         key: 'operate',
         render: (id, row) => (
           <TableCellOperation
@@ -113,18 +114,32 @@ export default class ExaminerAnswerListPage extends Component {
     ];
 
     const listPageProps = {
-      location,  columns, breadcrumb, list, total, title,
-      operations:buttons,
+      location, columns, breadcrumb, list, total, title,
+      operations: buttons,
       loading: !!loading,
       pagination: true,
     };
 
     const printModalProps = {
+      loading: loadingPrint,
       visible: this.state.printModalVisible,
-      onOk:(payload)=>{
-
+      onOk: (payload) => {
+        const {item} = this.state;
+        payload.editorId = item.id;
+        payload.name = item.title;
+        dispatch({
+          type: ExaminerPrint + '/create',
+          payload,
+          resolve: () => {
+            this.setState({printModalVisible: false});
+            Modal.success({
+              title: '您的打印需求已经成功受理',
+              content:'请注意打印完成的消息，及时领取您的答题卡'
+            });
+          }
+        })
       },
-      onCancel:()=>this.setState({printModalVisible: true})
+      onCancel: () => this.setState({printModalVisible: false})
     };
 
     return (
@@ -135,18 +150,12 @@ export default class ExaminerAnswerListPage extends Component {
   }
 }
 
-@Form.create({
-  mapPropsToFields(props) {
-    return {
-      count: Form.createFormField({value: undefined})
-    };
-  }
-})
+@Form.create()
 class PrintModal extends Component {
   render() {
 
     const {
-      onOk, onCancel,  visible, loading,
+      onOk, onCancel, visible, loading,
       form: {getFieldDecorator, validateFieldsAndScroll},
     } = this.props;
 
@@ -159,6 +168,7 @@ class PrintModal extends Component {
             console.error(errors);
           } else {
             console.log(payload);
+            payload.requirement = payload.requirement ? '双面' : '单面';
             onOk && onOk(payload);
           }
         })
@@ -173,28 +183,29 @@ class PrintModal extends Component {
     };
     return (
       <Modal {...modalProps}>
-        {/*<Form {...formProps}>*/}
-          {/*<Form.Item label="打印份数" {...formItemProps}>*/}
-            {/*{*/}
-              {/*getFieldDecorator('count', {*/}
-                {/*initialValue: 50,*/}
-                {/*rules: [{required: true, message: '请输入打印份数'}]*/}
-              {/*})(*/}
-                {/*<InputNumber min={1} max={1000}/>*/}
-              {/*)*/}
-            {/*}*/}
-          {/*</Form.Item>*/}
-          {/*<Form.Item label="打印要求" {...formItemProps}>*/}
-            {/*{*/}
-              {/*getFieldDecorator('requirement', {*/}
-                {/*initialValue: 50,*/}
-                {/*rules: [{required: true, message: '请输入打印份数'}]*/}
-              {/*})(*/}
-                {/*<Radio.RadioGroup options={[{label: '单面打印', value: 0}, {label: '双面打印', value: 1}]}/>*/}
-              {/*)*/}
-            {/*}*/}
-          {/*</Form.Item>*/}
-        {/*</Form>*/}
+        <Form {...formProps}>
+          <Form.Item label="打印要求" {...formItemProps}>
+            {
+              getFieldDecorator('requirement', {
+                initialValue: 0,
+                rules: [{required: true, message: '请输入打印份数'}]
+              })(
+                <Radio.Group options={[{label: '单面打印', value: 0}, {label: '双面打印', value: 1}]}/>
+              )
+            }
+          </Form.Item>
+          <Form.Item label="打印份数" {...formItemProps}>
+            {
+              getFieldDecorator('count', {
+                initialValue: 50,
+                rules: [{required: true, message: '请输入打印份数'}]
+              })(
+                <InputNumber min={1} max={1000}/>
+              )
+            }
+          </Form.Item>
+
+        </Form>
       </Modal>
     )
   }

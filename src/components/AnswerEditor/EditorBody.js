@@ -7,14 +7,17 @@ import EditorFile from './EditorFile';
 
 
 function EditorBody(props) {
-  const {file} = props;
+  const {file, query} = props;
   return (
     <main className={styles['editor-body']}>
       {
         file ?
           <EditorFile file={file}/>
           :
-          <CreateFilePanel/>
+          query.id ?
+            <div>loading...</div>
+            :
+            <CreateFilePanel/>
       }
     </main>
   )

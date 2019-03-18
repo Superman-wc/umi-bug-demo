@@ -18,10 +18,11 @@ export default class Editor extends Component {
   }
 
   render() {
+    const {location:{query}} = this.props;
     return (
       <Fragment>
-        <EditorHeader/>
-        <EditorBody/>
+        <EditorHeader query={query}/>
+        <EditorBody query={query}/>
         <EditorRightPanel/>
       </Fragment>
     );

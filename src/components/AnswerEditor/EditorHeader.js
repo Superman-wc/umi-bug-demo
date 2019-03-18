@@ -1,5 +1,5 @@
 import {connect} from 'dva';
-import {Menu, Icon,} from 'antd';
+import {Menu, Icon, Modal, message} from 'antd';
 import styles from './answer.less';
 import {AnswerEditor as namespace} from "../../utils/namespace";
 
@@ -17,7 +17,7 @@ function EditorHeader(props) {
         {key: 'save', title: '保存', disabled: !file},
         {key: 'save-as', title: '另存为', disabled: !file},
         {key: 'print', title: '打印', disabled: !file},
-        {key: 'saveToPDF', title: '保存成PDF', disabled: !file}
+        // {key: 'saveToPDF', title: '保存成PDF', disabled: !file}
       ]
     }, {
       key: 'insert', icon: 'appstore', title: '插入', disabled: !file,
@@ -43,6 +43,12 @@ function EditorHeader(props) {
         type: namespace + '/' + key,
         payload: {
           key, keyPath,
+        },
+        resolve:(res)=>{
+          if(key === 'save'){
+            console.log(res);
+            message.success('保存成功');
+          }
         }
       });
     }

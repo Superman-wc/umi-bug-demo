@@ -242,24 +242,6 @@ class CreateFilePanel extends Component {
         }
       },
       print: {
-        dpi: {
-          label: '分辨率',
-          help: '此项视打印机情况而定，一般为96DPI',
-          ...wrapper,
-          fieldOptions: {
-            initialValue: 96,
-            rules: [{required: true, message: '必须填写'}]
-          },
-          children: (
-            <Select style={{width: 90}}>
-              {
-                [72, 96, 120, 300].map((value) =>
-                  <Select.Option key={value} value={value}>{value}</Select.Option>
-                )
-              }
-            </Select>
-          )
-        },
         type: {
           label: '纸张大小',
           help: '纸张大小设置应于打印时设置一致',
@@ -279,16 +261,6 @@ class CreateFilePanel extends Component {
             </Select>
           )
         },
-        padding: {
-          label: '纸张边距',
-          help: '纸张边缘留白部分，设置后打印机的边距请设置成"无"',
-          ...wrapper,
-          fieldOptions: {
-            initialValue: [80, 60, 80, 60],
-            rules: [{required: true, message: '必须填写'}]
-          },
-          children: <PaddingEditor/>
-        },
         colCount: {
           label: '纸张分列数量',
           help: 'A4、16K建议1列，8K建议2列',
@@ -298,6 +270,34 @@ class CreateFilePanel extends Component {
             rules: [{required: true, message: '必须填写'}]
           },
           children: <InputNumber style={{width: 60}} max={3} min={1}/>
+        },
+        dpi: {
+          label: '分辨率',
+          help: '此项视打印机情况而定，一般为96DPI',
+          ...wrapper,
+          fieldOptions: {
+            initialValue: 96,
+            rules: [{required: true, message: '必须填写'}]
+          },
+          children: (
+            <Select style={{width: 90}}>
+              {
+                [72, 96, 120, 300].map((value) =>
+                  <Select.Option key={value} value={value}>{value}</Select.Option>
+                )
+              }
+            </Select>
+          )
+        },
+        padding: {
+          label: '纸张边距',
+          help: '纸张边缘留白部分，设置后打印机的边距请设置成"无"',
+          ...wrapper,
+          fieldOptions: {
+            initialValue: [80, 60, 80, 60],
+            rules: [{required: true, message: '必须填写'}]
+          },
+          children: <PaddingEditor/>
         },
         colSpan: {
           label: '分列间距',

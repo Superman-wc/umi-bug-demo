@@ -102,6 +102,15 @@ export const enum AnswerCardTypeEnum {
 }
 
 
+export const enum ExaminerStatusEnum {
+  删了 = 0, //  // NO_NEED_PROCESSING
+  等待处理 = 1, // // WAIT_FOR_PROCESSING
+  处理中 = 2,  //  // STARTING_PROCESSING
+  处理错误 = 3,     //       // PROCESSING_ERROR
+  完成 = 9,   // // PROCESSING_COMPLETE
+}
+
+
 export function Enums(e?: any): Array<EnumValue> {
   return Object.keys(e).reduce((sum, value) => {
     if (parseInt(value, 10) >= 0) {

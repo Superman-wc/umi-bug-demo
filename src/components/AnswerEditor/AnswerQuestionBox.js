@@ -82,7 +82,7 @@ export default class AnswerQuestionBox extends Component {
               <a>上传图片</a>
             </Uploader>
           </div>
-          <ContentEditableArea value={content || '<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>'}
+          <ContentEditableArea value={content || '<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>'}
                                onChange={(e => {
                                  props.dispatch({
                                    type: namespace + '/setElementAttribute',
