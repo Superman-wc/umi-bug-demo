@@ -64,7 +64,7 @@ export default class StepOne extends React.Component {
       console.log('update: updateOne: ', nextProps.updateOne);
       const { form: { getFieldsValue, validateFieldsAndScroll }, onCheckSuccess } = this.props
       const item = getFieldsValue()
-      console.log('getFieldsValue: ', item);
+      // console.log('getFieldsValue: ', item);
       validateFieldsAndScroll((errors, payload) => {
         if (errors) {
           console.error(errors);
@@ -105,10 +105,6 @@ export default class StepOne extends React.Component {
         }
       })
     }
-  }
-
-  onExamDateChange = (date, dateString) => {
-    console.log(dateString);
   }
 
   onGradeDataChange = (e) => {
@@ -190,7 +186,7 @@ export default class StepOne extends React.Component {
             {getFieldDecorator('examDate', {
               rules: [{ message: '请选择考试时间', required: true }]
             })(
-              <RangePicker style={{ width: 300 }} onChange={this.onExamDateChange} />
+              <RangePicker style={{ width: 300 }} />
             )}
           </FormItem>
           <FormItem label="考场排列">

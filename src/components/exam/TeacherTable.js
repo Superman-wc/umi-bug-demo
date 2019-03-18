@@ -3,6 +3,10 @@ import React from 'react';
 
 export default class TeacherTable extends React.Component {
 
+  state = {
+    scrollX: 1000
+  }
+
   render() {
     const { examDetail = {} } = this.props;
     const { teacherStatisticList = [] } = examDetail;
@@ -27,12 +31,12 @@ export default class TeacherTable extends React.Component {
     });
     const data = [];
     const subjectCount = [];
-    let count = 0;
+    let rowKey = 0;
     for (let value of subjectMap.values()) {
       subjectCount.push(value.length);
-      count++;
+      rowKey++;
       const item = {
-        id: count,
+        id: rowKey,
         subjectId: value[0].id,
         subjectName: value[0].name,
       };
@@ -49,7 +53,8 @@ export default class TeacherTable extends React.Component {
       data.push(item);
     }
     const maxCount = Math.max(...subjectCount);
-    console.log('maxCount: ', maxCount);
+    this.state.scrollX = maxCount * 80;
+    // console.log('maxCount: ', maxCount);
 
     const columns = [
       {
@@ -57,13 +62,16 @@ export default class TeacherTable extends React.Component {
         dataIndex: 'id',
         key: 'id',
         width: 60,
-        align: 'center'
+        align: 'center',
+        fixed: 'left'
       },
       {
         title: '教学科目',
         dataIndex: 'subjectName',
         key: 'subjectId',
-        align: 'center'
+        align: 'center',
+        width: 80,
+        fixed: 'left'
       },
     ];
     for (let i = 1; i <= maxCount; i++) {
@@ -85,6 +93,7 @@ export default class TeacherTable extends React.Component {
 
     return (
       <Table
+        scroll={{ x: this.state.scrollX }}
         rowKey={record => record.id}
         columns={columns}
         dataSource={data}

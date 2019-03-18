@@ -1,7 +1,7 @@
 import React from 'react'
 import styles from '../index.less'
 import { connect } from 'dva';
-import { Button, Table, Checkbox } from 'antd';
+import { Button, Table, Checkbox, Input, notification, Modal } from 'antd';
 import { ExamCreate } from '../../../../utils/namespace'
 import { ManagesSteps } from '../utils/namespace'
 import { GradeIndexEnum, Enums } from '../../../../utils/Enum';
@@ -19,27 +19,33 @@ import update from 'immutability-helper';
 export default class StepThree extends React.Component {
 
   state = {
-    uuid: null,
     sortTableData: [],
     roomSubjectIds: []
     // editDisabled: true,
   }
 
   submitData = () => {
+    const examName = this.state.examName;
+    console.log('examName: ', examName)
+    if (!examName) {
+      notification.error({ message: '请输入考试名称' })
+      return;
+    }
     const { oneItem = {}, twoItem = {},
       dateSelectList = [], dispatch } = this.props;
     const gradeIndex = oneItem['gradeIndex'];
+    const examDate = oneItem['examDate'];
+    const startDay = examDate[0].valueOf();
+    const endDay = examDate[1].valueOf();
+    const examType = oneItem['examType'];
+    const monitorNum = oneItem['monitorNum'];
     const rowCol = oneItem['rowCol'];
+
     const teachers = twoItem['teacherIds'] || [];
     const teacherIdList = [];
     teachers.forEach(it => {
       teacherIdList.push({ id: it });
     })
-    let uuid = this.state.uuid;
-    if (!uuid) {
-      uuid = (new Date()).valueOf();
-      this.state.uuid = uuid;
-    }
 
     const roomSubjectIds = this.state.roomSubjectIds || [];
     const disableList = [];
@@ -64,7 +70,7 @@ export default class StepThree extends React.Component {
     });
 
     const roomList = [];
-    console.log('sortTableData:', this.state.sortTableData);
+    // console.log('sortTableData:', this.state.sortTableData);
     this.state.sortTableData.forEach((value, index) => {
       const roomItem = {
         roomId: value.id,
@@ -83,15 +89,31 @@ export default class StepThree extends React.Component {
     };
 
     const examinationInfoList = JSON.stringify(examinationInfo);
-    console.log('examinationInfoList: ', examinationInfo);
-    // dispatch({
-    //   type: ExamCreate + '/distributionStudent',
-    //   payload: {
-    //     uuid,
-    //     gradeIndex,
-    //     examinationInfoList
-    //   }
-    // })
+    const params = {
+      startDay,
+      endDay,
+      examType,
+      monitorNum,
+      name: examName,
+      gradeIndex,
+      examinationInfoList
+    }
+    console.log('examinationInfo: ', examinationInfo);
+    console.log('params: ', params);
+    const modal = Modal.info({
+      title: '正在提交',
+      content: '正在提交...',
+    });
+    dispatch({
+      type: ExamCreate + '/distributionStudent',
+      payload: params,
+      resolve: () => {
+        modal.update({
+          title: '提交成功',
+          content: '提交成功, 稍后请前往考务列表查看',
+        });
+      }
+    })
   }
 
   render() {
@@ -109,7 +131,7 @@ export default class StepThree extends React.Component {
     });
     const rowCol = oneItem['rowCol'];
     const roomStudentTotal = rowCol[0] * rowCol[1];
-    console.log(`roomTotal: ${roomTotal}   subjectTotal: ${subjectTotal}`);
+    // console.log(`roomTotal: ${roomTotal}   subjectTotal: ${subjectTotal}`);
     // console.log('roomSelectList: ', roomSelectList);
     // console.log('dateSelectList: ', dateSelectList);
 
@@ -188,8 +210,13 @@ export default class StepThree extends React.Component {
     return (
       <div>
         <div className={styles['three-btn-container']}>
-          <span className={styles['tip-color']}>请选择禁用的考场(非必选),通过拖拽表格确定教室优先级</span>
+          <span className={styles['tip-color']}>请选择禁用的考场(非必选)，通过拖拽表格确定教室优先级</span>
           <div className={styles['three-right-btn-container']}>
+            <Input
+              onChange={(e) => { this.state.examName = e.target.value }}
+              type='text'
+              style={{ width: 300, marginRight: 10 }}
+              placeholder='请输入考试名称'></Input>
             <Button
               onClick={this.submitData}
               type='primary' className={styles['three-right-btn']}>提交</Button>
@@ -256,9 +283,6 @@ const rowSource = {
       index: props.index,
     };
   },
-  endDrag(props) {
-    console.log('endDrag=====')
-  }
 };
 
 const rowTarget = {
@@ -309,16 +333,16 @@ class DragSortingTable extends React.Component {
   }
 
   roomValueChange = (e) => {
-    console.log('roomValueChange: ', e)
-    this.props.dispatch({
+    // console.log('roomValueChange: ', e)
+    const { threeItem, dispatch, roomValueChange } = this.props;
+    dispatch({
       type: ManagesSteps + '/saveThreeItem',
       payload: {
-        threeItem: { roomSubjectIds: e }
+        threeItem: { ...threeItem, roomSubjectIds: e }
       }
     });
-    this.props.roomValueChange(e);
+    roomValueChange(e);
   }
-
 
   components = {
     body: {
@@ -328,16 +352,8 @@ class DragSortingTable extends React.Component {
 
   moveRow = (dragIndex, hoverIndex) => {
     const { tableData } = this.state;
-    const { onDragEnd } = this.props;
+    const { onDragEnd, threeItem, dispatch } = this.props;
     const dragRow = tableData[dragIndex];
-
-    // this.setState(
-    //   update(this.state, {
-    //     tableData: {
-    //       $splice: [[dragIndex, 1], [hoverIndex, 0, dragRow]],
-    //     },
-    //   }),
-    // );
 
     const newState = update(this.state, {
       tableData: {
@@ -345,8 +361,21 @@ class DragSortingTable extends React.Component {
       },
     });
 
+    const priorityIds = [];
     newState.tableData.forEach((it, index) => {
       it.rowIndex = index;
+      priorityIds.push({
+        id: it.id,
+        roomPriorityNum: index + 1
+      });
+    });
+
+    // 保存教室优先级顺序
+    dispatch({
+      type: ManagesSteps + '/saveThreeItem',
+      payload: {
+        threeItem: { ...threeItem, priorityIds }
+      }
     })
 
     this.setState(newState);
@@ -356,7 +385,30 @@ class DragSortingTable extends React.Component {
 
   render() {
     const { columns, threeItem = {} } = this.props;
-    const { roomSubjectIds } = threeItem;
+    const { roomSubjectIds = [], priorityIds = [] } = threeItem;
+    const tableData = this.state.tableData;
+    // console.log('priorityIds: ', priorityIds);
+    if (priorityIds && priorityIds.length > 0) {
+      priorityIds.forEach(it => {
+        tableData.forEach(item => {
+          if (item.id == it.id) {
+            item.roomPriorityNum = it.roomPriorityNum;
+            return;
+          }
+        });
+      });
+      const newRoomPri = priorityIds.length + 1;
+      tableData.sort((a, b) => {
+        const aNum = a.roomPriorityNum || newRoomPri;
+        const bNum = b.roomPriorityNum || newRoomPri;
+        return aNum - bNum;
+      });
+      tableData.forEach((it, index) => {
+        it.rowIndex = index;
+      })
+    };
+    // console.log('sortTableData: ', tableData);
+
     return (
       <Checkbox.Group
         onChange={this.roomValueChange}
@@ -364,7 +416,7 @@ class DragSortingTable extends React.Component {
         <Table
           rowKey={record => record.id}
           columns={columns}
-          dataSource={this.state.tableData}
+          dataSource={tableData}
           components={this.components}
           pagination={false}
           bordered

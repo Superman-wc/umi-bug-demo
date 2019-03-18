@@ -5,7 +5,7 @@ import { connect } from 'dva';
 import { stdColumns } from '../ListPage/index';
 import styles from './exam.less';
 
-const teacherSet = new Set()
+const teacherMap = new Map();
 let tableData = [];
 let tableColumns = [];
 let tempList = [];
@@ -15,7 +15,8 @@ let tempList = [];
 export default class TeacherSelectTable extends React.Component {
 
   state = {
-    bordered: true
+    bordered: true,
+    scrollX: 1000,
   }
 
   componentDidMount() {
@@ -41,11 +42,11 @@ export default class TeacherSelectTable extends React.Component {
         s: 10000
       },
       resolve: () => {
-        const { listTeacher, monitorNum, examinationPlaceId } = this.props;
+        const { listTeacher, monitorNum } = this.props;
         tempList = listTeacher ? listTeacher.list : [];
-        teacherSet.clear();
-        this.getTableData(tempList, monitorNum);
-        this.getColumnsData(tempList)
+        teacherMap.clear();
+        this.getTableData(tempList);
+        this.getColumnsData(tempList, monitorNum)
         this.setState({ bordered: true });
       }
     });
@@ -73,19 +74,23 @@ export default class TeacherSelectTable extends React.Component {
       subjectCount.push(value.length)
     }
     const maxCount = Math.max(...subjectCount);
+    this.state.scrollX = maxCount * 80;
     const columns = [
       {
         title: '序号',
         dataIndex: 'id',
         key: 'id',
         width: 60,
-        align: 'center'
+        align: 'center',
+        fixed: 'left'
       },
       {
         title: '科目',
         dataIndex: 'subjectName',
         key: 'subjectId',
-        align: 'center'
+        align: 'center',
+        width: 80,
+        fixed: 'left'
       },
     ];
     for (let i = 1; i <= maxCount; i++) {
@@ -105,6 +110,7 @@ export default class TeacherSelectTable extends React.Component {
                 className={teacherTextDisable}
               >{teacherItem.teacherName}<br />{teacherItem.count}</span>;
             } else {
+              // console.log('monitorNum: ', monitorNum)
               if (monitorNum === 1) {// 单选
                 return <Button
                   type={btnType}
@@ -127,18 +133,24 @@ export default class TeacherSelectTable extends React.Component {
                   type={btnType}
                   onClick={() => {
                     const teacherId = teacherItem.teacherId;
-                    if (teacherSet.has(teacherId)) {
-                      teacherSet.delete(teacherId);
-                      tableData[index][`teacherItem${i}`].choose = false
-                      handleMultiClick(teacherSet);
-                      this.setState({
-                        bordered: true
-                      })
+                    if (teacherMap.has(teacherId)) {
+                      // 同一个教师可能会有多个科目
+                      if (index === teacherMap.get(teacherId)) {
+                        teacherMap.delete(teacherId);
+                        tableData[index][`teacherItem${i}`].choose = false
+                        handleMultiClick(teacherMap);
+                        this.setState({
+                          bordered: true
+                        })
+                      } else {
+                        const sub = tableData[teacherMap.get(teacherId)].subjectName;
+                        notification.warning({ message: `${teacherItem.teacherName}已在${sub}科目中选择` })
+                      }
                     } else {
-                      if (teacherSet.size < 2) {
-                        teacherSet.add(teacherId);
+                      if (teacherMap.size < 2) {
+                        teacherMap.set(teacherId, index);
                         tableData[index][`teacherItem${i}`].choose = true
-                        handleMultiClick(teacherSet);
+                        handleMultiClick(teacherMap);
                         this.setState({
                           bordered: true
                         })
@@ -205,10 +217,12 @@ export default class TeacherSelectTable extends React.Component {
   }
 
   render() {
-    this.getColumnsData(tempList)
+    const { monitorNum } = this.props;
+    this.getColumnsData(tempList, monitorNum);
     return (
       <div>
         <Table
+          scroll={{ x: this.state.scrollX }}
           rowKey={record => record.id}
           columns={stdColumns(tableColumns)}
           dataSource={tableData || []}

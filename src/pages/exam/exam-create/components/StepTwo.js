@@ -34,7 +34,7 @@ const CheckboxGroup = Checkbox.Group
     }
   },
   onValuesChange(props, values) {
-    console.log('onValuesChange: ', values)
+    // console.log('onValuesChange: ', values)
     const { form: { getFieldsValue }, dispatch } = props
     const twoItem = getFieldsValue()
     dispatch({
@@ -47,17 +47,20 @@ const CheckboxGroup = Checkbox.Group
 })
 export default class StepTwo extends React.Component {
 
+  // state = {
+  //   checkDate: true
+  // }
+
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.updateTwo && nextProps.updateTwo !== this.props.updateTwo) {
       console.log('update: updateTwo: ', nextProps.updateTwo);
       const { form: { getFieldsValue, validateFieldsAndScroll }, onCheckSuccess } = this.props
       const item = getFieldsValue()
-      console.log('getFieldsValue: ', item);
+      // console.log('getFieldsValue: ', item);
       validateFieldsAndScroll((errors, payload) => {
         if (errors) {
           console.error(errors);
         } else {
-
           const { subjectSelectList, dispatch } = this.props;
           const dateSelectList = [];
           subjectSelectList.forEach(it => {
@@ -78,17 +81,56 @@ export default class StepTwo extends React.Component {
     }
   }
 
-  // onExamDateChange = (date, dateString) => {
-  //   console.log(dateString);
-  // }
-
   onGradeDataChange = (e) => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
+      type: ManagesSteps + '/setLoading',
+      payload: {
+        loading: true
+      }
+    });
+    dispatch({
       type: ExamCreate + '/teachersByGradeIndex',
       payload: {
         gradeIndex: e.target.value
-      }
+      },
+      resolve: () => {
+        dispatch({
+          type: ManagesSteps + '/setLoading',
+          payload: {
+            loading: false
+          }
+        });
+      },
     })
+  }
+
+  handleSubjectDate = (id, name, rule, value, callback) => {
+    // this.setState({
+    //   checkDate: true
+    // })
+    // console.log('id-name: ', id, name, value);
+    if (value && id && name) {
+      const { subjectSelectList, form: { getFieldsValue } } = this.props;
+      const start = value[0].valueOf();
+      const end = value[1].valueOf();
+      subjectSelectList.forEach(it => {
+        if (it.id !== id) {
+          const item = getFieldsValue()[`subjectDate${it.id}`]
+          if (item) {
+            const items = [item[0].valueOf(), item[1].valueOf()];
+            const checkStart = start > items[0] && start < items[1];
+            const checkEnd = end > items[0] && end < items[1];
+            if (checkStart || checkEnd) {
+              // console.log(`${name}考试时间与${it.name}考试时间重叠`);
+              callback(`${name}考试时间与${it.name}考试时间重叠`);
+              return;
+            }
+          }
+        }
+      });
+    }
+    callback();
   }
 
   render() {
@@ -96,8 +138,6 @@ export default class StepTwo extends React.Component {
       teacherList = [], subjectSelectList = [],
       form: { getFieldDecorator }
     } = this.props;
-
-    // console.log('subjectSelectList: ', subjectSelectList)
 
     const formlayout = {
       labelCol: { span: 3 },
@@ -112,7 +152,10 @@ export default class StepTwo extends React.Component {
               <FormItem key={it.id} label={`${it.name}考试时间`} >
                 {
                   getFieldDecorator(`subjectDate${it.id}`, {
-                    rules: [{ message: `请选择${it.name}考试时间`, required: true }]
+                    rules: [
+                      { message: `请选择${it.name}考试时间`, required: true },
+                      { validator: this.handleSubjectDate.bind(null, it.id, it.name) }
+                    ]
                   })
                     (
                       <RangePicker
@@ -134,7 +177,7 @@ export default class StepTwo extends React.Component {
                 <RadioGroup onChange={this.onGradeDataChange}>
                   {
                     Enums(GradeIndexEnum).map(it =>
-                      <Radio key={it.value} value={it.value}>{it.name}</Radio>
+                      <Radio.Button key={it.value} value={it.value}>{it.name}</Radio.Button>
                     )
                   }
                 </RadioGroup>

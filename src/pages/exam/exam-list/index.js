@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { notification } from 'antd';
+import { notification, Modal } from 'antd';
 import moment from 'moment';
 import {
   ExamList as namespace,
@@ -66,7 +66,7 @@ export default class ExamList extends Component {
     if (listExam) {
       list = listExam.list;
     }
-    console.log(gradeList)
+    // console.log(gradeList)
     const gradeMap = gradeList.reduce((map, it) => {
       map[it.id] = it;
       return map;
@@ -93,7 +93,10 @@ export default class ExamList extends Component {
     const examTypes = Enums(ExamTypeEnum)
 
     const columns = [
-      { title: 'ID', key: 'id', width: 40 },
+      {
+        title: 'ID', key: 'id', width: 40,
+        render: (text, record, index) => index + 1
+      },
       {
         title: '考试名称', key: 'examName', width: 120,
         render: (text, record, index) => record.name
@@ -147,7 +150,7 @@ export default class ExamList extends Component {
         title: '状态', key: 'examstate',
         render: (text, record, index) => {
           let stateName = '';
-          switch (record.examstate) {
+          switch (record.examState) {
             case 1:
               stateName = '创建中'
               break;
@@ -173,45 +176,69 @@ export default class ExamList extends Component {
         filterMultiple: false,
         filteredValue: query.releaseStatus ? [query.releaseStatus] : [],
         render: (id, row) => {
-          if (row.releaseStatus == 0) {
-            return (
-              <TableCellOperation
-                operations={{
-                  preview: () => this.onPreview(row),
-                  publish: {
-                    onConfirm: () => this.onPublishOffline(row)
-                  },
-                  remove: {
-                    onConfirm: () => {
-                      dispatch({
-                        type: namespace + '/examRemove',
-                        payload: {
-                          id: row.id
-                        },
-                        resolve: () => {
-                          notification.success({ message: '删除成功' })
-                          dispatch({
-                            type: namespace + '/listExam',
-                            payload: { ...query },
-                          })
-                        }
-                      })
+          if (row.examState == 3) {// 创建成功
+            if (row.releaseStatus == 0) {
+              return (
+                <TableCellOperation
+                  operations={{
+                    preview: () => this.onPreview(row),
+                    publish: {
+                      onConfirm: () => this.onPublishOffline(row)
                     },
+                    remove: {
+                      onConfirm: () => {
+                        dispatch({
+                          type: namespace + '/examRemove',
+                          payload: {
+                            id: row.id
+                          },
+                          resolve: () => {
+                            notification.success({ message: '删除成功' })
+                            dispatch({
+                              type: namespace + '/listExam',
+                              payload: { ...query },
+                            })
+                          }
+                        })
+                      },
+                    },
+                  }}
+                />
+              )
+            } else {
+              return (
+                <TableCellOperation
+                  operations={{
+                    preview: () => this.onPreview(row),
+                    offline: {
+                      onConfirm: () => this.onPublishOffline(row),
+                    },
+                  }}
+                />
+              )
+            }
+          } else {// 创建失败  创建中
+            return <TableCellOperation
+              operations={{
+                remove: {
+                  onConfirm: () => {
+                    dispatch({
+                      type: namespace + '/examRemove',
+                      payload: {
+                        id: row.id
+                      },
+                      resolve: () => {
+                        notification.success({ message: '删除成功' })
+                        dispatch({
+                          type: namespace + '/listExam',
+                          payload: { ...query },
+                        })
+                      }
+                    })
                   },
-                }}
-              />
-            )
-          } else {
-            return (
-              <TableCellOperation
-                operations={{
-                  preview: () => this.onPreview(row),
-                  offline: {
-                    onConfirm: () => this.onPublishOffline(row),
-                  },
-                }}
-              />
-            )
+                },
+              }}
+            />
           }
         },
       },

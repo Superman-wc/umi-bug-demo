@@ -21,10 +21,11 @@ export default class ExamTable extends React.Component {
     const columns = [
       {
         title: 'ID',
-        dataIndex: 'roomId',
-        key: 'roomId',
+        dataIndex: 'rowIndex',
+        key: 'rowIndex',
         width: 60,
-        align: 'center'
+        align: 'center',
+        render: (text, record, index) => record.rowIndex + 1
       },
       {
         title: '考场',
@@ -105,6 +106,7 @@ export default class ExamTable extends React.Component {
     roomList.sort((a, b) => a.roomPriorityNum - b.roomPriorityNum);
     roomList.map((it, index) => {
       const item = {
+        rowIndex: index,
         roomId: it.roomId || index,
         roomName: it.name || '-' + index,
         roomPriorityNum: it.roomPriorityNum || index
@@ -164,12 +166,12 @@ export default class ExamTable extends React.Component {
               }
             })
           }}
-          handleMultiClick={(teacherSet) => {// 多选
+          handleMultiClick={(teacherMap) => {// 多选
             let strs = '';
-            for (let value of teacherSet.values()) {
-              strs += (value + ',')
-            }
-            let teachers = ''
+            teacherMap.forEach((it, key) => {
+              strs += (key + ',')
+            })
+            let teachers = '';
             if (strs.length > 0) {
               teachers = strs.substring(0, strs.length - 1);
             }
@@ -204,7 +206,7 @@ export default class ExamTable extends React.Component {
               this.props.dispatch({
                 type: namespace + '/updateTeacherInDetail',
                 payload: {
-                  examinationPlaceId: this.props.examinationPlaceId,
+                  examinationPlaceId: this.state.placeId,
                   teacherList: this.state.teacherList
                 },
                 resolve: () => {
