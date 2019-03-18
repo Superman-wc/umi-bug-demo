@@ -58,7 +58,7 @@ export default class UploadPage extends Component {
       },
       {title: '创建时间', key: 'dateCreated',},
       {
-        title: '操作',
+        title: '操作', width:120,
         key: 'operate',
         render: (id, row) => (
           <TableCellOperation
@@ -80,7 +80,7 @@ export default class UploadPage extends Component {
                 onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
               },
               look: {
-                hidden: row.status !== ExaminerStatusEnum.完成 && row.debugUrl,
+                hidden: !row.debugUrl,
                 children:'查看',
                 onClick:()=>{
                   window.open(row.debugUrl+'!page');

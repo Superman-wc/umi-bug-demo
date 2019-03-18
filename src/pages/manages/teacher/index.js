@@ -122,9 +122,9 @@ export default class StudentList extends Component {
       },
       {
         title: '任课班级', key: 'klassTeacherList', width: 350,
-        render: v => v && v.map(it =>
+        render: v => v && v.map((it, index) =>
           <span className={styles['subject-item']}
-                key={[it.klassId, it.subjectId].join('-')}>
+                key={[it.klassId, it.subjectId, index].join('-')}>
             {it.klassName + (it.klassName.indexOf(it.subjectName) >= 0 ? '': it.subjectName )}
             </span>
         )
