@@ -34,8 +34,8 @@ export default {
     },
     "/api/8queen/*": {
       // "target": "http://192.168.1.253:9901/",
-      "target": "http://116.62.207.178:9901/",
-      // "target": "https://timetabling.yunzhiyuan100.com/",
+      // "target": "http://116.62.207.178:9901/",
+      "target": "http://timetabling.yunzhiyuan100.com.cn/",
       "changeOrigin": true,
       // "pathRewrite": { "^/api" : "" }
     },
