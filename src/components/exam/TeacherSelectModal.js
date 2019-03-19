@@ -43,7 +43,7 @@ export default class TeacherSelectTableModal extends React.Component {
 
     return (
       <Modal
-        width={1100}
+        width={1000}
         title={title}
         visible={visible}
         footer={footer}

@@ -74,7 +74,7 @@ export default class TeacherSelectTable extends React.Component {
       subjectCount.push(value.length)
     }
     const maxCount = Math.max(...subjectCount);
-    this.state.scrollX = maxCount * 80;
+    this.state.scrollX = maxCount * 120 + 120;
     const columns = [
       {
         title: '序号',
@@ -82,15 +82,13 @@ export default class TeacherSelectTable extends React.Component {
         key: 'id',
         width: 60,
         align: 'center',
-        fixed: 'left'
       },
       {
         title: '科目',
         dataIndex: 'subjectName',
         key: 'subjectId',
         align: 'center',
-        width: 80,
-        fixed: 'left'
+        width: 60,
       },
     ];
     for (let i = 1; i <= maxCount; i++) {
