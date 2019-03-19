@@ -91,14 +91,8 @@ export const enum QuestionTypeEnum {
 }
 
 export const enum AnswerCardTypeEnum {
-  课后作业 = 1,
-  暑假作业 = 2,
-  寒假作业 = 3,
-  单元测试 = 4,
-  期中测试 = 5,
-  期末测试 = 6,
-  月考 = 7,
-
+  作业 = 1,
+  考试 = 2,
 }
 
 

@@ -58,6 +58,8 @@ function createFile(state, action) {
       }
     } = action;
 
+    cache('createFilePayload', action.payload);
+
     const {print: {width, height}, direction} = PAGE_SIZE[type];
 
     ElementObject.clear();
@@ -312,9 +314,11 @@ function removeActiveColumn(state) {
   return state;
 }
 
-function newFile() {
+function newFile(state) {
   ElementObject.clear();
-  return {};
+  const createFilePayload = cache('createFilePayload');
+  console.log('newFile createFilePayload=', createFilePayload);
+  return {...state, file: null, createFilePayload};
 }
 
 function removeActiveElement(state) {
@@ -697,7 +701,7 @@ function offset(id) {
 }
 
 function cacheWorkspace(state) {
-  const keys = ['file', 'gradeList', 'subjectList', 'classList'];
+  const keys = ['file', 'gradeList', 'subjectList', 'classList', 'createFilePayload'];
   if (state) {
     keys.forEach(key => {
       if (state[key]) {
@@ -823,6 +827,9 @@ export default Model(
         calculationTotalScore(result);
 
         return {...state, file: result, activePageKey, activeColumnKey, loading: false};
+      },
+      set(state, action) {
+        return {...state, ...action.payload};
       }
 
     })

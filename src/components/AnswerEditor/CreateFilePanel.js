@@ -24,7 +24,8 @@ const Mounted = Symbol('#CreateFilePanel@Mounted');
 class CreateFilePanel extends Component {
 
   state = {
-
+    senior: false,
+    maxColCount: 1,
   };
 
   componentDidMount() {
@@ -82,12 +83,22 @@ class CreateFilePanel extends Component {
           return map;
         }, {});
 
-        this[Mounted] && this.setState({
-          gradeList: Object.values(gradeMap),
-          subjectList: subjectList.reverse(),
-          classMap,
-          gradeMap,
+        dispatch({
+          type: namespace + '/set',
+          payload: {
+            gradeList: Object.values(gradeMap),
+            subjectList: subjectList.reverse(),
+            classMap,
+            gradeMap,
+          }
         });
+
+        // this[Mounted] && this.setState({
+        //   gradeList: Object.values(gradeMap),
+        //   subjectList: subjectList.reverse(),
+        //   classMap,
+        //   gradeMap,
+        // });
       })
     }
   }
@@ -100,10 +111,11 @@ class CreateFilePanel extends Component {
 
     const {
       dispatch, form: {getFieldDecorator, validateFieldsAndScroll},
-      profile, loading,
+      profile, loading, gradeList = [], subjectList = [], classMap = {}, gradeMap = {},
     } = this.props;
 
-    const {gradeList = [], subjectList = [], classMap = {}, gradeMap = {}} = this.state;
+    const {senior} = this.state;
+
 
     const wrapper = {labelCol: {span: 8}, wrapperCol: {span: 14}};
 
@@ -187,11 +199,11 @@ class CreateFilePanel extends Component {
           label: '类型',
           ...wrapper,
           fieldOptions: {
-            initialValue: AnswerCardTypeEnum.课后作业.toString(),
+            initialValue: AnswerCardTypeEnum.作业.toString(),
             rules: [{required: true, message: '必须选择'}],
           },
           children: (
-            <Select style={{width: 150}} placeholder="请选择学科" onChange={(v) => {
+            <Select style={{width: 150}} placeholder="类型" onChange={(v) => {
 
             }}>
               {
@@ -255,11 +267,21 @@ class CreateFilePanel extends Component {
             rules: [{required: true, message: '必须填写'}]
           },
           children: (
-            <Select style={{width: 220}}>
+            <Select style={{width: 220}}
+                    onChange={(v) => {
+                      if(v==='A3' || v==='8K'){
+                        this.setState({maxColCount: 3});
+                      }else{
+                        this.setState({maxColCount: 1});
+                      }
+
+                    }}
+            >
               {
                 Object.entries(PAGE_SIZE).map(([key, page]) =>
-                  <Select.Option key={key}
-                                 value={key}>{`${key} (${page.print.width}x${page.print.height}mm ${page.direction})`}</Select.Option>
+                  <Select.Option key={key} value={key}>
+                    {`${key} (${page.print.width}x${page.print.height}mm ${page.direction})`}
+                  </Select.Option>
                 )
               }
             </Select>
@@ -273,9 +295,12 @@ class CreateFilePanel extends Component {
             initialValue: 1,
             rules: [{required: true, message: '必须填写'}]
           },
-          children: <InputNumber style={{width: 60}} max={3} min={1}/>
+          children: (
+            <InputNumber style={{width: 60}} max={this.state.maxColCount || 2} min={1}/>
+          )
         },
         dpi: {
+          style: {display: senior ? 'block' : 'none'},
           label: '分辨率',
           help: '此项视打印机情况而定，一般为96DPI',
           ...wrapper,
@@ -294,6 +319,7 @@ class CreateFilePanel extends Component {
           )
         },
         padding: {
+          style: {display: senior ? 'block' : 'none'},
           label: '纸张边距',
           help: '纸张边缘留白部分，设置后打印机的边距请设置成"无"',
           ...wrapper,
@@ -304,6 +330,7 @@ class CreateFilePanel extends Component {
           children: <PaddingEditor/>
         },
         colSpan: {
+          style: {display: senior ? 'block' : 'none'},
           label: '分列间距',
           help: '列与列有间距',
           ...wrapper,
@@ -340,9 +367,22 @@ class CreateFilePanel extends Component {
               </Fragment>
             )
           }
-          <Form.Item wrapperCol={{offset: 8, span: 14}}>
+          <div style={{paddingLeft:200, marginTop:30}}>
+            <a onClick={()=>{
+              this.setState({senior: !this.state.senior});
+            }}>{this.state.senior ? '简单' : '高级'}</a>
+          </div>
+          <Form.Item wrapperCol={{offset: 8, span: 14}} style={{marginTop: 50}}>
             <Button type="primary" htmlType="submit" style={{width: 120}}>创建</Button>
-            <Button type="danger" htmlType="reset" style={{width: 120, marginLeft: '1em'}}>重置</Button>
+            <Button type="danger" htmlType="reset" style={{width: 120, marginLeft: '1em'}} onClick={() => {
+              dispatch({
+                type: namespace + '/set',
+                payload: {
+                  createFilePayload: null
+
+                }
+              })
+            }}>重置</Button>
           </Form.Item>
         </Form>
       </Spin>
@@ -353,4 +393,25 @@ class CreateFilePanel extends Component {
 export default connect(state => ({
   profile: state[Authenticate].authenticate,
   loading: state[ManagesGrade].loading || state[ManagesClass].loading || state[ManagesSubject].loading,
-}))(Form.create()(CreateFilePanel))
+  gradeList: state[namespace].gradeList,
+  subjectList: state[namespace].subjectList,
+  classMap: state[namespace].classMap,
+  gradeMap: state[namespace].gradeMap,
+  createFilePayload: state[namespace].createFilePayload,
+}))(Form.create({
+  mapPropsToFields(props) {
+    const ret = {};
+    if (props.createFilePayload) {
+      Object.entries(props.createFilePayload).forEach(([key, group]) => {
+        if (group) {
+          Object.entries(group).forEach(([subKey, value]) => {
+            ret[`${key}.${subKey}`] = Form.createFormField({value});
+          });
+        }
+      })
+    }
+    delete ret['info.date'];
+    console.log(ret);
+    return ret;
+  }
+})(CreateFilePanel))
