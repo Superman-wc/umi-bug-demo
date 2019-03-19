@@ -11,7 +11,7 @@ import {list, create, item, remove, modify} from '../../services/examiner/answer
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf/dist/jspdf.debug.js';
 import {pipes, pipe} from "../../utils/pipe";
-import router from 'umi/router';
+import cache from './cache';
 
 window.html2canvas = html2canvas;
 
@@ -481,8 +481,8 @@ function createPosition(state) {
   calculationTotalScore(file);
   const pages = file.pages.map(page => {
     const pageElement = document.getElementById(page.key);
-    const {x, y} = pageElement.getBoundingClientRect();
-    const qrCode = toRole(pageElement.querySelector('img[data-type="qr-code"]'), x, y);
+    const {left, top} = pageElement.getBoundingClientRect();
+    const qrCode = toRole(pageElement.querySelector('img[data-type="qr-code"]'), left, top);
     qrCode.width = 72;
     qrCode.height = 72;
     qrCode.x += 14;
@@ -494,7 +494,7 @@ function createPosition(state) {
     const points = pageElement.querySelectorAll('div[data-type="point"]');
 
     for (let point of points) {
-      elements.push(toRole(point, x, y));
+      elements.push(toRole(point, left, top));
     }
 
     page.columns.forEach(col => {
@@ -503,24 +503,24 @@ function createPosition(state) {
       for (let box of children) {
         if (box.dataset.type === 'choice-question') {
           for (let choiceEle of box.children) {
-            const roleChoice = toRole(choiceEle, x, y);
+            const roleChoice = toRole(choiceEle, left, top);
             const subList = choiceEle.querySelectorAll('[role="box"]');
             if (subList.length) {
               roleChoice.children = [];
               for (let subBox of subList) {
-                roleChoice.children.push(toRole(subBox, x, y));
+                roleChoice.children.push(toRole(subBox, left, top));
               }
             }
             roleChoice.number = parseInt(roleChoice.number, 10);
             elements.push(roleChoice);
           }
         } else {
-          const roleBox = toRole(box, x, y);
+          const roleBox = toRole(box, left, top);
           const subList = box.querySelectorAll('[role="box"]');
           if (subList.length) {
             roleBox.children = [];
             for (let subBox of subList) {
-              roleBox.children.push(toRole(subBox, x, y));
+              roleBox.children.push(toRole(subBox, left, top));
             }
             if (roleBox.type === 'completion-question') {
               const items = [];
@@ -561,13 +561,13 @@ function createPosition(state) {
 
 
 function toRole(ele, ox = 0, oy = 0) {
-  const {x, y, width, height} = ele.getBoundingClientRect();
-  const ret = {x: x - ox, y: y - oy, width, height, ...ele.dataset};
+  const {left, top, width, height} = ele.getBoundingClientRect();
+  const ret = {x: left - ox, y: top - oy, width, height, ...ele.dataset};
   delete ret.checked;
   return ret;
 }
 
-function checkContentOverflow(state) {
+function runCheckContentOverflow(state) {
   console.log('checkContentOverflow');
   const {file} = state;
   const {pages} = file;
@@ -587,7 +587,7 @@ function checkContentOverflow(state) {
           // 列中最后一个元素的底边如果已经超过了列底边,
           // 将此元素移动到下一列的开头， 如果没有下一列，则一添加列，
           // 如果页面列数已满， 则应该先添加页面
-          if ((lastOffset.y + lastOffset.height) - (colOffset.y + colOffset.height) > 0) {
+          if (lastOffset.bottom - colOffset.bottom > 0) {
 
             let nextCol;
             // 判断是否存在下一列
@@ -650,7 +650,7 @@ function checkContentOverflow(state) {
                 const prevColLastEle = prevCol.elements[prevCol.elements.length - 1];
                 const prevColLastNode = document.getElementById(prevColLastEle.key);
                 const prevColLastOffset = prevColLastNode.getBoundingClientRect();
-                height = prevColOffset.y + prevColOffset.height - 10 - (prevColLastOffset.y + prevColLastOffset.height);
+                height = prevColOffset.bottom - prevColLastOffset.bottom - 10;
               }
               if (height - firstEleOffset.height > 0) {
                 console.log(
@@ -696,12 +696,42 @@ function offset(id) {
   return {x, y, width, height};
 }
 
+function cacheWorkspace(state) {
+  const keys = ['file', 'gradeList', 'subjectList', 'classList'];
+  if (state) {
+    keys.forEach(key => {
+      if (state[key]) {
+        cache(key, state[key]);
+      }
+    });
+  } else {
+    return keys.reduce((state, key) => {
+      const data = cache(key);
+      if (data) {
+        state[key] = data;
+      }
+      return state;
+    }, {});
+  }
+}
+
+function wrapperCacheWorkspace(reducers) {
+  return Object.entries(reducers).reduce((map, [key, reducer]) => {
+    map[key] = (state, action) => {
+      const nextState = reducer(state, action);
+      cacheWorkspace(nextState);
+      return nextState;
+    };
+    return map;
+  }, {});
+}
+
 
 export default Model(
   {
     namespace,
 
-    state: {},
+    state: cacheWorkspace(),
 
     subscriptions: {
       setup({dispatch, history}) {
@@ -745,7 +775,7 @@ export default Model(
       saveToPDF,
 
     },
-    reducers: {
+    reducers: wrapperCacheWorkspace({
       buildElementOffset,
       createFile,
       newFile,
@@ -772,7 +802,7 @@ export default Model(
       },
 
       checkContentOverflow(state) {
-        if (checkContentOverflow(state)) {
+        if (runCheckContentOverflow(state)) {
           return {...state, file: ElementObject.create(state.file)}
         }
         return state;
@@ -795,7 +825,7 @@ export default Model(
         return {...state, file: result, activePageKey, activeColumnKey, loading: false};
       }
 
-    }
+    })
   },
   {
     list, create, item, remove, modify

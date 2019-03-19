@@ -2,6 +2,7 @@ import {connect} from 'dva';
 import {Menu, Icon, Modal, message} from 'antd';
 import styles from './answer.less';
 import {AnswerEditor as namespace} from "../../utils/namespace";
+import router from 'umi/router';
 
 function EditorHeader(props) {
 
@@ -44,10 +45,11 @@ function EditorHeader(props) {
         payload: {
           key, keyPath,
         },
-        resolve:(res)=>{
-          if(key === 'save'){
+        resolve: (res) => {
+          if (key === 'save') {
             console.log(res);
             message.success('保存成功');
+            router.replace({pathname: props.pathname, query: {...props.query, id: res.id}});
           }
         }
       });

@@ -16,13 +16,16 @@ import {
 import locale from 'antd/lib/date-picker/locale/zh_CN';
 import moment from 'moment';
 import {AnswerCardTypeEnum, Enums} from "../../utils/Enum";
+import cache from './cache';
 
 
 const Mounted = Symbol('#CreateFilePanel@Mounted');
 
 class CreateFilePanel extends Component {
 
-  state = {};
+  state = {
+
+  };
 
   componentDidMount() {
     const {dispatch} = this.props;
@@ -44,7 +47,8 @@ class CreateFilePanel extends Component {
           dispatch({
             type: ManagesClass + '/list',
             payload: {
-              s: 10000
+              s: 10000,
+              simple: 1
             },
             resolve,
             reject

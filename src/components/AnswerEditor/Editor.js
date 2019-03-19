@@ -18,10 +18,10 @@ export default class Editor extends Component {
   }
 
   render() {
-    const {location:{query}} = this.props;
+    const {location:{query, pathname}} = this.props;
     return (
       <Fragment>
-        <EditorHeader query={query}/>
+        <EditorHeader query={query} pathname={pathname}/>
         <EditorBody query={query}/>
         <EditorRightPanel/>
       </Fragment>
