@@ -23,7 +23,7 @@ function EditorRightPanel(props){
               activeColumnKey ?
                 <div className="tac">
                   <hr />
-                  <Button onClick={() => {
+                  <Button type="danger" onClick={() => {
                     dispatch({
                       type: namespace + '/removeActiveColumn',
                       payload: {

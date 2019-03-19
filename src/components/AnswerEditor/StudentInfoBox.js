@@ -31,7 +31,7 @@ class StudentCodeBox extends Component {
 
   render() {
     const {focus, value = '', length = 8} = this.state;
-    const codes = value.split('');
+    const codes = value.toString().split('');
     for (let i = 0, len = length - codes.length; i < len; i++) {
       codes.push('');
     }

@@ -31,11 +31,24 @@ function saveToPDF(state) {
 
 }
 
-
+/**
+ * 计算列宽度，（页面宽度 - 页面左右边距 - (列数-1)*列边距）/ 列数
+ * @param pageWidth 页面宽度
+ * @param padding   页面边距
+ * @param colCount  列数
+ * @param colSpan   列边距
+ * @returns {number}
+ */
 function calcColWidth(pageWidth, padding, colCount, colSpan) {
   return Math.floor((pageWidth - padding[1] - padding[3] - (colCount - 1) * colSpan) / colCount);
 }
 
+/**
+ * 创建文件
+ * @param state
+ * @param action
+ * @returns {*}
+ */
 function createFile(state, action) {
   try {
     const {
@@ -43,7 +56,7 @@ function createFile(state, action) {
         print: {
           dpi = 96,
           type = "A4",
-          padding = [60, 45, 60, 45],
+          padding = [80, 60, 80, 60],
           pageCount = 1,
           colCount = 1,
           colSpan = 30,
@@ -58,6 +71,7 @@ function createFile(state, action) {
       }
     } = action;
 
+    // 缓存创建文件表单提交的数据
     cache('createFilePayload', action.payload);
 
     const {print: {width, height}, direction} = PAGE_SIZE[type];
@@ -128,22 +142,17 @@ function createFile(state, action) {
     firstCol.elements.push(ElementObject.create({
       type: 'student-info',
       length: 8,
-      code: new Date().getFullYear().toString(),
-      // y: 80
+      code: (info.schoolYear || new Date().getFullYear()).toString(),
     }));
 
     if (choiceCount) {
       const ys = choiceCount % 5;
       let gs = Math.ceil(choiceCount / 5) + (ys === 0 ? 1 : 0);
-      // const cqw = 114 + 20;
-      // const cqh = 92 + 10;
       let i = 0;
 
       function createChoiceQuestion(count) {
         return ElementObject.create({
           type: 'choice-question',
-          // x: 250 + (i % 3) * cqw,
-          // y: 95 + Math.floor(i / 3) * cqh,
           startNumber: i * 5 + 1,
           count,
           optionCount: 4,
@@ -161,12 +170,9 @@ function createFile(state, action) {
 
     if (completionCount) {
       const cs = (choiceCount || 0) + 1;
-      // const cys = 312;
-      // const ch = 71 + 10;
       for (let i = 0; i < completionCount; i++) {
         firstCol.elements.push(ElementObject.create({
           type: 'completion-question',
-          // y: cys + ch * i,
           number: cs + i,
           count: 3,
         }));
@@ -175,12 +181,9 @@ function createFile(state, action) {
 
     if (answerCount) {
       const as = ((choiceCount + completionCount) || 0) + 1;
-      // const ays = 717;
-      // const ah = 284;
       for (let i = 0; i < answerCount; i++) {
         firstCol.elements.push(ElementObject.create({
           type: 'answer-question',
-          // y: ays + i * ah,
           number: as + i,
         }));
       }
@@ -197,6 +200,10 @@ function createFile(state, action) {
 
 }
 
+/**
+ * 创建页面
+ * @param state
+ */
 function createPage(state) {
   const {file} = state;
   const {print: {w, h, colCount, colSpan, colWidth, padding}, pages} = file;
@@ -225,6 +232,11 @@ function createPage(state) {
   return page;
 }
 
+/**
+ * 添加页面
+ * @param state
+ * @returns {{file}}
+ */
 function addPage(state) {
   const {file} = state;
   const page = createPage(state);
@@ -232,28 +244,72 @@ function addPage(state) {
   return {...state, file: ElementObject.create(file)};
 }
 
+/**
+ * 查找页面
+ * @param file
+ * @param pageKey
+ * @returns {*}
+ */
+function findPage(file, pageKey) {
+  if (pageKey && file && file.pages && file.pages.length) {
+    return file.pages.find(page => page.key === pageKey);
+  }
+}
+
+/**
+ * 查找激活的页面
+ * @param state
+ * @returns {*}
+ */
 function findActivePage(state) {
   const {file, activePageKey} = state;
-  if (activePageKey && file && file.pages && file.pages.length) {
-    return file.pages.find(page => page.key === activePageKey);
+  return findPage(file, activePageKey);
+}
+
+/**
+ * 查找页面索引
+ * @param file
+ * @param pageKey
+ * @returns {*}
+ */
+function findIndexPage(file, pageKey) {
+  if (pageKey && file && file.pages && file.pages.length) {
+    return file.pages.findIndex(page => page.key === pageKey);
   }
 }
 
+/**
+ * 查找激活页面的索引
+ * @param state
+ * @returns {*}
+ */
 function findIndexActivePage(state) {
   const {file, activePageKey} = state;
-  if (activePageKey && file && file.pages && file.pages.length) {
-    return file.pages.findIndex(page => page.key === activePageKey);
+  return findIndexPage(file, activePageKey);
+}
+
+function findColumn(file, columnKey, pageKey) {
+  const page = findPage(file, pageKey);
+  if (page && page.columns && page.columns.length && columnKey) {
+    return page.columns.find(col => col.key === columnKey);
   }
 }
 
+/**
+ * 查找激活的列
+ * @param state
+ * @returns {*}
+ */
 function findActiveColumn(state) {
-  const page = findActivePage(state);
-  const {activeColumnKey} = state;
-  if (page && page.columns && page.columns.length && activeColumnKey) {
-    return page.columns.find(col => col.key === activeColumnKey);
-  }
+  const {activeColumnKey, activePageKey, file} = state;
+  return findColumn(file,  activeColumnKey, activePageKey);
 }
 
+/**
+ * 查找激活的列的索引
+ * @param state
+ * @returns {number}
+ */
 function findIndexActiveColumn(state) {
   const page = findActivePage(state);
   const {activeColumnKey} = state;
@@ -262,7 +318,11 @@ function findIndexActiveColumn(state) {
   }
 }
 
-
+/**
+ * 查找激活的元素
+ * @param state
+ * @returns {*}
+ */
 function findActiveElement(state) {
   const column = findActiveColumn(state);
   const {activeElementKey} = state;
@@ -271,6 +331,11 @@ function findActiveElement(state) {
   }
 }
 
+/**
+ * 查找激活的元素的索引
+ * @param state
+ * @returns {*}
+ */
 function findIndexActiveElement(state) {
   const column = findActiveColumn(state);
   const {activeElementKey} = state;
@@ -279,6 +344,11 @@ function findIndexActiveElement(state) {
   }
 }
 
+/**
+ * 添加列
+ * @param state
+ * @returns {{file}}
+ */
 function addColumn(state) {
   const {file} = state;
   const page = findActivePage(state);
@@ -300,6 +370,11 @@ function addColumn(state) {
   return {...state, file: ElementObject.create(file)};
 }
 
+/**
+ * 删除激活的列
+ * @param state
+ * @returns {*}
+ */
 function removeActiveColumn(state) {
   const {activeColumnKey} = state;
   const obj = ElementObject.remove(activeColumnKey);
@@ -314,6 +389,11 @@ function removeActiveColumn(state) {
   return state;
 }
 
+/**
+ * 新建文件
+ * @param state
+ * @returns {{file: null, createFilePayload: *}}
+ */
 function newFile(state) {
   ElementObject.clear();
   const createFilePayload = cache('createFilePayload');
@@ -321,6 +401,11 @@ function newFile(state) {
   return {...state, file: null, createFilePayload};
 }
 
+/**
+ * 删除激活的元素
+ * @param state
+ * @returns {*}
+ */
 function removeActiveElement(state) {
   const {activeElementKey} = state;
   const col = findActiveColumn(state);
@@ -335,6 +420,11 @@ function removeActiveElement(state) {
   return state;
 }
 
+/**
+ * 自动题号
+ * @param file
+ * @returns {*}
+ */
 function autoQuestionNumber(file) {
   let number = 1;
   file.pages.forEach(page => {
@@ -358,6 +448,12 @@ function autoQuestionNumber(file) {
   return file;
 }
 
+/**
+ * 插入题目
+ * @param state
+ * @param question
+ * @returns {*}
+ */
 function insertQuestion(state, question) {
   const col = findActiveColumn(state);
   if (col) {
@@ -378,6 +474,11 @@ function insertQuestion(state, question) {
   return state;
 }
 
+/**
+ * 添加选择题
+ * @param state
+ * @returns {{file}}
+ */
 function addChoiceQuestion(state) {
   return insertQuestion(state, ElementObject.create({
     type: 'choice-question',
@@ -387,6 +488,11 @@ function addChoiceQuestion(state) {
   }));
 }
 
+/**
+ * 添加填空题
+ * @param state
+ * @returns {{file}}
+ */
 function addCompletionQuestion(state) {
   return insertQuestion(state, ElementObject.create({
     type: 'completion-question',
@@ -395,6 +501,11 @@ function addCompletionQuestion(state) {
   }));
 }
 
+/**
+ * 添加解答题
+ * @param state
+ * @returns {{file}}
+ */
 function addAnswerQuestion(state) {
   return insertQuestion(state, ElementObject.create({
     type: 'answer-question',
@@ -402,6 +513,11 @@ function addAnswerQuestion(state) {
   }));
 }
 
+/**
+ * 添加页面标题
+ * @param state
+ * @returns {*}
+ */
 function addTitleBox(state) {
   const page = findActivePage(state);
   if (page && page.columns && page.columns.length) {
@@ -418,6 +534,11 @@ function addTitleBox(state) {
   return state;
 }
 
+/**
+ * 添加学生信息框
+ * @param state
+ * @returns {{file}}
+ */
 function addStudentInfoBox(state) {
   return insertQuestion(state, ElementObject.create({
     type: 'student-info',
@@ -425,6 +546,12 @@ function addStudentInfoBox(state) {
   }));
 }
 
+/**
+ * 设置元素属性
+ * @param state
+ * @param action
+ * @returns {*}
+ */
 function setElementAttribute(state, action) {
   const {key, value} = action.payload;
   const pageIndex = findIndexActivePage(state);
@@ -450,16 +577,21 @@ function setElementAttribute(state, action) {
   return state;
 }
 
+/**
+ * 计算总分
+ * @param file
+ * @returns {*}
+ */
 function calculationTotalScore(file) {
   file.score = file.pages.reduce((sum, page) => {
     return page.columns.reduce((sum, col) => {
       return col.elements.reduce((sum, ele) => {
         switch (ele.type) {
           case 'choice-question':
-            return sum + ele.count * ele.score;
+            return sum + ele.count * (ele.score || 1);
           case 'completion-question':
           case 'answer-question':
-            return sum + ele.score;
+            return sum + (ele.score || 1);
           default:
             return sum;
         }
@@ -469,17 +601,34 @@ function calculationTotalScore(file) {
   return file;
 }
 
+/**
+ * 生成二维码
+ * @param action
+ * @param saga
+ * @returns {IterableIterator<*>}
+ */
 function* buildQrCode(action, saga) {
   const qrCode = yield QrCode(action.payload.str);
   yield saga.put({type: 'buildQrCodeSuccess', payload: {qrCode}});
 }
 
+/**
+ * 生成二维码成功
+ * @param state
+ * @param action
+ * @returns {{file}}
+ */
 function buildQrCodeSuccess(state, action) {
   const {file} = state;
   file.qrCode = action.payload.qrCode;
   return {...state, file: ElementObject.create(file)}
 }
 
+/**
+ * 生成位置信息数据
+ * @param state
+ * @returns {{ver: number, score: *, print: {width: (number|*), height: *, w, h}, pages: *}}
+ */
 function createPosition(state) {
   const {file} = state;
   calculationTotalScore(file);
@@ -563,7 +712,13 @@ function createPosition(state) {
   };
 }
 
-
+/**
+ * 转换成role信息
+ * @param ele
+ * @param ox
+ * @param oy
+ * @returns {{x: number, y: number, width, height, [p: string]: string | undefined}}
+ */
 function toRole(ele, ox = 0, oy = 0) {
   const {left, top, width, height} = ele.getBoundingClientRect();
   const ret = {x: left - ox, y: top - oy, width, height, ...ele.dataset};
@@ -571,104 +726,111 @@ function toRole(ele, ox = 0, oy = 0) {
   return ret;
 }
 
+/**
+ * 执行检查内容溢出
+ * @param state
+ * @returns {boolean}
+ */
 function runCheckContentOverflow(state) {
   console.log('checkContentOverflow');
   const {file} = state;
-  const {pages} = file;
-  for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
-    const page = pages[pageIndex];
-    for (let columnIndex = 0; columnIndex < page.columns.length; columnIndex++) {
-      const column = page.columns[columnIndex];
-      if (column.elements.length > 1) {
-        const lastElement = column.elements[column.elements.length - 1];
-        const lastNode = document.getElementById(lastElement.key);
-        const colNode = document.getElementById(column.key);
-        if (colNode && lastNode) {
+  const {pages} = file || {};
+  if (pages && pages.length) {
+    for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+      const page = pages[pageIndex];
+      for (let columnIndex = 0; columnIndex < page.columns.length; columnIndex++) {
+        const column = page.columns[columnIndex];
+        if (column.elements.length > 1) {
+          const lastElement = column.elements[column.elements.length - 1];
+          const lastNode = document.getElementById(lastElement.key);
+          const colNode = document.getElementById(column.key);
+          if (colNode && lastNode) {
 
-          const lastOffset = lastNode.getBoundingClientRect();
-          const colOffset = colNode.getBoundingClientRect();
+            const lastOffset = lastNode.getBoundingClientRect();
+            const colOffset = colNode.getBoundingClientRect();
 
-          // 列中最后一个元素的底边如果已经超过了列底边,
-          // 将此元素移动到下一列的开头， 如果没有下一列，则一添加列，
-          // 如果页面列数已满， 则应该先添加页面
-          if (lastOffset.bottom - colOffset.bottom > 0) {
+            // 列中最后一个元素的底边如果已经超过了列底边,
+            // 将此元素移动到下一列的开头， 如果没有下一列，则一添加列，
+            // 如果页面列数已满， 则应该先添加页面
+            if (lastOffset.bottom - colOffset.bottom > 0) {
 
-            let nextCol;
-            // 判断是否存在下一列
-            if (page.columns[columnIndex + 1]) {
-              nextCol = page.columns[columnIndex + 1];
-            }
-            // 如果还可以添加列
-            else if (page.columns.length < page.colCount) {
-              nextCol = ElementObject.create({
-                elements: [],
-                index: page.columns.length
-              });
-              page.columns.push(nextCol);
-            }
-            // 如果还有下一页
-            else if (pages[pageIndex + 1]) {
-              const nextPage = pages[pageIndex + 1];
-              nextCol = nextPage.columns[0];
-            }
-            // 只能添加页了
-            else {
-              const nextPage = createPage(state);
-              pages.push(nextPage);
-              nextCol = nextPage.columns[0];
-            }
+              let nextCol;
+              // 判断是否存在下一列
+              if (page.columns[columnIndex + 1]) {
+                nextCol = page.columns[columnIndex + 1];
+              }
+              // 如果还可以添加列
+              else if (page.columns.length < page.colCount) {
+                nextCol = ElementObject.create({
+                  elements: [],
+                  index: page.columns.length
+                });
+                page.columns.push(nextCol);
+              }
+              // 如果还有下一页
+              else if (pages[pageIndex + 1]) {
+                const nextPage = pages[pageIndex + 1];
+                nextCol = nextPage.columns[0];
+              }
+              // 只能添加页了
+              else {
+                const nextPage = createPage(state);
+                pages.push(nextPage);
+                nextCol = nextPage.columns[0];
+              }
 
-            column.elements.splice(column.elements.length - 1, 1);
-            if (nextCol.elements[0] && nextCol.elements[0].type === 'page-title') {
-              const elements = nextCol.elements.splice(0, 1);
-              nextCol.elements = elements.concat(lastElement).concat(nextCol.elements);
-            } else {
-              nextCol.elements.unshift(lastElement);
+              column.elements.splice(column.elements.length - 1, 1);
+              if (nextCol.elements[0] && nextCol.elements[0].type === 'page-title') {
+                const elements = nextCol.elements.splice(0, 1);
+                nextCol.elements = elements.concat(lastElement).concat(nextCol.elements);
+              } else {
+                nextCol.elements.unshift(lastElement);
+              }
+              console.log(`自动将${pageIndex}-${columnIndex}的最后一个元素${lastElement.key}插入到下一列中`)
+              return true
             }
-            console.log(`自动将${pageIndex}-${columnIndex}的最后一个元素${lastElement.key}插入到下一列中`)
-            return true
           }
         }
-      }
-      let firstElement = column.elements[0];
-      // 如果列的第一个元素不是标题，且不是第一页第一列
-      if (firstElement && firstElement.type !== 'page-title' && pageIndex + columnIndex > 0) {
-        // 获取元素的DOM
-        const firstNode = document.getElementById(firstElement.key);
-        if (firstNode) {
-          let prevCol;
-          //
-          if (columnIndex > 0) {
-            prevCol = page.columns[columnIndex - 1];
-          } else if (pageIndex > 0) {
-            const prevPage = pages[pageIndex - 1];
-            prevCol = prevPage.columns[prevPage.columns.length - 1];
-          }
-          if (prevCol) {
-            const firstEleOffset = firstNode.getBoundingClientRect();
-            const prevColNode = document.getElementById(prevCol.key);
-            if (prevColNode) {
-              const prevColOffset = prevColNode.getBoundingClientRect();
-              let height = prevColOffset.height - 10;
-              if (prevCol.elements.length) {
-                const prevColLastEle = prevCol.elements[prevCol.elements.length - 1];
-                const prevColLastNode = document.getElementById(prevColLastEle.key);
-                const prevColLastOffset = prevColLastNode.getBoundingClientRect();
-                height = prevColOffset.bottom - prevColLastOffset.bottom - 10;
-              }
-              if (height - firstEleOffset.height > 0) {
-                console.log(
-                  '上移',
-                  height,
-                  firstEleOffset.height,
-                  height - firstEleOffset.height
-                );
-                prevCol.elements.push(column.elements.shift());
-                const pageHasElementCount = page.columns.reduce((sum, col) => (sum + col.elements.length), 0);
-                if (!pageHasElementCount) {
-                  pages.splice(pageIndex, 1);
+        let firstElement = column.elements[0];
+        // 如果列的第一个元素不是标题，且不是第一页第一列
+        if (firstElement && firstElement.type !== 'page-title' && pageIndex + columnIndex > 0) {
+          // 获取元素的DOM
+          const firstNode = document.getElementById(firstElement.key);
+          if (firstNode) {
+            let prevCol;
+            //
+            if (columnIndex > 0) {
+              prevCol = page.columns[columnIndex - 1];
+            } else if (pageIndex > 0) {
+              const prevPage = pages[pageIndex - 1];
+              prevCol = prevPage.columns[prevPage.columns.length - 1];
+            }
+            if (prevCol) {
+              const firstEleOffset = firstNode.getBoundingClientRect();
+              const prevColNode = document.getElementById(prevCol.key);
+              if (prevColNode) {
+                const prevColOffset = prevColNode.getBoundingClientRect();
+                let height = prevColOffset.height - 10;
+                if (prevCol.elements.length) {
+                  const prevColLastEle = prevCol.elements[prevCol.elements.length - 1];
+                  const prevColLastNode = document.getElementById(prevColLastEle.key);
+                  const prevColLastOffset = prevColLastNode.getBoundingClientRect();
+                  height = prevColOffset.bottom - prevColLastOffset.bottom - 10;
                 }
-                return true;
+                if (height - firstEleOffset.height > 0) {
+                  console.log(
+                    '上移',
+                    height,
+                    firstEleOffset.height,
+                    height - firstEleOffset.height
+                  );
+                  prevCol.elements.push(column.elements.shift());
+                  const pageHasElementCount = page.columns.reduce((sum, col) => (sum + col.elements.length), 0);
+                  if (!pageHasElementCount) {
+                    pages.splice(pageIndex, 1);
+                  }
+                  return true;
+                }
               }
             }
           }
@@ -679,6 +841,11 @@ function runCheckContentOverflow(state) {
   return false;
 }
 
+/**
+ * 构建元素位置信息
+ * @param state
+ * @returns {{file}}
+ */
 function buildElementOffset(state) {
   const {file} = state;
   file.pages.forEach(page => {
@@ -694,12 +861,22 @@ function buildElementOffset(state) {
   return {...state, file: ElementObject.create(file)};
 }
 
+/**
+ * DOM元素位置信息
+ * @param id
+ * @returns {{x, y, width, height}}
+ */
 function offset(id) {
   const node = document.getElementById(id);
-  const {x, y, width, height} = node ? node.getBoundingClientRect() : {};
-  return {x, y, width, height};
+  const {left, top, width, height} = node ? node.getBoundingClientRect() : {};
+  return {x: left, y: top, width, height};
 }
 
+/**
+ * 工作区缓存
+ * @param state
+ * @returns {string|{}}
+ */
 function cacheWorkspace(state) {
   const keys = ['file', 'gradeList', 'subjectList', 'classList', 'createFilePayload'];
   if (state) {
@@ -719,6 +896,11 @@ function cacheWorkspace(state) {
   }
 }
 
+/**
+ * 工作区缓存Reducers
+ * @param reducers
+ * @returns {[string , any]}
+ */
 function wrapperCacheWorkspace(reducers) {
   return Object.entries(reducers).reduce((map, [key, reducer]) => {
     map[key] = (state, action) => {
@@ -811,12 +993,6 @@ export default Model(
         }
         return state;
       },
-
-      // save(state) {
-      //   const ret = createPosition(state);
-      //   console.log(JSON.stringify(ret));
-      //   return state;
-      // },
 
       itemSuccess(state, action) {
         const {result = {}} = action;

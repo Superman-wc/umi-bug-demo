@@ -47,8 +47,8 @@ export default class UploadPage extends Component {
       {title: 'ID', key: 'id'},
       {title: '答题卡', key: 'editorTitle', width: 250,},
 
-      {title: '文件', key: 'url', width: 60, render: v => <img src={v + '!t'} height={40} onClick={()=>{
-        window.open(v+'!page');
+      {title: '文件', key: 'rotatedUrl', width: 60, render: (v, it) => <img src={(v || it.url) + '!t'} height={40} onClick={()=>{
+        window.open((v || it.url)+'!page');
         }}/>},
       {title: '上传者', key: 'createdBy',},
       {

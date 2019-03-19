@@ -365,7 +365,7 @@ ChoiceQuestionBox.js
     display: flex;
     flex-direction: row;
     label {
-      width: 24px;
+      min-width: 24px;
       text-align: right;
       &:after {
         content: '.';
@@ -382,7 +382,7 @@ ChoiceQuestionBox.js
 TitleBox.js
  */
 .title-box {
-  margin: -15px 0 0 -80px;
+  margin: 0 0 0 -80px;
   width: 100%;
   position: relative;
   line-height: 27px;
@@ -492,6 +492,11 @@ EditorRightPanel.js
   border-left: 1px solid #ccc;
   box-shadow: 0 0 10px #ccc;
   padding-top: 20px;
+  :global{
+    .ant-form-item{
+      margin-bottom: 4px;
+    }
+  }
 }
 
 /**
@@ -531,6 +536,7 @@ EditorPage.js
     margin-top: 50px;
   }
   .editor-column {
+    margin-top: -15px;
     &:first-child {
       &:before {
         content: '';
@@ -538,7 +544,7 @@ EditorPage.js
         float: left;
         width: 80px;
         height: 80px;
-        margin-top: -15px;
+        //margin-top: -15px;
       }
     }
 

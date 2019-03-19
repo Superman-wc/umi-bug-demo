@@ -76,6 +76,9 @@ export default class ExaminerAnswerListPage extends Component {
         title: '创建',
         icon: 'plus',
         onClick: () => {
+          dispatch({
+            type: namespace+'/newFile',
+          });
           router.push({pathname: namespace + '/editor'});
         },
       },

@@ -70,8 +70,8 @@ class CreateFilePanel extends Component {
         const classList = classModel.list || [];
         const subjectList = subjectModel.list || [];
 
-        const gradeMap = gradeList.reduce((map, {id, name}) => {
-          map[id] = {value: id, label: name, children: []};
+        const gradeMap = gradeList.reduce((map, {id, name, schoolYear}) => {
+          map[id] = {value: id, label: name, schoolYear, children: []};
           return map;
         }, {});
 
@@ -143,6 +143,8 @@ class CreateFilePanel extends Component {
             payload.content.title = `${year}年${profile.schoolName}${klass ? klass.label : grade.label + '年级'}${AnswerCardTypeEnum[payload.info.type]}\n${subject.name}答题卡 (${payload.info.date.format('YYYY.MM.DD')})`;
 
             console.log(payload, year, grade, klass, subject);
+
+            payload.info.schoolYear = grade.schoolYear;
 
             dispatch({
               type: namespace + '/createFile',
