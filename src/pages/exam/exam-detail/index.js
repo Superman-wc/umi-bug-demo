@@ -28,13 +28,12 @@ export default class ExamDetail extends React.Component {
     this.setState({
       exportLoading: true
     })
-    const { location, dispatch } = this.props;
-    const { query } = location;
-    console.log('importTable: ', query.id)
+    const { dispatch } = this.props;
+    console.log('importTable: ', examDetail.id)
     dispatch({
       type: namespace + '/examDetailExport',
       payload: {
-        id: query.id
+        id: examDetail.id
       },
       resolve: () => {
         this.downloadFile();
@@ -62,8 +61,7 @@ export default class ExamDetail extends React.Component {
   render() {
     const Search = Input.Search;
     const { examName, examDetail = {}, location } = this.props;
-    const { query } = location;
-    const canEdit = query.releaseStatus === 0;
+    const canEdit = examDetail.releaseStatus === 0;
     const title = '考务详情';
     const breadcrumb = ['考务管理', '考务列表', title];
     const headerOperation = <PageHeaderOperation buttons={[{ key: 'rollback' }]} />;
@@ -102,7 +100,7 @@ export default class ExamDetail extends React.Component {
             <a id='download-a' href='' download />
           </div>
           <div className={styles['exam-table-container']}>
-            <ExamTable examDetail={examDetail} examinationId={query.id}
+            <ExamTable examDetail={examDetail} examinationId={examDetail.id}
               canEdit={canEdit} searchValue={this.state.value} />
           </div>
 
