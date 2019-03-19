@@ -1,11 +1,12 @@
 import React, {Component} from 'react';
-import styles from './answer.less';
+import {message} from 'antd';
 import Element from "./Element";
 import SubjectiveQuestionsBox from "./SubjectiveQuestionsBox";
 import ContentEditableArea from "./ContentEditableArea";
 import Uploader from './Uploader';
 import {buildQiniuConfig} from "../../services";
 import {AnswerEditor as namespace} from "../../utils/namespace";
+import styles from './answer.less';
 
 /**
  * 解答题
@@ -67,6 +68,29 @@ export default class AnswerQuestionBox extends Component {
 
     console.log('render AnswerQuestionBox');
 
+    const uploadProps = {
+      qiNiuYunConfig: buildQiniuConfig(profile && profile.token),
+      success: ({url}) => {
+        message.success('上传图片成功');
+        console.log(url);
+        document.execCommand('insertImage', false, url);
+      }
+    };
+
+    const contentEditorProps = {
+      value: content || '<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>',
+      onChange: e => props.dispatch({
+        type: namespace + '/setElementAttribute',
+        payload: {
+          key: 'content',
+          value: e.value
+        }
+      }),
+      allowDragUpload: true,
+      uploadConfig: uploadProps,
+    };
+
+
     return (
       <Element {...eleProps}>
         <SubjectiveQuestionsBox score={score}>
@@ -75,24 +99,9 @@ export default class AnswerQuestionBox extends Component {
               {number}.
               {score ? `（${score}分）` : null}
             </label>
-            <Uploader qiNiuYunConfig={buildQiniuConfig(profile && profile.token)}
-                      success={({url}) => {
-                        document.execCommand('insertImage', false, url);
-                      }}>
-              <a>上传图片</a>
-            </Uploader>
+            <Uploader {...uploadProps}><a>上传图片</a></Uploader>
           </div>
-          <ContentEditableArea value={content || '<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>'}
-                               onChange={(e => {
-                                 props.dispatch({
-                                   type: namespace + '/setElementAttribute',
-                                   payload: {
-                                     key: 'content',
-                                     value: e.value
-                                   }
-                                 })
-                               })}/>
-
+          <ContentEditableArea {...contentEditorProps}/>
         </SubjectiveQuestionsBox>
       </Element>
     )

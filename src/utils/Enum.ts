@@ -104,6 +104,12 @@ export const enum ExaminerStatusEnum {
   完成 = 9,   // // PROCESSING_COMPLETE
 }
 
+export const enum PrintStatusEnum {
+  待处理 = 1,
+  完成打印 = 2,
+  待取件 = 4,
+  已取件 = 5
+}
 
 export function Enums(e?: any): Array<EnumValue> {
   return Object.keys(e).reduce((sum, value) => {

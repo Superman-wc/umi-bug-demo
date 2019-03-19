@@ -128,3 +128,60 @@ export default class Uploader extends Component {
     );
   }
 }
+
+
+export function upload(e, {
+  qiNiuYunConfig,
+  checkFileType = (...args) => !/image/i.test(...args),
+  onAddFile = (file) => file,
+  success = (args) => args,
+  complete = (args) => args,
+  onStart,
+  onProgress,
+  onEnd,
+  onError,
+  onChange
+} = {}) {
+
+  const files = (e.dataTransfer && e.dataTransfer.files) || e.target.files;
+  if (files && files.length) {
+    const qiniuyun = new Qiniuyun(qiNiuYunConfig);
+    const all = [];
+    for (let i = 0, len = files.length; i < len; i++) {
+      const file = files[i];
+      //验证图片文件类型
+      if (file.type && checkFileType(file.type)) {
+        continue;
+      }
+      const names = file.name.split('.');
+      let extName = names[names.length - 1] || file.type.split('/')[1] || 'jpg';
+      let date = new Date();
+      const f = a => a >= 10 ? a : ('0' + a);
+      const y = date.getFullYear();
+      const m = f(date.getMonth() + 1);
+      const d = f(date.getDate());
+      const filename = `${y}/${m}/${d}/` +
+        uuid(file.name + Date.now() + (Math.random() + '0000').substr(0, 6), uuid.URL) +
+        '.' +
+        extName;
+      all.push(onAddFile({file, filename}));
+    }
+
+    onChange && onChange({list: all, loading: true});
+
+    pipes(
+      (it, index) => qiniuyun.upload({...it, index}, {
+        onStart,
+        onProgress,
+        onEnd,
+        onError,
+      }),
+      success
+    )(...all)
+      .then((...args) => complete(null, ...args))
+      .catch(complete)
+      .finally(() => {
+        onChange && onChange({loading: false});
+      });
+  }
+}

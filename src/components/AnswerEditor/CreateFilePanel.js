@@ -16,7 +16,6 @@ import {
 import locale from 'antd/lib/date-picker/locale/zh_CN';
 import moment from 'moment';
 import {AnswerCardTypeEnum, Enums} from "../../utils/Enum";
-import cache from './cache';
 
 
 const Mounted = Symbol('#CreateFilePanel@Mounted');
@@ -29,8 +28,7 @@ class CreateFilePanel extends Component {
   };
 
   componentDidMount() {
-    const {dispatch} = this.props;
-    const {gradeList, subjectList, classMap, gradeMap} = this.state;
+    const {dispatch, gradeList, subjectList, classMap, gradeMap} = this.props;
     this[Mounted] = true;
     if (!gradeList || !subjectList || !classMap || !gradeMap) {
       Promise.all([

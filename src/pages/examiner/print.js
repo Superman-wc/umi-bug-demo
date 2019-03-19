@@ -1,14 +1,13 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
+import {Select} from 'antd';
 import router from "umi/router";
-import {Form, Modal, notification, Cascader} from 'antd';
 import {
-  AnswerEditor as namespace,
-  ManagesGrade, ManagesSubject, ManagesClass,
+  ExaminerPrint as namespace, AnswerEditor,
 } from '../../utils/namespace';
 import ListPage from '../../components/ListPage';
 import TableCellOperation from '../../components/TableCellOperation';
-import {BuildingTypeEnum, ClassTypeEnum, Enums, AnswerCardTypeEnum} from "../../utils/Enum";
+import {PrintStatusEnum, Enums} from "../../utils/Enum";
 
 
 @connect(state => ({
@@ -47,25 +46,57 @@ export default class ExaminerAnswerListPage extends Component {
       }
     ];
 
+
     const columns = [
-      {title: '文件名', key: 'title', width: 250},
-      {title: '打印份数', key: 'count', },
-      {title: '打印要求', key: 'requirement',},
-      {title: '申请教师', key: 'teacherName',},
-      {title: '状态', key: 'status'},
-      {title: '创建时间', key: 'dateCreated',},
+      {title: 'ID', key: 'id'},
+      {title: '文件名', key: 'examinerEditorName', width: 'auto', tac: false},
+      {title: '打印份数', key: 'num', width: 80},
+      {title: '打印要求', key: 'requirement', width: 100,},
+      {title: '申请教师', key: 'applicantName', width: 80},
       {
-        title: '操作',
+        title: '状态', key: 'status', width: 100,
+        render: (v) => PrintStatusEnum[v] || v
+      },
+      {title: '创建时间', key: 'dateCreated', width: 100, format: 'MM-DD HH:mm'},
+      {
+        title: '操作', width: 160,
         key: 'operate',
         render: (id, row) => (
           <TableCellOperation
             operations={{
-              edit: () => {
-                router.push({pathname: namespace + '/editor', query: {id}});
+              print: {
+                children: '打印',
+                hidden: !row.examinerEditorId || row.status !== PrintStatusEnum.待处理,
+                onClick: () => {
+                  router.push({pathname: AnswerEditor + '/editor', query: {id, readOnly: true}});
+                }
               },
-              remove: {
-                onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
+              notice: {
+                children: <span style={{color:'#f80'}}>通知取件</span>,
+                hidden: !row.examinerEditorId || row.status !== PrintStatusEnum.待处理,
+                onClick: () => {
+                  dispatch({
+                    type: namespace + '/notice',
+                    payload: {
+                      id,
+                      status: PrintStatusEnum.完成打印
+                    }
+                  });
+                }
               },
+              end: {
+                children:  <span style={{color:'#08f'}}>已取件</span>,
+                hidden: !row.examinerEditorId || row.status !== PrintStatusEnum.待取件,
+                onClick: () => {
+                  dispatch({
+                    type: namespace + '/modify',
+                    payload: {
+                      id,
+                      status: PrintStatusEnum.已取件
+                    }
+                  });
+                }
+              }
             }}
           />
         ),
@@ -80,7 +111,7 @@ export default class ExaminerAnswerListPage extends Component {
         loading={!!loading}
         columns={columns}
         breadcrumb={breadcrumb}
-        list={list}
+        list={list.sort((a, b) => a.status - b.status || b.id - a.id)}
         total={total}
         pagination
         title={title}

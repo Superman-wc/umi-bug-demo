@@ -34,7 +34,7 @@ DaubRectangleBox.js
   }
   &[data-checked="true"] {
     & > div {
-      background-color: #111;
+      background-color: #000;
     }
   }
 }
@@ -261,10 +261,10 @@ AnswerQuestionBox.js
   width: 100%;
   .subjective-questions-box {
     float: left;
-    width:100%;
+    width: 100%;
     & > main {
       float: left;
-      width:100%;
+      width: 100%;
     }
   }
   .question-toolbar {
@@ -287,6 +287,12 @@ AnswerQuestionBox.js
   }
   .content-editable-area {
     line-height: 1.732;
+    float: left;
+    width: 100%;
+    &.drag {
+      outline: 3px dashed #1eb9ee;
+      background-color: rgba(30, 185, 238, 0.5)
+    }
     .html-input {
       float: left;
       width: 100%;
@@ -492,8 +498,8 @@ EditorRightPanel.js
   border-left: 1px solid #ccc;
   box-shadow: 0 0 10px #ccc;
   padding-top: 20px;
-  :global{
-    .ant-form-item{
+  :global {
+    .ant-form-item {
       margin-bottom: 4px;
     }
   }

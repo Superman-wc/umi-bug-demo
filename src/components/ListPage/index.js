@@ -43,7 +43,7 @@ export function stdColumns(cols) {
       col.key === 'lastUpdated' ||
       col.type === 'dateTime'
     ) {
-      col.render = v => (v ? moment(v).format('YYYY-MM-DD HH:mm:ss') : '');
+      col.render = v => (v ? moment(v).format(col.format || 'YYYY-MM-DD HH:mm:ss') : '');
       if (typeof col.width === 'undefined') {
         col.width = 120;
       }

@@ -1,5 +1,5 @@
 import Model from 'dva-model';
-import {list, create, modify, remove} from '../../services/examiner/print';
+import {list, create, modify, remove, notice} from '../../services/examiner/print';
 import {ExaminerPrint as namespace} from '../../utils/namespace';
 
 export default Model(
@@ -17,11 +17,24 @@ export default Model(
         });
       },
     },
+    reducers: {
+      noticeSuccess(state, action) {
+        const {result} = action;
+        const {list = []} = state;
+        const index = list.findIndex(it => it.id === result.id);
+        if (index >= 0) {
+          list[index] = result;
+        }
+        return {...state, list: [...list], item: result, loading: false};
+
+      }
+    }
   },
   {
     list,
     create,
     modify,
     remove,
+    notice
   }
 );

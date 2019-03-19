@@ -13,6 +13,10 @@ export async function modify(data) {
   return request('/api/hii/1.0/admin/school/wenYin/' + data.id, {data, method: 'PUT'});
 }
 
+export async function notice({id, status}){
+  return request('/api/hii/1.0/admin/school/wenYin/' + id, {data:{status}, method: 'PATCH'});
+}
+
 /**
  *
  * @param editorId  答题卡Id

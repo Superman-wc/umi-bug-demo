@@ -786,7 +786,10 @@ function runCheckContentOverflow(state) {
               } else {
                 nextCol.elements.unshift(lastElement);
               }
-              console.log(`自动将${pageIndex}-${columnIndex}的最后一个元素${lastElement.key}插入到下一列中`)
+              console.log(`自动将${pageIndex}-${columnIndex}的最后一个元素${lastElement.key}插入到下一列中`);
+              const event = document.createEvent('HTMLEvents');
+              event.initEvent('autoFocusContentEditableArea', true, true);
+              document.dispatchEvent(event);
               return true
             }
           }
