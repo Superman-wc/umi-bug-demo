@@ -38,7 +38,12 @@ export default class ExaminerAnswerListPage extends Component {
         title: '刷新',
         icon: 'refresh',
         onClick: () => {
-
+          dispatch({
+            type: namespace + '/list',
+            payload: {
+              ...query
+            }
+          })
         },
       },
       {
@@ -72,7 +77,7 @@ export default class ExaminerAnswerListPage extends Component {
                 }
               },
               notice: {
-                children: <span style={{color:'#f80'}}>通知取件</span>,
+                children: <span style={{color: '#f80'}}>通知取件</span>,
                 hidden: !row.examinerEditorId || row.status !== PrintStatusEnum.待处理,
                 onClick: () => {
                   dispatch({
@@ -85,7 +90,7 @@ export default class ExaminerAnswerListPage extends Component {
                 }
               },
               end: {
-                children:  <span style={{color:'#08f'}}>已取件</span>,
+                children: <span style={{color: '#08f'}}>已取件</span>,
                 hidden: !row.examinerEditorId || row.status !== PrintStatusEnum.待取件,
                 onClick: () => {
                   dispatch({
