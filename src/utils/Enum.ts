@@ -84,6 +84,33 @@ export const enum WEEK {
   星期日 = 7,
 }
 
+export const enum QuestionTypeEnum {
+  单选题 = 1,
+  多选题 = 2,
+  判断题 = 3,
+}
+
+export const enum AnswerCardTypeEnum {
+  作业 = 1,
+  考试 = 2,
+}
+
+
+export const enum ExaminerStatusEnum {
+  删了 = 0, //  // NO_NEED_PROCESSING
+  等待处理 = 1, // // WAIT_FOR_PROCESSING
+  处理中 = 2,  //  // STARTING_PROCESSING
+  处理错误 = 3,     //       // PROCESSING_ERROR
+  完成 = 9,   // // PROCESSING_COMPLETE
+}
+
+export const enum PrintStatusEnum {
+  待处理 = 1,
+  完成打印 = 2,
+  待取件 = 4,
+  已取件 = 5
+}
+
 export function Enums(e?: any): Array<EnumValue> {
   return Object.keys(e).reduce((sum, value) => {
     if (parseInt(value, 10) >= 0) {

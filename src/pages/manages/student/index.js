@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
-import {Form, Modal, Input, notification, Radio, Button, Select} from 'antd';
+import router from 'umi/router';
+import {Form, Modal, Input, notification, Radio,} from 'antd';
 import {ManagesClass, ManagesGrade, ManagesStudent as namespace, ManagesSubject} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
@@ -73,14 +73,14 @@ export default class StudentList extends Component {
     const grade = gradeMap[query.gradeId] || {};
     const klass = classMap[query.klassId] || {};
 
-    const title = (klass.name || (grade.name && (grade.name+'（'+grade.schoolYear+'级）')) || '') + (query.gender === 'true' ? '男' : query.gender === 'false' ? '女' : '') + '学生列表';
+    const title = (klass.name || (grade.name && (grade.name + '（' + grade.schoolYear + '级）')) || '') + (query.gender === 'true' ? '男' : query.gender === 'false' ? '女' : '') + '学生列表';
 
     const breadcrumb = ['管理', '学生管理', title];
 
 
     const buttons = [
       {
-        key:'rollback'
+        key: 'rollback'
       }
     ];
 
@@ -120,16 +120,16 @@ export default class StudentList extends Component {
 
     const columns = [
       {title: 'ID', key: 'id'},
-      {title: '学号', key: 'code', width:80},
-      {title: '姓名', key: 'name', width:100},
+      {title: '学号', key: 'code', width: 80},
+      {title: '姓名', key: 'name', width: 100},
       {
         title: '年级', key: 'gradeId',
-        filters: gradeList.map(it => ({value: it.id, text: it.name+'（'+it.schoolYear+'级'+'）'})),
+        filters: gradeList.map(it => ({value: it.id, text: it.name + '（' + it.schoolYear + '级' + '）'})),
         filtered: !!query.gradeId,
         filterMultiple: false,
         filteredValue: query.gradeId ? [query.gradeId] : [],
         render: (gradeId, row) => row.gradeName,
-        width:70,
+        width: 70,
       },
       {
         title: '班级', key: 'klassId',
@@ -138,7 +138,7 @@ export default class StudentList extends Component {
         filterMultiple: false,
         filteredValue: query.klassId ? [query.klassId] : [],
         render: (classId, row) => row.klassName,
-        width:100,
+        width: 100,
       },
       {
         title: '性别', key: 'gender', render: v => v ? '男' : '女',
@@ -146,10 +146,10 @@ export default class StudentList extends Component {
         filtered: !!query.gender,
         filterMultiple: false,
         filteredValue: query.gender ? [query.gender] : [],
-        width:70,
+        width: 70,
       },
       {
-        title:'照片', key:'avatar', render:v=>v?<img src={v+'!avatar'} width={40} />:'', width:60,
+        title: '照片', key: 'avatar', render: v => v ? <img src={v + '!avatar'} width={40}/> : '', width: 60,
       },
       {
         title: '选考科目', key: 'electionExaminationCourseEntityList', width: 120,
@@ -172,15 +172,6 @@ export default class StudentList extends Component {
               remove: {
                 onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
               },
-              // timetable: {
-              //   children: '课表',
-              //   onClick: () => {
-              //     dispatch(routerRedux.push({
-              //       pathname: TimetableStudent,
-              //       query: {studentId: id, gradeId: item.gradeId, name: item.name}
-              //     }))
-              //   }
-              // }
             }}
           />
         ),
@@ -233,6 +224,30 @@ export default class StudentList extends Component {
           }
           return {};
         }}
+        headerChildren={
+          <div>
+            <Input.Search
+              placeholder="输入学号或姓名"
+              enterButton="搜索"
+              onSearch={value => {
+                const args = {};
+                if(value){
+                  if(/^\d+/g.test(value)){
+                    args.code = value;
+                    args.name = undefined;
+                  }else{
+                    args.name = value;
+                    args.code = undefined;
+                  }
+                }else{
+                  args.name = undefined;
+                  args.code = undefined;
+                }
+                router.replace({pathname, query: {...query, ...args}});
+              }}
+            />
+          </div>
+        }
       >
         <StudentModal {...studentModalProps} />
         <ExcelImportModal {...importModalProps} />

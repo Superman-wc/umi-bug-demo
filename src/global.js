@@ -1,3 +1,7 @@
+import moment from 'moment';
+import 'moment/locale/zh-cn';
+moment.locale('zh-cn');
+
 /**
  * ES7 才会引入的 entries， values 的方法
  */

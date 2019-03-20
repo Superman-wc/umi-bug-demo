@@ -38,4 +38,11 @@ export const AdminAuthority = '/admin/authority';
 export const AdminMenu = '/admin/menu';
 
 
+export const AnswerEditor = '/examiner';
+export const ExaminerSheet = '/examiner/sheet';
+export const ExaminerPrint = '/examiner/print';
+
+
+
+
 

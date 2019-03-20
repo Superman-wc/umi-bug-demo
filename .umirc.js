@@ -19,7 +19,7 @@ export default {
   hash: true,
   targets: {
     ie: 9,
-    ios: 8.4,
+    ios: '8.4',
   },
   proxy: {
     "/api/hii/*": {
@@ -34,14 +34,24 @@ export default {
     },
     "/api/8queen/*": {
       // "target": "http://192.168.1.253:9901/",
-      "target": "http://116.62.207.178:9901/",
-      // "target": "https://timetabling.yunzhiyuan100.com/",
+      // "target": "http://116.62.207.178:9901/",
+      "target": "http://timetabling.yunzhiyuan100.com.cn/",
       "changeOrigin": true,
       // "pathRewrite": { "^/api" : "" }
+    },
+    "/api/examiner/*": {
+      "target":"http://smart-campus.yunzhiyuan100.com.cn/",
+      // "target": "http://192.168.1.253:8000/",
+      "changeOrigin": true
     }
   },
   theme: {
     "@primary-color": "#1DA57A",
     "@font-size-base": "12px",
-  }
+  },
+  // externals: {
+  //   react: 'window.React',
+  //   'react-dom': 'window.ReactDOM'
+  // }
+  treeShaking: true,
 }
