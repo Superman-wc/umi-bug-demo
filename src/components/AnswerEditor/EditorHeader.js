@@ -6,12 +6,12 @@ import router from 'umi/router';
 
 function EditorHeader(props) {
 
-  const {file, dispatch, activePageKey, activeColumnKey} = props;
+  const {query,file, dispatch, activePageKey, activeColumnKey} = props;
 
 
   const menu = [
     {
-      key: 'file', icon: 'mail', title: '文件',
+      key: 'file', icon: 'mail', title: '文件', disabled: query.readOnly,
       items: [
         {key: 'newFile', title: '新建'},
         {key: 'open', title: '打开'},
@@ -21,7 +21,7 @@ function EditorHeader(props) {
         // {key: 'saveToPDF', title: '保存成PDF', disabled: !file}
       ]
     }, {
-      key: 'insert', icon: 'appstore', title: '插入', disabled: !file,
+      key: 'insert', icon: 'appstore', title: '插入', disabled: !file || query.readOnly,
       items: [
         {key: 'addPage', title: '添加纸张'},
         {key: 'addColumn', title: '添加列', disabled: !activePageKey},

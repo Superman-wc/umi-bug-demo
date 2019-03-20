@@ -23,7 +23,7 @@ export default class Editor extends Component {
       <Fragment>
         <EditorHeader query={query} pathname={pathname}/>
         <EditorBody query={query}/>
-        <EditorRightPanel/>
+        <EditorRightPanel query={query}/>
       </Fragment>
     );
   }

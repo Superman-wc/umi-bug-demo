@@ -73,7 +73,7 @@ export default class ExaminerAnswerListPage extends Component {
                 children: '打印',
                 hidden: !row.examinerEditorId || row.status !== PrintStatusEnum.待处理,
                 onClick: () => {
-                  router.push({pathname: AnswerEditor + '/editor', query: {id, readOnly: true}});
+                  router.push({pathname: AnswerEditor + '/editor', query: {id: row.examinerEditorId, readOnly: true}});
                 }
               },
               notice: {
@@ -116,7 +116,7 @@ export default class ExaminerAnswerListPage extends Component {
         loading={!!loading}
         columns={columns}
         breadcrumb={breadcrumb}
-        list={list.sort((a, b) => a.status - b.status || b.id - a.id)}
+        list={(list||[]).sort((a, b) => a.status - b.status || b.id - a.id)}
         total={total}
         pagination
         title={title}

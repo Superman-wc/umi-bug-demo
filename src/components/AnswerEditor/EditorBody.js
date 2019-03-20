@@ -1,5 +1,6 @@
 import React from 'react';
 import {connect} from 'dva';
+import {Button} from 'antd';
 import styles from './answer.less';
 import CreateFilePanel from "./CreateFilePanel";
 import {AnswerEditor as namespace} from "../../utils/namespace";
@@ -18,6 +19,12 @@ function EditorBody(props) {
             <div>loading...</div>
             :
             <CreateFilePanel/>
+      }
+      {
+        query.readOnly ?
+          <div className={styles['read-only']}/>
+          :
+          null
       }
     </main>
   )
