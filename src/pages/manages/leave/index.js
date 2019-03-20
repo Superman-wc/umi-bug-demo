@@ -51,21 +51,23 @@ export default class LeaveList extends Component {
 
     const columns = [
       {
-        title: '学生', key: 'studentName', width: 200, render: (v, item) =>
+        title: '学生', key: 'studentName', width: 350, render: (v, item) =>
           <Flex style={{height: 'auto'}} align="middle" justify="center">
             <div style={{textAlign: 'right', width: 120}}>
               <img src={item.avatar + '!avatar'} style={{marginRight: 10, width: 80}}/>
             </div>
             <Flex.Item style={{fontSize: 20, textAlign: 'left'}}>
               <div>{item.unitName}</div>
-              <div>{v}({item.code})</div>
+              <div>{v}</div>
+              <div style={{fontSize:'80%'}}>{item.code}</div>
             </Flex.Item>
           </Flex>
       },
-      {title: '请假开始时间', key: 'startTime', width: 100, type: 'dateTime'},
-      {title: '请假结束时间', key: 'endTime', width: 100, type: 'dateTime'},
+      {title: '请假开始时间', key: 'startTime', width: 160, type: 'dateTime'},
+      {title: '请假结束时间', key: 'endTime', width: 160, type: 'dateTime'},
       {title: '教师', key: 'teacherName', width: 100,},
-      {title: '登记时间', key: 'dateCreated', width: 100,},
+      {title: '登记时间', key: 'dateCreated', width: 160,},
+      {title: '', key:'id', width:'auto', render:v=>''}
     ];
 
 
