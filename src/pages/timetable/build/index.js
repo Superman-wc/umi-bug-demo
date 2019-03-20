@@ -1,11 +1,8 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
 import {Form, Select, notification, Button} from 'antd';
-
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
-
 import TimeTable from '../../../components/Timetable/CourseTable';
 import LectureModal from '../../../components/Timetable/LectureModal';
 import Flex from '../../../components/Flex';

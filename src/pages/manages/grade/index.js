@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
 import {Form, Modal, Input, notification, Select} from 'antd';
 import {ManagesGrade as namespace, ManagesTimetable} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';

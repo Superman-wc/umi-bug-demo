@@ -1,19 +1,15 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Select, Input, notification, Cascader} from 'antd';
+import {Form, Modal,  notification, Cascader} from 'antd';
 import {
   ManagesGrade,
   ManagesClass,
   ManagesStudent,
   ManagesBed as namespace,
-  ManagesDormitory,
-  ManagesClassroom
 } from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
-import {BuildingTypeEnum, ClassTypeEnum, Enums} from "../../../utils/Enum";
-import router from "umi/router";
+import {ClassTypeEnum} from "../../../utils/Enum";
 
 
 @connect(state => ({

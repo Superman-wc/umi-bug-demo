@@ -1,11 +1,9 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Select, Input, notification} from 'antd';
-import {ManagesClass, ManagesDevice, ManagesRoom as namespace} from '../../../utils/namespace';
+import {Form,  Modal, Select, Input, notification} from 'antd';
+import {ManagesDevice, ManagesRoom as namespace} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
-import {ClassTypeEnum} from "../../../utils/Enum";
 import ExcelImportModal from '../../../components/ExcelImport';
 
 @connect(state => ({
@@ -34,8 +32,6 @@ export default class MeterList extends Component {
       map[it.device] = it;
       return map;
     }, {});
-
-    const {pathname, query} = location;
 
     const title = '教室列表';
 

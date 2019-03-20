@@ -1,13 +1,12 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {Select} from 'antd';
 import router from "umi/router";
 import {
   ExaminerPrint as namespace, AnswerEditor,
 } from '../../utils/namespace';
 import ListPage from '../../components/ListPage';
 import TableCellOperation from '../../components/TableCellOperation';
-import {PrintStatusEnum, Enums} from "../../utils/Enum";
+import {PrintStatusEnum} from "../../utils/Enum";
 
 
 @connect(state => ({

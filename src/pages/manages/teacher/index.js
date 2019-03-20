@@ -4,7 +4,7 @@ import {connect} from 'dva';
 import {Form, Modal, Select, Input, notification, Checkbox} from 'antd';
 import classNames from 'classnames';
 import {
-  ManagesClass, ManagesCourse,
+  ManagesClass,
   ManagesGrade, ManagesSubject,
   ManagesTeacher as namespace,
 } from '../../../utils/namespace';

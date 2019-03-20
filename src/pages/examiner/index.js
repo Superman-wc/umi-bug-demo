@@ -1,14 +1,14 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import router from "umi/router";
-import {Form, Modal, notification, InputNumber, Radio} from 'antd';
+import {Form, Modal,  InputNumber, Radio} from 'antd';
 import {
   AnswerEditor as namespace, ExaminerPrint,
-  ManagesGrade, ManagesSubject, ManagesClass,
+  ManagesGrade, ManagesSubject,
 } from '../../utils/namespace';
 import ListPage from '../../components/ListPage';
 import TableCellOperation from '../../components/TableCellOperation';
-import {BuildingTypeEnum, ClassTypeEnum, Enums, AnswerCardTypeEnum} from "../../utils/Enum";
+import {AnswerCardTypeEnum} from "../../utils/Enum";
 
 
 @connect(state => ({

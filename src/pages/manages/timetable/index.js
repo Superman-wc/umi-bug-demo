@@ -1,12 +1,11 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
 import moment from 'moment';
-import {Form, Row, Col, message, Modal, Select, Button, Input, notification, Tabs} from 'antd';
+import {Form, Modal, Select, Button, Input, notification, Tabs} from 'antd';
 import {ManagesGrade, ManagesSemester, ManagesTimetable as namespace} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
-import {SemesterTypeEnum, Enums, WEEK, GradeIndexEnum, EnableStatusEnum} from "../../../utils/Enum";
+import {SemesterTypeEnum, Enums, WEEK, GradeIndexEnum} from "../../../utils/Enum";
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
 import Flex from "../../../components/Flex";

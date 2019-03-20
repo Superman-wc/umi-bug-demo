@@ -2,9 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'dva';
 import {AdminUrlResource as namespace, Authenticate} from '../../utils/namespace';
 import ListPage from '../../components/ListPage';
-import {EnableStatusEnum, URLResourceCategoryEnum} from '../../utils/Enum';
 import UrlResourceModal from '../../components/UrlResource/UrlResourceModal';
-import TableCellOperation from '../../components/TableCellOperation';
 
 
 import {Actions} from '../../utils/ResourceActions';
@@ -31,7 +29,7 @@ export default class UrlResourceList extends Component {
 
   componentDidMount() {
     const {dispatch, profile} = this.props;
-    if(profile && profile.appId) {
+    if (profile && profile.appId) {
       dispatch({
         type: namespace + '/list',
         payload: {

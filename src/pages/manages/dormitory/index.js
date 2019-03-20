@@ -1,8 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
-import {Form, Radio, Row, Col, message, Modal, Select, Input, notification, Cascader, Spin} from 'antd';
-import {ManagesBed, ManagesBuilding, ManagesDevice, ManagesDormitory as namespace} from '../../../utils/namespace';
+import {Form, Radio, Modal, Input, notification, Cascader, Spin} from 'antd';
+import {ManagesBed, ManagesBuilding, ManagesDormitory as namespace} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import {BuildingTypeEnum, Enums} from "../../../utils/Enum";

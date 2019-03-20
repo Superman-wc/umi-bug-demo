@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
 import {Form, Row, Col, notification, Checkbox, Button} from 'antd';
 import {ManagesSubject as namespace} from '../../../utils/namespace';
 import Page from '../../../components/Page';

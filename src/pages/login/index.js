@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {Form, Input, Spin, Button, Row, Col} from 'antd';
+import {Form, Input, Spin, Button,} from 'antd';
 import {Authenticate as namespace} from '../../utils/namespace';
 import Particles from '../../components/Particles';
 import styles from './index.less';

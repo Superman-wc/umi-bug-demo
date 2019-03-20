@@ -1,9 +1,7 @@
 import React, {Component} from 'react';
-import PropTypes from 'prop-types';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
 import router from 'umi/router';
-import {Form, Row, Col, message, Modal, Select, DatePicker, Input, notification, Checkbox, Button} from 'antd';
+import {Form,  Modal, Select,  Input, notification} from 'antd';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import {
@@ -15,7 +13,6 @@ import {
 } from '../../../utils/namespace';
 import styles from './index.less';
 import {ClassTypeEnum, Enums} from '../../../utils/Enum';
-// import ExcelImportModal from '../../../components/ExcelImport';
 import ExcelImportModal, {buildImportStudentProps} from '../../../components/ExcelImportModal';
 
 @connect(state => ({

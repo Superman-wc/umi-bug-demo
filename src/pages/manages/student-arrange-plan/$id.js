@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
 import {Button, Card, Tabs, Empty} from 'antd';
 import classNames from 'classnames';
 import Moment from 'moment';

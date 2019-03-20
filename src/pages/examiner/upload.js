@@ -4,15 +4,11 @@ import {message, Progress, Button} from 'antd';
 import Uploader from '../../components/Uploader';
 import {Authenticate} from "../../utils/namespace";
 import {QiniuDomain, QiniuUpToken} from "../../services";
-import Page from '../../components/Page';
-import PageHeaderOperation from '../../components/Page/HeaderOperation';
 import Flex from '../../components/Flex';
 import {ExaminerSheet as namespace} from '../../utils/namespace';
 import ListPage from '../../components/ListPage'
-import {AnswerCardTypeEnum} from "../../utils/Enum";
 import TableCellOperation from '../../components/TableCellOperation';
 import {ExaminerStatusEnum} from '../../utils/Enum';
-import {analyze} from "../../services/examiner/sheet";
 
 
 @connect(state => ({
