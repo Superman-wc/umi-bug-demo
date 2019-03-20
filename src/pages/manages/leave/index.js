@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
+import router from 'umi/router';
 import {Form, Row, Col, message, Modal, Select, Input, notification} from 'antd';
 import {
   ManagesClass,
@@ -10,8 +10,6 @@ import {
   ManagesSubject
 } from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
-import TableCellOperation from '../../../components/TableCellOperation';
-import {ClassTypeEnum, CourseTypeEnum, Enums} from "../../../utils/Enum";
 import Flex from '../../../components/Flex';
 
 @connect(state => ({
@@ -82,6 +80,30 @@ export default class LeaveList extends Component {
         total={total}
         pagination
         title={title}
+        headerChildren={
+          <div>
+            <Input.Search
+              placeholder="输入学号或姓名"
+              enterButton="搜索"
+              onSearch={value => {
+                const args = {};
+                if(value){
+                  if(/^\d+/g.test(value)){
+                    args.studentCode = value;
+                    args.studentName = undefined;
+                  }else{
+                    args.studentName = value;
+                    args.studentCode = undefined;
+                  }
+                }else{
+                  args.studentName = undefined;
+                  args.studentCode = undefined;
+                }
+                router.replace({pathname, query: {...query, ...args}});
+              }}
+            />
+          </div>
+        }
       />
     );
   }
