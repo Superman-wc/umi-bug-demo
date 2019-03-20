@@ -17,7 +17,7 @@ import {BuildingTypeEnum, ClassTypeEnum, Enums, AnswerCardTypeEnum} from "../../
   loading: state[namespace].loading,
   gradeList: state[ManagesGrade].list,
   subjectList: state[ManagesSubject].list,
-  klassList: state[ManagesClass].list,
+  // klassList: state[ManagesClass].list,
   loadingPrint: state[ExaminerPrint].loading,
 }))
 export default class ExaminerAnswerListPage extends Component {
@@ -38,17 +38,17 @@ export default class ExaminerAnswerListPage extends Component {
       type: ManagesSubject + '/list',
       payload: {s: 10000}
     });
-    dispatch({
-      type: ManagesClass + '/list',
-      payload: {s: 10000}
-    });
+    // dispatch({
+    //   type: ManagesClass + '/list',
+    //   payload: {s: 10000, simple: 1}
+    // });
   }
 
 
   render() {
     const {
       list, total, loading, location, dispatch,
-      gradeList = [], subjectList = [], klassList = [], loadingPrint
+      gradeList = [], subjectList = [],  loadingPrint
     } = this.props;
 
     const gradeMap = gradeList.reduce((map, it) => {
