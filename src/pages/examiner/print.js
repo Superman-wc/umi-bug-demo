@@ -81,7 +81,7 @@ export default class ExaminerAnswerListPage extends Component {
                 hidden: !row.examinerEditorId || row.status !== PrintStatusEnum.待处理,
                 onClick: () => {
                   dispatch({
-                    type: namespace + '/notice',
+                    type: namespace + '/modify',
                     payload: {
                       id,
                       status: PrintStatusEnum.完成打印
