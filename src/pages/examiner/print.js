@@ -84,7 +84,7 @@ export default class ExaminerAnswerListPage extends Component {
                     type: namespace + '/modify',
                     payload: {
                       id,
-                      status: PrintStatusEnum.完成打印
+                      status: PrintStatusEnum.待取件
                     }
                   });
                 }
