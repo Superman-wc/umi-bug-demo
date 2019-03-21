@@ -7,34 +7,40 @@ import {Tooltip, Icon, Spin, Menu, LocaleProvider} from 'antd';
 import zhCN from 'antd/lib/locale-provider/zh_CN';
 import classnames from 'classnames';
 import Flex from '../components/Flex';
+import router from 'umi/router';
 import {Authenticate as namespace, AnswerEditor} from '../utils/namespace';
 import styles from './index.less';
+import fundebug from 'fundebug-javascript';
 
 import {MenuCategoryEnum, URLResourceCategoryEnum} from "../utils/Enum";
 
 
-function MenuItemContent({link, title, onClick, min}) {
-  return min ? (
-    <Tooltip placement="right" title={title}>
-      {onClick ? (
-        <a href={"javascript:void('" + title + "');"} onClick={onClick}>
-          <span>{title.substr(0, 2)}</span>
-        </a>
-      ) : (
-        <Link to={link}>
-          <span>{title.substr(0, 2)}</span>
-        </Link>
-      )}
-    </Tooltip>
-  ) : onClick ? (
-    <a href={"javascript:void('" + title + "');"} onClick={onClick}>
-      <span>{title}</span>
+function MenuItemContent({link, title, onClick, min, resource = {}, dispatch}) {
+
+  const _title = min ? title.substr(0, 2) : title;
+  const _onClick = onClick || (() => {
+    dispatch({
+      type: namespace+'/set',
+      payload:{
+        currentResource: resource
+      }
+    });
+    router.push(link);
+  });
+  const render = () => (
+    <a href={"javascript:void('" + title + "');"} onClick={_onClick}>
+      <span>{_title}</span>
     </a>
-  ) : (
-    <Link to={link}>
-      <span>{title}</span>
-    </Link>
   );
+
+  return min ?
+    (
+      <Tooltip placement="right" title={title}>
+        {render()}
+      </Tooltip>
+    )
+    :
+    render()
 }
 
 function SideHeader() {
@@ -75,7 +81,17 @@ function SideFooter({isMin}) {
 }
 
 function Side(props) {
-  const {loading, user, defaultOpenKeys, openKeys = [], pathname, onOpenChange, menus, isMin, onChange} = props;
+  const {
+    loading, user, defaultOpenKeys, openKeys = [], pathname, onOpenChange,
+    menus = [], resources = [], isMin, onChange, dispatch,
+  } = props;
+
+
+  const resourceMap = resources.reduce((map, it) => {
+    map[it.controllerName] = it;
+    return map;
+  }, {});
+
 
   const menuMap = menus && menus.reduce((map, it, index) => {
     const menuCategory = map[it.category] || {
@@ -84,9 +100,10 @@ function Side(props) {
       items: {}
     };
     const group = menuCategory.items[it.menuGroup] || {
-      title: it.menuGroup,
+      title: it.menuGroup || '--',
       items: []
     };
+    it.resource = resourceMap[it.controllerName];
     group.items.push(it);
     menuCategory.items[it.menuGroup] = group;
     map[it.category] = menuCategory;
@@ -173,7 +190,7 @@ function Side(props) {
                           {
                             menus.items.map((item) => (
                               <Menu.Item key={item.link || item.key} id={item.link}>
-                                <MenuItemContent {...item} min={isMin}/>
+                                <MenuItemContent {...item} min={isMin} dispatch={dispatch}/>
                               </Menu.Item>
                             ))
                           }
@@ -196,6 +213,7 @@ function Side(props) {
 const UserSide = connect(state => ({
   user: state[namespace].authenticate,
   menus: state[namespace].menus,
+  resources: state[namespace].resources,
   loading: state[namespace].loading,
   admissionRebuildCheckList: state[namespace].admissionRebuildCheckList
 }))(Side);
@@ -213,6 +231,16 @@ class App extends Component {
   state = {
     minSide: false,
   };
+
+  componentDidCatch(error, info) {
+    this.setState({hasError: true});
+    // 将component中的报错发送到Fundebug
+    fundebug.notifyError(error, {
+      metaData: {
+        info: info
+      }
+    });
+  }
 
 
   render() {
