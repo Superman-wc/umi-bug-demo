@@ -14,7 +14,6 @@ import router from 'umi/router';
 import { GradeIndexEnum, ExamTypeEnum, ExamStatusEnum, Enums, getNameByValue } from "../../../utils/Enum";
 
 @connect(state => ({
-  total: state[namespace].total,
   listExam: state[namespace].listExam,
   gradeList: state[ManagesGrade].list,
   loading: state[namespace].loading,
@@ -61,10 +60,12 @@ export default class ExamList extends Component {
   }
 
   render() {
-    const { listExam, gradeList = [], total, loading, location, dispatch } = this.props;
+    const { listExam, gradeList = [], loading, location, dispatch } = this.props;
     let list = [];
+    let total = 0;
     if (listExam) {
       list = listExam.list;
+      total = listExam.total;
     }
     // console.log(gradeList)
     const gradeMap = gradeList.reduce((map, it) => {
