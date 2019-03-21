@@ -98,8 +98,8 @@ export default class StepThree extends React.Component {
       gradeIndex,
       examinationInfoList
     }
-    console.log('examinationInfo: ', examinationInfo);
-    console.log('params: ', params);
+    // console.log('examinationInfo: ', examinationInfo);
+    // console.log('params: ', params);
     const modal = Modal.info({
       title: '正在提交',
       content: '正在提交...',

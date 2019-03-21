@@ -184,7 +184,6 @@ export default class ExamTable extends React.Component {
             this.setState({ teacherModalVisible: false });
           }}
           onClear={() => {// 清空监考
-            console.log('clear')
             this.props.dispatch({
               type: namespace + '/removeTeacherInDetail',
               payload: {

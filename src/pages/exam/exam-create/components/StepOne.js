@@ -63,7 +63,7 @@ export default class StepOne extends React.Component {
 
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.updateOne && nextProps.updateOne !== this.props.updateOne) {
-      console.log('update: updateOne: ', nextProps.updateOne);
+      // console.log('update: updateOne: ', nextProps.updateOne);
       const { form: { getFieldsValue, validateFieldsAndScroll }, onCheckSuccess } = this.props
       const item = getFieldsValue()
       // console.log('getFieldsValue: ', item);
@@ -74,7 +74,7 @@ export default class StepOne extends React.Component {
             notification.warning({ message: '考场数量过少' });
           }
         } else {
-          console.log('payload: ', payload);
+          // console.log('payload: ', payload);
           const { subjectIds = [], roomIds = [] } = item;
           const { subjectList, doorPlateList, dispatch } = this.props;
 

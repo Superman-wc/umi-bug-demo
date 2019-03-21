@@ -128,12 +128,8 @@ export default class StepTwo extends React.Component {
     }
   };
 
-  onTeacherChange = (value) => {
-    console.log('onTeacherChange: ', value);
-  };
-
   handleTeacher = (rule, value, callback) => {
-    console.log('handleTeacher: ', value);
+    // console.log('handleTeacher: ', value);
     if (value) {
       const { oneItem: { monitorNum, roomIds } } = this.props;
       const needNum = monitorNum * (roomIds.length);

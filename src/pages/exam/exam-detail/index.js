@@ -29,7 +29,7 @@ export default class ExamDetail extends React.Component {
       exportLoading: true
     })
     const { dispatch } = this.props;
-    console.log('importTable: ', examDetail.id)
+    // console.log('importTable: ', examDetail.id)
     dispatch({
       type: namespace + '/examDetailExport',
       payload: {
@@ -43,7 +43,7 @@ export default class ExamDetail extends React.Component {
 
   downloadFile() {
     const { exportUrl } = this.props;
-    console.log("exportUrl: ", exportUrl);
+    // console.log("exportUrl: ", exportUrl);
     let a = document.getElementById('download-a');
     a.href = exportUrl;
     a.click();

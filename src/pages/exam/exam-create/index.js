@@ -63,10 +63,6 @@ export default class ExamCreatePage extends React.Component {
     this.setState({ current: nextCurrent });
   }
 
-  submit() {
-    console.log('submit')
-  }
-
   render() {
     const title = '创建考务';
     const breadcrumb = ['考务管理', '创建考务'];
