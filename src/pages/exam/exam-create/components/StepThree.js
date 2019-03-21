@@ -59,8 +59,8 @@ export default class StepThree extends React.Component {
 
     const subjectList = [];
     dateSelectList.forEach(it => {
-      const startMonment = it.dateList[0];
-      const endMonment = it.dateList[1];
+      const startMonment = it.dateSelect.startTime;
+      const endMonment = it.dateSelect.endTime;
       const subjectItem = {
         examinationSubjectId: it.id,
         startTime: startMonment.valueOf(),
@@ -180,8 +180,8 @@ export default class StepThree extends React.Component {
     ];
 
     dateSelectList.map((it, index) => {
-      const startMonment = it.dateList[0];
-      const endMonment = it.dateList[1];
+      const startMonment = it.dateSelect.startTime;
+      const endMonment = it.dateSelect.endTime;
       const columnItem = {
         title: startMonment.format('YYYY-MM-DD'),
         children: [
