@@ -45,4 +45,7 @@ export const ExaminerPrint = '/examiner/print';
 
 
 
+export const ExamList = '/exam/exam-list';
+export const ExamDetail = '/exam/exam-detail';
+export const ExamCreate = '/exam/exam-create';
 
