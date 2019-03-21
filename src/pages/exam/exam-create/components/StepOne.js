@@ -156,8 +156,9 @@ export default class StepOne extends React.Component {
       const length = value.length;
       // console.log('length: ', length, row, col, monitorNum);
       const total = row * col * length;
+      const needRoomNum = Math.ceil(studentNum / (row * col));
       if (studentNum > total) {
-        callback('考场数量过少');
+        callback(`考场数量过少, 当前${length}, 需要${needRoomNum}`);
         return;
       }
     }
