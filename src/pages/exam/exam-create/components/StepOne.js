@@ -64,14 +64,22 @@ export default class StepOne extends React.Component {
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.updateOne && nextProps.updateOne !== this.props.updateOne) {
       // console.log('update: updateOne: ', nextProps.updateOne);
-      const { form: { getFieldsValue, validateFieldsAndScroll }, onCheckSuccess } = this.props
+      const { form: { getFieldsValue, validateFieldsAndScroll }, onCheckSuccess, studentNum } = this.props
       const item = getFieldsValue()
       // console.log('getFieldsValue: ', item);
       validateFieldsAndScroll((errors, payload) => {
+        // console.log('payload: ', payload);
         if (errors) {
-          console.error(errors);
+          // console.error(errors);
           if (errors['roomIds']) {
-            notification.warning({ message: '考场数量过少' });
+            if (payload.roomIds && payload.rowCol && payload.rowCol[0] && payload.rowCol[1]) {
+              const length = payload.roomIds.length;
+              const total = payload.rowCol[0] * payload.rowCol[1] * length;
+              const needRoomNum = Math.ceil(studentNum / (payload.rowCol[0] * payload.rowCol[1]));
+              if (studentNum > total) {
+                notification.warning({ message: `考场数量过少, 当前已选${length}, 需要${needRoomNum}` });
+              }
+            }
           }
         } else {
           // console.log('payload: ', payload);
@@ -151,14 +159,14 @@ export default class StepOne extends React.Component {
 
   // 选择的人数需大于考试科目最大数
   handleRoom = (rule, value, callback) => {
-    const { studentNum, oneItem: { row, col, monitorNum } } = this.props;
-    if (value && row && col && monitorNum) {
+    const { studentNum, oneItem: { row, col } } = this.props;
+    if (value && row && col) {
       const length = value.length;
       // console.log('length: ', length, row, col, monitorNum);
       const total = row * col * length;
       const needRoomNum = Math.ceil(studentNum / (row * col));
       if (studentNum > total) {
-        callback(`考场数量过少, 当前${length}, 需要${needRoomNum}`);
+        callback(`考场数量过少, 当前已选${length}, 需要${needRoomNum}`);
         return;
       }
     }
