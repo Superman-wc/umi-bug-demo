@@ -1,11 +1,11 @@
-import React from 'react'
+import React from 'react';
 import { connect } from 'dva';
 import { Form, Radio, DatePicker, InputNumber, Checkbox, Row, Col } from 'antd';
-import { ExamCreate } from '../../../../utils/namespace'
-import { ManagesSteps } from '../utils/namespace'
+import { ExamCreate } from '../../../../utils/namespace';
+import { ManagesSteps } from '../utils/namespace';
 import { GradeIndexEnum, Enums } from '../../../../utils/Enum';
 import moment from 'moment';
-import styles from '../index.less'
+import styles from '../index.less';
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group;
@@ -16,6 +16,7 @@ const CheckboxGroup = Checkbox.Group
 @connect(state => ({
   teacherList: state[ExamCreate].teacherList,
   twoItem: state[ManagesSteps].twoItem,
+  oneItem: state[ManagesSteps].oneItem,
   updateTwo: state[ManagesSteps].updateTwo,
   subjectSelectList: state[ManagesSteps].subjectSelectList,
 }))
@@ -36,7 +37,6 @@ const CheckboxGroup = Checkbox.Group
     }
   },
   onValuesChange(props, values) {
-    // console.log('onValuesChange: ', values)
     const { form: { getFieldsValue }, dispatch } = props
     const twoItem = getFieldsValue()
     dispatch({
@@ -51,7 +51,6 @@ export default class StepTwo extends React.Component {
 
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.updateTwo && nextProps.updateTwo !== this.props.updateTwo) {
-      console.log('update: updateTwo: ', nextProps.updateTwo);
       const { form: { getFieldsValue, validateFieldsAndScroll }, onCheckSuccess } = this.props
       const item = getFieldsValue();
       validateFieldsAndScroll((errors, payload) => {
@@ -103,12 +102,13 @@ export default class StepTwo extends React.Component {
   }
 
   handleSubjectDate = (id, name, rule, value, callback) => {
-    const { subjectSelectList, twoItem, form: { getFieldsValue } } = this.props;
-    const subjectDate = twoItem[`subjectDate${id}`];
+    const { subjectSelectList, form: { getFieldsValue } } = this.props;
+    // const subjectDate = twoItem[`subjectDate${id}`];
+    const subjectDate = value;
     if (subjectDate && subjectDate.startTime && subjectDate.endTime && id && name) {
       const start = subjectDate.startTime.valueOf();
       const end = subjectDate.endTime.valueOf();
-      subjectSelectList.forEach(it => {
+      subjectSelectList.some(it => {
         if (it.id !== id) {
           const item = getFieldsValue()[`subjectDate${it.id}`]
           if (item && item.startTime && item.endTime) {
@@ -117,18 +117,38 @@ export default class StepTwo extends React.Component {
             const checkEnd = end >= items[0] && end <= items[1];
             if (checkStart || checkEnd) {
               callback(`${name}考试时间与${it.name}考试时间重叠`);
-              return;
+              return true;
             }
           }
         }
       });
+      callback();
+    } else {
+      callback('请选择考试时间');
+    }
+  };
+
+  onTeacherChange = (value) => {
+    console.log('onTeacherChange: ', value);
+  };
+
+  handleTeacher = (rule, value, callback) => {
+    console.log('handleTeacher: ', value);
+    if (value) {
+      const { oneItem: { monitorNum, roomIds } } = this.props;
+      const needNum = monitorNum * (roomIds.length);
+      const currentNum = value.length;
+      if (currentNum < needNum) {
+        callback(`监考老师数量过少, 当前${currentNum}, 需要${needNum}位`)
+        return;
+      }
     }
     callback();
-  }
+  };
 
   render() {
     const {
-      teacherList = [], subjectSelectList = [],
+      teacherList = [], subjectSelectList = [], oneItem,
       form: { getFieldDecorator }
     } = this.props;
 
@@ -150,7 +170,7 @@ export default class StepTwo extends React.Component {
                       { validator: this.handleSubjectDate.bind(null, it.id, it.name) }
                     ]
                   })(
-                    <DateSelect />
+                    <DateSelect oneItem={oneItem} />
                   )
                 }
               </FormItem>
@@ -174,7 +194,10 @@ export default class StepTwo extends React.Component {
           <FormItem label='选择监考老师'>
             {
               getFieldDecorator('teacherIds', {
-                rules: [{ message: '请选择监考老师', required: true }]
+                rules: [
+                  { message: '请选择监考老师', required: true },
+                  { validator: this.handleTeacher }
+                ]
               })
                 (
                   <CheckboxGroup>
@@ -263,6 +286,13 @@ class DateSelect extends React.Component {
     }
   };
 
+  disabledDate = (current) => {
+    const { oneItem } = this.props;
+    return (current && current < oneItem.examDate[0].startOf('day') ||
+      current < moment().startOf('day') ||
+      current > oneItem.examDate[1].endOf('day'));
+  };
+
   render() {
     const state = this.state;
     return (
@@ -270,8 +300,10 @@ class DateSelect extends React.Component {
         <DatePicker
           value={state.startTime}
           showTime={true}
+          showToday={false}
           format={'YYYY-MM-DD HH:mm'}
           onChange={this.handleDateChange}
+          disabledDate={this.disabledDate}
         />
         <Radio.Group
           style={{ marginLeft: 20 }}

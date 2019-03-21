@@ -25,7 +25,7 @@ export default class ExamTable extends React.Component {
         key: 'rowIndex',
         width: 60,
         align: 'center',
-        render: (text, record, index) => record.rowIndex + 1
+        render: (text, record, index) => record.roomPriorityNum
       },
       {
         title: '考场',

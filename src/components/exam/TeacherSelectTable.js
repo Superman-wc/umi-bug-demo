@@ -73,7 +73,7 @@ export default class TeacherSelectTable extends React.Component {
     for (let value of subjectMap.values()) {
       subjectCount.push(value.length)
     }
-    const maxCount = Math.max(...subjectCount);
+    const maxCount = Math.max(...subjectCount, 10);
     this.state.scrollX = maxCount * 120 + 120;
     const columns = [
       {

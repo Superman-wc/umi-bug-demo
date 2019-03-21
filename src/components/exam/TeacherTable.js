@@ -52,7 +52,7 @@ export default class TeacherTable extends React.Component {
       });
       data.push(item);
     }
-    const maxCount = Math.max(...subjectCount);
+    const maxCount = Math.max(...subjectCount, 10);
     this.state.scrollX = maxCount * 80;
     // console.log('maxCount: ', maxCount);
 

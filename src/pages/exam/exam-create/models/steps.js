@@ -13,11 +13,15 @@ export default {
     oneItem: {},
     twoItem: {},
     threeItem: {},
+    studentNum: 0,
     loading: false,
   },
   reducers: {
     setLoading(state, { payload: { loading } }) {
       return { ...state, loading };
+    },
+    saveStudentNum(state, { payload: { studentNum } }) {
+      return { ...state, studentNum };
     },
     saveOneItem(state, { payload: { oneItem } }) {
       return { ...state, oneItem }

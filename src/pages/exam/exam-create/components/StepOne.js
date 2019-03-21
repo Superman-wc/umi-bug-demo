@@ -1,10 +1,11 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component, Fragment } from 'react';
 import { connect } from 'dva';
-import { Form, Radio, DatePicker, InputNumber, Select, Checkbox, Row, Col } from 'antd';
-import { ExamCreate } from '../../../../utils/namespace'
-import { ManagesSteps } from '../utils/namespace'
+import { Form, Radio, DatePicker, InputNumber, Select, Checkbox, Row, Col, notification } from 'antd';
+import { ExamCreate } from '../../../../utils/namespace';
+import { ManagesSteps } from '../utils/namespace';
 import { ExamTypeEnum, GradeIndexEnum, Enums } from '../../../../utils/Enum';
-import styles from '../index.less'
+import styles from '../index.less';
+import moment from 'moment';
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group;
@@ -15,7 +16,8 @@ const CheckboxGroup = Checkbox.Group
   subjectList: state[ExamCreate].subjectList,
   doorPlateList: state[ExamCreate].doorPlateList,
   oneItem: state[ManagesSteps].oneItem,
-  updateOne: state[ManagesSteps].updateOne
+  updateOne: state[ManagesSteps].updateOne,
+  studentNum: state[ManagesSteps].studentNum
 }))
 @Form.create({
   mapPropsToFields(props) {
@@ -68,8 +70,11 @@ export default class StepOne extends React.Component {
       validateFieldsAndScroll((errors, payload) => {
         if (errors) {
           console.error(errors);
+          if (errors['roomIds']) {
+            notification.warning({ message: '考场数量过少' });
+          }
         } else {
-          // console.log('payload: ', payload);
+          console.log('payload: ', payload);
           const { subjectIds = [], roomIds = [] } = item;
           const { subjectList, doorPlateList, dispatch } = this.props;
 
@@ -108,17 +113,65 @@ export default class StepOne extends React.Component {
   }
 
   onGradeDataChange = (e) => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: ExamCreate + '/listSubject',
       payload: {
         gradeIndex: e.target.value
+      },
+      resolve: () => {
+        dispatch({
+          type: ManagesSteps + '/saveStudentNum',
+          payload: {
+            studentNum: 0
+          }
+        })
       }
     })
-  }
+  };
+
+  onSubjectChange = (value) => {
+    const { subjectList, dispatch } = this.props;
+    const totals = [0];
+    value.forEach(it => {
+      const subject = subjectList.find(value => value.id == it);
+      if (subject) {
+        totals.push(subject.studentNum);
+      }
+    })
+    const max = Math.max(...totals);
+    // console.log('onSubjectChange-max: ', max);
+    dispatch({
+      type: ManagesSteps + '/saveStudentNum',
+      payload: {
+        studentNum: max
+      }
+    })
+  };
+
+  // 选择的人数需大于考试科目最大数
+  handleRoom = (rule, value, callback) => {
+    const { studentNum, oneItem: { row, col, monitorNum } } = this.props;
+    if (value && row && col && monitorNum) {
+      const length = value.length;
+      // console.log('length: ', length, row, col, monitorNum);
+      const total = row * col * length;
+      if (studentNum > total) {
+        callback('考场数量过少');
+        return;
+      }
+    }
+    callback();
+  };
+
+  disabledDate = (current) => {
+    // Can not select days before today and today
+    return current && current < moment().startOf('day');
+  };
 
   render() {
     const {
-      subjectList = [], doorPlateList = [],
+      subjectList = [], doorPlateList = [], studentNum = 0,
       form: { getFieldDecorator }
     } = this.props;
 
@@ -186,7 +239,9 @@ export default class StepOne extends React.Component {
             {getFieldDecorator('examDate', {
               rules: [{ message: '请选择考试时间', required: true }]
             })(
-              <RangePicker style={{ width: 300 }} />
+              <RangePicker
+                disabledDate={this.disabledDate}
+                style={{ width: 300 }} />
             )}
           </FormItem>
           <FormItem label="考场排列">
@@ -201,14 +256,15 @@ export default class StepOne extends React.Component {
             {getFieldDecorator('monitorNum', {
               rules: [{ message: '请选择监考数', required: true }]
             })(
-              <InputNumber />
+              <InputNumber min={1} placeholder='监考数' />
             )}
           </FormItem>
+          <span className={styles['student-num']}>{`考试最大人数: ${studentNum}`}</span>
           <FormItem label="考试科目">
             {getFieldDecorator('subjectIds', {
               rules: [{ message: '请选择考试科目', required: true }]
             })(
-              <CheckboxGroup style={{ width: 800 }}>
+              <CheckboxGroup style={{ width: 800 }} onChange={this.onSubjectChange}>
                 <Row>
                   {
                     subjectList.map(it =>
@@ -223,7 +279,10 @@ export default class StepOne extends React.Component {
           </FormItem>
           <FormItem label="选择考场">
             {getFieldDecorator('roomIds', {
-              rules: [{ message: '请选择考场', required: true }]
+              rules: [
+                { message: '请选择考场', required: true },
+                { validator: this.handleRoom }
+              ]
             })(
               <CheckboxGroup>
                 <div>
@@ -258,7 +317,7 @@ export default class StepOne extends React.Component {
             )}
           </FormItem>
         </Form>
-        <div style={{ height: 80 }}></div>
+        <div style={{ height: 100 }}></div>
       </div>
     )
   }
@@ -271,10 +330,10 @@ class RowColInputNumber extends Component {
     const [row, col] = value || [];
     return (
       <Fragment>
-        <InputNumber defaultValue={row} placeholder="排" onChange={(v) => {
+        <InputNumber min={1} defaultValue={row} placeholder="排" onChange={(v) => {
           onChange && onChange([v, col]);
         }} />
-        <InputNumber defaultValue={col} style={{ marginLeft: 20 }} placeholder="列"
+        <InputNumber min={1} defaultValue={col} style={{ marginLeft: 20 }} placeholder="列"
           onChange={(v) => {
             onChange && onChange([row, v]);
           }} />
