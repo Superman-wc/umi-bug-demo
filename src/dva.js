@@ -1,4 +1,3 @@
-import fundebug from 'fundebug-javascript';
 import {notification} from 'antd';
 
 notification.config({
@@ -16,11 +15,13 @@ export function config() {
         message: err.message || '系统错误，请联系管理员',
         // description: err.stack
       });
-      fundebug.notifyError(err, {
-        metaData: {
-          info: 'dva捕获的错误'
-        }
-      });
+      if (window.fundebug) {
+        window.fundebug.notifyError(err, {
+          metaData: {
+            info: 'dva捕获的错误'
+          }
+        });
+      }
       window.TDAPP && window.TDAPP.onEvent('error', 'dva', {...err});
     },
     initialState: {  // 初始化

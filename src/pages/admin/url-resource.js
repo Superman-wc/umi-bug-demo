@@ -5,17 +5,9 @@ import ListPage from '../../components/ListPage';
 import UrlResourceModal from '../../components/UrlResource/UrlResourceModal';
 
 
-import {Actions} from '../../utils/ResourceActions';
+import resourceActions from '../../utils/ResourceActions';
 
-function resourceActions(mask) {
-  return Actions.reduce((arr, action) => {
 
-    if ((mask & action.mask) === action.mask) {
-      arr.push({label: action.name, value: action.mask});
-    }
-    return arr;
-  }, []);
-}
 
 @connect(state => ({
   total: state[namespace].total,

@@ -7,6 +7,8 @@ import {sessionCache, localCache} from "../caches";
 import {set as setToken} from '../utils/request';
 import {Authenticate as namespace} from '../utils/namespace';
 import staffMenuCache from '../caches/staffMenu';
+import resourceActions from '../utils/ResourceActions';
+import {MenuCategoryEnum, URLResourceCategoryEnum} from "../utils/Enum";
 
 
 const auth = authenticateCache();
@@ -29,6 +31,7 @@ export default Model({
         } else {
           dispatch({
             type: 'checkAuthenticate',
+            payload: {pathname}
           });
         }
       });
@@ -39,8 +42,8 @@ export default Model({
       const authenticate = yield saga.select(state => state[namespace].authenticate);
       if (!authenticate || !authenticate.token) {
         yield saga.put(routerRedux.push('/login'));
-      }else{
-        yield saga.put({type: 'menu'});
+      } else {
+        yield saga.put({type: 'menu', payload: action.payload});
       }
     },
     * login(action, saga) {
@@ -68,7 +71,7 @@ export default Model({
     * menu(action, saga) {
       const authenticate = yield saga.select(state => state[namespace].authenticate);
       if (authenticate && authenticate.token && authenticate.appId) {
-        if(!action.payload){
+        if (!action.payload) {
           action.payload = {};
         }
         action.payload.appId = authenticate.appId;
@@ -106,15 +109,75 @@ export default Model({
       return {};
     },
     menuSuccess(state, action) {
-      return {...state, ...action.result, loading: false};
+      const {menus = [], resources = []} = action.result;
+
+      const resourceMap = resources.reduce((map, it) => {
+        it.actions = resourceActions(it.actionMask).reduce((map, {value, label}) => {
+          map[value] = label;
+          return map;
+        }, {});
+        map[it.controllerName] = it;
+        return map;
+      }, {});
+
+      const menuLinkMap = {};
+      const menuMap = menus.reduce((map, it, index) => {
+        const menuCategory = map[it.category] || {
+          key: MenuCategoryEnum[it.category] || MenuCategoryEnum[URLResourceCategoryEnum[it.category]] || index,
+          title: it.category,
+          items: {}
+        };
+        const group = menuCategory.items[it.menuGroup] || {
+          title: it.menuGroup || '--',
+          items: []
+        };
+        it.resource = resourceMap[it.controllerName];
+        group.items.push(it);
+        menuCategory.items[it.menuGroup] = group;
+        map[it.category] = menuCategory;
+        menuLinkMap[it.link] = it;
+        return map;
+      }, {}) || {};
+
+      const menuTree = Object.keys(menuMap).reduce((arr, category) => {
+        const menuCategory = menuMap[category];
+
+        menuCategory.items = Object.keys(menuCategory.items).reduce((items, g) => {
+          items.push(menuCategory.items[g]);
+          return items;
+        }, []);
+
+        arr.push(menuCategory);
+        return arr;
+      }, []);
+
+      menuTree.push({
+        key: 'examiner',
+        title: '电子阅卷',
+        items: [
+          {
+            title: '',
+            items: [
+              {
+                id: 'examiner-list',
+                title: '答题卡制做',
+                link: '/examiner',
+              }, {
+                id: 'examiner-upload',
+                title: '答题卡上传',
+                link: '/examiner/upload'
+              },
+            ]
+          }
+        ]
+      });
+
+      // console.log(action);
+
+      const {pathname} = action.payload;
+      const currentMenu = menuLinkMap[pathname];
+
+      return {...state, menus, menuTree, menuMap, menuLinkMap, currentMenu, resourceMap, resources, loading: false};
     },
-    // createSuccess(state) {
-    //   return { ...state, loading: false, authenticate: null };
-    // },
-    // modifyPasswordSuccess(state) {
-    //   authenticateCache.clear();
-    //   sessionCache.clear();
-    //   return { ...state, authenticate: null, loading: false };
-    // },
   },
 }, {});
