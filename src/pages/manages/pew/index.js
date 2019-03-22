@@ -1,6 +1,5 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
 import {
   Form,
   Button,

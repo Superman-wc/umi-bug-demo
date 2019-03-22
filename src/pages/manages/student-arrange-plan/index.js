@@ -1,7 +1,5 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Select, Input, notification} from 'antd';
 import {
   ManagesStudentArrangePlan as namespace
 } from '../../../utils/namespace';

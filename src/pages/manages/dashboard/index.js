@@ -1,7 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
-import {Form, Row, Col, notification, Checkbox, Button, Card, Table, Radio} from 'antd';
+import {Row, Col, Card, Table, Radio} from 'antd';
 import {
   Authenticate,
   ManagesDashboard as namespace,
@@ -115,7 +114,7 @@ export default class DashboardPage extends Component {
 
     const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={[
       {
-        key:'rollback'
+        key: 'rollback'
       }
     ]}/>;
     const header = (
@@ -219,7 +218,7 @@ function ElectionExaminationCard({electionExamination, loading, value, onChange}
           <ul className={styles['election-examination-list']}>
             {
               electionExamination && electionExamination.studentStatisticVM && electionExamination.studentStatisticVM.length ?
-                electionExamination.studentStatisticVM.sort((a,b)=>b.electionExaminationNum-a.electionExaminationNum).map(it =>
+                electionExamination.studentStatisticVM.sort((a, b) => b.electionExaminationNum - a.electionExaminationNum).map(it =>
                   <li key={it.subjectName}>{it.subjectName}：{it.electionExaminationNum}</li>
                 )
                 :
@@ -232,7 +231,7 @@ function ElectionExaminationCard({electionExamination, loading, value, onChange}
           <ul className={styles['election-examination-list']}>
             {
               electionExamination && electionExamination.studentStatisticVM && electionExamination.studentStatisticVM.length ?
-                electionExamination.studentStatisticVM.sort((a,b)=>b.studyExaminationNum-a.studyExaminationNum).map(it =>
+                electionExamination.studentStatisticVM.sort((a, b) => b.studyExaminationNum - a.studyExaminationNum).map(it =>
                   <li key={it.subjectName}>{it.subjectName}：{it.studyExaminationNum}</li>
                 )
                 :
@@ -245,7 +244,7 @@ function ElectionExaminationCard({electionExamination, loading, value, onChange}
       <ul className={styles['election-examination-list']}>
         {
           electionExamination && electionExamination.electionExaminationCombinationVM && electionExamination.electionExaminationCombinationVM.length ?
-            electionExamination.electionExaminationCombinationVM.sort((a,b)=>b.combinationNum-a.combinationNum).map(it =>
+            electionExamination.electionExaminationCombinationVM.sort((a, b) => b.combinationNum - a.combinationNum).map(it =>
               <li key={it.combinationName}>{it.combinationName}：{it.combinationNum}</li>
             )
             :
@@ -290,7 +289,7 @@ function ActivatedPlanCard({activatedPlan, loading, value, onChange}) {
                 {
                   electionExaminationPlan.courseKlassVMList.map(it =>
                     <li key={it.courseId}>
-                      <label style={{width:60, textAlign:'right', display:'inline-block'}}>{it.courseName}：</label>
+                      <label style={{width: 60, textAlign: 'right', display: 'inline-block'}}>{it.courseName}：</label>
                       <span>{it.klassNum}个班</span>
                     </li>
                   )
@@ -308,7 +307,7 @@ function ActivatedPlanCard({activatedPlan, loading, value, onChange}) {
                 {
                   studyExaminationPlan.courseKlassVMList.map(it =>
                     <li key={it.courseId}>
-                      <label style={{width:60, textAlign:'right', display:'inline-block'}}>{it.courseName}：</label>
+                      <label style={{width: 60, textAlign: 'right', display: 'inline-block'}}>{it.courseName}：</label>
                       <span>{it.klassNum}个班</span>
                     </li>
                   )

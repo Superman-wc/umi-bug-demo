@@ -7,34 +7,36 @@ import {Tooltip, Icon, Spin, Menu, LocaleProvider} from 'antd';
 import zhCN from 'antd/lib/locale-provider/zh_CN';
 import classnames from 'classnames';
 import Flex from '../components/Flex';
+import router from 'umi/router';
 import {Authenticate as namespace, AnswerEditor} from '../utils/namespace';
 import styles from './index.less';
 
 import {MenuCategoryEnum, URLResourceCategoryEnum} from "../utils/Enum";
+import resourceActions from '../utils/ResourceActions';
 
 
-function MenuItemContent({link, title, onClick, min}) {
-  return min ? (
-    <Tooltip placement="right" title={title}>
-      {onClick ? (
-        <a href={"javascript:void('" + title + "');"} onClick={onClick}>
-          <span>{title.substr(0, 2)}</span>
-        </a>
-      ) : (
-        <Link to={link}>
-          <span>{title.substr(0, 2)}</span>
-        </Link>
-      )}
-    </Tooltip>
-  ) : onClick ? (
-    <a href={"javascript:void('" + title + "');"} onClick={onClick}>
-      <span>{title}</span>
+function MenuItemContent({menu, min, resource = {}, dispatch}) {
+
+  const {link, title, onClick,} = menu;
+
+  const _title = min ? title.substr(0, 2) : title;
+  const _onClick = onClick || (() => {
+    router.push(link);
+  });
+  const render = () => (
+    <a href={"javascript:void('" + title + "');"} onClick={_onClick}>
+      <span>{_title}</span>
     </a>
-  ) : (
-    <Link to={link}>
-      <span>{title}</span>
-    </Link>
   );
+
+  return min ?
+    (
+      <Tooltip placement="right" title={title}>
+        {render()}
+      </Tooltip>
+    )
+    :
+    render()
 }
 
 function SideHeader() {
@@ -75,58 +77,74 @@ function SideFooter({isMin}) {
 }
 
 function Side(props) {
-  const {loading, user, defaultOpenKeys, openKeys = [], pathname, onOpenChange, menus, isMin, onChange} = props;
+  const {
+    loading, user, defaultOpenKeys, openKeys = [], pathname, onOpenChange,
+    menus = [], resources = [], isMin, onChange, dispatch,
+    menuTree = [],
+  } = props;
 
-  const menuMap = menus && menus.reduce((map, it, index) => {
-    const menuCategory = map[it.category] || {
-      key: MenuCategoryEnum[it.category] || MenuCategoryEnum[URLResourceCategoryEnum[it.category]] || index,
-      title: it.category,
-      items: {}
-    };
-    const group = menuCategory.items[it.menuGroup] || {
-      title: it.menuGroup,
-      items: []
-    };
-    group.items.push(it);
-    menuCategory.items[it.menuGroup] = group;
-    map[it.category] = menuCategory;
-    return map;
-  }, {}) || {};
 
-  const menu = Object.keys(menuMap).reduce((arr, category) => {
-    const menuCategory = menuMap[category];
-
-    menuCategory.items = Object.keys(menuCategory.items).reduce((items, g) => {
-      items.push(menuCategory.items[g]);
-      return items;
-    }, []);
-
-    arr.push(menuCategory);
-    return arr;
-  }, []);
-
-  console.log(menu);
-
-  menu.push({
-    key: 'examiner',
-    title: '电子阅卷',
-    items: [
-      {
-        title: '',
-        items: [
-          {
-            id: 'examiner-list',
-            title: '答题卡制做',
-            link: '/examiner',
-          }, {
-            id: 'examiner-upload',
-            title: '答题卡上传',
-            link: '/examiner/upload'
-          },
-        ]
-      }
-    ]
-  });
+  // const resourceMap = resources.reduce((map, it) => {
+  //   it.actions = resourceActions(it.actionMask).reduce((map, {value, label})=>{
+  //     map[value] = label;
+  //     return map;
+  //   }, {});
+  //   map[it.controllerName] = it;
+  //   return map;
+  // }, {});
+  //
+  //
+  // const menuMap = menus && menus.reduce((map, it, index) => {
+  //   const menuCategory = map[it.category] || {
+  //     key: MenuCategoryEnum[it.category] || MenuCategoryEnum[URLResourceCategoryEnum[it.category]] || index,
+  //     title: it.category,
+  //     items: {}
+  //   };
+  //   const group = menuCategory.items[it.menuGroup] || {
+  //     title: it.menuGroup || '--',
+  //     items: []
+  //   };
+  //   it.resource = resourceMap[it.controllerName];
+  //   group.items.push(it);
+  //   menuCategory.items[it.menuGroup] = group;
+  //   map[it.category] = menuCategory;
+  //   return map;
+  // }, {}) || {};
+  //
+  // const menu = Object.keys(menuMap).reduce((arr, category) => {
+  //   const menuCategory = menuMap[category];
+  //
+  //   menuCategory.items = Object.keys(menuCategory.items).reduce((items, g) => {
+  //     items.push(menuCategory.items[g]);
+  //     return items;
+  //   }, []);
+  //
+  //   arr.push(menuCategory);
+  //   return arr;
+  // }, []);
+  //
+  // console.log(menu);
+  //
+  // menu.push({
+  //   key: 'examiner',
+  //   title: '电子阅卷',
+  //   items: [
+  //     {
+  //       title: '',
+  //       items: [
+  //         {
+  //           id: 'examiner-list',
+  //           title: '答题卡制做',
+  //           link: '/examiner',
+  //         }, {
+  //           id: 'examiner-upload',
+  //           title: '答题卡上传',
+  //           link: '/examiner/upload'
+  //         },
+  //       ]
+  //     }
+  //   ]
+  // });
 
 
   return (
@@ -152,7 +170,7 @@ function Side(props) {
               openKeys={openKeys}
             >
               {
-                menu.map(submenu => (
+                menuTree.map(submenu => (
                   <Menu.SubMenu
                     key={submenu.key}
                     title={
@@ -173,7 +191,7 @@ function Side(props) {
                           {
                             menus.items.map((item) => (
                               <Menu.Item key={item.link || item.key} id={item.link}>
-                                <MenuItemContent {...item} min={isMin}/>
+                                <MenuItemContent menu={item} min={isMin} dispatch={dispatch}/>
                               </Menu.Item>
                             ))
                           }
@@ -195,7 +213,8 @@ function Side(props) {
 
 const UserSide = connect(state => ({
   user: state[namespace].authenticate,
-  menus: state[namespace].menus,
+  menuTree: state[namespace].menuTree,
+  resources: state[namespace].resources,
   loading: state[namespace].loading,
   admissionRebuildCheckList: state[namespace].admissionRebuildCheckList
 }))(Side);
@@ -213,6 +232,16 @@ class App extends Component {
   state = {
     minSide: false,
   };
+
+  componentDidCatch(error, info) {
+    this.setState({hasError: true});
+    // 将component中的报错发送到Fundebug
+    window.fundebug && window.fundebug.notifyError(error, {
+      metaData: {
+        info: info
+      }
+    });
+  }
 
 
   render() {

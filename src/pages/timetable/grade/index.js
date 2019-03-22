@@ -1,9 +1,8 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
-import {ManagesGrade, ManagesPeriod, ManagesRoom, TimetableGrade as namespace} from "../../../utils/namespace";
+import {ManagesPeriod, TimetableGrade as namespace} from "../../../utils/namespace";
 import Filter from '../../../components/Timetable/Filter';
 import TimeTable from '../../../components/Timetable/CourseTable';
 import Flex from '../../../components/Flex';

@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import {connect} from 'dva';
 import {AdminMenu as namespace, AdminUrlResource, Authenticate} from '../../utils/namespace';
 import ListPage from '../../components/ListPage';
-import {URLResourceCategoryEnum} from '../../utils/Enum';
 import MenuModal from '../../components/MenuModal';
 import TableCellOperation from '../../components/TableCellOperation';
 

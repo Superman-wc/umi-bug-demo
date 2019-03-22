@@ -1,8 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
-import {Button, Card, Tabs, Row, Col, Empty, Spin} from 'antd';
-import classNames from 'classnames';
+import {Button, Tabs, Row, Col, Empty, Spin} from 'antd';
 import Moment from 'moment';
 import {Authenticate, ManagesLectureArrangePlan as namespace} from '../../../utils/namespace';
 import Page from '../../../components/Page';
@@ -23,7 +21,7 @@ export default class DashboardPage extends Component {
   state = {};
 
   componentDidMount() {
-    const {dispatch, location: {query}, match: {params: {id}}} = this.props;
+    const {dispatch, match: {params: {id}}} = this.props;
     dispatch({
       type: namespace + '/set',
       payload: {
@@ -51,10 +49,8 @@ export default class DashboardPage extends Component {
 
   render() {
     const {
-      loading, location, dispatch, profile, item, list = [],
+      dispatch, profile, item, list = [],
     } = this.props;
-
-    const {pathname, query} = location;
 
     const schoolName = profile && profile.schoolName || '';
 
@@ -151,74 +147,74 @@ function Plan({item = {}, loading, load}) {
   return (
     <Spin spinning={!!loading}>
       <Row className={styles['plan-item']}>
-      {
-        item ?
-          <Fragment>
-            <Col span={8} className={styles['plan-item-left']}>
-              <h1>{item.name}</h1>
-              <div style={{marginBottom: 15}}>
-                <a style={{marginRight: 50}}>重命名</a>
-                <span>{new Moment(item.dateCreated).format('YYYY-MM-DD HH:mm:ss')}</span>
-              </div>
-              <div className={styles['plan-item-label-list']}>
+        {
+          item ?
+            <Fragment>
+              <Col span={8} className={styles['plan-item-left']}>
+                <h1>{item.name}</h1>
+                <div style={{marginBottom: 15}}>
+                  <a style={{marginRight: 50}}>重命名</a>
+                  <span>{new Moment(item.dateCreated).format('YYYY-MM-DD HH:mm:ss')}</span>
+                </div>
+                <div className={styles['plan-item-label-list']}>
+                  {
+                    item.label && item.label.map(it =>
+                      <span key={it}>{it}</span>
+                    )
+                  }
+                </div>
+                <p>{item.memo}</p>
+                <h2>基础参数</h2>
+                <Row className={styles['base-params']}>
+                  <Col span={6}>
+                    <label>年级</label>
+                    <p>{item.gradeIndexName}</p>
+                  </Col>
+                  <Col span={18}>
+                    <label>教学计划</label>
+                    <p>{`${item.semesterAcademicYear}学年第${item.semesterType}学期`}</p>
+                  </Col>
+                  <Col span={6}>
+                    <label>相关师资</label>
+                    <p>{item.teacherNum}</p>
+                  </Col>
+                  <Col span={18}>
+                    <label>相关场地</label>
+                    <p>{item.roomNum}</p>
+                  </Col>
+                  <Col span={24}>
+                    <label>选考分班</label>
+                    <p>{item.electionExaminationPlanName}</p>
+                  </Col>
+                  <Col span={24}>
+                    <label>学考分班</label>
+                    <p>{item.studyExaminationPlanName}</p>
+                  </Col>
+
+
+                </Row>
+              </Col>
+              <Col span={16} className={styles['plan-item-main']}>
                 {
-                  item.label && item.label.map(it =>
-                    <span key={it}>{it}</span>
-                  )
+                  item.lectureVMList && item.teacherKlassStatisticVMList ?
+                    <Fragment>
+
+                      <h2>师资分班</h2>
+                      <TeacherKlassStatisticVMList list={item.teacherKlassStatisticVMList || []}/>
+                      <h2>年级课表</h2>
+                      <LectureVMList list={item.lectureVMList || []}/>
+                    </Fragment>
+                    :
+                    <Flex align="middle" justify="center">
+                      <Button onClick={() => load(item.id)}>查看详情</Button>
+                    </Flex>
                 }
-              </div>
-              <p>{item.memo}</p>
-              <h2>基础参数</h2>
-              <Row className={styles['base-params']}>
-                <Col span={6}>
-                  <label>年级</label>
-                  <p>{item.gradeIndexName}</p>
-                </Col>
-                <Col span={18}>
-                  <label>教学计划</label>
-                  <p>{`${item.semesterAcademicYear}学年第${item.semesterType}学期`}</p>
-                </Col>
-                <Col span={6}>
-                  <label>相关师资</label>
-                  <p>{item.teacherNum}</p>
-                </Col>
-                <Col span={18}>
-                  <label>相关场地</label>
-                  <p>{item.roomNum}</p>
-                </Col>
-                <Col span={24}>
-                  <label>选考分班</label>
-                  <p>{item.electionExaminationPlanName}</p>
-                </Col>
-                <Col span={24}>
-                  <label>学考分班</label>
-                  <p>{item.studyExaminationPlanName}</p>
-                </Col>
 
-
-              </Row>
-            </Col>
-            <Col span={16} className={styles['plan-item-main']}>
-              {
-                item.lectureVMList && item.teacherKlassStatisticVMList ?
-                  <Fragment>
-
-                    <h2>师资分班</h2>
-                    <TeacherKlassStatisticVMList list={item.teacherKlassStatisticVMList || []}/>
-                    <h2>年级课表</h2>
-                    <LectureVMList list={item.lectureVMList || []}/>
-                  </Fragment>
-                  :
-                  <Flex align="middle" justify="center">
-                    <Button onClick={() => load(item.id)}>查看详情</Button>
-                  </Flex>
-              }
-
-            </Col>
-          </Fragment>
-          :
-          null
-      }
+              </Col>
+            </Fragment>
+            :
+            null
+        }
       </Row>
     </Spin>
   )
@@ -241,7 +237,7 @@ function TeacherKlassStatisticVMList({list = []}) {
                 <Flex className={styles['teacher-detail']} key={teacher.teacherId}>
                   <div className={styles['teacher-name']}>{teacher.teacherName}</div>
                   <div style={{width: 100}}>{`每周课时：${teacher.workCountOfWeek}`}</div>
-                  <Flex.Item >
+                  <Flex.Item>
                     {
                       teacher.klassVMList.map(klass =>
                         <span key={klass.id} style={{display: 'inline-block', width: 100}}>{klass.name}</span>

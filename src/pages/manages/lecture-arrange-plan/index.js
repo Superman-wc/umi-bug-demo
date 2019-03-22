@@ -1,10 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Select, Input, notification} from 'antd';
-import {
-  ManagesLectureArrangePlan as namespace
-} from '../../../utils/namespace';
+import {ManagesLectureArrangePlan as namespace} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import router from "umi/router";
@@ -40,14 +36,14 @@ export default class ArrangePlanList extends Component {
         },
       },
       {
-        key:'rollback'
+        key: 'rollback'
       }
     ];
 
     const columns = [
       // {title: 'ID', key: 'id'},
       {title: '方案名称', key: 'name', width: 300,},
-      {title: '选考分班', key: 'electionExaminationPlanName',width: 200,},
+      {title: '选考分班', key: 'electionExaminationPlanName', width: 200,},
       {title: '学考分班', key: 'studyExaminationPlanName', width: 200,},
       {title: '年级', key: 'gradeName', width: 120,},
       {title: '创建时间', key: 'dateCreated'},
@@ -59,9 +55,6 @@ export default class ArrangePlanList extends Component {
           <TableCellOperation
             operations={{
               look: () => router.push({pathname: pathname + '/' + id, query}),
-              // remove: {
-              //   onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
-              // },
             }}
           />
         ),
@@ -80,9 +73,7 @@ export default class ArrangePlanList extends Component {
         total={total}
         pagination
         title={title}
-      >
-
-      </ListPage>
+      />
     );
   }
 }

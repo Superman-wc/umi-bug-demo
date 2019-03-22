@@ -1,17 +1,18 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
 import {Form, Row, Col, notification, Checkbox, Button} from 'antd';
-import {ManagesSubject as namespace} from '../../../utils/namespace';
+import {ManagesSubject as namespace, Authenticate} from '../../../utils/namespace';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
+import {URLResourceEnum} from '../../../utils/Enum';
 
 
 @connect(state => ({
   all: state[namespace].all || [],
   total: state[namespace].total,
   list: state[namespace].list,
-  loading: state[namespace].loading
+  loading: state[namespace].loading,
+  currentMenu: state[Authenticate].currentMenu,
 }))
 @Form.create({
   mapPropsToFields(props) {
@@ -28,7 +29,8 @@ export default class SubjectListPage extends Component {
   render() {
     const {
       all = [], loading, location, dispatch,
-      form: {getFieldDecorator, validateFieldsAndScroll}
+      form: {getFieldDecorator, validateFieldsAndScroll},
+      currentMenu,
     } = this.props;
 
     const title = '科目列表';
@@ -36,7 +38,7 @@ export default class SubjectListPage extends Component {
     const breadcrumb = ['管理', '科目管理', title];
 
 
-    const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={[{key:'rollback'}]}/>;
+    const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={[{key: 'rollback'}]}/>;
     const header = (
       <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>
     );
@@ -44,6 +46,10 @@ export default class SubjectListPage extends Component {
       labelCol: {span: 0},
       wrapperCol: {span: 24}
     };
+
+    console.log('currentMenu=', currentMenu,
+      currentMenu && currentMenu.resource.actions && currentMenu.resource.actions[URLResourceEnum.创建],
+    );
 
     return (
       <Page header={header}
@@ -94,7 +100,13 @@ export default class SubjectListPage extends Component {
               )
             }
           </Form.Item>
-          <div><Button htmlType="submit" type="primary" style={{width: 200, display: 'block'}}>确定</Button></div>
+          {
+            currentMenu && currentMenu.resource && currentMenu.resource.actions && currentMenu.resource.actions[URLResourceEnum.创建] ?
+
+              <div><Button htmlType="submit" type="primary" style={{width: 200, display: 'block'}}>确定</Button></div>
+              :
+              null
+          }
         </Form>
       </Page>
     );

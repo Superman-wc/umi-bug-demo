@@ -1,17 +1,10 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Select, Input ,notification} from 'antd';
-import {
-  ManagesClass,
-  ManagesRoom,
-  ManagesDevice as namespace,
-  ManagesGrade,
-  ManagesSubject
-} from '../../../utils/namespace';
+import {Form, Modal, Input, notification} from 'antd';
+import {ManagesRoom, ManagesDevice as namespace,} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
-import {ClassTypeEnum, CourseTypeEnum, Enums} from "../../../utils/Enum";
+
 
 @connect(state => ({
   total: state[namespace].total,
@@ -44,7 +37,7 @@ export default class MeterList extends Component {
         },
       },
       {
-        key:'rollback'
+        key: 'rollback'
       }
     ];
 

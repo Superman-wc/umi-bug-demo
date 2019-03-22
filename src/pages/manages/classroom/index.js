@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
-import {Form, Cascader, Row, Col, message, Modal, Select, Input, notification, Spin} from 'antd';
+import {Form, Cascader,  Modal, Input, notification, Spin} from 'antd';
 import {
   ManagesClassroom as namespace,
   ManagesPew, ManagesBuilding

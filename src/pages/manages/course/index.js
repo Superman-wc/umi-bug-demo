@@ -1,10 +1,7 @@
 import React, {Component} from 'react';
-import PropTypes from 'prop-types';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Select, DatePicker, Input, notification, Checkbox, Button, Radio} from 'antd';
+import {Form, Modal, Select, Input, notification, Checkbox, Radio} from 'antd';
 import {
-  ManagesClass,
   ManagesCourse as namespace,
   ManagesGrade,
   ManagesSubject,
@@ -12,7 +9,6 @@ import {
 } from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
-import GradeClassSelector from '../../../components/GradeClassSelector';
 import {CourseTypeEnum, Enums} from "../../../utils/Enum";
 import router from 'umi/router';
 import styles from './index.less';
@@ -84,7 +80,7 @@ export default class CourseUniqueList extends Component {
         },
       },
       {
-        key:'rollback'
+        key: 'rollback'
       }
     ];
 

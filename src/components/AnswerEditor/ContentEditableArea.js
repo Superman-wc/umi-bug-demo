@@ -62,13 +62,30 @@ export default class ContentEditableArea extends Component {
     ele.setAttribute('contentEditable', 'true');
 
     const handleKeyDown = (e) => {
+
       if ((e.code === "Minus") && e.altKey) {
         e.preventDefault();
-        document.execCommand("insertHTML", false, `<u>　　　　　　　　　　</u>`);
+        document.execCommand("insertHTML", false, `<u>　　　　　　　　　　　　</u>`);
         this.setState({value: ele.innerHTML, text: ele.innerText});
       }
-      if ((e.code === "Minus") && e.ctrlKey) {
+      else if ((e.code === "Minus") && e.ctrlKey) {
+        e.preventDefault();
         document.execCommand('underline', false, null);
+        this.setState({value: ele.innerHTML, text: ele.innerText});
+      }
+      else if(e.code ==='Space' && e.altKey){
+        e.preventDefault();
+        document.execCommand("insertHTML", false, '&emsp;&emsp;');
+        this.setState({value: ele.innerHTML, text: ele.innerText});
+      }
+      else if(e.code ==='Space' && e.shiftKey){
+        e.preventDefault();
+        document.execCommand("insertHTML", false, '<u>　　　　　　　　　　　　</u>');
+        this.setState({value: ele.innerHTML, text: ele.innerText});
+      }
+      else if(e.code ==='Space'){
+        e.preventDefault();
+        document.execCommand("insertText", false, '　');
         this.setState({value: ele.innerHTML, text: ele.innerText});
       }
     };

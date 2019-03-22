@@ -1,7 +1,5 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
-import {Form, Row, Col, message, Modal, Select} from 'antd';
 import {ManagesPeriod as namespace} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
@@ -18,8 +16,6 @@ export default class MeterList extends Component {
 
   render() {
     const {list, total, loading, location, dispatch} = this.props;
-
-    const {pathname, query} = location;
 
     const title = '课表配置';
 

@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { Breadcrumb, Icon, Spin, Menu, Modal } from 'antd';
+import {Breadcrumb, Icon, Spin, Menu, Modal} from 'antd';
 import classnames from 'classnames';
 import Operation from './HeaderOperation';
 import Flex from '../Flex';
@@ -8,18 +8,31 @@ import './Page.less';
 
 const prefixCls = 'page-wrapper';
 
-export default function Page({ children, header, footer, loading ,className, mainClassName, mainDirection='column'}) {
-  return (
-    <Spin spinning={!!loading}>
-      <Flex direction="column" className={classnames(prefixCls, className)}>
-        {header}
-        <Flex isItem direction={mainDirection} className={classnames(prefixCls + '-main', mainClassName)}>
-          {children}
+export default class Page extends Component {
+
+  componentDidMount() {
+    window['TDAPP'] && window['TDAPP'].onEvent('page', 'mount', {url: window.location.href, title: document.title});
+  }
+
+  componentWillUnmount() {
+    window['TDAPP'] && window['TDAPP'].onEvent('page', 'unmount', {url: window.location.href, title: document.title});
+  }
+
+  render() {
+    const {children, header, footer, loading, className, mainClassName, mainDirection = 'column'} = this.props;
+    return (
+      <Spin spinning={!!loading}>
+        <Flex direction="column" className={classnames(prefixCls, className)}>
+          {header}
+          <Flex isItem direction={mainDirection} className={classnames(prefixCls + '-main', mainClassName)}>
+            {children}
+          </Flex>
+          {footer}
         </Flex>
-        {footer}
-      </Flex>
-    </Spin>
-  );
+      </Spin>
+    );
+  }
+
 }
 
 Page.propTypes = {
@@ -29,8 +42,8 @@ Page.propTypes = {
   mainDirection: PropTypes.string,
 };
 
-Page.Header = function({ breadcrumb, title, operation, children, className, style, menu }) {
-  if (title && window.document.title != title) {
+Page.Header = function ({breadcrumb, title, operation, children, className, style, menu}) {
+  if (title && window.document.title !== title) {
     //只在标题不相同的时候设置
     window.document.title = title;
   }
@@ -41,8 +54,8 @@ Page.Header = function({ breadcrumb, title, operation, children, className, styl
     <Flex className={_className} justify="space-around" align="middle" style={style}>
       <div className={prefixCls + '-header-title'}>
         <h1 title={title}>{title}</h1>
-        <Flex style={{alignItems:'center'}}>
-          <Icon type="heart" />
+        <Flex style={{alignItems: 'center'}}>
+          <Icon type="heart"/>
           <Breadcrumb>{renderBreadcrumb(breadcrumb)}</Breadcrumb>
         </Flex>
       </div>
@@ -50,9 +63,9 @@ Page.Header = function({ breadcrumb, title, operation, children, className, styl
       {menu ? (
         <Menu
           selectable={false}
-          style={{ position: 'relative', zIndex: 100, borderBottom: 0 }}
+          style={{position: 'relative', zIndex: 100, borderBottom: 0}}
           mode="horizontal"
-          onClick={({ item, key, keyPath }) => {
+          onClick={({item, key, keyPath}) => {
             console.log(item, key, keyPath);
             const func = map[key];
             func && func();
@@ -94,7 +107,7 @@ const renderMenu = (data, map) =>
           disabled={menu.disabled}
           title={
             <span>
-              {menu.icon ? <Icon type={menu.icon} /> : null}
+              {menu.icon ? <Icon type={menu.icon}/> : null}
               {menu.title || menu.children || menu.key}
             </span>
           }
@@ -107,7 +120,7 @@ const renderMenu = (data, map) =>
         <Menu.ItemGroup
           title={
             <span>
-              {menu.icon ? <Icon type={menu.icon} /> : null}
+              {menu.icon ? <Icon type={menu.icon}/> : null}
               {menu.title || menu.children || menu.key}
             </span>
           }
@@ -116,11 +129,11 @@ const renderMenu = (data, map) =>
         </Menu.ItemGroup>
       );
     } else if (menu.divider) {
-      return <Menu.Divider key={menu.key || index} />;
+      return <Menu.Divider key={menu.key || index}/>;
     } else {
       return (
         <Menu.Item key={menu.key} disabled={menu.disabled}>
-          {menu.icon ? <Icon type={menu.icon} /> : null}
+          {menu.icon ? <Icon type={menu.icon}/> : null}
           {menu.title || menu.children || menu.key}
         </Menu.Item>
       );
@@ -133,7 +146,7 @@ function renderBreadcrumb(breadcrumb) {
     : null;
 }
 
-Page.Footer = function(props) {
+Page.Footer = function (props) {
   const className = classnames(prefixCls + '-footer', props.className);
-  return <footer {...{ ...props, className }} />;
+  return <footer {...{...props, className}} />;
 };

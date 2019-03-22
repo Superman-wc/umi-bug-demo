@@ -2,22 +2,12 @@ import React, {Component} from 'react';
 import {connect} from 'dva';
 import {AdminUrlResource as namespace, Authenticate} from '../../utils/namespace';
 import ListPage from '../../components/ListPage';
-import {EnableStatusEnum, URLResourceCategoryEnum} from '../../utils/Enum';
 import UrlResourceModal from '../../components/UrlResource/UrlResourceModal';
-import TableCellOperation from '../../components/TableCellOperation';
 
 
-import {Actions} from '../../utils/ResourceActions';
+import resourceActions from '../../utils/ResourceActions';
 
-function resourceActions(mask) {
-  return Actions.reduce((arr, action) => {
 
-    if ((mask & action.mask) === action.mask) {
-      arr.push({label: action.name, value: action.mask});
-    }
-    return arr;
-  }, []);
-}
 
 @connect(state => ({
   total: state[namespace].total,
@@ -31,7 +21,7 @@ export default class UrlResourceList extends Component {
 
   componentDidMount() {
     const {dispatch, profile} = this.props;
-    if(profile && profile.appId) {
+    if (profile && profile.appId) {
       dispatch({
         type: namespace + '/list',
         payload: {

@@ -1,8 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
 import moment from 'moment';
-import {Form, Row, Col, message, Modal, Select, DatePicker, Input, notification, Switch} from 'antd';
+import {Form, Modal, Select, DatePicker, Input, notification, Switch} from 'antd';
 import {ManagesSemester as namespace} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';

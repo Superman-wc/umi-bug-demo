@@ -15,6 +15,14 @@ export function config() {
         message: err.message || '系统错误，请联系管理员',
         // description: err.stack
       });
+      if (window.fundebug) {
+        window.fundebug.notifyError(err, {
+          metaData: {
+            info: 'dva捕获的错误'
+          }
+        });
+      }
+      window.TDAPP && window.TDAPP.onEvent('error', 'dva', {...err});
     },
     initialState: {  // 初始化
       '/manages/class': {
