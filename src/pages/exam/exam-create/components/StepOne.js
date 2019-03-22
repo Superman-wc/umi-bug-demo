@@ -342,7 +342,7 @@ class RowColInputNumber extends Component {
         <InputNumber min={1} defaultValue={row} placeholder="排" onChange={(v) => {
           onChange && onChange([v, col]);
         }} />
-        <InputNumber min={1} defaultValue={col} style={{ marginLeft: 20 }} placeholder="列"
+        <InputNumber min={4} max={6} defaultValue={col} style={{ marginLeft: 20 }} placeholder="4~6列"
           onChange={(v) => {
             onChange && onChange([row, v]);
           }} />
