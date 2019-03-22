@@ -112,7 +112,7 @@ export default Model({
       const {menus = [], resources = []} = action.result;
 
       const resourceMap = resources.reduce((map, it) => {
-        it.actions = resourceActions(it.actionMask).reduce((map, {value, label}) => {
+        it.actions = resourceActions(it.userMask).reduce((map, {value, label}) => {
           map[value] = label;
           return map;
         }, {});

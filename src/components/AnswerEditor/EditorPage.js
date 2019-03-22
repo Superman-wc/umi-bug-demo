@@ -40,6 +40,8 @@ export default function EditorPage(props) {
 
   const qrCode = file && file.id && file.ver ? `${file.id}#${file.ver}#${index}` : '';
 
+  console.log(page);
+
   return (
     <div id={page.key} className={className} style={style} onClick={() => {
       dispatch({
@@ -54,7 +56,7 @@ export default function EditorPage(props) {
         page.columns.map((column, index) =>
           <EditorColumn
             key={column.key}
-            style={{marginLeft: index > 0 ? column.colSpan : 0}}
+            style={{marginLeft: index > 0 ? (column.colSpan || page.colSpan) : 0,}}
             column={column} {...columnProps} />
         )
       }
