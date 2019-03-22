@@ -13,21 +13,22 @@ export default class ContentEditableArea extends Component {
   static CID = 0;
   static instances = {};
   static focusEventListen = false;
-  static focusEventListener = (e)=>{
-    console.log('autoFocusContentEditableArea',e);
-    if(ContentEditableArea.focusComponent){
+  static focusEventListener = (e) => {
+    console.log('autoFocusContentEditableArea', e);
+    if (ContentEditableArea.focusComponent) {
       ContentEditableArea.focusComponent.focus();
     }
   };
-  static addFocusEventListen(){
-    if(!ContentEditableArea.focusEventListen){
+
+  static addFocusEventListen() {
+    if (!ContentEditableArea.focusEventListen) {
       document.addEventListener('autoFocusContentEditableArea', ContentEditableArea.focusEventListener, false);
       ContentEditableArea.focusEventListen = true;
     }
   }
 
-  static removeFocusEventListen(){
-    if(ContentEditableArea.focusEventListen && !Object.keys(ContentEditableArea.instances).length){
+  static removeFocusEventListen() {
+    if (ContentEditableArea.focusEventListen && !Object.keys(ContentEditableArea.instances).length) {
       document.removeEventListener('autoFocusContentEditableArea', ContentEditableArea.focusEventListener, false);
       ContentEditableArea.focusEventListen = false;
     }
@@ -47,7 +48,7 @@ export default class ContentEditableArea extends Component {
 
   }
 
-  componentWillUnmount(){
+  componentWillUnmount() {
     delete ContentEditableArea.instances[this.id];
     ContentEditableArea.removeFocusEventListen();
   }
@@ -67,23 +68,19 @@ export default class ContentEditableArea extends Component {
         e.preventDefault();
         document.execCommand("insertHTML", false, `<u>　　　　　　　　　　　　</u>`);
         this.setState({value: ele.innerHTML, text: ele.innerText});
-      }
-      else if ((e.code === "Minus") && e.ctrlKey) {
+      } else if ((e.code === "Minus") && e.ctrlKey) {
         e.preventDefault();
         document.execCommand('underline', false, null);
         this.setState({value: ele.innerHTML, text: ele.innerText});
-      }
-      else if(e.code ==='Space' && e.altKey){
+      } else if (e.code === 'Space' && e.altKey) {
         e.preventDefault();
         document.execCommand("insertHTML", false, '&emsp;&emsp;');
         this.setState({value: ele.innerHTML, text: ele.innerText});
-      }
-      else if(e.code ==='Space' && e.shiftKey){
+      } else if (e.code === 'Space' && e.shiftKey) {
         e.preventDefault();
         document.execCommand("insertHTML", false, '<u>　　　　　　　　　　　　</u>');
         this.setState({value: ele.innerHTML, text: ele.innerText});
-      }
-      else if(e.code ==='Space'){
+      } else if (e.code === 'Space' && e.ctrlKey) {
         e.preventDefault();
         document.execCommand("insertText", false, '　');
         this.setState({value: ele.innerHTML, text: ele.innerText});

@@ -4,7 +4,7 @@ import {AnswerEditor as namespace,} from '../../utils/namespace';
 import QrCode from './QrCode';
 import ver from './version';
 import {PAGE_SIZE} from "./const";
-import {mm2px, text2html} from "./helper";
+import {html2text, mm2px, text2html} from "./helper";
 import * as ElementObject from './ElementObject';
 import {QuestionTypeEnum} from "../../utils/Enum";
 import {list, create, item, remove, modify} from '../../services/examiner/answer';
@@ -302,7 +302,7 @@ function findColumn(file, columnKey, pageKey) {
  */
 function findActiveColumn(state) {
   const {activeColumnKey, activePageKey, file} = state;
-  return findColumn(file,  activeColumnKey, activePageKey);
+  return findColumn(file, activeColumnKey, activePageKey);
 }
 
 /**
@@ -950,10 +950,17 @@ export default Model(
         if (!file.id) {
           delete file.id;
         }
-        file.title = file.name;
+        const titleElement = file.pages && file.pages[0] && file.pages[0].columns &&
+          file.pages[0].columns[0] && file.pages[0].columns[0].elements && file.pages[0].columns[0].elements[0];
+        if (titleElement && titleElement.type === 'page-title' && titleElement.title !== file.title) {
+          file.title = html2text(titleElement.title || '') ;
+        } else {
+          file.title = file.name || file.title;
+        }
         file.pages = JSON.stringify(file.pages || []);
         file.print = JSON.stringify(file.print || {});
         file.data = JSON.stringify(data || {});
+
         yield saga.put({
           type: file.id ? 'modify' : 'create',
           payload: file,

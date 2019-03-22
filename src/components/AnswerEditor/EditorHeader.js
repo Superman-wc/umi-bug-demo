@@ -6,7 +6,7 @@ import router from 'umi/router';
 
 function EditorHeader(props) {
 
-  const {query,file, dispatch, activePageKey, activeColumnKey} = props;
+  const {query, file, dispatch, activePageKey, activeColumnKey} = props;
 
 
   const menu = [
@@ -49,7 +49,9 @@ function EditorHeader(props) {
           if (key === 'save') {
             console.log(res);
             message.success('保存成功');
-            router.replace({pathname: props.pathname, query: {...props.query, id: res.id}});
+            if (!props.query.id || props.query.id * 1 !== res.id) {
+              router.replace({pathname: props.pathname, query: {...props.query, id: res.id}});
+            }
           }
         }
       });
