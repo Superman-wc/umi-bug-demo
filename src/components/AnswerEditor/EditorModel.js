@@ -940,6 +940,10 @@ export default Model(
     effects: {
       buildQrCode,
       * print() {
+        // 打印前要将内容区域移动到左顶点
+        window.scrollTo(0, 0);
+        document.body.scrollTo(0,0);
+        document.getElementById('root').scrollTo(0, 0);
         window.print();
       },
       * save(action, saga) {
@@ -953,7 +957,7 @@ export default Model(
         const titleElement = file.pages && file.pages[0] && file.pages[0].columns &&
           file.pages[0].columns[0] && file.pages[0].columns[0].elements && file.pages[0].columns[0].elements[0];
         if (titleElement && titleElement.type === 'page-title' && titleElement.title !== file.title) {
-          file.title = html2text(titleElement.title || '') ;
+          file.title = html2text(titleElement.title || '');
         } else {
           file.title = file.name || file.title;
         }
@@ -1016,7 +1020,7 @@ export default Model(
       },
       set(state, action) {
         return {...state, ...action.payload};
-      }
+      },
 
     })
   },

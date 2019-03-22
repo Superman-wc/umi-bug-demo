@@ -1,5 +1,5 @@
 import {connect} from 'dva';
-import {Menu, Icon, Modal, message} from 'antd';
+import {Menu, Icon, message} from 'antd';
 import styles from './answer.less';
 import {AnswerEditor as namespace} from "../../utils/namespace";
 import router from 'umi/router';

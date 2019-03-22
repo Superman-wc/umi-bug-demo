@@ -10,63 +10,27 @@ import styles from './answer.less';
 export function Score({value = 10}) {
 
   const scores = [];
-  const valueStr = value+'';
+  const valueStr = value + '';
 
 
-  scores.push(
-    <div key={0} {...{
-      role: 'box',
-      'data-type': 'score',
-      'data-value': 0
-    }}>0</div>
-  );
+  scores.push(<ScoreItem key={0} value={0}/>);
 
   // 整数按位分割， 反向， 个位在前，
-  valueStr.split('').reverse().forEach((s, v)=>{
-    const m = valueStr.length-1>v ? 9 : parseInt(s, 10);
+  valueStr.split('').reverse().forEach((s, v) => {
+    const m = valueStr.length - 1 > v ? 9 : parseInt(s, 10);
     const k = Math.pow(10, v);
-    for(let i=1; i<=m; i++){
-      const j = i*k;
-      const props = {
-        role: 'box',
-        'data-type': 'score',
-        'data-value': j
-      };
+    for (let i = 1; i <= m; i++) {
+      const j = i * k;
       scores.push(
-        <div key={j} {...props}>{j}</div>
+        <ScoreItem key={j} value={j}/>
       )
     }
   });
 
-  // const m = Math.min(value, 9);
-  //
-  // for (let i = 0; i <= m; i++) {
-  //   const props = {
-  //     role: 'box',
-  //     'data-type': 'score',
-  //     'data-value': i
-  //   };
-  //   scores.push(
-  //     <div key={i} {...props}>{i}</div>
-  //   )
-  // }
-  //
-  // if(value>10) {
-  //   const s = Math.ceil(value / 10);
-  //   if (s) {
-  //     for (let i = 1; i <= s; i++) {
-  //       const k = i * 10;
-  //       const props = {
-  //         role: 'box',
-  //         'data-type': 'score',
-  //         'data-value': i * 10
-  //       };
-  //       scores.push(
-  //         <div key={k} {...props}>{k}</div>
-  //       )
-  //     }
-  //   }
-  // }
+  if (value > 10) {
+    scores.push(<ScoreItem key={value} value={value}/>);
+  }
+
 
   const props = {
     className: styles['score'],
@@ -75,5 +39,11 @@ export function Score({value = 10}) {
   };
   return (
     <div {...props}>{scores}</div>
+  )
+}
+
+function ScoreItem({value}) {
+  return (
+    <div role="box" data-type="score" data-value={value}>{value}</div>
   )
 }
