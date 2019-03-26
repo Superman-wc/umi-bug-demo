@@ -23,6 +23,7 @@ const StepItem = Steps.Step
   gradeList: state[ManagesGrade].list,
   updateOne: state[ManagesSteps].updateOne,
   updateTwo: state[ManagesSteps].updateTwo,
+  updateThree: state[ManagesSteps].updateThree,
 }))
 export default class ExamCreatePage extends React.Component {
 
@@ -33,21 +34,21 @@ export default class ExamCreatePage extends React.Component {
   onNext() {
     const current = this.state.current;
     if (current === 0) {
-      const nextUpdateOne = this.props.updateOne + 1
+      const nextUpdateOne = this.props.updateOne + 1;
       this.props.dispatch({
         type: ManagesSteps + '/updateOne',
         payload: {
           updateOne: nextUpdateOne
         }
-      })
+      });
     } else if (current === 1) {
-      const nextUpdateTwo = this.props.updateTwo + 1
+      const nextUpdateTwo = this.props.updateTwo + 1;
       this.props.dispatch({
         type: ManagesSteps + '/updateTwo',
         payload: {
           updateTwo: nextUpdateTwo
         }
-      })
+      });
     }
   }
 
@@ -61,6 +62,16 @@ export default class ExamCreatePage extends React.Component {
     console.log('onCheckSuccess')
     const nextCurrent = this.state.current + 1;
     this.setState({ current: nextCurrent });
+  }
+
+  submit() {
+    const nextUpdateThree = this.props.updateThree + 1;
+    this.props.dispatch({
+      type: ManagesSteps + '/updateThree',
+      payload: {
+        updateThree: nextUpdateThree
+      }
+    });
   }
 
   render() {
@@ -120,14 +131,14 @@ export default class ExamCreatePage extends React.Component {
                 onClick={() => { this.onNext() }}
               >下一步</Button>
             }
-            {/* {
+            {
               current === stepLimitNum &&
               <Button
                 size='large'
                 type="primary"
                 onClick={() => this.submit()}
               >提交</Button>
-            } */}
+            }
           </div>
         </div>
       </Page>

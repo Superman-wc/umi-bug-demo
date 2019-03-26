@@ -16,6 +16,7 @@ const CheckboxGroup = Checkbox.Group;
   oneItem: state[ManagesSteps].oneItem,
   updateTwo: state[ManagesSteps].updateTwo,
   subjectSelectList: state[ManagesSteps].subjectSelectList,
+  needRoomNum: state[ManagesSteps].needRoomNum,
 }))
 @Form.create({
   mapPropsToFields(props) {
@@ -115,8 +116,8 @@ export default class StepTwo extends React.Component {
   handleTeacher = (rule, value, callback) => {
     // console.log('handleTeacher: ', value);
     if (value) {
-      const { oneItem: { monitorNum, roomId: { roomIds } } } = this.props;
-      const needNum = monitorNum * (roomIds.length);
+      const { needRoomNum, oneItem: { monitorNum, roomId: { roomIds } } } = this.props;
+      const needNum = monitorNum * needRoomNum;
       const currentNum = value.length;
       if (currentNum < needNum) {
         callback(`监考老师数量过少, 当前${currentNum}, 需要${needNum}位`);
@@ -128,11 +129,11 @@ export default class StepTwo extends React.Component {
 
   render() {
     const {
-      teacherList = [], subjectSelectList = [],
+      teacherList = [], subjectSelectList = [], needRoomNum = 0,
       oneItem: { examDate, monitorNum, roomId: { roomIds } },
       form: { getFieldDecorator }
     } = this.props;
-    const needTeacherNum = monitorNum * (roomIds.length);
+    const needTeacherNum = monitorNum * needRoomNum;
 
     const formlayout = {
       labelCol: { span: 4 },

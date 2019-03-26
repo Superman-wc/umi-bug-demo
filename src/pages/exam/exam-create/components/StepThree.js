@@ -2,15 +2,17 @@ import React from 'react'
 import styles from '../index.less'
 import { connect } from 'dva';
 import { Button, Table, Checkbox, Input, notification, Modal } from 'antd';
-import { ExamCreate } from '../../../../utils/namespace'
+import { ExamCreate, ExamList } from '../../../../utils/namespace'
 import { ManagesSteps } from '../utils/namespace'
 import { GradeIndexEnum, Enums } from '../../../../utils/Enum';
 import { DragDropContext, DragSource, DropTarget } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import update from 'immutability-helper';
+import router from 'umi/router';
 
 @connect(state => ({
   studentList: state[ExamCreate].studentList,
+  updateThree: state[ManagesSteps].updateThree,
   oneItem: state[ManagesSteps].oneItem,
   twoItem: state[ManagesSteps].twoItem,
   roomSelectList: state[ManagesSteps].roomSelectList,
@@ -20,8 +22,18 @@ export default class StepThree extends React.Component {
 
   state = {
     sortTableData: [],
-    roomSubjectIds: []
+    roomSubjectIds: [],
+    examName: null,
+    successModalVisible: false,
+    editModalVisible: false,
     // editDisabled: true,
+  };
+
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    if (nextProps.updateThree && nextProps.updateThree !== this.props.updateThree) {
+      console.log('updateThree: ', nextProps.updateThree);
+      this.setState({ editModalVisible: true });
+    }
   }
 
   submitData = () => {
@@ -31,6 +43,9 @@ export default class StepThree extends React.Component {
       notification.error({ message: '请输入考试名称' })
       return;
     }
+    this.setState({
+      editModalVisible: false,
+    });
     const { oneItem = {}, twoItem = {},
       dateSelectList = [], dispatch } = this.props;
     const seatAssignment = oneItem['seatAssignment'];
@@ -106,9 +121,12 @@ export default class StepThree extends React.Component {
       type: ExamCreate + '/distributionStudent',
       payload: params,
       resolve: () => {
-        Modal.info({
-          title: '提交成功',
-          content: '提交成功, 稍后请前往考务列表查看',
+        // Modal.info({
+        //   title: '提交成功',
+        //   content: '大约需要30分钟安排完毕, 稍后请前往考务列表查看',
+        // });
+        this.setState({
+          successModalVisible: true,
         });
       }
     });
@@ -204,12 +222,20 @@ export default class StepThree extends React.Component {
     });
 
     // const editBtn = this.state.editDisabled ? '编辑考场' : '禁用';
+    const footer = <div>
+      <Button onClick={() => {
+        router.push({ pathname: ExamList });
+      }}>查看列表</Button>
+      <Button type='primary' onClick={() => {
+        this.setState({ successModalVisible: false });
+      }}>确定</Button>
+    </div>
 
     return (
       <div>
         <div className={styles['three-btn-container']}>
           <span className={styles['tip-color']}>请选择禁用的考场(非必选)，通过拖拽表格确定教室优先级</span>
-          <div className={styles['three-right-btn-container']}>
+          {/* <div className={styles['three-right-btn-container']}>
             <Input
               onChange={(e) => { this.state.examName = e.target.value }}
               type='text'
@@ -218,7 +244,7 @@ export default class StepThree extends React.Component {
             <Button
               onClick={this.submitData}
               type='primary' className={styles['three-right-btn']}>提交</Button>
-          </div>
+          </div> */}
         </div>
         <span>{`${gradeName}，${roomTotal}个教室，${teacherTotal}位老师`}</span>
         <div style={{ marginTop: 20 }}>
@@ -235,6 +261,27 @@ export default class StepThree extends React.Component {
           />
         </div>
         <div style={{ height: 120 }}></div>
+        <Modal
+          title={'提交成功'}
+          visible={this.state.successModalVisible}
+          footer={footer}
+        >
+          <p>由于数据量较大, 本次考务大约需要30分钟安排完毕, 稍后请前往考务列表查看</p>
+        </Modal>
+        <Modal
+          title={'请输入考务名称'}
+          visible={this.state.editModalVisible}
+          onCancel={() => {
+            this.setState({ editModalVisible: false });
+          }}
+          onOk={this.submitData}
+        >
+          <Input
+            onChange={(e) => { this.state.examName = e.target.value }}
+            type='text'
+            style={{ width: 300, marginRight: 10 }}
+            placeholder='请输入考试名称'></Input>
+        </Modal>
       </div>
     )
   }

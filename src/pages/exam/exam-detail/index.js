@@ -27,7 +27,7 @@ export default class ExamDetail extends React.Component {
     this.setState({
       exportLoading: true
     })
-    const { dispatch } = this.props;
+    const { examDetail, dispatch } = this.props;
     // console.log('importTable: ', examDetail.id)
     dispatch({
       type: namespace + '/examDetailExport',

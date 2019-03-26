@@ -7,6 +7,7 @@ export default {
     current: 0,
     updateOne: 0,
     updateTwo: 0,
+    updateThree:0,
     subjectSelectList: [],
     roomSelectList: [],
     dateSelectList: [],
@@ -46,6 +47,9 @@ export default {
     },
     updateTwo(state, { payload: { updateTwo } }) {
       return { ...state, updateTwo };
-    }
+    },
+    updateThree(state, { payload: { updateThree } }) {
+      return { ...state, updateThree };
+    },
   }
 }
