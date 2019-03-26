@@ -54,245 +54,6 @@ export default class WorkspacePage extends Component {
 
     const buttons = [];
 
-
-    const uploaderProps = {
-      onDrop: (e) => {
-        e.preventDefault();
-
-
-        if (e.dataTransfer.files && e.dataTransfer.files.length) {
-          let count = 0;
-          const tasks = [];
-          const waitList = [];
-          for (let i = 0, len = e.dataTransfer.files.length; i < len; i++) {
-            const file = e.dataTransfer.files[i];
-            if (/image/i.test(file.type)) {
-              const task = {
-                index: count++,
-                file,
-                filename: buildFileName(file),
-                status: '等待上传',
-                name: file.name,
-              };
-              tasks.push(task);
-              waitList.push(task);
-
-            }
-          }
-
-          waitList.sort((a, b) => a.lastModified - b.lastModified);
-
-          console.log(tasks);
-
-          if (this.state.tasks && this.state.tasks.length) {
-            for (let i = 0, len = this.state.tasks.length; i < len; i++) {
-              const task = this.state.tasks[i];
-              task.index = count + i;
-              tasks.push(task);
-            }
-          }
-
-          const {waitUploadCount = 0, waitCreateCount = 0, waitAnalyzeCount = 0} = this.state;
-
-          this.setState({
-            drag: false,
-            tasks,
-            waitUploadCount: waitUploadCount + count,
-            waitCreateCount: waitCreateCount + count,
-            waitAnalyzeCount: waitAnalyzeCount + count,
-          }, () => {
-
-            if (waitList.length) {
-              const qiniuyun = new Qiniuyun(buildQiniuConfig(authenticate.token));
-              pipes(
-                opt =>
-                  qiniuyun.upload(opt, {
-                    onStart: () => {
-                      opt.status = '开始上传';
-                      opt.progress = {
-                        status: 'normal',
-                        percent: 0,
-                      };
-                      this.setState({tasks: [...this.state.tasks]});
-                    },
-                    onProgress: (percent) => {
-                      opt.status = '正在上传';
-                      opt.progress = {
-                        status: 'active',
-                        percent: Math.floor(percent / 3)
-                      };
-                      this.setState({tasks: [...this.state.tasks]});
-                    },
-                    onEnd: () => {
-                      opt.status = '上传结束';
-                      opt.progress = {
-                        status: 'active',
-                        percent: 34,
-                      };
-                      delete opt.file;
-                      this.setState({
-                        tasks: [...this.state.tasks],
-                        waitUploadCount: this.state.waitUploadCount - 1
-                      });
-                    },
-                    onError: (err) => {
-                      opt.error = err;
-                      opt.status = '上传出错';
-                      opt.progress = {
-                        status: 'exception',
-                        percent: opt.progress.percent,
-                      };
-                      this.setState({
-                        tasks: [...this.state.tasks],
-                        // waitUploadCount: this.state.waitUploadCount - 1
-                      });
-                    },
-                  }).then(
-                    ({url}) => {
-                      opt.url = url;
-                      opt.status = '正在识别';
-                      opt.progress = {
-                        status: 'active',
-                        percent: 34,
-                      };
-                      this.setState({
-                        tasks: [...this.state.tasks],
-                      });
-
-                      return createSheet(opt).then(({result}) => {
-                        if (result.status === ExaminerStatusEnum.处理错误) {
-                          opt.error = new Error(result.lastErrorMsg);
-                          opt.status = '识别失败';
-                          opt.progress = {
-                            status: 'exception',
-                            percent: 67,
-                          };
-                          this.setState({
-                            tasks: [...this.state.tasks],
-                          });
-                        } else {
-                          opt.sheet = result;
-                          opt.status = '正在解析';
-                          opt.progress = {
-                            status: 'active',
-                            percent: 67,
-                          };
-                          const state = {
-                            tasks: [...this.state.tasks],
-                            waitCreateCount: this.state.waitCreateCount - 1,
-                          };
-                          if (!this.state.editorId) {
-                            state.editorId = result.editorId;
-                            state.editorTitle = result.editorTitle;
-                            state.subjectId = result.subjectId;
-                            state.gradeId = result.gradeId;
-                          } else if (this.state.editorId !== result.editorId) {
-                            opt.error = new Error('不相同的答题卡');
-                          }
-                          this.setState(state);
-                          return opt;
-                        }
-
-
-                      }).catch((ex) => {
-                        opt.error = ex;
-                        opt.status = '识别失败';
-                        opt.progress = {
-                          status: 'exception',
-                          percent: 67,
-                        };
-                        this.setState({
-                          tasks: [...this.state.tasks],
-                        });
-                      });
-                    }
-                  ).catch(
-                    ex => {
-                      opt.error = ex;
-                      opt.status = '出错';
-                      opt.progress = {
-                        status: 'exception',
-                        percent: opt.progress.percent,
-                      };
-                      this.setState({tasks: [...this.state.tasks]});
-                    }
-                  ),
-              )(...waitList).then((res) => {
-                const ids = [];
-                const optMap = res.filter(it => it && !!it.sheet).reduce((map, it) => {
-                  ids.push(it.sheet.id);
-                  map[it.sheet.id] = it;
-                  return map;
-                }, {});
-
-                if (ids.length) {
-
-                  return new Promise((resolve, reject) => {
-                    setTimeout(() => {
-                      analyze({ids: ids.join(',')}).then(({result: {list = []}}) => {
-                        let waitAnalyzeCount = this.state.waitAnalyzeCount;
-                        list.forEach(it => {
-                          const opt = optMap[it.id];
-                          if (opt) {
-
-                            if (it.status === ExaminerStatusEnum.处理错误) {
-                              opt.error = new Error(it.lastErrorMsg);
-                              opt.status = '解析失败';
-                              opt.progress = {
-                                status: 'exception',
-                                percent: 67,
-                              };
-                            } else {
-
-                              opt.sheet = it;
-                              opt.status = '解析成功';
-                              opt.progress = {
-                                status: 'success',
-                                percent: 100,
-                              };
-                              waitAnalyzeCount--;
-                            }
-                          }
-                        });
-                        this.setState({
-                          tasks: [...this.state.tasks],
-                          waitAnalyzeCount,
-                        });
-                        resolve();
-
-                      }).catch((ex) => {
-                        reject(ex);
-                      });
-                    }, 15000);
-
-                  });
-                }
-                return Promise.resolve(res);
-
-              })
-            }
-          });
-
-        }
-
-
-      },
-      onDragOver: e => e.preventDefault(),
-      onDragEnter: (e) => {
-        e.preventDefault();
-        this.setState({drag: true});
-      },
-      onDragLeave: e => {
-        e.preventDefault();
-        this.setState({drag: false});
-      },
-      style: {
-        flex: 1,
-        border: this.state.drag ? '10px dashed #08f' : '10px dashed transparent',
-        backgroundColor: this.state.drag ? 'rgba(0, 128, 255, 0.3)' : 'transparent',
-      }
-    };
-
     const totalProgress = tasks.length ? (tasks.length * 3 - waitUploadCount - waitCreateCount - waitAnalyzeCount) / (tasks.length * 3) : 0;
 
 
@@ -324,16 +85,7 @@ export default class WorkspacePage extends Component {
 
     return (
       <Page {...pageProps} >
-        <DragUploader token={authenticate.token}>
-          {
-            editorTitle ?
-              <h2 className={styles['editor-title']}>{editorTitle}</h2>
-              :
-              null
-          }
-
-
-        </DragUploader>
+        <DragUploader token={authenticate.token}/>
       </Page>
     )
   }
@@ -363,14 +115,16 @@ class DragUploader extends Component {
     }
   };
 
+  /**
+   * 将文件处理成任务，并开启流水线处理任务
+   * @param files
+   */
   handleTask = files => {
     const uploadTasks = this.buildTaskList(files);
     let {tasks = [], waitUploadCount = 0} = this.state;
 
     waitUploadCount += uploadTasks.length;
     tasks = uploadTasks.concat(tasks);
-
-    console.log(tasks, uploadTasks);
 
     this.refreshTasksState({
       drag: false,
@@ -379,60 +133,69 @@ class DragUploader extends Component {
     }).then(() => {
       setTimeout(() => {
         // 开始流水线任务
-        this.startFlowLine(uploadTasks).then(list => {
-          console.log('上传并创建完成', list);
-          const ids = [];
-          const sheetMap = list.filter(it => it && it.sheet).reduce((map, it) => {
-            map[it.sheet.id] = it;
-            ids.push(it.sheet.id);
-            return map;
-          }, {});
-          const run = (ids, waitTime = 2000) => {
-            return new Promise((resolve, reject) => {
-              clearTimeout(this.analyze_sid);
-              this.analyze_sid = setTimeout(() => {
-                analyze({ids: ids.join(',')}).then(({result: {list = []}} = {}) => {
-                  console.log('解析完成：', list);
-                  let state = {};
-                  const ids = [];
-                  list.forEach(it => {
-                    const task = sheetMap[it.id];
-                    if (task) {
-                      state = {...this.analyzeSheet(task, it)};
-                    }
-                    if (it.status === ExaminerStatusEnum.等待处理 || it.status === ExaminerStatusEnum.处理中) {
-                      ids.push(it.id);
-                    }
-                  });
-                  return this.refreshTasksState(state).then(() => {
-                    if (ids && ids.length) {
-                      run(ids);
-                    }
-                  });
-
-                }).then(resolve, reject);
-              }, waitTime);
-
-            })
-          };
-
-          if (ids && ids.length) {
-            run(ids, 15000);
-          }
-
-        });
-      }, 1000);
+        this.startFlowLine(uploadTasks)
+      }, 300);
 
     });
   };
 
+  /**
+   * 开始流水线工作
+   * @param tasks
+   * @returns {Promise<T|never>}
+   */
   startFlowLine = (tasks) => {
     return flowLine([
-      this.upload,
-      this.buildSheet,
-    ], tasks);
+      this.upload,  // 上传图片
+      this.buildSheet,  // 构建答题卡记录
+    ], tasks).then(
+      list => {
+        console.log('上传并创建完成', list);
+        const ids = [];
+        const sheetMap = list.filter(it => it && it.sheet).reduce((map, it) => {
+          map[it.sheet.id] = it;
+          ids.push(it.sheet.id);
+          return map;
+        }, {});
+        const run = (ids, waitTime = 2000) => {
+          return new Promise((resolve, reject) => {
+            clearTimeout(this.analyze_sid);
+            this.analyze_sid = setTimeout(() => {
+              analyze({ids: ids.join(',')}).then(({result: {list = []}} = {}) => {
+                console.log('解析完成：', list);
+                let state = {};
+                const ids = [];
+                list.forEach(it => {
+                  const task = sheetMap[it.id];
+                  if (task) {
+                    state = {...this.analyzeSheet(task, it)};
+                  }
+                  if (it.status === ExaminerStatusEnum.等待处理 || it.status === ExaminerStatusEnum.处理中) {
+                    ids.push(it.id);
+                  }
+                });
+                return this.refreshTasksState(state).then(() => {
+                  if (ids && ids.length) {
+                    run(ids);
+                  }
+                });
+
+              }).then(resolve, reject);
+            }, waitTime);
+
+          })
+        };
+        if (ids && ids.length) {
+          run(ids, 15000);
+        }
+      });
   };
 
+  /**
+   * 刷新任务队列状态
+   * @param state
+   * @returns {Promise<any>}
+   */
   refreshTasksState = (state = {}) => {
     return new Promise(
       resolve => this.setState({
@@ -444,6 +207,10 @@ class DragUploader extends Component {
     );
   };
 
+  /**
+   * 获取七牛上传对像
+   * @returns {Qiniuyun}
+   */
   getQiniuyun = () => {
     if (!this.qiniuyun) {
       this.qiniuyun = new Qiniuyun(buildQiniuConfig(this.props.token));
@@ -451,6 +218,11 @@ class DragUploader extends Component {
     return this.qiniuyun;
   };
 
+  /**
+   * 上传答题卡
+   * @param task
+   * @returns {*}
+   */
   upload = (task) => {
     if (task && task.file) {
       return this.getQiniuyun().upload(task, {
@@ -510,6 +282,11 @@ class DragUploader extends Component {
     return Promise.resolve();
   };
 
+  /**
+   * 解析后答题卡的处理
+   * @param task
+   * @param sheet
+   */
   analyzeSheet = (task, sheet) => {
     const state = {};
 
@@ -562,16 +339,16 @@ class DragUploader extends Component {
     return state;
   };
 
+  /**
+   * 创建答题卡记录
+   * @param task
+   * @returns {*}
+   */
   buildSheet = (task) => {
     if (task && task.url) {
-      return createSheet(task).then(({result}) => {
-
-        const state = this.analyzeSheet(task, result);
-
-        return this.refreshTasksState(state)
-
-      }).catch(ex => {
-
+      return createSheet(task).then(
+        ({result}) => this.refreshTasksState(this.analyzeSheet(task, result))
+      ).catch(ex => {
         task.error = ex;
         task.status = '识别失败';
         task.progress = {
@@ -579,7 +356,6 @@ class DragUploader extends Component {
           percent: 67,
         };
         return this.refreshTasksState();
-
       });
     }
     return Promise.resolve();
@@ -619,7 +395,6 @@ class DragUploader extends Component {
 
   render() {
 
-    // console.log(this.state);
 
     const style = {
       flex: 1,
@@ -627,7 +402,7 @@ class DragUploader extends Component {
       backgroundColor: this.state.drag ? 'rgba(0, 128, 255, 0.3)' : 'transparent',
     };
 
-    const {tasks = []} = this.state;
+    const {tasks = [], editorTitle} = this.state;
 
     console.log('tasks=', tasks);
 
@@ -638,7 +413,12 @@ class DragUploader extends Component {
            onDragEnter={this.handleDragEnter}
            onDragLeave={this.handleDragLeave}
       >
-        {this.props.children}
+        {
+          editorTitle ?
+            <h2 className={styles['editor-title']}>{editorTitle}</h2>
+            :
+            null
+        }
         {
           tasks && tasks.length ?
             <TaskList tasks={tasks}/>
@@ -679,12 +459,22 @@ function Task(props) {
       {
         data.sheet ?
           <Fragment>
-            <div>
-              班级：{data.sheet.unitId}
-            </div>
-            <div>
-              学生：{data.sheet.studentCode}
-            </div>
+            {
+              data.sheet.unitId ?
+                <div>
+                  班级：{data.sheet.unitId}
+                </div>
+                :
+                null
+            }
+            {
+              data.sheet.studentCode ?
+                <div>
+                  学生：{data.sheet.studentCode}
+                </div>
+                :
+                null
+            }
           </Fragment>
 
           :
