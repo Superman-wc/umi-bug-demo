@@ -14,15 +14,15 @@ import { ManagesSteps } from './utils/namespace';
 const steps = [
   { title: '确定考试信息', description: '确定年级、科目、考场等信息' },
   { title: '选择考试时间', description: '选择监考老师、确定考试时间' },
-  { title: '配置考场信息', description: '分配考场、考生、监考' }
+  { title: '配置考场信息', description: '分配考场' }
 ];
 const StepItem = Steps.Step
 @connect(state => ({
-  gradeList: state[ManagesGrade].list,
   item: state[ExamCreate].item,
+  loading: state[ExamCreate].loading,
+  gradeList: state[ManagesGrade].list,
   updateOne: state[ManagesSteps].updateOne,
   updateTwo: state[ManagesSteps].updateTwo,
-  loading: state[ManagesSteps].loading
 }))
 export default class ExamCreatePage extends React.Component {
 
@@ -75,7 +75,7 @@ export default class ExamCreatePage extends React.Component {
     const { loading } = this.props;
 
     return (
-      <Page loading={loading}
+      <Page loading={!!loading}
         header={header}>
         <div className={styles["steps"]}>
           <Steps current={current}>

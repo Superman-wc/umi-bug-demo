@@ -14,14 +14,14 @@ export default {
     twoItem: {},
     threeItem: {},
     studentNum: 0,
-    loading: false,
+    needRoomNum: 0,
   },
   reducers: {
-    setLoading(state, { payload: { loading } }) {
-      return { ...state, loading };
-    },
     saveStudentNum(state, { payload: { studentNum } }) {
       return { ...state, studentNum };
+    },
+    saveRoomNum(state, { payload: { needRoomNum } }) {
+      return { ...state, needRoomNum };
     },
     saveOneItem(state, { payload: { oneItem } }) {
       return { ...state, oneItem }

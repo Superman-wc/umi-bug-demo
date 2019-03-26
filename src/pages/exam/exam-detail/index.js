@@ -1,17 +1,16 @@
-
-import React from 'react'
+import React from 'react';
 import { connect } from 'dva';
-import fetch from 'dva/fetch';
-import { Input, notification, Button } from 'antd';
+import { Input, Button, notification } from 'antd';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
-import ExamTable from '../../../components/exam/ExamTable'
-import TeacherTable from '../../../components/exam/TeacherTable'
-import styles from './index.less'
+import ExamTable from '../../../components/exam/ExamTable';
+import TeacherTable from '../../../components/exam/TeacherTable';
+import styles from './index.less';
 import { ExamDetail as namespace } from '../../../utils/namespace';
-import { GradeIndexEnum, Enums, getNameByValue } from '../../../utils/Enum'
+import { GradeIndexEnum, Enums, getNameByValue } from '../../../utils/Enum';
 
 @connect(state => ({
+  loading: state[namespace].loading,
   examDetail: state[namespace].examDetail,
   examName: state[namespace].examName,
   exportUrl: state[namespace].exportUrl
@@ -21,7 +20,7 @@ export default class ExamDetail extends React.Component {
   state = {
     value: null,
     exportLoading: false
-  }
+  };
 
   // 导出考场
   importTable = () => {
@@ -38,8 +37,8 @@ export default class ExamDetail extends React.Component {
       resolve: () => {
         this.downloadFile();
       }
-    })
-  }
+    });
+  };
 
   downloadFile() {
     const { exportUrl } = this.props;
@@ -49,18 +48,36 @@ export default class ExamDetail extends React.Component {
     a.click();
     this.setState({
       exportLoading: false
-    })
+    });
   }
 
   onSearch(value) {
+    const { examDetail } = this.props;
+    if (examDetail && examDetail.arrangeList) {
+      let haveValue = false;
+      flag:
+      for (let item of examDetail.arrangeList) {
+        if (item && item.teacherList) {
+          for (let teacherItem of item.teacherList) {
+            if (teacherItem && teacherItem.name.indexOf(value) !== -1) {
+              haveValue = true;
+              break flag;
+            }
+          }
+        }
+      }
+      if (!haveValue) {
+        notification.warning({ message: '没有与搜索条件匹配的老师, 可能不参与监考或姓名有误' });
+      }
+    }
     this.setState({
       value: value
-    })
+    });
   }
 
   render() {
     const Search = Input.Search;
-    const { examName, examDetail = {}, location } = this.props;
+    const { examName, examDetail = {}, loading } = this.props;
     const canEdit = examDetail.releaseStatus === 0;
     const title = '考务详情';
     const breadcrumb = ['考务管理', '考务列表', title];
@@ -68,17 +85,17 @@ export default class ExamDetail extends React.Component {
     const header = (
       <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation} />
     );
-    const gradeIndexs = Enums(GradeIndexEnum)
-    const gradeName = getNameByValue(gradeIndexs, examDetail.gradeIndex)
-    let roomStudent = '-'
+    const gradeIndexs = Enums(GradeIndexEnum);
+    const gradeName = getNameByValue(gradeIndexs, examDetail.gradeIndex);
+    let roomStudent = '-';
     if (examDetail.roomColumnTotal && examDetail.roomRowTotal) {
       roomStudent = (examDetail.roomColumnTotal * examDetail.roomRowTotal).toString()
     }
     // 高一、610人、21个教师，每个教室30人
-    const titleTip = `${gradeName}、${examDetail.studentNum || '-'}人、${examDetail.roomNum || '-'}个教室，每个教室${roomStudent}人`
+    const titleTip = `${gradeName}、${examDetail.studentNum || '-'}人、${examDetail.roomNum || '-'}个教室，每个教室${roomStudent}人`;
 
     return (
-      <Page
+      <Page loading={!!loading}
         header={header}>
         <div className={styles['container']}>
           <div className={styles['exam-title']}>{examName}</div>

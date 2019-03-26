@@ -26,13 +26,14 @@ export default class StepThree extends React.Component {
 
   submitData = () => {
     const examName = this.state.examName;
-    console.log('examName: ', examName)
+    console.log('examName: ', examName);
     if (!examName) {
       notification.error({ message: '请输入考试名称' })
       return;
     }
     const { oneItem = {}, twoItem = {},
       dateSelectList = [], dispatch } = this.props;
+    const seatAssignment = oneItem['seatAssignment'];
     const gradeIndex = oneItem['gradeIndex'];
     const examDate = oneItem['examDate'];
     const startDay = examDate[0].valueOf();
@@ -45,7 +46,7 @@ export default class StepThree extends React.Component {
     const teacherIdList = [];
     teachers.forEach(it => {
       teacherIdList.push({ id: it });
-    })
+    });
 
     const roomSubjectIds = this.state.roomSubjectIds || [];
     const disableList = [];
@@ -59,8 +60,8 @@ export default class StepThree extends React.Component {
 
     const subjectList = [];
     dateSelectList.forEach(it => {
-      const startMonment = it.dateSelect.startTime;
-      const endMonment = it.dateSelect.endTime;
+      const startMonment = it.dateSelect.startDateTime;
+      const endMonment = it.dateSelect.endDateTime;
       const subjectItem = {
         examinationSubjectId: it.id,
         startTime: startMonment.valueOf(),
@@ -80,8 +81,8 @@ export default class StepThree extends React.Component {
     });
 
     const examinationInfo = {
-      rowTotal: rowCol[0],
-      columnTotal: rowCol[1],
+      rowTotal: rowCol.row,
+      columnTotal: rowCol.col,
       examinationSubjectList: subjectList,
       examinationRoomList: roomList,
       disableList: disableList,
@@ -94,32 +95,29 @@ export default class StepThree extends React.Component {
       endDay,
       examType,
       monitorNum,
+      seatAssignment,
       name: examName,
       gradeIndex,
       examinationInfoList
-    }
-    // console.log('examinationInfo: ', examinationInfo);
-    // console.log('params: ', params);
-    const modal = Modal.info({
-      title: '正在提交',
-      content: '正在提交...',
-    });
+    };
+    console.log('examinationInfo: ', examinationInfo);
+    console.log('params: ', params);
     dispatch({
       type: ExamCreate + '/distributionStudent',
       payload: params,
       resolve: () => {
-        modal.update({
+        Modal.info({
           title: '提交成功',
           content: '提交成功, 稍后请前往考务列表查看',
         });
       }
-    })
+    });
   }
 
   render() {
     const { oneItem = {}, twoItem = {}, roomSelectList = [], dateSelectList = [] } = this.props;
     const roomTotal = roomSelectList.length;
-    const subjectTotal = dateSelectList.length;
+    // const subjectTotal = dateSelectList.length;
     const teacherIds = twoItem['teacherIds'] || [];
     const teacherTotal = teacherIds.length;
     const gradeIndex = oneItem['gradeIndex'];
@@ -130,7 +128,7 @@ export default class StepThree extends React.Component {
       }
     });
     const rowCol = oneItem['rowCol'];
-    const roomStudentTotal = rowCol[0] * rowCol[1];
+    const roomStudentTotal = rowCol.row * rowCol.col;
     // console.log(`roomTotal: ${roomTotal}   subjectTotal: ${subjectTotal}`);
     // console.log('roomSelectList: ', roomSelectList);
     // console.log('dateSelectList: ', dateSelectList);
@@ -180,8 +178,8 @@ export default class StepThree extends React.Component {
     ];
 
     dateSelectList.map((it, index) => {
-      const startMonment = it.dateSelect.startTime;
-      const endMonment = it.dateSelect.endTime;
+      const startMonment = it.dateSelect.startDateTime;
+      const endMonment = it.dateSelect.endDateTime;
       const columnItem = {
         title: startMonment.format('YYYY-MM-DD'),
         children: [
