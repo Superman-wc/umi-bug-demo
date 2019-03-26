@@ -1,13 +1,8 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
-import {message, Progress, Button} from 'antd';
-import Uploader from '../../components/Uploader';
+import {message, Progress} from 'antd';
 import {Authenticate} from "../../utils/namespace";
-import {QiniuDomain, QiniuUpToken} from "../../services";
-import Flex from '../../components/Flex';
 import {ExaminerSheet as namespace} from '../../utils/namespace';
-import ListPage from '../../components/ListPage'
-import TableCellOperation from '../../components/TableCellOperation';
 import {ExaminerStatusEnum} from '../../utils/Enum';
 import Page from '../../components/Page';
 import PageHeaderOperation from '../../components/Page/HeaderOperation';
@@ -36,7 +31,7 @@ export default class WorkspacePage extends Component {
 
   render() {
     const {
-      list, total, loading, location, dispatch, authenticate,
+      loading, location, dispatch, authenticate,
     } = this.props;
 
     const {
@@ -44,7 +39,6 @@ export default class WorkspacePage extends Component {
       waitUploadCount = 0,
       waitCreateCount = 0,
       waitAnalyzeCount = 0,
-      editorTitle,
     } = this.state;
 
     console.log(this.state);
