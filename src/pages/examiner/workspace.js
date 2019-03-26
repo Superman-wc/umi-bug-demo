@@ -14,9 +14,9 @@ import PageHeaderOperation from '../../components/Page/HeaderOperation';
 import {buildFileName} from "../../components/AnswerEditor/Uploader";
 import {buildQiniuConfig} from '../../services'
 import Qiniuyun from "../../utils/Qiniuyun";
-import {pipes, pipe} from "../../utils/pipe";
+import {pipes, flowLine} from "../../utils/pipe";
 import styles from './workspace.less';
-import {create, analyze} from '../../services/examiner/sheet';
+import {create as createSheet, analyze} from '../../services/examiner/sheet';
 import classNames from 'classnames';
 
 
@@ -159,7 +159,7 @@ export default class WorkspacePage extends Component {
                         tasks: [...this.state.tasks],
                       });
 
-                      return create(opt).then(({result}) => {
+                      return createSheet(opt).then(({result}) => {
                         if (result.status === ExaminerStatusEnum.处理错误) {
                           opt.error = new Error(result.lastErrorMsg);
                           opt.status = '识别失败';
@@ -324,7 +324,7 @@ export default class WorkspacePage extends Component {
 
     return (
       <Page {...pageProps} >
-        <div {...uploaderProps}>
+        <DragUploader token={authenticate.token}>
           {
             editorTitle ?
               <h2 className={styles['editor-title']}>{editorTitle}</h2>
@@ -332,15 +332,320 @@ export default class WorkspacePage extends Component {
               null
           }
 
-          {
-            tasks && tasks.length ?
-              <TaskList tasks={tasks}/>
-              :
-              <DragTips/>
+
+        </DragUploader>
+      </Page>
+    )
+  }
+}
+
+class DragUploader extends Component {
+  state = {
+    tasks: [],
+  };
+
+  handleDragOver = e => e.preventDefault();
+
+  handleDragEnter = e => {
+    e.preventDefault();
+    this.setState({drag: true});
+  };
+
+  handleDragLeave = e => {
+    e.preventDefault();
+    this.setState({drag: false});
+  };
+
+  handleDrop = e => {
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files.length) {
+      this.handleTask(e.dataTransfer.files);
+    }
+  };
+
+  handleTask = files => {
+    const uploadTasks = this.buildTaskList(files);
+    let {tasks = [], waitUploadCount = 0} = this.state;
+
+    waitUploadCount += uploadTasks.length;
+    tasks = uploadTasks.concat(tasks);
+
+    console.log(tasks, uploadTasks);
+
+    this.refreshTasksState({
+      drag: false,
+      tasks,
+      waitUploadCount,
+    }).then(() => {
+      setTimeout(() => {
+        // 开始流水线任务
+        this.startFlowLine(uploadTasks).then(list => {
+          console.log('上传并创建完成', list);
+          const ids = [];
+          const sheetMap = list.filter(it => it && it.sheet).reduce((map, it) => {
+            map[it.sheet.id] = it;
+            ids.push(it.sheet.id);
+            return map;
+          }, {});
+          const run = (ids, waitTime = 2000) => {
+            return new Promise((resolve, reject) => {
+              clearTimeout(this.analyze_sid);
+              this.analyze_sid = setTimeout(() => {
+                analyze({ids: ids.join(',')}).then(({result: {list = []}} = {}) => {
+                  console.log('解析完成：', list);
+                  let state = {};
+                  const ids = [];
+                  list.forEach(it => {
+                    const task = sheetMap[it.id];
+                    if (task) {
+                      state = {...this.analyzeSheet(task, it)};
+                    }
+                    if (it.status === ExaminerStatusEnum.等待处理 || it.status === ExaminerStatusEnum.处理中) {
+                      ids.push(it.id);
+                    }
+                  });
+                  return this.refreshTasksState(state).then(() => {
+                    if (ids && ids.length) {
+                      run(ids);
+                    }
+                  });
+
+                }).then(resolve, reject);
+              }, waitTime);
+
+            })
+          };
+
+          if (ids && ids.length) {
+            run(ids, 15000);
           }
 
-        </div>
-      </Page>
+        });
+      }, 1000);
+
+    });
+  };
+
+  startFlowLine = (tasks) => {
+    return flowLine([
+      this.upload,
+      this.buildSheet,
+    ], tasks);
+  };
+
+  refreshTasksState = (state = {}) => {
+    return new Promise(
+      resolve => this.setState({
+          tasks: [...this.state.tasks],
+          ...state,
+        },
+        resolve
+      )
+    );
+  };
+
+  getQiniuyun = () => {
+    if (!this.qiniuyun) {
+      this.qiniuyun = new Qiniuyun(buildQiniuConfig(this.props.token));
+    }
+    return this.qiniuyun;
+  };
+
+  upload = (task) => {
+    if (task && task.file) {
+      return this.getQiniuyun().upload(task, {
+        onStart: () => {
+          task.status = '开始上传';
+          task.progress = {
+            status: 'normal',
+            percent: 0,
+          };
+          this.refreshTasksState();
+        },
+        onProgress: (percent) => {
+          task.status = '正在上传';
+          task.progress = {
+            status: 'active',
+            percent: Math.floor(percent / 3)
+          };
+          this.refreshTasksState();
+        },
+        onEnd: () => {
+          task.status = '上传结束';
+          task.progress = {
+            status: 'active',
+            percent: 34,
+          };
+          delete task.file;
+          this.refreshTasksState();
+        },
+        onError: (err) => {
+          task.error = err;
+          task.status = '上传出错';
+          task.progress = {
+            status: 'exception',
+            percent: task.progress.percent,
+          };
+          this.refreshTasksState();
+        },
+      }).then(({url}) => {
+        task.url = url;
+        task.status = '正在识别';
+        task.progress = {
+          status: 'active',
+          percent: 34,
+        };
+        delete task.error;
+        return this.refreshTasksState();
+      }).catch(ex => {
+        task.error = ex;
+        task.status = '上传出错';
+        task.progress = {
+          status: 'exception',
+          percent: 34,
+        };
+        return this.refreshTasksState();
+      })
+    }
+    return Promise.resolve();
+  };
+
+  analyzeSheet = (task, sheet) => {
+    const state = {};
+
+    switch (sheet.status) {
+      case ExaminerStatusEnum.删了:
+        task.error = new Error('答题卡被删除了');
+        task.status = '识别失败';
+        task.progress = {
+          status: 'exception',
+          percent: 67,
+        };
+        break;
+      case ExaminerStatusEnum.等待处理:
+      case ExaminerStatusEnum.处理中:
+        task.sheet = sheet;
+        task.status = '正在解析';
+        task.progress = {
+          status: 'active',
+          percent: 67,
+        };
+        delete task.error;
+        break;
+      case ExaminerStatusEnum.完成:
+        task.sheet = sheet;
+        task.status = '解析完成';
+        task.progress = {
+          status: 'success',
+          percent: 100,
+        };
+        if (!this.state.editorId) {
+          state.editorId = sheet.editorId;
+          state.editorTitle = sheet.editorTitle;
+          state.subjectId = sheet.subjectId;
+          state.gradeId = sheet.gradeId;
+          delete task.error;
+        } else if (this.state.editorId !== sheet.editorId) {
+          task.error = new Error('不相同的答题卡');
+        }
+        break;
+      case ExaminerStatusEnum.处理错误:
+        task.error = new Error(sheet.lastErrorMsg);
+        task.status = '识别失败';
+        task.progress = {
+          status: 'exception',
+          percent: 67,
+        };
+        break;
+    }
+
+    return state;
+  };
+
+  buildSheet = (task) => {
+    if (task && task.url) {
+      return createSheet(task).then(({result}) => {
+
+        const state = this.analyzeSheet(task, result);
+
+        return this.refreshTasksState(state)
+
+      }).catch(ex => {
+
+        task.error = ex;
+        task.status = '识别失败';
+        task.progress = {
+          status: 'exception',
+          percent: 67,
+        };
+        return this.refreshTasksState();
+
+      });
+    }
+    return Promise.resolve();
+  };
+
+  /**
+   * 构建任务队列
+   * @param files
+   * @returns {Array}
+   */
+  buildTaskList = files => {
+    const tasks = [];
+    for (let i = 0, len = files.length; i < len; i++) {
+      const file = files[i];
+      if (/image/i.test(file.type)) {
+        tasks.push(this.createTask(file));
+      }
+    }
+    tasks.sort((a, b) => a.lastModified - b.lastModified);
+    return tasks;
+  };
+
+  /**
+   * 创建一个任务对象
+   * @param file
+   * @returns {{file: *, filename: string, name: *, status: string}}
+   */
+  createTask = file => {
+    return {
+      file,
+      filename: buildFileName(file),
+      status: '等待上传',
+      name: file.name,
+    };
+  };
+
+
+  render() {
+
+    // console.log(this.state);
+
+    const style = {
+      flex: 1,
+      border: this.state.drag ? '10px dashed #08f' : '10px dashed transparent',
+      backgroundColor: this.state.drag ? 'rgba(0, 128, 255, 0.3)' : 'transparent',
+    };
+
+    const {tasks = []} = this.state;
+
+    console.log('tasks=', tasks);
+
+    return (
+      <div style={style}
+           onDrop={this.handleDrop}
+           onDragOver={this.handleDragOver}
+           onDragEnter={this.handleDragEnter}
+           onDragLeave={this.handleDragLeave}
+      >
+        {this.props.children}
+        {
+          tasks && tasks.length ?
+            <TaskList tasks={tasks}/>
+            :
+            <DragTips/>
+        }
+      </div>
     )
   }
 }
@@ -364,9 +669,9 @@ function Task(props) {
   return (
     <li key={data.filename}>
       <div className={styles['name']}
-           title={data.url?'查看图片':null}
+           title={data.url ? '查看图片' : null}
            onClick={() => {
-             data.url && window.open(data.url+'!page');
+             data.url && window.open(data.url + '!page');
            }}
       >
         {data.name}
@@ -405,3 +710,4 @@ function DragTips() {
     </div>
   )
 }
+
