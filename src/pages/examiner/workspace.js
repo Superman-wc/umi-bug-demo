@@ -219,51 +219,55 @@ export default class WorkspacePage extends Component {
                   ),
               )(...waitList).then((res) => {
                 const ids = [];
-                const optMap = res.filter(it => !!it.sheet).reduce((map, it) => {
+                const optMap = res.filter(it => it && !!it.sheet).reduce((map, it) => {
                   ids.push(it.sheet.id);
                   map[it.sheet.id] = it;
                   return map;
                 }, {});
 
-                return new Promise((resolve, reject) => {
-                  setTimeout(() => {
-                    analyze({ids: ids.join(',')}).then(({result: {list = []}}) => {
-                      let waitAnalyzeCount = this.state.waitAnalyzeCount;
-                      list.forEach(it => {
-                        const opt = optMap[it.id];
-                        if (opt) {
+                if (ids.length) {
 
-                          if (it.status === ExaminerStatusEnum.处理错误) {
-                            opt.error = new Error(it.lastErrorMsg);
-                            opt.status = '解析失败';
-                            opt.progress = {
-                              status: 'exception',
-                              percent: 67,
-                            };
-                          } else {
+                  return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                      analyze({ids: ids.join(',')}).then(({result: {list = []}}) => {
+                        let waitAnalyzeCount = this.state.waitAnalyzeCount;
+                        list.forEach(it => {
+                          const opt = optMap[it.id];
+                          if (opt) {
 
-                            opt.sheet = it;
-                            opt.status = '解析成功';
-                            opt.progress = {
-                              status: 'success',
-                              percent: 100,
-                            };
-                            waitAnalyzeCount--;
+                            if (it.status === ExaminerStatusEnum.处理错误) {
+                              opt.error = new Error(it.lastErrorMsg);
+                              opt.status = '解析失败';
+                              opt.progress = {
+                                status: 'exception',
+                                percent: 67,
+                              };
+                            } else {
+
+                              opt.sheet = it;
+                              opt.status = '解析成功';
+                              opt.progress = {
+                                status: 'success',
+                                percent: 100,
+                              };
+                              waitAnalyzeCount--;
+                            }
                           }
-                        }
-                      });
-                      this.setState({
-                        tasks: [...this.state.tasks],
-                        waitAnalyzeCount,
-                      });
-                      resolve();
+                        });
+                        this.setState({
+                          tasks: [...this.state.tasks],
+                          waitAnalyzeCount,
+                        });
+                        resolve();
 
-                    }).catch((ex) => {
-                      reject(ex);
-                    });
-                  }, 15000);
+                      }).catch((ex) => {
+                        reject(ex);
+                      });
+                    }, 15000);
 
-                });
+                  });
+                }
+                return Promise.resolve(res);
 
               })
             }
@@ -330,41 +334,9 @@ export default class WorkspacePage extends Component {
 
           {
             tasks && tasks.length ?
-              <ul className={styles['task-list']}>
-                {
-
-                  tasks.map((it) =>
-                    <li key={it.filename}>
-                      <div className={styles['name']}>{it.name}</div>
-                      {
-                        it.sheet ?
-                          <Fragment>
-                            <div>
-                              班级：{it.sheet.unitId}
-                            </div>
-                            <div>
-                              学生：{it.sheet.studentCode}
-                            </div>
-                          </Fragment>
-
-                          :
-                          null
-                      }
-                      <div className={styles['progress']}>
-                        <Progress {...it.progress}/>
-                      </div>
-
-                      <div className={classNames(styles['status'], {
-                        [styles['error']]: it.error,
-                      })} title={it.error ? it.error.message : null}>
-                        {it.status}{it.error ? ':' + it.error.message : null}
-                      </div>
-                    </li>
-                  )
-                }
-              </ul>
+              <TaskList tasks={tasks}/>
               :
-              null
+              <DragTips/>
           }
 
         </div>
@@ -373,3 +345,63 @@ export default class WorkspacePage extends Component {
   }
 }
 
+
+function TaskList({tasks}) {
+  return (
+    <ul className={styles['task-list']}>
+      {
+
+        tasks.map((it) =>
+          <Task key={it.filename} data={it}/>
+        )
+      }
+    </ul>
+  )
+}
+
+function Task(props) {
+  const {data} = props;
+  return (
+    <li key={data.filename}>
+      <div className={styles['name']}
+           title={data.url?'查看图片':null}
+           onClick={() => {
+             data.url && window.open(data.url+'!page');
+           }}
+      >
+        {data.name}
+      </div>
+      {
+        data.sheet ?
+          <Fragment>
+            <div>
+              班级：{data.sheet.unitId}
+            </div>
+            <div>
+              学生：{data.sheet.studentCode}
+            </div>
+          </Fragment>
+
+          :
+          null
+      }
+      <div className={styles['progress']}>
+        <Progress {...data.progress}/>
+      </div>
+
+      <div className={classNames(styles['status'], {
+        [styles['error']]: data.error,
+      })} title={data.error ? data.error.message : null}>
+        {data.status}{data.error ? ':' + data.error.message : null}
+      </div>
+    </li>
+  )
+}
+
+function DragTips() {
+  return (
+    <div className={styles['drag-tips']}>
+      <span>请将答题卡扫描图片<br/>拖放到此处</span>
+    </div>
+  )
+}

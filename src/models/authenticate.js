@@ -165,7 +165,7 @@ export default Model({
               }, {
                 id: 'examiner-upload',
                 title: '答题卡上传',
-                link: '/examiner/upload'
+                link: '/examiner/workspace'
               },
             ]
           }

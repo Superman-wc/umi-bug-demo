@@ -84,69 +84,6 @@ function Side(props) {
   } = props;
 
 
-  // const resourceMap = resources.reduce((map, it) => {
-  //   it.actions = resourceActions(it.actionMask).reduce((map, {value, label})=>{
-  //     map[value] = label;
-  //     return map;
-  //   }, {});
-  //   map[it.controllerName] = it;
-  //   return map;
-  // }, {});
-  //
-  //
-  // const menuMap = menus && menus.reduce((map, it, index) => {
-  //   const menuCategory = map[it.category] || {
-  //     key: MenuCategoryEnum[it.category] || MenuCategoryEnum[URLResourceCategoryEnum[it.category]] || index,
-  //     title: it.category,
-  //     items: {}
-  //   };
-  //   const group = menuCategory.items[it.menuGroup] || {
-  //     title: it.menuGroup || '--',
-  //     items: []
-  //   };
-  //   it.resource = resourceMap[it.controllerName];
-  //   group.items.push(it);
-  //   menuCategory.items[it.menuGroup] = group;
-  //   map[it.category] = menuCategory;
-  //   return map;
-  // }, {}) || {};
-  //
-  // const menu = Object.keys(menuMap).reduce((arr, category) => {
-  //   const menuCategory = menuMap[category];
-  //
-  //   menuCategory.items = Object.keys(menuCategory.items).reduce((items, g) => {
-  //     items.push(menuCategory.items[g]);
-  //     return items;
-  //   }, []);
-  //
-  //   arr.push(menuCategory);
-  //   return arr;
-  // }, []);
-  //
-  // console.log(menu);
-  //
-  // menu.push({
-  //   key: 'examiner',
-  //   title: '电子阅卷',
-  //   items: [
-  //     {
-  //       title: '',
-  //       items: [
-  //         {
-  //           id: 'examiner-list',
-  //           title: '答题卡制做',
-  //           link: '/examiner',
-  //         }, {
-  //           id: 'examiner-upload',
-  //           title: '答题卡上传',
-  //           link: '/examiner/upload'
-  //         },
-  //       ]
-  //     }
-  //   ]
-  // });
-
-
   return (
     <Flex direction="column" className={classnames(styles['side'], {[styles['min-side']]: isMin})}
           onTransitionEnd={(e) => {

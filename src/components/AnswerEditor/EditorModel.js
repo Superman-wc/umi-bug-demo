@@ -752,7 +752,7 @@ function runCheckContentOverflow(state) {
             // 列中最后一个元素的底边如果已经超过了列底边,
             // 将此元素移动到下一列的开头， 如果没有下一列，则一添加列，
             // 如果页面列数已满， 则应该先添加页面
-            if (lastOffset.bottom - colOffset.bottom > 0) {
+            if (lastOffset.bottom - colOffset.bottom > 10) {
 
               let nextCol;
               // 判断是否存在下一列
