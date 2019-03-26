@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import {pipes} from '../../utils/pipe';
+import {pipes, finallyPipes} from '../../utils/pipe';
 import {Spin} from 'antd';
 import Qiniuyun from '../../utils/Qiniuyun';
 import uuid from 'uuid/v5';
@@ -135,6 +135,7 @@ export function upload(e, {
   checkFileType = (...args) => !/image/i.test(...args),
   onAddFile = (file) => file,
   success = (args) => args,
+  fail = (args) => Promise.reject(args),
   complete = (args) => args,
   onStart,
   onProgress,
@@ -143,7 +144,7 @@ export function upload(e, {
   onChange
 } = {}) {
 
-  const files = (e.dataTransfer && e.dataTransfer.files) || e.target.files;
+  const files = (e.dataTransfer && e.dataTransfer.files) || (e.target && e.target.files) || e || [];
   if (files && files.length) {
     const qiniuyun = new Qiniuyun(qiNiuYunConfig);
     const all = [];
@@ -153,17 +154,9 @@ export function upload(e, {
       if (file.type && checkFileType(file.type)) {
         continue;
       }
-      const names = file.name.split('.');
-      let extName = names[names.length - 1] || file.type.split('/')[1] || 'jpg';
-      let date = new Date();
-      const f = a => a >= 10 ? a : ('0' + a);
-      const y = date.getFullYear();
-      const m = f(date.getMonth() + 1);
-      const d = f(date.getDate());
-      const filename = `${y}/${m}/${d}/` +
-        uuid(file.name + Date.now() + (Math.random() + '0000').substr(0, 6), uuid.URL) +
-        '.' +
-        extName;
+
+      const filename = buildFileName(file);
+
       all.push(onAddFile({file, filename}));
     }
 
@@ -178,10 +171,25 @@ export function upload(e, {
       }),
       success
     )(...all)
-      .then((...args) => complete(null, ...args))
+      .then((args) => complete(null, args))
       .catch(complete)
       .finally(() => {
         onChange && onChange({loading: false});
       });
   }
+}
+
+export function buildFileName(file) {
+  const names = file.name.split('.');
+  let extName = names[names.length - 1] || file.type.split('/')[1] || 'jpg';
+  let date = new Date();
+  const f = a => a >= 10 ? a : ('0' + a);
+  const y = date.getFullYear();
+  const m = f(date.getMonth() + 1);
+  const d = f(date.getDate());
+  const filename = `${y}/${m}/${d}/` +
+    uuid(file.name + Date.now() + (Math.random() + '0000').substr(0, 6), uuid.URL) +
+    '.' +
+    extName;
+  return filename;
 }

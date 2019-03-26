@@ -22,6 +22,11 @@ export default {
     ios: '8.4',
   },
   proxy: {
+    "/api/hii/1.0/qiniu/*": {
+      "target": "https://smart-campus-mp.yunzhiyuan100.com/",
+      "changeOrigin": true,
+      // "pathRewrite": { "^/api" : "" }
+    },
     "/api/hii/*": {
       "target": "http://smart-campus-mp.yunzhiyuan100.com.cn/",
       "changeOrigin": true,
@@ -40,6 +45,7 @@ export default {
       // "pathRewrite": { "^/api" : "" }
     },
     "/api/examiner/*": {
+      // "target": "http://172.18.12.227:8000/",
       "target": "http://smart-campus.yunzhiyuan100.com.cn/",
       // "target": "http://192.168.1.253:8000/",
       "changeOrigin": true

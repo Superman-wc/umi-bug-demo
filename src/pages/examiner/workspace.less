@@ -1,0 +1,39 @@
+.workspace {
+  .editor-title {
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .task-list {
+    & > li {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+      padding: 10px;
+
+      .name {
+        width: 18%;
+        flex-shrink: 0;
+      }
+
+      .progress {
+        flex: 1;
+      }
+
+      .status {
+        width: 80px;
+        flex-shrink: 0;
+        text-align: center;
+      }
+
+      .error {
+
+        color: #f00;
+
+      }
+    }
+
+
+  }
+}
+

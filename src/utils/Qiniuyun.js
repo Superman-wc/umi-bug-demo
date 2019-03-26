@@ -181,7 +181,7 @@ export default class Qiniuyun {
         const promise = this.ajax(
           url,
           {method: 'POST', data},
-          onProgress,
+          (progress)=>onProgress && onProgress(progress, options),
           options
         ).then(res => {
           res.url = this._options.domain + res.key;
