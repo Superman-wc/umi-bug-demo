@@ -18,6 +18,7 @@ import {pipes, flowLine} from "../../utils/pipe";
 import styles from './workspace.less';
 import {create as createSheet, analyze} from '../../services/examiner/sheet';
 import classNames from 'classnames';
+import router from 'umi/router';
 
 
 @connect(state => ({
@@ -52,7 +53,15 @@ export default class WorkspacePage extends Component {
 
     const breadcrumb = ['管理', '电子阅卷', title];
 
-    const buttons = [];
+    const buttons = [
+      {
+        children: '查看历史上传记录',
+        type: 'primary',
+        onClick: () => {
+          router.push({pathname: '/examiner/upload'})
+        }
+      }
+    ];
 
     const totalProgress = tasks.length ? (tasks.length * 3 - waitUploadCount - waitCreateCount - waitAnalyzeCount) / (tasks.length * 3) : 0;
 
@@ -60,20 +69,20 @@ export default class WorkspacePage extends Component {
     const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={buttons}/>;
     const header = (
       <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}>
-        <div>
-          <h3>
-            <span>共{tasks.length}张，</span>
-            <span>待上传{waitUploadCount}张，</span>
-            <span>待创建{waitCreateCount}张，</span>
-            <span>待解析{waitAnalyzeCount}张，</span>
-          </h3>
-          {
-            totalProgress ?
-              <Progress value={totalProgress}/>
-              :
-              null
-          }
-        </div>
+        {/*<div>*/}
+        {/*<h3>*/}
+        {/*<span>共{tasks.length}张，</span>*/}
+        {/*<span>待上传{waitUploadCount}张，</span>*/}
+        {/*<span>待创建{waitCreateCount}张，</span>*/}
+        {/*<span>待解析{waitAnalyzeCount}张，</span>*/}
+        {/*</h3>*/}
+        {/*{*/}
+        {/*totalProgress ?*/}
+        {/*<Progress value={totalProgress}/>*/}
+        {/*:*/}
+        {/*null*/}
+        {/*}*/}
+        {/*</div>*/}
       </Page.Header>
     );
 
@@ -486,7 +495,12 @@ function Task(props) {
 
       <div className={classNames(styles['status'], {
         [styles['error']]: data.error,
-      })} title={data.error ? data.error.message : null}>
+      })} title={data.error ? data.error.message : null} onClick={() => {
+        (data.sheet && data.sheet.debugUrl) ?
+          window.open(data.sheet.debugUrl + '!page')
+          :
+          message.info('无调试图片')
+      }}>
         {data.status}{data.error ? ':' + data.error.message : null}
       </div>
     </li>
