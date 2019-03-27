@@ -9,3 +9,10 @@ export function isAdminAuthority(id, appId = '') {
 export function toArray(list) {
   return Array.prototype.slice.call(list || [], 0);
 }
+
+export function copyFields(object={}, fields=[]){
+  return fields.reduce((map, key)=>{
+    map[key] = object[key];
+    return map;
+  }, {})
+}

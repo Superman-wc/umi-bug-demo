@@ -14,7 +14,7 @@ import styles from './workspace.less';
 import {create as createSheet, analyze} from '../../services/examiner/sheet';
 import classNames from 'classnames';
 import router from 'umi/router';
-import {toArray} from "../../utils/helper";
+import {toArray, copyFields} from "../../utils/helper";
 
 
 @connect(state => ({
@@ -25,6 +25,8 @@ import {toArray} from "../../utils/helper";
 export default class WorkspacePage extends Component {
 
   state = {};
+
+  ref = React.createRef();
 
   render() {
     const {
@@ -37,10 +39,18 @@ export default class WorkspacePage extends Component {
 
     const buttons = [
       {
+        key: '查看历史上传记录',
         children: '查看历史上传记录',
         type: 'primary',
         onClick: () => {
           router.push({pathname: '/examiner/upload'})
+        }
+      },
+      {
+        key: '清理工作区',
+        children: '清理工作区',
+        onClick: () => {
+          this.ref.current.clear();
         }
       }
     ];
@@ -57,7 +67,7 @@ export default class WorkspacePage extends Component {
 
     return (
       <Page {...pageProps} >
-        <DragUploader dispatch={dispatch} token={authenticate.token}/>
+        <DragUploader ref={this.ref} dispatch={dispatch} token={authenticate.token}/>
       </Page>
     )
   }
@@ -70,15 +80,47 @@ class DragUploader extends Component {
     tasks: [],
   };
 
-  handleDragOver = e => e.preventDefault();
+  clear = () => {
+    const state = Object.keys(this.state).reduce((map, key) => {
+      map[key] = undefined;
+      return map;
+    }, {});
+    this.setState(state);
+  };
+
+  componentDidMount() {
+    document.addEventListener('drop', this.handleDrop, false);
+    document.addEventListener('dragover', this.handleDragOver, false);
+    // document.addEventListener('dragenter', this.handleDragEnter, false);
+    // document.addEventListener('dragleave', this.handleDragLeave, false);
+    // document.addEventListener('dragstart', this.handleDragEnter, false);
+    // document.addEventListener('dragend', this.handleDragLeave, false);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('drop', this.handleDrop);
+    document.removeEventListener('dragover', this.handleDragOver);
+    // document.removeEventListener('dragenter', this.handleDragEnter);
+    // document.removeEventListener('dragleave', this.handleDragLeave);
+    // document.removeEventListener('dragstart', this.handleDragEnter, false);
+    // document.removeEventListener('dragend', this.handleDragLeave, false);
+
+  }
+
+  handleDragOver = e => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
 
   handleDragEnter = e => {
     e.preventDefault();
+    e.stopPropagation();
     this.setState({drag: true});
   };
 
   handleDragLeave = e => {
     e.preventDefault();
+    e.stopPropagation();
     this.setState({drag: false});
   };
 
@@ -162,19 +204,13 @@ class DragUploader extends Component {
       dispatch({
         type: ManagesClass + '/item',
         payload: {id},
-        resolve: (res) => {
-          console.log(res);
-          resolve();
-        },
-        reject: (ex) => {
-          console.error(ex);
-          reject(ex);
-        }
+        resolve,
+        reject
       })
     });
   };
 
-  loadClassStudent = klassId => {
+  loadStudent = klassId => {
     return new Promise((resolve, reject) => {
       const {dispatch} = this.props;
       dispatch({
@@ -184,16 +220,46 @@ class DragUploader extends Component {
           simple: 1,
           s: 100,
         },
-        resolve: (res) => {
-          console.log(res);
-          resolve();
-        },
-        reject: (ex) => {
-          console.error(ex);
-          reject(ex);
-        }
+        resolve,
+        reject
       })
     })
+  };
+
+  loadClassStudent = (klassId) => {
+    if (this._loading_class_student !== klassId) {
+      this._loading_class_student = klassId;
+      Promise.all([
+        this.loadClass(klassId),
+        this.loadStudent(klassId),
+      ]).then(([klass, {list}]) => {
+        if (klass && list && list.length) {
+          let {classMap = {}, studentMap = {}} = this.state;
+          const unit = copyFields(klass, ['id', 'name', 'gradeId', 'gradeName']);
+          unit.students = [];
+          studentMap = list.reduce((map, it) => {
+            const student = copyFields(it, ['id', 'name', 'code', 'avatar', 'klassId', 'klassName', 'gradeId', 'gradeName']);
+            unit.students.push(student);
+            map[it.id] = student;
+            return map;
+          }, studentMap);
+          classMap[klassId] = unit;
+          this.setState({classMap: {...classMap}, studentMap: {...studentMap}});
+        }
+      })
+    }
+  };
+
+  /**
+   * 检查缺少的学生
+   */
+  checkLackClassStudent = () => {
+    const {tasks = [], classMap = {}} = this.state;
+    if (tasks.length) {
+      const task = tasks[0];
+
+    }
+
   };
 
 
@@ -228,12 +294,6 @@ class DragUploader extends Component {
                   const task = sheetMap[it.id];
                   if (task) {
                     state = {...this.analyzeSheet(task, it)};
-                    if (it.unitId && (!this.state.classMap || this.state.classMap[it.unitId])) {
-                      //加载对应的班级信息与班级学生
-
-                      this.loadClass(it.unitId);
-                      this.loadClassStudent(it.unitId);
-                    }
                   }
                   if (it.status === ExaminerStatusEnum.等待处理 || it.status === ExaminerStatusEnum.处理中) {
                     ids.push(it.id);
@@ -355,6 +415,11 @@ class DragUploader extends Component {
   analyzeSheet = (task, sheet) => {
     const state = {};
 
+    if (sheet && sheet.unitId && (!this.state.classMap || this.state.classMap[sheet.unitId])) {
+      //加载对应的班级信息与班级学生
+      this.loadClassStudent(sheet.unitId)
+    }
+
     switch (sheet.status) {
       case ExaminerStatusEnum.删了:
         task.error = new Error('答题卡被删除了');
@@ -448,7 +513,9 @@ class DragUploader extends Component {
       map[it.name] = it;
       return map;
     }, {});
-    return Object.keys(nameMap).sort().reduce((list, key) => {
+    const keys = Object.keys(nameMap).sort();
+    console.log('=====>文件排序为<=======', keys);
+    return keys.reduce((list, key) => {
       list.push(nameMap[key]);
       return list;
     }, []);
@@ -478,14 +545,15 @@ class DragUploader extends Component {
       backgroundColor: this.state.drag ? 'rgba(0, 128, 255, 0.3)' : 'transparent',
     };
 
-    const {tasks = [], editorTitle} = this.state;
+    const {tasks = [], editorTitle, classMap = {}, studentMap = {}} = this.state;
 
-    console.log('tasks=', tasks);
 
     return (
-      <div style={style}
-           onDrop={this.handleDrop}
-           onDragOver={this.handleDragOver}
+      <div className={classNames(styles['drag-uploader'], {
+        [styles['has-data']]: tasks && tasks.length,
+      })} style={style}
+        // onDrop={this.handleDrop}
+        // onDragOver={this.handleDragOver}
            onDragEnter={this.handleDragEnter}
            onDragLeave={this.handleDragLeave}
       >
@@ -497,9 +565,9 @@ class DragUploader extends Component {
         }
         {
           tasks && tasks.length ?
-            <TaskList tasks={tasks}/>
+            <TaskList tasks={tasks} classMap={classMap} studentMap={studentMap}/>
             :
-            <DragTips/>
+            null
         }
       </div>
     )
@@ -507,13 +575,13 @@ class DragUploader extends Component {
 }
 
 
-function TaskList({tasks}) {
+function TaskList({tasks, classMap, studentMap}) {
   return (
     <ul className={styles['task-list']}>
       {
 
         tasks.map((it) =>
-          <Task key={it.filename} data={it}/>
+          <Task key={it.filename} data={it} classMap={classMap} studentMap={studentMap}/>
         )
       }
     </ul>
@@ -521,7 +589,15 @@ function TaskList({tasks}) {
 }
 
 function Task(props) {
-  const {data} = props;
+  const {data, classMap, studentMap} = props;
+  if (data.sheet) {
+    if (!data.class && data.sheet.unitId) {
+      data.class = classMap[data.sheet.unitId];
+    }
+    if (!data.student && data.sheet.studentId) {
+      data.student = studentMap[data.sheet.studentId];
+    }
+  }
   return (
     <li key={data.filename}>
       <div className={styles['name']}
@@ -538,7 +614,7 @@ function Task(props) {
             {
               data.sheet.unitId ?
                 <div>
-                  班级：{data.sheet.unitId}
+                  班级：{data.class ? data.class.name : data.sheet.unitId}
                 </div>
                 :
                 null
@@ -546,7 +622,7 @@ function Task(props) {
             {
               data.sheet.studentCode ?
                 <div>
-                  学生：{data.sheet.studentCode}
+                  学生：{data.student ? data.student.name : data.sheet.studentCode}
                 </div>
                 :
                 null
@@ -573,12 +649,3 @@ function Task(props) {
     </li>
   )
 }
-
-function DragTips() {
-  return (
-    <div className={styles['drag-tips']}>
-      <span>请将答题卡扫描图片<br/>拖放到此处</span>
-    </div>
-  )
-}
-

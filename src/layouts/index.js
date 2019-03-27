@@ -85,7 +85,8 @@ function Side(props) {
 
 
   return (
-    <Flex direction="column" className={classnames(styles['side'], {[styles['min-side']]: isMin})}
+    <Flex direction="column"
+          className={classnames(styles['side'], {[styles['min-side']]: isMin})}
           onTransitionEnd={(e) => {
             if (e.propertyName === 'width') {
               const event = document.createEvent('HTMLEvents');
