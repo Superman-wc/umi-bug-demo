@@ -5,3 +5,7 @@ export function isInternalAuthority(id, appId = '') {
 export function isAdminAuthority(id, appId = '') {
   return ['ROLE_ADMIN', 'ROLE_APPADMIN', `ROLE_${appId.toUpperCase()}_ADMIN`].indexOf(id) >= 0;
 }
+
+export function toArray(list) {
+  return Array.prototype.slice.call(list || [], 0);
+}

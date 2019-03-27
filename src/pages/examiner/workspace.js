@@ -2,7 +2,7 @@ import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
 import {message, Progress} from 'antd';
 import {Authenticate} from "../../utils/namespace";
-import {ExaminerSheet as namespace} from '../../utils/namespace';
+import {ExaminerSheet as namespace, ManagesClass, ManagesStudent} from '../../utils/namespace';
 import {ExaminerStatusEnum} from '../../utils/Enum';
 import Page from '../../components/Page';
 import PageHeaderOperation from '../../components/Page/HeaderOperation';
@@ -14,6 +14,7 @@ import styles from './workspace.less';
 import {create as createSheet, analyze} from '../../services/examiner/sheet';
 import classNames from 'classnames';
 import router from 'umi/router';
+import {toArray} from "../../utils/helper";
 
 
 @connect(state => ({
@@ -25,23 +26,10 @@ export default class WorkspacePage extends Component {
 
   state = {};
 
-  componentWillMount() {
-
-  }
-
   render() {
     const {
       loading, location, dispatch, authenticate,
     } = this.props;
-
-    const {
-      tasks = [],
-      waitUploadCount = 0,
-      waitCreateCount = 0,
-      waitAnalyzeCount = 0,
-    } = this.state;
-
-    console.log(this.state);
 
     const title = '答题卡阅卷工作区';
 
@@ -57,27 +45,9 @@ export default class WorkspacePage extends Component {
       }
     ];
 
-    const totalProgress = tasks.length ? (tasks.length * 3 - waitUploadCount - waitCreateCount - waitAnalyzeCount) / (tasks.length * 3) : 0;
-
-
     const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={buttons}/>;
     const header = (
-      <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}>
-        {/*<div>*/}
-        {/*<h3>*/}
-        {/*<span>共{tasks.length}张，</span>*/}
-        {/*<span>待上传{waitUploadCount}张，</span>*/}
-        {/*<span>待创建{waitCreateCount}张，</span>*/}
-        {/*<span>待解析{waitAnalyzeCount}张，</span>*/}
-        {/*</h3>*/}
-        {/*{*/}
-        {/*totalProgress ?*/}
-        {/*<Progress value={totalProgress}/>*/}
-        {/*:*/}
-        {/*null*/}
-        {/*}*/}
-        {/*</div>*/}
-      </Page.Header>
+      <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>
     );
 
     const pageProps = {
@@ -85,16 +55,17 @@ export default class WorkspacePage extends Component {
       className: styles['workspace']
     };
 
-
     return (
       <Page {...pageProps} >
-        <DragUploader token={authenticate.token}/>
+        <DragUploader dispatch={dispatch} token={authenticate.token}/>
       </Page>
     )
   }
 }
 
+
 class DragUploader extends Component {
+
   state = {
     tasks: [],
   };
@@ -112,11 +83,54 @@ class DragUploader extends Component {
   };
 
   handleDrop = e => {
+
     e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files.length) {
-      this.handleTask(e.dataTransfer.files);
-    }
+    e.stopPropagation();
+
+    let {items, files} = e.dataTransfer;
+
+    const readDirectory = directory => new Promise((resolve, reject) => directory.createReader().readEntries(resolve, reject));
+
+    const entryToFile = entry => new Promise((resolve, reject) => entry.file(file => {
+      file.fullPath = entry.fullPath.replace(/^\//g, '');
+      resolve(file);
+    }, reject));
+
+    const scanFiles = entry => {
+      if (entry.isDirectory) {
+        return readDirectory(entry).then(entries => pipes(scanFiles)(...entries))
+      } else if (entry.isFile) {
+        return entryToFile(entry).then(file => ([file]));
+      }
+      return Promise.resolve([]);
+    };
+
+    pipes(
+      scanFiles
+    )(
+      ...(
+        toArray(items).filter(
+          it => it.kind === 'file'
+        ).map(
+          it => it.webkitGetAsEntry()
+        ).filter(
+          it => !!it
+        )
+      )
+    ).then(
+      this.handleTask
+    ).catch(
+      ex => {
+        message.error('出错了：' + ex.message)
+      }
+    );
+
+
+    // if (e.dataTransfer.files && e.dataTransfer.files.length) {
+    //   this.handleTask(e.dataTransfer.files);
+    // }
   };
+
 
   /**
    * 将文件处理成任务，并开启流水线处理任务
@@ -142,6 +156,47 @@ class DragUploader extends Component {
     });
   };
 
+  loadClass = id => {
+    return new Promise((resolve, reject) => {
+      const {dispatch} = this.props;
+      dispatch({
+        type: ManagesClass + '/item',
+        payload: {id},
+        resolve: (res) => {
+          console.log(res);
+          resolve();
+        },
+        reject: (ex) => {
+          console.error(ex);
+          reject(ex);
+        }
+      })
+    });
+  };
+
+  loadClassStudent = klassId => {
+    return new Promise((resolve, reject) => {
+      const {dispatch} = this.props;
+      dispatch({
+        type: ManagesStudent + '/list',
+        payload: {
+          klassId,
+          simple: 1,
+          s: 100,
+        },
+        resolve: (res) => {
+          console.log(res);
+          resolve();
+        },
+        reject: (ex) => {
+          console.error(ex);
+          reject(ex);
+        }
+      })
+    })
+  };
+
+
   /**
    * 开始流水线工作
    * @param tasks
@@ -157,7 +212,9 @@ class DragUploader extends Component {
         const ids = [];
         const sheetMap = list.filter(it => it && it.sheet).reduce((map, it) => {
           map[it.sheet.id] = it;
-          ids.push(it.sheet.id);
+          if (it.sheet.status === ExaminerStatusEnum.等待处理 || it.sheet.status === ExaminerStatusEnum.处理中) {
+            ids.push(it.sheet.id);
+          }
           return map;
         }, {});
         const run = (ids, waitTime = 2000) => {
@@ -165,13 +222,18 @@ class DragUploader extends Component {
             clearTimeout(this.analyze_sid);
             this.analyze_sid = setTimeout(() => {
               analyze({ids: ids.join(',')}).then(({result: {list = []}} = {}) => {
-                console.log('解析完成：', list);
                 let state = {};
                 const ids = [];
                 list.forEach(it => {
                   const task = sheetMap[it.id];
                   if (task) {
                     state = {...this.analyzeSheet(task, it)};
+                    if (it.unitId && (!this.state.classMap || this.state.classMap[it.unitId])) {
+                      //加载对应的班级信息与班级学生
+
+                      this.loadClass(it.unitId);
+                      this.loadClassStudent(it.unitId);
+                    }
                   }
                   if (it.status === ExaminerStatusEnum.等待处理 || it.status === ExaminerStatusEnum.处理中) {
                     ids.push(it.id);
@@ -189,7 +251,7 @@ class DragUploader extends Component {
           })
         };
         if (ids && ids.length) {
-          run(ids, 15000);
+          run(ids, 1000);
         }
       });
   };
@@ -377,8 +439,19 @@ class DragUploader extends Component {
         tasks.push(this.createTask(file));
       }
     }
-    tasks.sort((a, b) => a.lastModified - b.lastModified);
-    return tasks;
+    // tasks.sort((a, b) => a.file.lastModified - b.file.lastModified);
+    return this.tasksSortOfName(tasks);
+  };
+
+  tasksSortOfName = (tasks) => {
+    const nameMap = tasks.reduce((map, it) => {
+      map[it.name] = it;
+      return map;
+    }, {});
+    return Object.keys(nameMap).sort().reduce((list, key) => {
+      list.push(nameMap[key]);
+      return list;
+    }, []);
   };
 
   /**
@@ -386,12 +459,12 @@ class DragUploader extends Component {
    * @param file
    * @returns {{file: *, filename: string, name: *, status: string}}
    */
-  createTask = file => {
+  createTask = (file) => {
     return {
       file,
       filename: buildFileName(file),
       status: '等待上传',
-      name: file.name,
+      name: file.fullPath || file.name,
     };
   };
 
