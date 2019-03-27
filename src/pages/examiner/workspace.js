@@ -255,6 +255,12 @@ class DragUploader extends Component {
     const {tasks = [], classMap = {}} = this.state;
     if (tasks.length) {
       const task = tasks[0];
+      const klass = task && task.class;
+      const students = klass && klass.students || [];
+
+      tasks.reduce((map, it)=>{
+
+      }, {})
 
     }
 

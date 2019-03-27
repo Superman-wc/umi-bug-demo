@@ -8,7 +8,7 @@ export default Model(
     subscriptions: {
       setup({dispatch, history}) {
         history.listen(({pathname, query}) => {
-          if (pathname === namespace) {
+          if (pathname === '/examiner/upload') {
             dispatch({
               type: 'list',
               payload: {...query},

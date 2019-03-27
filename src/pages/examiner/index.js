@@ -26,10 +26,10 @@ export default class ExaminerAnswerListPage extends Component {
 
   componentDidMount() {
     const {dispatch, location: {query}} = this.props;
-    dispatch({
-      type: namespace + '/list',
-      payload: {...query}
-    });
+    // dispatch({
+    //   type: namespace + '/list',
+    //   payload: {...query}
+    // });
     dispatch({
       type: ManagesGrade + '/list',
       payload: {s: 10000}

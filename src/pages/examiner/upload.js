@@ -18,15 +18,15 @@ import {ExaminerStatusEnum} from '../../utils/Enum';
 }))
 export default class UploadPage extends Component {
 
-  componentWillMount() {
-    const {dispatch, location: {query}} = this.props;
-    dispatch({
-      type: namespace + '/list',
-      payload: {
-        ...query
-      }
-    });
-  }
+  // componentWillMount() {
+  //   const {dispatch, location: {query}} = this.props;
+  //   dispatch({
+  //     type: namespace + '/list',
+  //     payload: {
+  //       ...query
+  //     }
+  //   });
+  // }
 
   render() {
     const {
