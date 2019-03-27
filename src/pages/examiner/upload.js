@@ -12,8 +12,8 @@ import {ExaminerStatusEnum} from '../../utils/Enum';
 
 
 @connect(state => ({
-  authenticate: state[Authenticate].authenticate,
   list: state[namespace].list,
+  total: state[namespace].total,
   loading: state[namespace].loading,
 }))
 export default class UploadPage extends Component {
@@ -30,14 +30,16 @@ export default class UploadPage extends Component {
 
   render() {
     const {
-      list, total, loading, location, dispatch, authenticate,
+      list, total, loading, location, dispatch,
     } = this.props;
 
     const title = '答题卡上传';
 
     const breadcrumb = ['管理', '电子阅卷', title];
 
-    const buttons = [];
+    const buttons = [{
+      key:'rollback'
+    }];
 
     const columns = [
       {title: 'ID', key: 'id'},
@@ -93,85 +95,6 @@ export default class UploadPage extends Component {
       operations: buttons,
       loading: !!loading,
       pagination: true,
-      headerChildren: (
-        <div style={{position: 'relative', height: 80}}>
-          <div style={{position: 'absolute', width: '100%', height: '100%'}}>
-            <Uploader
-              direction="column"
-              qiNiuYunConfig={{
-                getTokenUrl: QiniuUpToken + '?bucket=bugu',
-                getTokenHeaders: {authorization: authenticate.token},
-                domain: QiniuDomain,
-              }}
-              renderItem={
-                (it) => {
-                  return (
-                    <div key={it.filename}>
-                      <Flex>
-                        <div style={{width: 350, overflow: 'hidden'}}>{it.file.name}</div>
-                        <Flex.Item>
-                          {
-                            it.error ? (
-                                <div>
-                                  <Button onClick={this.reUpload()}>重新上传</Button>
-                                  it.error.message
-                                </div>
-                              )
-                              :
-                              <Progress percent={it.progress || 0} status={it.status}/>
-                          }
-                        </Flex.Item>
-                      </Flex>
-
-                    </div>
-                  );
-                }
-              }
-              onAddFile={(res) => {
-                return res;
-              }}
-              success={res => {
-                const {url} = res;
-                return new Promise((resolve, reject) => {
-                  dispatch({
-                    type: namespace + '/create',
-                    payload: {
-                      url
-                    },
-                    resolve: (res) => {
-                      dispatch({
-                        type: namespace + '/analyze',
-                        payload: {id: res.id},
-                        reject: (ex) => {
-                          reject(new Error('阅卷失败：' + ex.message));
-                        },
-                        resolve: res => {
-                          if (res.status === ExaminerStatusEnum.完成) {
-                            resolve(res);
-                          } else {
-                            reject(new Error(`阅卷结果：${ExaminerStatusEnum[res.status]}`));
-                          }
-                        }
-                      })
-                    },
-                    reject: (ex) => {
-                      reject(new Error('创建记录失败：' + ex.message));
-                    },
-                  });
-                })
-              }}
-              complete={(ex, arr) => {
-                if (ex) {
-                  message.error('失败：' + (ex.message || ex));
-                } else {
-                  message.success('创建资料成功,共' + arr.length + '个');
-                }
-                console.log('complete', ex, arr);
-              }}
-            />
-          </div>
-        </div>
-      )
     };
 
     return (

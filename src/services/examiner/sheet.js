@@ -13,8 +13,9 @@ export async function modify(data) {
   return request('/api/examiner/1.0/sheet/' + data.id, {data, method: 'PUT'});
 }
 
-export async function create({url}) {
-  return request('/api/examiner/1.0/sheet', {data: {url}, method: 'POST'});
+export async function create({url, sig}) {
+  console.log(url, sig);
+  return request('/api/examiner/1.0/sheet', {data: {url, sig}, method: 'POST'});
 }
 
 export async function remove({id}) {

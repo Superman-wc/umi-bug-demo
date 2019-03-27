@@ -933,6 +933,12 @@ export default Model(
               });
             }
           }
+          if (pathname === '/examiner') {
+            dispatch({
+              type: 'list',
+              payload: {...query}
+            })
+          }
         });
       },
     },
@@ -942,7 +948,7 @@ export default Model(
       * print() {
         // 打印前要将内容区域移动到左顶点
         window.scrollTo(0, 0);
-        document.body.scrollTo(0,0);
+        document.body.scrollTo(0, 0);
         document.getElementById('root').scrollTo(0, 0);
         window.print();
       },

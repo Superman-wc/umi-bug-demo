@@ -179,7 +179,8 @@ class DragUploader extends Component {
    * @param files
    */
   handleTask = files => {
-    const uploadTasks = this.buildTaskList(files);
+    const sig = Date.now() * 1000 + Math.floor(Math.random() * 1000);
+    const uploadTasks = this.buildTaskList(files, sig);
     let {tasks = [], waitUploadCount = 0} = this.state;
 
     waitUploadCount += uploadTasks.length;
@@ -190,11 +191,8 @@ class DragUploader extends Component {
       tasks,
       waitUploadCount,
     }).then(() => {
-      setTimeout(() => {
-        // 开始流水线任务
-        this.startFlowLine(uploadTasks)
-      }, 300);
-
+      // 开始流水线任务
+      return this.startFlowLine(uploadTasks)
     });
   };
 
@@ -324,7 +322,7 @@ class DragUploader extends Component {
   refreshTasksState = (state = {}) => {
     return new Promise(
       resolve => this.setState({
-          tasks: [...this.state.tasks],
+          tasks: [...(this.state.tasks || [])],
           ...state,
         },
         resolve
@@ -494,14 +492,15 @@ class DragUploader extends Component {
   /**
    * 构建任务队列
    * @param files
+   * @param sig 时间戳
    * @returns {Array}
    */
-  buildTaskList = files => {
+  buildTaskList = (files, sig) => {
     const tasks = [];
     for (let i = 0, len = files.length; i < len; i++) {
       const file = files[i];
       if (/image/i.test(file.type)) {
-        tasks.push(this.createTask(file));
+        tasks.push(this.createTask(file, sig));
       }
     }
     // tasks.sort((a, b) => a.file.lastModified - b.file.lastModified);
@@ -524,10 +523,12 @@ class DragUploader extends Component {
   /**
    * 创建一个任务对象
    * @param file
+   * @param sig
    * @returns {{file: *, filename: string, name: *, status: string}}
    */
-  createTask = (file) => {
+  createTask = (file, sig) => {
     return {
+      sig,
       file,
       filename: buildFileName(file),
       status: '等待上传',
