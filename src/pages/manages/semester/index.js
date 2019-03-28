@@ -1,13 +1,12 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
 import moment from 'moment';
-import {Form, Row, Col, message, Modal, Select, DatePicker, Input, notification, Switch} from 'antd';
-import {ManagesSemester as namespace} from '../../../utils/namespace';
+import {Form,Modal, Select, DatePicker, Input, notification, Switch} from 'antd';
+import {ManagesSemester as namespace, ManagesSemesterDetail} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import {SemesterTypeEnum, Enums} from "../../../utils/Enum";
-
+import router from 'umi/router';
 
 @connect(state => ({
   total: state[namespace].total,
@@ -39,7 +38,7 @@ export default class MeterList extends Component {
         },
       },
       {
-        key:'rollback'
+        key: 'rollback'
       }
     ];
 
@@ -79,16 +78,42 @@ export default class MeterList extends Component {
       {
         title: '操作',
         key: 'operate',
-        render: (id, row) => (
-          <TableCellOperation
-            operations={{
-              edit: () => this.setState({visible: true, item: row}),
-              remove: {
-                onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
-              },
-            }}
-          />
-        ),
+        render: (id, row) => {
+          let operation;
+          if (row.currentType === 0) {
+            operation = <TableCellOperation
+              operations={{
+                edit: () => this.setState({visible: true, item: row}),
+                remove: {
+                  onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
+                },
+              }}
+            />
+          } else {
+            operation = <TableCellOperation
+              operations={{
+                teachCalendar: () => {
+                  router.push({
+                    pathname: ManagesSemesterDetail,
+                    query: {
+                      id: row.id,
+                      academicYear: row.academicYear,
+                      semesterType: row.semesterType,
+                      startDate: row.startDate,
+                      endDate: row.endDate,
+                      year:moment(row.startDate).year(),
+                    }
+                  });
+                },
+                edit: () => this.setState({visible: true, item: row}),
+                remove: {
+                  onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
+                },
+              }}
+            />
+          }
+          return operation;
+        },
       },
     ];
 

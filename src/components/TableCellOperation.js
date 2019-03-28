@@ -17,7 +17,8 @@ const OperationType = {
   print:'打印',
   preview: '预览',
   publish: '发布',
-  offline: '下线'
+  offline: '下线',
+  teachCalendar: '教学日历',
 };
 
 export default function TableCellOperation({ children, operations = {} }) {
