@@ -16,16 +16,35 @@
       padding: 10px;
 
       &:nth-child(2n+1) {
-        background-color: #fafafa;
+        background-color: rgba(218, 238, 250, 0.4);
       }
 
       &:first-child {
         border-top: 1px solid #ddd;
       }
 
-      .name {
-        width: 18%;
+      .file-name {
+        flex-basis: 18%;
         flex-shrink: 0;
+        margin-right: 0.5em;
+      }
+      .class-name{
+        width:80px;
+        flex-shrink: 0;
+        text-align: center;
+        margin-right: 0.5em;
+      }
+      .student-name{
+        width:70px;
+        flex-shrink: 0;
+        text-align: center;
+        margin-right: 0.5em;
+      }
+      .sheet-page{
+        width:40px;
+        flex-shrink: 0;
+        text-align: center;
+        margin-right: 0.5em;
       }
 
       .progress {
@@ -75,5 +94,93 @@
       }
     }
   }
+
+
+
+  .class-student-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+
+    & > li {
+      width: 180px;
+      //height:60px;
+      padding: 5px;
+      display: flex;
+      background-color: #08c;
+      border: 1px solid #ddd;
+      margin: -1px 0 0 -1px;
+
+      &.sheet {
+        background-color: #fff;
+      }
+
+      & > span > img {
+        width: 30px;
+        margin-right: 0.3em;
+
+      }
+
+      & > div {
+        flex: 1
+      }
+    }
+  }
+
+  //.tasks-progress {
+  //  height: 9px;
+  //  position: relative;
+  //
+  //  .progress {
+  //    position: relative;
+  //    height: 100%;
+  //    background-color: #f8f8f8;
+  //    border: 1px solid #f0f0f0;
+  //
+  //    .upload-progress,
+  //    .build-progress,
+  //    .total-progress {
+  //      position: absolute;
+  //      top: 0;
+  //      left: 0;
+  //      height: 33.33%;
+  //      transition: width 0.3s;
+  //    }
+  //
+  //    .total-progress {
+  //      background-color: #8419d0;
+  //      top: 66.66%;
+  //    }
+  //
+  //    .build-progress {
+  //      background-color: #3f9e12;
+  //      top: 33.33%;
+  //    }
+  //
+  //    .upload-progress {
+  //      background-color: #f80;
+  //      top: 0;
+  //    }
+  //  }
+  //
+  //  .tasks-list {
+  //    position: absolute;
+  //    top:0;
+  //    height:100%;
+  //    width: 100%;
+  //    display: flex;
+  //    //align-items: stretch;
+  //    flex-wrap: wrap;
+  //
+  //    & > li {
+  //      flex:1;
+  //      border-right:1px solid #f0f0f0;
+  //      //height:100%;
+  //      min-width: 20px;
+  //      height:9px;
+  //    }
+  //  }
+  //
+  //}
 }
 

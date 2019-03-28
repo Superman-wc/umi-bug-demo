@@ -40,7 +40,6 @@ export default function EditorPage(props) {
 
   const qrCode = file && file.id && file.ver ? `${file.id}#${file.ver}#${index}` : '';
 
-  console.log(page);
 
   return (
     <div id={page.key} className={className} style={style} onClick={() => {

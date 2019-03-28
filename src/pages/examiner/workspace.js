@@ -1,8 +1,8 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
-import {message, Progress} from 'antd';
+import {message, Progress, Tabs,} from 'antd';
 import {Authenticate} from "../../utils/namespace";
-import {ExaminerSheet as namespace, ManagesClass, ManagesStudent} from '../../utils/namespace';
+import {ExaminerSheet as namespace, ManagesClass, ManagesStudent, AnswerEditor} from '../../utils/namespace';
 import {ExaminerStatusEnum} from '../../utils/Enum';
 import Page from '../../components/Page';
 import PageHeaderOperation from '../../components/Page/HeaderOperation';
@@ -14,7 +14,7 @@ import styles from './workspace.less';
 import {create as createSheet, analyze} from '../../services/examiner/sheet';
 import classNames from 'classnames';
 import router from 'umi/router';
-import {toArray, copyFields} from "../../utils/helper";
+import {toArray, copyFields, delay} from "../../utils/helper";
 
 
 @connect(state => ({
@@ -39,9 +39,17 @@ export default class WorkspacePage extends Component {
 
     const buttons = [
       {
-        key: '查看历史上传记录',
-        children: '查看历史上传记录',
+        key: 'look',
         type: 'primary',
+        children: '显示' + (this.state.showStatisticsView ? '进度' : '统计'),
+        onClick: () => {
+          this.setState({showStatisticsView: !this.state.showStatisticsView});
+        }
+      },
+      {
+        key: '查看历史记录',
+        children: '查看历史记录',
+
         onClick: () => {
           router.push({pathname: '/examiner/upload'})
         }
@@ -52,7 +60,7 @@ export default class WorkspacePage extends Component {
         onClick: () => {
           this.ref.current.clear();
         }
-      }
+      },
     ];
 
     const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={buttons}/>;
@@ -67,7 +75,12 @@ export default class WorkspacePage extends Component {
 
     return (
       <Page {...pageProps} >
-        <DragUploader ref={this.ref} dispatch={dispatch} token={authenticate.token}/>
+        <DragUploader
+          ref={this.ref}
+          dispatch={dispatch}
+          token={authenticate.token}
+          showStatisticsView={this.state.showStatisticsView}
+        />
       </Page>
     )
   }
@@ -85,26 +98,27 @@ class DragUploader extends Component {
       map[key] = undefined;
       return map;
     }, {});
-    this.setState(state);
+   this.safeSetState(state);
   };
 
+  safeSetState(state, callback){
+    if(this[DragUploader.mounted]){
+     this.setState(state, callback);
+    }
+  }
+
+  static mounted = Symbol('DragUploader#mounted');
+
   componentDidMount() {
+    this[DragUploader.mounted] = true;
     document.addEventListener('drop', this.handleDrop, false);
     document.addEventListener('dragover', this.handleDragOver, false);
-    // document.addEventListener('dragenter', this.handleDragEnter, false);
-    // document.addEventListener('dragleave', this.handleDragLeave, false);
-    // document.addEventListener('dragstart', this.handleDragEnter, false);
-    // document.addEventListener('dragend', this.handleDragLeave, false);
   }
 
   componentWillUnmount() {
+    delete this[DragUploader.mounted];
     document.removeEventListener('drop', this.handleDrop);
     document.removeEventListener('dragover', this.handleDragOver);
-    // document.removeEventListener('dragenter', this.handleDragEnter);
-    // document.removeEventListener('dragleave', this.handleDragLeave);
-    // document.removeEventListener('dragstart', this.handleDragEnter, false);
-    // document.removeEventListener('dragend', this.handleDragLeave, false);
-
   }
 
   handleDragOver = e => {
@@ -115,13 +129,13 @@ class DragUploader extends Component {
   handleDragEnter = e => {
     e.preventDefault();
     e.stopPropagation();
-    this.setState({drag: true});
+   this.safeSetState({drag: true});
   };
 
   handleDragLeave = e => {
     e.preventDefault();
     e.stopPropagation();
-    this.setState({drag: false});
+   this.safeSetState({drag: false});
   };
 
   handleDrop = e => {
@@ -190,82 +204,197 @@ class DragUploader extends Component {
       drag: false,
       tasks,
       waitUploadCount,
+
     }).then(() => {
       // 开始流水线任务
       return this.startFlowLine(uploadTasks)
     });
   };
 
-  loadClass = id => {
+
+  loadEditor = task => {
     return new Promise((resolve, reject) => {
-      const {dispatch} = this.props;
-      dispatch({
-        type: ManagesClass + '/item',
-        payload: {id},
-        resolve,
-        reject
-      })
+      if (task.sheet && task.sheet.editorId) {
+        const {editorId} = task.sheet;
+        const {editorMap = {}} = this.state;
+        task.step = 3;
+        if (editorMap[editorId]) {
+          // console.log('本地已经存在答题卡详情', editorMap[editorId]);
+          resolve();
+        } else {
+          const {dispatch} = this.props;
+          dispatch({
+            type: AnswerEditor + '/item',
+            payload: {id: editorId},
+            resolve: (editor) => {
+              const {editorMap = {}} = this.state;
+              editorMap[editor.id] = copyFields(editor, ['id', 'title']);
+              editorMap[editor.id].pageCount = editor.pages.length;
+             this.safeSetState({
+                editorMap: {...editorMap}
+              }, resolve);
+            },
+            reject,
+          });
+        }
+      } else {
+        resolve();
+      }
     });
   };
 
-  loadStudent = klassId => {
+  static addTaskToKlassTaskMap(klass, task, editorId) {
+    if (klass) {
+      if (!klass.taskMap) {
+        klass.taskMap = {};
+      }
+      if (!klass.taskMap[editorId]) {
+        klass.taskMap[editorId] = [];
+      }
+      klass.taskMap[editorId].push(task);
+    }
+  }
+
+  static addKlassToEditorClassMap(klass, editor) {
+    if (editor) {
+      if (!editor.classMap) {
+        editor.classMap = {};
+      }
+      editor.classMap[klass.id] = klass;
+    }
+  }
+
+  loadTaskClass = task => {
     return new Promise((resolve, reject) => {
-      const {dispatch} = this.props;
-      dispatch({
-        type: ManagesStudent + '/list',
-        payload: {
-          klassId,
-          simple: 1,
-          s: 100,
-        },
-        resolve,
-        reject
-      })
+      if (task.sheet && task.sheet.unitId && task.sheet.editorId) {
+        task.step = 4;
+        const {unitId, editorId} = task.sheet;
+        const {classMap = {}, editorMap = {}} = this.state;
+        if (classMap[unitId]) {
+          DragUploader.addTaskToKlassTaskMap(classMap[unitId], task, editorId);
+         this.safeSetState({
+            classMap,
+            editorMap: {...editorMap}
+          }, resolve);
+        } else {
+          const {dispatch} = this.props;
+          dispatch({
+            type: ManagesClass + '/item',
+            payload: {id: unitId},
+            resolve: (res) => {
+              const klass = copyFields(res, ['id', 'name']);
+              const {editorMap = {}, classMap = {}} = this.state;
+
+
+              DragUploader.addTaskToKlassTaskMap(klass, task, editorId);
+
+              DragUploader.addKlassToEditorClassMap(klass, editorMap[editorId]);
+
+
+              classMap[unitId] = klass;
+
+             this.safeSetState({
+                classMap,
+                editorMap: {...editorMap}
+              }, resolve);
+            },
+            reject,
+          })
+        }
+
+      }
     })
   };
 
-  loadClassStudent = (klassId) => {
-    if (this._loading_class_student !== klassId) {
-      this._loading_class_student = klassId;
-      Promise.all([
-        this.loadClass(klassId),
-        this.loadStudent(klassId),
-      ]).then(([klass, {list}]) => {
-        if (klass && list && list.length) {
-          let {classMap = {}, studentMap = {}} = this.state;
-          const unit = copyFields(klass, ['id', 'name', 'gradeId', 'gradeName']);
-          unit.students = [];
-          studentMap = list.reduce((map, it) => {
-            const student = copyFields(it, ['id', 'name', 'code', 'avatar', 'klassId', 'klassName', 'gradeId', 'gradeName']);
-            unit.students.push(student);
-            map[it.id] = student;
-            return map;
-          }, studentMap);
-          classMap[klassId] = unit;
-          this.setState({classMap: {...classMap}, studentMap: {...studentMap}});
-        }
-      })
+  /**
+   * 添加任务到学生的任务Map中
+   * @param student
+   * @param task
+   * @param editorId
+   */
+  static addTaskToStudentTaskMap(student, task, editorId) {
+    if (student) {
+      if (!student.taskMap) {
+        student.taskMap = {};
+      }
+      if (!student.taskMap[editorId]) {
+        student.taskMap[editorId] = [];
+      }
+      student.taskMap[editorId].push(task);
     }
-  };
+  }
 
   /**
-   * 检查缺少的学生
+   * 构建班级学生集合
+   * @param klass 班级
+   * @param studentList 班级学生列表
+   * @param allStudentMap 全校学生集合
    */
-  checkLackClassStudent = () => {
-    const {tasks = [], classMap = {}} = this.state;
-    if (tasks.length) {
-      const task = tasks[0];
-      const klass = task && task.class;
-      const students = klass && klass.students || [];
-
-      tasks.reduce((map, it)=>{
-
-      }, {})
-
+  static buildKlassStudentMap(klass, studentList, allStudentMap) {
+    if (klass && studentList && studentList.length && allStudentMap) {
+      klass.total = studentList.length;
+      klass.studentMap = studentList.reduce((map, it) => {
+        const student = allStudentMap[it.id] ||
+          copyFields(it, ['id', 'name', 'code', 'avatar', 'klassId', 'klassName']);
+        allStudentMap[it.id] = student;
+        map[it.id] = student;
+        return map;
+      }, {});
     }
+  }
 
+  loadTaskStudent = task => {
+    return new Promise((resolve, reject) => {
+      if (task.sheet && task.sheet.unitId && task.sheet.studentId && task.sheet.editorId) {
+        task.step = 5;
+        const {classMap = {}, studentMap = {}, editorMap = {}} = this.state;
+        const {unitId, studentId, editorId} = task.sheet;
+
+        if (
+          classMap[unitId] &&
+          classMap[unitId].studentMap &&
+          classMap[unitId].studentMap[studentId] &&
+          studentMap[studentId]
+        ) {
+
+          DragUploader.addTaskToStudentTaskMap(studentMap[studentId], task, editorId);
+
+         this.safeSetState({
+            studentMap,
+            classMap,
+            editorMap: {...editorMap}
+          }, resolve);
+
+        } else {
+          const {dispatch} = this.props;
+          dispatch({
+            type: ManagesStudent + '/list',
+            payload: {
+              klassId: unitId,
+              s: 1000,
+              simple: 1,
+            },
+            resolve: ({list = []} = {}) => {
+              const {classMap = {}, studentMap = {}, editorMap = {}} = this.state;
+
+              DragUploader.buildKlassStudentMap(classMap[unitId], list, studentMap);
+
+              DragUploader.addTaskToStudentTaskMap(studentMap[studentId], task, editorId);
+
+             this.safeSetState({
+                classMap,
+                studentMap,
+                editorMap: {...editorMap}
+              }, resolve)
+            },
+            reject,
+          })
+        }
+      } else {
+        resolve();
+      }
+    })
   };
-
 
   /**
    * 开始流水线工作
@@ -274,10 +403,13 @@ class DragUploader extends Component {
    */
   startFlowLine = (tasks) => {
     return flowLine([
-      this.upload,  // 上传图片
-      this.buildSheet,  // 构建答题卡记录
+      this.upload,                // 上传图片
+      this.buildSheet,            // 构建答题卡记录
+      this.loadEditor,            // 加载任务对应的答题卡
+      this.loadTaskClass,         // 加载任务对应的班级
+      this.loadTaskStudent,       // 加载任务对应的学生
     ], tasks).then(
-      list => {
+      (list = []) => {
         console.log('上传并创建完成', list);
         const ids = [];
         const sheetMap = list.filter(it => it && it.sheet).reduce((map, it) => {
@@ -327,7 +459,7 @@ class DragUploader extends Component {
    */
   refreshTasksState = (state = {}) => {
     return new Promise(
-      resolve => this.setState({
+      resolve =>this.safeSetState({
           tasks: [...(this.state.tasks || [])],
           ...state,
         },
@@ -378,7 +510,8 @@ class DragUploader extends Component {
             percent: 34,
           };
           delete task.file;
-          this.refreshTasksState();
+          task.step = 1;
+          return this.refreshTasksState();
         },
         onError: (err) => {
           task.error = err;
@@ -397,6 +530,7 @@ class DragUploader extends Component {
           percent: 34,
         };
         delete task.error;
+        task.step = 1;
         return this.refreshTasksState();
       }).catch(ex => {
         task.error = ex;
@@ -405,6 +539,7 @@ class DragUploader extends Component {
           status: 'exception',
           percent: 34,
         };
+        task.step = 1;
         return this.refreshTasksState();
       })
     }
@@ -418,12 +553,7 @@ class DragUploader extends Component {
    */
   analyzeSheet = (task, sheet) => {
     const state = {};
-
-    if (sheet && sheet.unitId && (!this.state.classMap || this.state.classMap[sheet.unitId])) {
-      //加载对应的班级信息与班级学生
-      this.loadClassStudent(sheet.unitId)
-    }
-
+    task.step = 2;
     switch (sheet.status) {
       case ExaminerStatusEnum.删了:
         task.error = new Error('答题卡被删除了');
@@ -456,9 +586,10 @@ class DragUploader extends Component {
           state.subjectId = sheet.subjectId;
           state.gradeId = sheet.gradeId;
           delete task.error;
-        } else if (this.state.editorId !== sheet.editorId) {
-          task.error = new Error('不相同的答题卡');
         }
+        // else if (this.state.editorId !== sheet.editorId) {
+        //   task.error = new Error('不相同的答题卡');
+        // }
         break;
       case ExaminerStatusEnum.处理错误:
         task.error = new Error(sheet.lastErrorMsg);
@@ -489,6 +620,7 @@ class DragUploader extends Component {
           status: 'exception',
           percent: 67,
         };
+        task.step = 2;
         return this.refreshTasksState();
       });
     }
@@ -542,6 +674,10 @@ class DragUploader extends Component {
     };
   };
 
+  log = () => {
+    console.log(this.state);
+  };
+
 
   render() {
 
@@ -552,7 +688,7 @@ class DragUploader extends Component {
       backgroundColor: this.state.drag ? 'rgba(0, 128, 255, 0.3)' : 'transparent',
     };
 
-    const {tasks = [], editorTitle, classMap = {}, studentMap = {}} = this.state;
+    const {tasks = [], classMap = {}, studentMap = {}, editorMap} = this.state;
 
 
     return (
@@ -564,23 +700,130 @@ class DragUploader extends Component {
            onDragEnter={this.handleDragEnter}
            onDragLeave={this.handleDragLeave}
       >
+
         {
-          editorTitle ?
-            <h2 className={styles['editor-title']}>{editorTitle}</h2>
+          this.props.showStatisticsView && editorMap ?
+            <EditorTabs editorMap={editorMap}/>
             :
-            null
+            tasks && tasks.length ?
+              <TaskList tasks={tasks} classMap={classMap} studentMap={studentMap}/>
+              :
+              null
         }
-        {
-          tasks && tasks.length ?
-            <TaskList tasks={tasks} classMap={classMap} studentMap={studentMap}/>
-            :
-            null
-        }
+
       </div>
     )
   }
 }
 
+function EditorTabs({editorMap}) {
+  return (
+    <Tabs>
+      {
+        Object.values(editorMap).map(editor =>
+          <Tabs.TabPane key={editor.id} tab={editor.loading ? '正在加载...' : editor.title}>
+            {
+              editor.classMap ?
+                <KlassTabs editor={editor}/>
+                :
+                null
+            }
+          </Tabs.TabPane>
+        )
+      }
+    </Tabs>
+  )
+}
+
+function KlassTabs({editor}) {
+  return (
+    <Tabs>
+      {
+        Object.values(editor.classMap).map(klass =>
+          <Tabs.TabPane
+            key={[editor.id, klass.id].join('-')}
+            tab={klass.loading ? '正在加载...' : klass.name}
+          >
+            <h3>
+              {klass.name}共{klass.total}人,
+              每份答题卡为{editor.pageCount}张,
+              需收集{klass.total * editor.pageCount}张,
+              目前处理{klass.taskMap && klass.taskMap[editor.id] && klass.taskMap[editor.id].length || 0}张
+            </h3>
+            {
+              klass.studentMap ?
+                <ul className={styles['class-student-list']}>
+                  {
+                    Object.values(klass.studentMap).map(student =>
+                      <Student key={[editor.id, klass.id, student.id].join('-')}
+                               student={student}
+                               editor={editor}
+                               klass={klass}
+                      />
+                    )
+                  }
+                </ul>
+                :
+                null
+            }
+          </Tabs.TabPane>
+        )
+      }
+    </Tabs>
+  )
+}
+
+function Student({editor, klass, student}) {
+
+  const sheetCount = student.taskMap && student.taskMap[editor.id] && student.taskMap[editor.id].length || 0;
+
+  return (
+    <li key={[editor.id, klass.id, student.id].join('-')}
+        data-id={[editor.id, klass.id, student.id].join('-')}
+        data-task={Object.keys(student.taskMap || {}).join(',')}
+        className={classNames({
+          [styles['sheet']]: sheetCount
+        })}
+    >
+      {
+        student.loading ?
+          <span>正在加载...</span>
+          :
+          <Fragment>
+            <span>
+              <img src={student.avatar + '!t'} width={30}/>
+            </span>
+            <div>
+              <div>{student.name}({student.code})</div>
+              {
+                sheetCount ?
+                  <div>
+                    {sheetCount}张
+                    {
+                      editor.pageCount > 1 &&
+                      student.taskMap &&
+                      student.taskMap[editor.id] &&
+                      student.taskMap[editor.id].length ?
+                        <p>
+                          {
+                            student.taskMap[editor.id].map(task =>
+                              <span key={task.sheet.id}>{task.sheet.page === 1 ? '反面' : '正面'}</span>
+                            )
+                          }
+                        </p>
+                        :
+                        null
+                    }
+                  </div>
+                  :
+                  null
+              }
+            </div>
+          </Fragment>
+      }
+    </li>
+  )
+}
 
 function TaskList({tasks, classMap, studentMap}) {
   return (
@@ -606,53 +849,74 @@ function Task(props) {
     }
   }
   return (
-    <li key={data.filename}>
-      <div className={styles['name']}
-           title={data.url ? '查看图片' : null}
+    <li key={data.filename} className={styles['task']}>
+      <a className={styles['file-name']}
+           title={data.url ? '查看原始扫描图片' : '未上传'}
            onClick={() => {
-             data.url && window.open(data.url + '!page');
+             data.url ? window.open(data.url + '!page') : message.warning('图片还未上传，请稍等');
            }}
       >
+
         {data.name}
+      </a>
+      <div className={styles['class-name']}>
+        {data.class && data.class.name}
       </div>
-      {
-        data.sheet ?
-          <Fragment>
-            {
-              data.sheet.unitId ?
-                <div>
-                  班级：{data.class ? data.class.name : data.sheet.unitId}
-                </div>
-                :
-                null
-            }
-            {
-              data.sheet.studentCode ?
-                <div>
-                  学生：{data.student ? data.student.name : data.sheet.studentCode}
-                </div>
-                :
-                null
-            }
-          </Fragment>
-
-          :
-          null
-      }
+      <div className={styles['student-name']}>
+        {data.student && data.student.name}
+      </div>
+      <div className={styles['sheet-page']}>
+        {data.sheet && (data.sheet.page === 1 ? '反面' : '正面')}
+      </div>
       <div className={styles['progress']}>
-        <Progress {...data.progress}/>
-      </div>
+        {
+          data.error ?
+            <a className={styles['error']} title={data.error ? '查看详情' : '无详情'} onClick={() => {
+                window.open((data.sheet && (data.sheet.debugUrl || data.sheet.rotatedUrl) || data.url) + '!page')
+            }}>{data.error.message}</a>
+            :
+            <Progress {...data.progress}/>
+        }
 
-      <div className={classNames(styles['status'], {
-        [styles['error']]: data.error,
-      })} title={data.error ? data.error.message : null} onClick={() => {
-        (data.sheet && data.sheet.debugUrl) ?
-          window.open(data.sheet.debugUrl + '!page')
-          :
-          message.info('无调试图片')
-      }}>
-        {data.status}{data.error ? ':' + data.error.message : null}
+      </div>
+      <div className={classNames(styles['status'], {[styles['error']]: data.error})}>
+        {data.status}
       </div>
     </li>
   )
+}
+
+class TasksProgress extends Component {
+
+  render() {
+    const {tasks = [], stepCount = 1} = this.props;
+
+    const total = tasks.length;
+    const complete = tasks.filter(it => it.step >= stepCount).length;
+    const upload = tasks.filter(it => it.step >= 1).length;
+    const build = tasks.filter(it => it.step >= 2).length;
+
+    const completeProgress = complete / total * 100 + '%';
+    const uploadProgress = upload / total * 100 + '%';
+    const buildProgress = build / total * 100 + '%';
+
+    return (
+      <div className={styles['tasks-progress']}>
+        <div className={styles['progress']}>
+          <div className={styles['upload-progress']} style={{width: uploadProgress}}/>
+          <div className={styles['build-progress']} style={{width: buildProgress}}/>
+          <div className={styles['total-progress']} style={{width: completeProgress}}/>
+        </div>
+
+        <ul className={styles['tasks-list']}>
+          {
+            tasks.map((task, index) =>
+              <li key={task.filename}/>
+            )
+          }
+        </ul>
+      </div>
+    )
+  }
+
 }

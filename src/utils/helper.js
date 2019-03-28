@@ -16,3 +16,7 @@ export function copyFields(object={}, fields=[]){
     return map;
   }, {})
 }
+
+export function delay(time=0){
+  return new Promise(resolve=>setTimeout(resolve, time));
+}
