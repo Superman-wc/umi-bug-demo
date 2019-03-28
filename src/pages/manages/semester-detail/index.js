@@ -19,6 +19,8 @@ export default class SemsterDetail extends Component {
     currentKey: '1',
     editState: false,
     editModalVisible: false,
+    formBedValidateStatus: null,
+    formSchoolValidateStatus: null,
     currentSelectDate: moment(),
     currentSelectItem: null,
     updateSelectItem: null
@@ -54,37 +56,59 @@ export default class SemsterDetail extends Component {
   // 宿舍考勤时间
   onBedTimeSelectChange = (value) => {
     const {type, startTime, endTime} = value;
-    let bedValue;
+    let bedValue, bedValidate, formBedValidateStatus = null;
     if (type === 0) {
       bedValue = {
+        bedValidate: 2,
         bedRoomStartTime: null,
         bedRoomEndTime: null
       };
+      formBedValidateStatus = 'success';
     } else {
+      if (startTime && endTime) {
+        bedValidate = 2;
+        formBedValidateStatus = 'success';
+      } else {
+        bedValidate = 1;
+        formBedValidateStatus = 'error';
+      }
       bedValue = {
+        bedValidate,
         bedRoomStartTime: startTime,
         bedRoomEndTime: endTime
       };
     }
     this.state.updateSelectItem = Object.assign({}, this.state.updateSelectItem, bedValue);
+    this.setState({formBedValidateStatus});
   };
 
   // 到离校考勤时间
   onBedSchoolSelectChange = (value) => {
     const {type, startTime, endTime} = value;
-    let schoolValue;
+    let schoolValue, schoolValidate, formSchoolValidateStatus = null;
     if (type === 0) {
       schoolValue = {
+        schoolValidate: 2,
         noResidentLeaveSchoolBackTime: null,
         noResidentLeaveSchoolOutTime: null
       };
+      formSchoolValidateStatus = 'success';
     } else {
+      if (startTime && endTime) {
+        schoolValidate = 2;
+        formSchoolValidateStatus = 'success';
+      } else {
+        schoolValidate = 1;
+        formSchoolValidateStatus = 'error';
+      }
       schoolValue = {
+        schoolValidate,
         noResidentLeaveSchoolBackTime: startTime,
         noResidentLeaveSchoolOutTime: endTime
       };
     }
     this.state.updateSelectItem = Object.assign({}, this.state.updateSelectItem, schoolValue);
+    this.setState({formSchoolValidateStatus});
   };
 
   // 确定
@@ -93,6 +117,20 @@ export default class SemsterDetail extends Component {
     const {dispatch, location: {query: {id}}} = this.props;
     // console.log('currentSelectDate-currentSelectItem-updateSelectItem:',
     //   currentSelectDate, currentSelectItem, updateSelectItem);
+    const {bedValidate, schoolValidate} = updateSelectItem;
+
+    if (bedValidate === 0 && schoolValidate === 0) {// 未修改
+      this.setState({editModalVisible: false});
+      return;
+    }
+    if (bedValidate === 1) {
+      notification.error({message: '请选择宿舍考勤时间'});
+      return;
+    }
+    if (schoolValidate === 1) {
+      notification.error({message: '请选择到离校考勤时间'});
+      return;
+    }
 
     const bedRoomStartTime = updateSelectItem.bedRoomStartTime ?
       updateSelectItem.bedRoomStartTime.format('YYYY-MM-DD HH:mm:ss') : null;
@@ -108,12 +146,12 @@ export default class SemsterDetail extends Component {
 
     const date = currentSelectDate.format('YYYY-MM-DD HH:mm:ss');
 
-    console.log('params: ',
-      date,
-      bedRoomStartTime,
-      bedRoomEndTime,
-      noResidentLeaveSchoolBackTime,
-      noResidentLeaveSchoolOutTime);
+    // console.log('params: ',
+    //   date,
+    //   bedRoomStartTime,
+    //   bedRoomEndTime,
+    //   noResidentLeaveSchoolBackTime,
+    //   noResidentLeaveSchoolOutTime);
 
     if (currentSelectItem && currentSelectItem.id) {// 修改
       dispatch({
@@ -167,6 +205,8 @@ export default class SemsterDetail extends Component {
     let updateSelectItem = null;
     if (currentItem && currentItem.id) {
       updateSelectItem = {
+        bedValidate: 0,
+        schoolValidate: 0,
         bedRoomStartTime: currentItem.bedRoomStartTime ? moment(currentItem.bedRoomStartTime) : null,
         bedRoomEndTime: currentItem.bedRoomStartTime ? moment(currentItem.bedRoomEndTime) : null,
         noResidentLeaveSchoolBackTime: currentItem.bedRoomStartTime ? moment(currentItem.noResidentLeaveSchoolBackTime) : null,
@@ -174,6 +214,8 @@ export default class SemsterDetail extends Component {
       };
     } else {
       updateSelectItem = {
+        bedValidate: 0,
+        schoolValidate: 0,
         bedRoomStartTime: null,
         bedRoomEndTime: null,
         noResidentLeaveSchoolBackTime: null,
@@ -321,16 +363,22 @@ export default class SemsterDetail extends Component {
       }
     });
     let kaoTime = '今天无考勤';
+    let nowBedIcon = closeIcon;
+    let nowSchoolIcon = closeIcon;
     if (currentItem) {
+      if (currentItem.noResidentLeaveSchoolBackTime && currentItem.noResidentLeaveSchoolOutTime) {
+        nowSchoolIcon = checkIcon;
+      }
       const schoolBack = currentItem.noResidentLeaveSchoolBackTime ?
         moment(currentItem.noResidentLeaveSchoolBackTime).format('HH:mm') : "-";
       const schoolOut = currentItem.noResidentLeaveSchoolOutTime ?
         moment(currentItem.noResidentLeaveSchoolOutTime).format('HH:mm') : "-";
-      let bed;
+      let bed = '-';
       if (currentItem.bedRoomStartTime && currentItem.bedRoomEndTime) {
         bed = `${moment(currentItem.bedRoomStartTime).format('HH:mm')}-${moment(currentItem.bedRoomEndTime).format('HH:mm')}`;
+        nowBedIcon = checkIcon;
       }
-      kaoTime = `${schoolBack} ${schoolOut} ${bed}`;
+      kaoTime = `到离校考勤：${schoolBack}-${schoolOut} 宿舍考勤：${bed}`;
     }
 
     let defaultDate;
@@ -377,7 +425,9 @@ export default class SemsterDetail extends Component {
       onCancel: () => {
         this.setState({
           editModalVisible: false,
-          updateSelectItem: null
+          updateSelectItem: null,
+          formBedValidateStatus: null,
+          formSchoolValidateStatus: null,
         })
       },
       onOk: this.handleSelectItem,
@@ -402,6 +452,16 @@ export default class SemsterDetail extends Component {
       onChange: this.onBedSchoolSelectChange
     };
 
+    const formBedProps = {
+      validateStatus: state.formBedValidateStatus,
+      help: "请选择宿舍考勤时间",
+    };
+
+    const formSchoolProps = {
+      validateStatus: state.formSchoolValidateStatus,
+      help: "请选择到离校考勤时间",
+    };
+
     return (
       <Page loading={!!loading} header={header}>
         <Menu {...menuProps}>{menuItems}</Menu>
@@ -413,8 +473,8 @@ export default class SemsterDetail extends Component {
           <Button {...editBtnProps}>{editName}</Button>
           <div className={styles["opera-right-container"]}>
             <span>{nowTime}</span>
-            <span>时间：{kaoTime}</span>
-            <span>考勤：宿舍考勤{checkIcon} 到离校考勤{checkIcon}</span>
+            <span>{kaoTime}</span>
+            <span>考勤：宿舍考勤{nowBedIcon} 到离校考勤{nowSchoolIcon}</span>
           </div>
         </div>
         <Calendar {...calendarProps}/>
@@ -424,10 +484,14 @@ export default class SemsterDetail extends Component {
         <Modal {...editModalProps}>
           {
             state.editModalVisible &&
-            <div>
-              <TimeSelect {...bedTimeSelectProps}/>
-              <TimeSelect {...schoolTimeSelectProps}/>
-            </div>
+            <Form layout={"horizontal"}>
+              <Form.Item {...formBedProps}>
+                <TimeSelect {...bedTimeSelectProps}/>
+              </Form.Item>
+              <Form.Item {...formSchoolProps}>
+                <TimeSelect {...schoolTimeSelectProps}/>
+              </Form.Item>
+            </Form>
           }
         </Modal>
       </Page>
