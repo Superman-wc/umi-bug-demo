@@ -12,6 +12,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf/dist/jspdf.debug.js';
 import {pipes, pipe} from "../../utils/pipe";
 import cache from './cache';
+import styles from './answer.less';
 
 window.html2canvas = html2canvas;
 
@@ -150,7 +151,7 @@ function createFile(state, action) {
       let gs = Math.ceil(choiceCount / 5) + (ys === 0 ? 1 : 0);
       let i = 0;
 
-      function createChoiceQuestion(count) {
+      const createChoiceQuestion = (count)=> {
         return ElementObject.create({
           type: 'choice-question',
           startNumber: i * 5 + 1,
@@ -947,10 +948,12 @@ export default Model(
       buildQrCode,
       * print() {
         // 打印前要将内容区域移动到左顶点
-        window.scrollTo(0, 0);
-        document.body.scrollTo(0, 0);
-        document.getElementById('root').scrollTo(0, 0);
+        // document.documentElement.className = styles['print'];
+        // window.scrollTo(0, 0);
+        // document.body.scrollTo(0, 0);
+        // document.getElementById('root').scrollTo(0, 0);
         window.print();
+        // document.documentElement.className = ''
       },
       * save(action, saga) {
         const state = yield saga.select(state => state[namespace]);

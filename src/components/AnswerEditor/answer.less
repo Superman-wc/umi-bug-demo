@@ -3,6 +3,7 @@ Uploader.js
 */
 .uploader {
   position: relative;
+
   input[type="file"] {
     opacity: 0;
     position: absolute;
@@ -22,6 +23,7 @@ DaubRectangleBox.js
   position: relative;
   margin: 3px;
   cursor: default;
+
   & > div {
     box-sizing: border-box;
     width: 32px;
@@ -32,6 +34,7 @@ DaubRectangleBox.js
     border: 1px solid #111;
     transform: scale(0.5) translate(-16px, -10px);
   }
+
   &[data-checked="true"] {
     & > div {
       background-color: #000;
@@ -67,6 +70,7 @@ Score.js
   border-right: 1px solid #000;
   border-left: 1px solid #000;
   padding: 0 -1px;
+
   & > div {
     width: 30px;
     text-align: center;
@@ -83,6 +87,7 @@ SubjectiveQuestionsBox.js
     border: 0;
     border-bottom: 1px solid #333;
   }
+
   & > main {
     padding: 20px 10px 10px;
   }
@@ -101,6 +106,7 @@ ContentEditableArea.js
       outline: 1px dashed rgba(29, 165, 122, 0.2);
     }
   }
+
   &.focus {
     .html-input {
       background-color: rgba(29, 165, 122, 0.1);
@@ -112,6 +118,7 @@ ContentEditableArea.js
     position: relative;
     z-index: 1;
     word-break: break-word;
+
     img {
       float: left;
       max-width: 70%;
@@ -127,6 +134,7 @@ PaddingEditor.js
   flex-direction: row;
   flex-wrap: wrap;
   width: 180px;
+
   & > div {
     width: 60px;
   }
@@ -139,6 +147,7 @@ CreateFilePanel.js
   padding: 50px;
   width: 700px;
   margin: 0 auto;
+
   label {
     font-size: 14px;
   }
@@ -163,19 +172,24 @@ Element.js
   margin: 5px 0;
   //background-color: rgba(255, 255, 255, .75);
   border: 1px solid transparent;
+
   &.hover {
     outline: 1px dashed rgba(208, 189, 61, 1);
   }
+
   &.active {
     outline: 1px dashed rgba(29, 165, 122, 1);
     z-index: 900 !important;
   }
+
   &.focus {
     outline: 1px dashed #0af;
   }
+
   &.border {
     border-color: #000;
   }
+
   &.move {
     outline: 10px solid rgba(0, 170, 255, 0.6) !important;
     cursor: move;
@@ -196,6 +210,7 @@ StudentInfoBox.js
   justify-content: flex-start;
   border-top: 1px solid #333;
   position: relative;
+
   &:after,
   & > input {
     position: absolute;
@@ -205,12 +220,14 @@ StudentInfoBox.js
     width: 100%;
     height: 25px;
   }
+
   & > input {
     opacity: 0;
     background-color: transparent;
     border: 0 none transparent;
     z-index: 2;
   }
+
   &.focus:after {
     border: 1px solid #00aaff;
     outline: 1px solid #00aaff;
@@ -226,6 +243,7 @@ StudentInfoBox.js
   border-right: 1px solid #333;
   padding-bottom: 3px;
   width: 28px;
+
   &:last-child {
     border-right: 0;
   }
@@ -245,8 +263,10 @@ StudentInfoBox.js
   //border: 1px solid #333;
   margin-right: 19px;
   min-width: 169px;
+
   .student-info-header {
     display: flex;
+
     & > label {
       flex: 1;
       padding: 5px;
@@ -259,21 +279,26 @@ AnswerQuestionBox.js
  */
 .answer-question-box {
   width: 100%;
+
   .subjective-questions-box {
     float: left;
     width: 100%;
+
     & > main {
       float: left;
       width: 100%;
     }
   }
+
   .question-toolbar {
     display: flex;
     flex-direction: row;
     margin-bottom: 5px;
+
     .question-tools-upload {
       background-color: #ffaa00;
       width: 100px;
+
       :global {
         .ant-btn {
           height: 23px;
@@ -282,17 +307,21 @@ AnswerQuestionBox.js
       }
     }
   }
+
   .question-number {
     //margin-bottom: 5px;
   }
+
   .content-editable-area {
     line-height: 1.732;
     float: left;
     width: 100%;
+
     &.drag {
       outline: 3px dashed #1eb9ee;
       background-color: rgba(30, 185, 238, 0.5)
     }
+
     .html-input {
       float: left;
       width: 100%;
@@ -327,10 +356,12 @@ CompletionQuestionBox.js
   .subjective-questions-box {
     float: left;
     width: 100%;
+
     & > main {
       padding: 10px 10px 0 10px;
       float: left;
       width: 100%;
+
       & > label {
         float: left;
         margin: 15px 10px 10px 0;
@@ -345,14 +376,17 @@ CompletionQuestionBox.js
     padding: 15px 0 0 0;
     margin-bottom: 10px;
     margin-right: 10px;
+
     & > label {
       float: left;
     }
+
     & > .content-editable-area {
       float: left;
       min-width: 80%;
       margin-left: 0.5em;
     }
+
     &:hover {
       outline: 1px dashed rgba(128, 128, 128, .5);
     }
@@ -366,18 +400,22 @@ ChoiceQuestionBox.js
 .choice-question-box {
   outline: 1px dashed rgba(29, 165, 122, 0);
   margin: 5px;
+
   .options-area {
     margin-bottom: 3px;
     display: flex;
     flex-direction: row;
+
     label {
       min-width: 24px;
       text-align: right;
+
       &:after {
         content: '.';
         margin-right: 5px;
       }
     }
+
     &:hover {
       outline: 1px dashed rgba(128, 128, 128, .5);
     }
@@ -396,10 +434,12 @@ TitleBox.js
   font-size: 18px;
   padding: 0 60px 0 80px;
   height: 80px;
+
   .html-input {
     height: 78px;
     overflow: hidden;
   }
+
   .placeholder {
     padding: 0 60px 0 80px;
   }
@@ -413,6 +453,7 @@ Editor.js
   overflow: auto !important;
   padding: 30px 230px 0 0;
   background-color: #f0f4f8;
+
   :global {
     .ant-menu-vertical .ant-menu-item:not(:last-child),
     .ant-menu-vertical-left .ant-menu-item:not(:last-child),
@@ -420,6 +461,7 @@ Editor.js
     .ant-menu-inline .ant-menu-item:not(:last-child) {
       margin-bottom: 0;
     }
+
     .ant-menu-vertical > .ant-menu-item,
     .ant-menu-vertical-left > .ant-menu-item,
     .ant-menu-vertical-right > .ant-menu-item,
@@ -432,6 +474,7 @@ Editor.js
       line-height: 30px;
     }
   }
+
   hr {
     border: 0;
     border-top: 1px solid #ccc;
@@ -474,6 +517,7 @@ EditorHeader.js
     .ant-menu {
       background: #f3f3f3;
     }
+
     .ant-menu-horizontal {
       border-bottom-color: transparent;
     }
@@ -498,6 +542,7 @@ EditorRightPanel.js
   border-left: 1px solid #ccc;
   box-shadow: 0 0 10px #ccc;
   padding-top: 20px;
+
   :global {
     .ant-form-item {
       margin-bottom: 4px;
@@ -511,7 +556,8 @@ EditorBody.js
 .editor-body {
   color: #000;
   position: relative;
-  min-height:100%;
+  min-height: 100%;
+
   .read-only {
     position: absolute;
     top: 0;
@@ -521,15 +567,16 @@ EditorBody.js
     width: 100%;
     height: 100%;
     background-color: rgba(0, 128, 256, 0.1);
-    z-index:999;
+    z-index: 999;
     display: flex;
     align-items: center;
     justify-content: center;
-    &:after{
-      content:'打印文件仅供预览';
-      font-size:100px;
-      width:400px;
-      color:rgba(0,0,0,.15);
+
+    &:after {
+      content: '打印文件仅供预览';
+      font-size: 100px;
+      width: 400px;
+      color: rgba(0, 0, 0, .15);
       //transform: rotate(-45deg);
     }
   }
@@ -558,15 +605,19 @@ EditorPage.js
   background-color: #fff;
   box-shadow: 0 0 10px #ccc;
   margin: 0 auto;
+
   &.active {
     box-shadow: 0 0 20px #888;
   }
+
   & + & {
     margin-top: 50px;
   }
+
   .editor-column {
     margin-top: -15px;
     padding-top: 15px;
+
     &:first-child {
       &:before {
         content: '';
@@ -585,17 +636,20 @@ EditorPage.js
       }
     }
   }
+
   .editor-page-code {
     position: absolute;
     left: 50%;
     margin-left: -18px;
   }
+
   .editor-page-position-point {
     position: absolute;
     width: 16px;
     height: 10px;
     background-color: #000;
   }
+
   .editor-page-warning {
     position: absolute;
     left: 25px;
@@ -629,13 +683,14 @@ EditorColumn.js
     outline: 1px dashed rgba(255, 170, 0, 0.5);
     z-index: 2;
   }
+
   &.active {
     outline: 1px dashed rgba(255, 170, 0, 0.8);
     z-index: 3;
   }
 }
 
-@media print {
+.fun-print() {
   .options-area .daub-rectangle-box > div,
   .element,
   .content-editable-area,
@@ -650,12 +705,13 @@ EditorColumn.js
   .uploader,
   .editor-header,
   .editor-right-panel,
-  .read-only{
+  .read-only {
     display: none !important;
   }
 
   .editor-file {
     padding: 0 !important;
+    width: auto !important;
   }
 
   .editor-page {
@@ -675,9 +731,27 @@ EditorColumn.js
     }
   }
 
-  html, body {
-    height: auto !important;
-    width: auto !important;
-    overflow: auto !important;
+
+  height: unset !important;
+  width: unset !important;
+  overflow: auto !important;
+
+  & > #editor,
+  & > #editor .editor-root {
+    height: unset !important;
+    width: unset !important;
+    overflow: unset !important;
+  }
+
+}
+
+.print{
+  .fun-print();
+}
+
+
+@media print{
+  html{
+    .fun-print();
   }
 }

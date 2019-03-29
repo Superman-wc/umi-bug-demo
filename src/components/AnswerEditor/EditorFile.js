@@ -44,7 +44,7 @@ class EditorFile extends Component {
     pageProps.file = file;
     const {print: {w}} = file || {};
     const style = {
-      minWidth: w + 100,
+      width: w + 100,
       padding: 50
     };
     return (
