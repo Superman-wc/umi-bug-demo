@@ -29,7 +29,7 @@ export default class ExamCreatePage extends React.Component {
 
   state = {
     current: 0,
-  }
+  };
 
   onNext() {
     const current = this.state.current;
@@ -59,10 +59,10 @@ export default class ExamCreatePage extends React.Component {
 
   // 校验成功下一步
   onCheckSuccess = () => {
-    console.log('onCheckSuccess')
+    console.log('onCheckSuccess');
     const nextCurrent = this.state.current + 1;
     this.setState({ current: nextCurrent });
-  }
+  };
 
   submit() {
     const nextUpdateThree = this.props.updateThree + 1;

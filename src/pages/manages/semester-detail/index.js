@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import moment from 'moment';
-import {Form, Radio, Menu, Button, Icon, Calendar, Badge, Modal, TimePicker, notification} from 'antd';
+import {Badge, Button, Calendar, Form, Icon, Menu, Modal, notification, Radio, Row, Col, TimePicker} from 'antd';
 import {ManagesSemesterDetail} from '../../../utils/namespace';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
@@ -80,10 +80,11 @@ export default class SemsterDetail extends Component {
     }
     this.state.updateSelectItem = Object.assign({}, this.state.updateSelectItem, bedValue);
     this.setState({formBedValidateStatus});
+    // console.log('onBedTimeSelectChange: ', this.state.updateSelectItem);
   };
 
   // 到离校考勤时间
-  onBedSchoolSelectChange = (value) => {
+  onSchoolSelectChange = (value) => {
     const {type, startTime, endTime} = value;
     let schoolValue, schoolValidate, formSchoolValidateStatus = null;
     if (type === 0) {
@@ -109,6 +110,7 @@ export default class SemsterDetail extends Component {
     }
     this.state.updateSelectItem = Object.assign({}, this.state.updateSelectItem, schoolValue);
     this.setState({formSchoolValidateStatus});
+    // console.log('onBedSchoolSelectChange: ', this.state.updateSelectItem);
   };
 
   // 确定
@@ -133,26 +135,27 @@ export default class SemsterDetail extends Component {
     }
 
     const bedRoomStartTime = updateSelectItem.bedRoomStartTime ?
-      updateSelectItem.bedRoomStartTime.format('YYYY-MM-DD HH:mm:ss') : null;
+      updateSelectItem.bedRoomStartTime.startOf('minute').format('YYYY-MM-DD HH:mm:ss') : null;
 
     const bedRoomEndTime = updateSelectItem.bedRoomEndTime ?
-      updateSelectItem.bedRoomEndTime.format('YYYY-MM-DD HH:mm:ss') : null;
+      updateSelectItem.bedRoomEndTime.startOf('minute').format('YYYY-MM-DD HH:mm:ss') : null;
 
     const noResidentLeaveSchoolBackTime = updateSelectItem.noResidentLeaveSchoolBackTime ?
-      updateSelectItem.noResidentLeaveSchoolBackTime.format('YYYY-MM-DD HH:mm:ss') : null;
+      updateSelectItem.noResidentLeaveSchoolBackTime.startOf('minute').format('YYYY-MM-DD HH:mm:ss') : null;
 
     const noResidentLeaveSchoolOutTime = updateSelectItem.noResidentLeaveSchoolOutTime ?
-      updateSelectItem.noResidentLeaveSchoolOutTime.format('YYYY-MM-DD HH:mm:ss') : null;
+      updateSelectItem.noResidentLeaveSchoolOutTime.startOf('minute').format('YYYY-MM-DD HH:mm:ss') : null;
 
     const date = currentSelectDate.format('YYYY-MM-DD HH:mm:ss');
 
-    // console.log('params: ',
-    //   date,
-    //   bedRoomStartTime,
-    //   bedRoomEndTime,
-    //   noResidentLeaveSchoolBackTime,
-    //   noResidentLeaveSchoolOutTime);
+    console.log('params: ',
+      date,
+      bedRoomStartTime,
+      bedRoomEndTime,
+      noResidentLeaveSchoolBackTime,
+      noResidentLeaveSchoolOutTime);
 
+    this.setState({editModalVisible: false});
     if (currentSelectItem && currentSelectItem.id) {// 修改
       dispatch({
         type: ManagesSemesterDetail + '/modify',
@@ -185,7 +188,6 @@ export default class SemsterDetail extends Component {
 
   getTimeList = () => {
     notification.success({message: '修改成功'});
-    this.setState({editModalVisible: false});
     const {dispatch, location: {query: {id, year}}} = this.props;
     const {currentKey} = this.state;
     dispatch({
@@ -208,9 +210,9 @@ export default class SemsterDetail extends Component {
         bedValidate: 0,
         schoolValidate: 0,
         bedRoomStartTime: currentItem.bedRoomStartTime ? moment(currentItem.bedRoomStartTime) : null,
-        bedRoomEndTime: currentItem.bedRoomStartTime ? moment(currentItem.bedRoomEndTime) : null,
-        noResidentLeaveSchoolBackTime: currentItem.bedRoomStartTime ? moment(currentItem.noResidentLeaveSchoolBackTime) : null,
-        noResidentLeaveSchoolOutTime: currentItem.bedRoomStartTime ? moment(currentItem.noResidentLeaveSchoolOutTime) : null,
+        bedRoomEndTime: currentItem.bedRoomEndTime ? moment(currentItem.bedRoomEndTime) : null,
+        noResidentLeaveSchoolBackTime: currentItem.noResidentLeaveSchoolBackTime ? moment(currentItem.noResidentLeaveSchoolBackTime) : null,
+        noResidentLeaveSchoolOutTime: currentItem.noResidentLeaveSchoolOutTime ? moment(currentItem.noResidentLeaveSchoolOutTime) : null,
       };
     } else {
       updateSelectItem = {
@@ -408,11 +410,11 @@ export default class SemsterDetail extends Component {
     };
 
     const calendarProps = {
+      className: styles["calendar-container"],
       defaultValue: defaultDate,
       validRange: [moment(startDate), moment(endDate)],
       dateFullCellRender: this.dateFullCellRender.bind(null, nowMoment),
       // onSelect: this.onDateSelect,
-      style: {marginTop: 30, marginLeft: 20, marginRight: 20},
       disabledDate: (current) => (current < nowMoment.startOf('day') ||
         current > moment(endDate).endOf('day')),
     };
@@ -449,7 +451,7 @@ export default class SemsterDetail extends Component {
       },
       style: {marginTop: 20},
       label: '到离校考勤',
-      onChange: this.onBedSchoolSelectChange
+      onChange: this.onSchoolSelectChange
     };
 
     const formBedProps = {
@@ -468,15 +470,18 @@ export default class SemsterDetail extends Component {
         <span className={styles["semester-title"]}>{teachCalendarName}</span>
         <span className={styles["semester-tip"]}>提示: 如果修改教学安排,建议提前一天</span>
         <span className={styles["semester-tip"]}>时间项说明: 依次为到校时间、离校时间、最早/最晚回寝时间</span>
-        <div className={styles["opera-container"]}>
-          {/*<Button type={"primary"}>快速配置</Button>*/}
-          <Button {...editBtnProps}>{editName}</Button>
-          <div className={styles["opera-right-container"]}>
-            <span>{nowTime}</span>
-            <span>{kaoTime}</span>
-            <span>考勤：宿舍考勤{nowBedIcon} 到离校考勤{nowSchoolIcon}</span>
-          </div>
-        </div>
+        <Row className={styles["opera-container"]}>
+          <Col span={16}>
+            <Button {...editBtnProps}>{editName}</Button>
+          </Col>
+          <Col span={8}>
+            <div>
+              <p>{nowTime}</p>
+              <p>{kaoTime}</p>
+              <p>考勤：宿舍考勤{nowBedIcon} 到离校考勤{nowSchoolIcon}</p>
+            </div>
+          </Col>
+        </Row>
         <Calendar {...calendarProps}/>
         <div>
           <div className={styles["bottom-empty"]}/>
@@ -558,6 +563,7 @@ class TimeSelect extends Component {
 
   onTimeStartChange = (date, s) => {
     let value;
+    // console.log('onTimeStartChange:', formatDate);
     if (!this.state.endTime) {
       value = {
         startTime: date,
