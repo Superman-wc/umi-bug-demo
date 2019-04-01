@@ -2,44 +2,44 @@ import request from '../../utils/request';
 
 /**
  * 考务教室列表
- * @param {type} 1-教学  2-宿舍 
+ * @param {type} 1-教学  2-宿舍
  */
-export async function doorPlate({ type }) {
-  return request('/api/8queen/doorPlate', { data: { type }, method: 'GET' })
+export async function doorPlate({type}) {
+  return request('/api/8queen/doorPlate', {data: {type}, method: 'GET'})
 }
 
 /**
  * 教师列表
  * @param {gradeIndex}
  */
-export async function teachersByGradeIndex({ gradeIndex }) {
-  return request('/api/8queen/teacher', { data: { gradeIndex, s: 10000 }, method: 'GET' })
+export async function teachersByGradeIndex({gradeIndex}) {
+  return request('/api/8queen/teacher', {data: {gradeIndex, s: 10000}, method: 'GET'})
 }
 
 /**
  * 考务安排提交
  * endDay 结束日期（时间戳）
- * examType 
+ * examType
  * name 当前考务名称
  * startDay 开始日期
  * uuid
  */
 export async function createExam(data) {
-  return request('/api/8queen/exam/operate', { data, method: 'POST' });
+  return request('/api/8queen/exam/operate', {data, method: 'POST'});
 }
 
 /**
  * 考试场地-教师更新
  */
 export async function updateTeacher(data) {
-  return request(`/api/8queen/exam/operate/${data.roomId}/${data.examinationSubjectId}`, { data, method: 'PUT' });
+  return request(`/api/8queen/exam/operate/${data.roomId}/${data.examinationSubjectId}`, {data, method: 'PUT'});
 }
 
 /**
  * 考试场地-教师删除
  */
-export async function removeTeacher({ roomId, examinationSubjectId, uuid }) {
-  return request(`/api/8queen/exam/operate/${roomId}/${examinationSubjectId}/${uuid}`, { method: 'DELETE' });
+export async function removeTeacher({roomId, examinationSubjectId, uuid}) {
+  return request(`/api/8queen/exam/operate/${roomId}/${examinationSubjectId}/${uuid}`, {method: 'DELETE'});
 }
 
 /**
@@ -49,7 +49,7 @@ export async function removeTeacher({ roomId, examinationSubjectId, uuid }) {
  * uuid
  */
 export async function distributionStudent(data) {
-  return request('/api/8queen/exam/student', { data, method: 'POST' });
+  return request('/api/8queen/exam/student', {data, method: 'POST'});
 }
 
 /**
@@ -57,7 +57,7 @@ export async function distributionStudent(data) {
  * gradeIndex  类型 10高一， 11高二， 12高三
  */
 export async function listSubject(data) {
-  return request('/api/8queen/exam/subject', { data, method: 'GET' });
+  return request('/api/8queen/exam/subject', {data, method: 'GET'});
 }
 
 /**
@@ -66,7 +66,7 @@ export async function listSubject(data) {
  * uuid
  */
 export async function createTeacher(data) {
-  return request('/api/8queen/exam/teacher', { data, method: 'GET' });
+  return request('/api/8queen/exam/teacher', {data, method: 'GET'});
 }
 
 /**
@@ -75,7 +75,7 @@ export async function createTeacher(data) {
  * uuid
  */
 export async function distributionTeacher(data) {
-  return request('/api/8queen/exam/teacher', { data, method: 'POST' });
+  return request('/api/8queen/exam/teacher', {data, method: 'POST'});
 }
 
 /**
@@ -85,7 +85,7 @@ export async function distributionTeacher(data) {
  * releaseStatus  1-发布  0-未发布
  */
 export async function listExam(data) {
-  return request('/api/8queen/examActive', { data: { s: 30, ...data }, method: 'GET' });
+  return request('/api/8queen/examActive', {data: {s: 30, ...data}, method: 'GET'});
 }
 
 /**
@@ -93,31 +93,31 @@ export async function listExam(data) {
  * id  考务id
  */
 export async function examDetail(data) {
-  return request('/api/8queen/examActive/' + data.id, { method: 'GET' });
+  return request('/api/8queen/examActive/' + data.id, {method: 'GET'});
 }
 
 /**
  * 考务导出
  * id  考务id
  */
-export async function examDetailExport({ id }) {
-  return request('/api/8queen/examActive/export', { data: { id }, method: 'GET' });
+export async function examDetailExport({id}) {
+  return request('/api/8queen/examActive/export', {data: {id}, method: 'GET'});
 }
 
 /**
  * 考务上下线
  * id  考务id
  */
-export async function examPublishOffline({ id }) {
-  return request('/api/8queen/examActive/' + id, { method: 'PUT' });
+export async function examPublishOffline({id}) {
+  return request('/api/8queen/examActive/' + id, {method: 'PUT'});
 }
 
 /**
  * 考务删除
  * id  考务id
  */
-export async function examRemove({ id }) {
-  return request('/api/8queen/examActive/' + id, { method: 'DELETE' });
+export async function examRemove({id}) {
+  return request('/api/8queen/examActive/' + id, {method: 'DELETE'});
 }
 
 /**
@@ -126,15 +126,15 @@ export async function examRemove({ id }) {
  * teacherList  array[string]  教师id集合
  */
 export async function updateTeacherInDetail(data) {
-  return request(`/api/8queen/examActive/operate/${data.examinationPlaceId}`, { data, method: 'PUT' });
+  return request(`/api/8queen/examActive/operate/${data.examinationPlaceId}`, {data, method: 'PUT'});
 }
 
 /**
  * 考务详情-教师删除
  * examinationPlaceId 考场id
  */
-export async function removeTeacherInDetail({ examinationPlaceId }) {
-  return request(`/api/8queen/examActive/operate/${examinationPlaceId}`, { method: 'DELETE' });
+export async function removeTeacherInDetail({examinationPlaceId}) {
+  return request(`/api/8queen/examActive/operate/${examinationPlaceId}`, {method: 'DELETE'});
 }
 
 /**
@@ -142,7 +142,7 @@ export async function removeTeacherInDetail({ examinationPlaceId }) {
  * examinationPlaceId 考场id
  */
 export async function listStudent(data) {
-  return request('/api/8queen/examActive/student', { data, method: 'GET' });
+  return request('/api/8queen/examActive/student', {data, method: 'GET'});
 }
 
 /**
@@ -151,5 +151,5 @@ export async function listStudent(data) {
  * examinationId  考务id
  */
 export async function listTeacher(data) {
-  return request('/api/8queen/examActive/teacher', { data, method: 'GET' });
+  return request('/api/8queen/examActive/teacher', {data, method: 'GET'});
 }

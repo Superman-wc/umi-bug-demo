@@ -1,11 +1,11 @@
 import React from 'react'
 import styles from '../index.less'
-import { connect } from 'dva';
-import { Button, Table, Checkbox, Input, notification, Modal } from 'antd';
-import { ExamCreate, ExamList } from '../../../../utils/namespace'
-import { ManagesSteps } from '../utils/namespace'
-import { GradeIndexEnum, Enums } from '../../../../utils/Enum';
-import { DragDropContext, DragSource, DropTarget } from 'react-dnd';
+import {connect} from 'dva';
+import {Button, Table, Checkbox, Input, notification, Modal} from 'antd';
+import {ExamCreate, ExamList} from '../../../../utils/namespace'
+import {ManagesSteps} from '../utils/namespace'
+import {GradeIndexEnum, Enums} from '../../../../utils/Enum';
+import {DragDropContext, DragSource, DropTarget} from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import update from 'immutability-helper';
 import router from 'umi/router';
@@ -32,7 +32,7 @@ export default class StepThree extends React.Component {
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.updateThree && nextProps.updateThree !== this.props.updateThree) {
       console.log('updateThree: ', nextProps.updateThree);
-      this.setState({ editModalVisible: true });
+      this.setState({editModalVisible: true});
     }
   }
 
@@ -40,14 +40,16 @@ export default class StepThree extends React.Component {
     const examName = this.state.examName;
     console.log('examName: ', examName);
     if (!examName) {
-      notification.error({ message: '请输入考试名称' })
+      notification.error({message: '请输入考试名称'});
       return;
     }
     this.setState({
       editModalVisible: false,
     });
-    const { oneItem = {}, twoItem = {},
-      dateSelectList = [], dispatch } = this.props;
+    const {
+      oneItem = {}, twoItem = {},
+      dateSelectList = [], dispatch
+    } = this.props;
     const seatAssignment = oneItem['seatAssignment'];
     const gradeIndex = oneItem['gradeIndex'];
     const examDate = oneItem['examDate'];
@@ -60,7 +62,7 @@ export default class StepThree extends React.Component {
     const teachers = twoItem['teacherIds'] || [];
     const teacherIdList = [];
     teachers.forEach(it => {
-      teacherIdList.push({ id: it });
+      teacherIdList.push({id: it});
     });
 
     const roomSubjectIds = this.state.roomSubjectIds || [];
@@ -71,7 +73,7 @@ export default class StepThree extends React.Component {
         examinationSubjectId: ids[1],
         roomId: ids[0]
       })
-    })
+    });
 
     const subjectList = [];
     dateSelectList.forEach(it => {
@@ -115,25 +117,22 @@ export default class StepThree extends React.Component {
       gradeIndex,
       examinationInfoList
     };
-    console.log('examinationInfo: ', examinationInfo);
-    console.log('params: ', params);
+    // console.log('examinationInfo: ', examinationInfo);
+    // console.log('params: ', params);
     dispatch({
       type: ExamCreate + '/distributionStudent',
       payload: params,
       resolve: () => {
-        // Modal.info({
-        //   title: '提交成功',
-        //   content: '大约需要30分钟安排完毕, 稍后请前往考务列表查看',
-        // });
         this.setState({
           successModalVisible: true,
         });
       }
     });
-  }
+  };
 
   render() {
-    const { oneItem = {}, twoItem = {}, roomSelectList = [], dateSelectList = [] } = this.props;
+    console.log('render');
+    const {oneItem = {}, twoItem = {}, roomSelectList = [], dateSelectList = []} = this.props;
     const roomTotal = roomSelectList.length;
     // const subjectTotal = dateSelectList.length;
     const teacherIds = twoItem['teacherIds'] || [];
@@ -141,7 +140,7 @@ export default class StepThree extends React.Component {
     const gradeIndex = oneItem['gradeIndex'];
     let gradeName = '';
     Enums(GradeIndexEnum).forEach(it => {
-      if (gradeIndex == it.value) {
+      if (gradeIndex === it.value) {
         gradeName = it.name;
       }
     });
@@ -170,7 +169,7 @@ export default class StepThree extends React.Component {
       tableData.push(roomItem);
     });
     // console.log('tableData-init: ', tableData);
-    this.state.sortTableData = tableData;
+    // this.state.sortTableData = tableData;
 
     const columns = [
       {
@@ -217,19 +216,19 @@ export default class StepThree extends React.Component {
               }
             ],
           }]
-      }
+      };
       columns.push(columnItem)
     });
 
     // const editBtn = this.state.editDisabled ? '编辑考场' : '禁用';
     const footer = <div>
       <Button onClick={() => {
-        router.push({ pathname: ExamList });
+        router.push({pathname: ExamList});
       }}>查看列表</Button>
       <Button type='primary' onClick={() => {
-        this.setState({ successModalVisible: false });
+        this.setState({successModalVisible: false});
       }}>确定</Button>
-    </div>
+    </div>;
 
     return (
       <div>
@@ -247,7 +246,7 @@ export default class StepThree extends React.Component {
           </div> */}
         </div>
         <span>{`${gradeName}，${roomTotal}个教室，${teacherTotal}位老师`}</span>
-        <div style={{ marginTop: 20 }}>
+        <div style={{marginTop: 20}}>
           <DragTable
             columns={columns}
             tableData={tableData}
@@ -260,27 +259,29 @@ export default class StepThree extends React.Component {
             }}
           />
         </div>
-        <div style={{ height: 120 }}></div>
+        <div style={{height: 120}}/>
         <Modal
           title={'提交成功'}
           visible={this.state.successModalVisible}
           footer={footer}
         >
-          <p>由于数据量较大, 本次考务大约需要30分钟安排完毕, 稍后请前往考务列表查看</p>
+          <p>由于数据量较大, 本次考务大约需要1~30分钟安排完毕, 稍后请前往考务列表查看</p>
         </Modal>
         <Modal
           title={'请输入考务名称'}
           visible={this.state.editModalVisible}
           onCancel={() => {
-            this.setState({ editModalVisible: false });
+            this.setState({editModalVisible: false});
           }}
           onOk={this.submitData}
         >
           <Input
-            onChange={(e) => { this.state.examName = e.target.value }}
+            onChange={(e) => {
+              this.state.examName = e.target.value
+            }}
             type='text'
-            style={{ width: 300, marginRight: 10 }}
-            placeholder='请输入考试名称'></Input>
+            style={{width: 300, marginRight: 10}}
+            placeholder='请输入考试名称'/>
         </Modal>
       </div>
     )
@@ -288,6 +289,7 @@ export default class StepThree extends React.Component {
 }
 
 let dragingIndex = -1;
+
 class BodyRow extends React.Component {
   render() {
     const {
@@ -297,7 +299,7 @@ class BodyRow extends React.Component {
       moveRow,
       ...restProps
     } = this.props;
-    const style = { ...restProps.style, cursor: 'move' };
+    const style = {...restProps.style, cursor: 'move'};
 
     let className = restProps.className;
     if (isOver) {
@@ -375,29 +377,35 @@ class DragSortingTable extends React.Component {
 
   state = {
     tableData: this.props.tableData
+  };
+
+  componentDidMount() {
+    const {onDragEnd} = this.props;
+    // 初始化
+    onDragEnd(this.state.tableData);
   }
 
   roomValueChange = (e) => {
     // console.log('roomValueChange: ', e)
-    const { threeItem, dispatch, roomValueChange } = this.props;
+    const {threeItem, dispatch, roomValueChange} = this.props;
     dispatch({
       type: ManagesSteps + '/saveThreeItem',
       payload: {
-        threeItem: { ...threeItem, roomSubjectIds: e }
+        threeItem: {...threeItem, roomSubjectIds: e}
       }
     });
     roomValueChange(e);
-  }
+  };
 
   components = {
     body: {
       row: DragableBodyRow,
     },
-  }
+  };
 
   moveRow = (dragIndex, hoverIndex) => {
-    const { tableData } = this.state;
-    const { onDragEnd, threeItem, dispatch } = this.props;
+    const {tableData} = this.state;
+    const {onDragEnd, threeItem, dispatch} = this.props;
     const dragRow = tableData[dragIndex];
 
     const newState = update(this.state, {
@@ -419,29 +427,29 @@ class DragSortingTable extends React.Component {
     dispatch({
       type: ManagesSteps + '/saveThreeItem',
       payload: {
-        threeItem: { ...threeItem, priorityIds }
+        threeItem: {...threeItem, priorityIds}
       }
-    })
+    });
 
     this.setState(newState);
 
     onDragEnd(this.state.tableData);
-  }
+  };
 
   render() {
-    const { columns, threeItem = {} } = this.props;
-    const { roomSubjectIds = [], priorityIds = [] } = threeItem;
+    const {columns, threeItem = {}} = this.props;
+    const {roomSubjectIds = [], priorityIds = []} = threeItem;
     const tableData = this.state.tableData;
     // console.log('priorityIds: ', priorityIds);
     if (priorityIds && priorityIds.length > 0) {
-      priorityIds.forEach(it => {
-        tableData.forEach(item => {
-          if (item.id == it.id) {
-            item.roomPriorityNum = it.roomPriorityNum;
-            return;
+      for (let priority of priorityIds) {
+        for (let table of tableData) {
+          if (table.id.toString() === priority.id.toString()) {
+            table.roomPriorityNum = priority.roomPriorityNum;
+            break;
           }
-        });
-      });
+        }
+      }
       const newRoomPri = priorityIds.length + 1;
       tableData.sort((a, b) => {
         const aNum = a.roomPriorityNum || newRoomPri;
@@ -450,8 +458,9 @@ class DragSortingTable extends React.Component {
       });
       tableData.forEach((it, index) => {
         it.rowIndex = index;
-      })
-    };
+      });
+      // console.log('tableData: ', tableData)
+    }
     // console.log('sortTableData: ', tableData);
 
     return (

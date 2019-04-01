@@ -1,4 +1,4 @@
-import { Table, Modal } from 'antd';
+import {Modal} from 'antd';
 import React from 'react';
 import StudentTable from './StudentTable';
 
@@ -9,7 +9,7 @@ export default class StudentTableModal extends React.Component {
   //   onOk && onOk();
   // }}
   render() {
-    const { title, visible, placeId, onCancel } = this.props;
+    const {title, visible, placeId, onCancel} = this.props;
     return (
       <Modal
         width={1000}
@@ -18,7 +18,7 @@ export default class StudentTableModal extends React.Component {
         onCancel={onCancel}
         footer={null}
       >
-        <StudentTable placeId={placeId} />
+        <StudentTable placeId={placeId}/>
       </Modal>
     )
   }

@@ -26,7 +26,7 @@ export default class ExamDetail extends React.Component {
   importTable = () => {
     this.setState({
       exportLoading: true
-    })
+    });
     const { examDetail, dispatch } = this.props;
     // console.log('importTable: ', examDetail.id)
     dispatch({
@@ -128,7 +128,7 @@ export default class ExamDetail extends React.Component {
           <div className={styles['exam-table-container']}>
             <TeacherTable examDetail={examDetail} />
           </div>
-          <div className={styles['bottom']}></div>
+          <div className={styles['bottom']}/>
         </div>
       </Page>
     )

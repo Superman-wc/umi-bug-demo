@@ -7,7 +7,7 @@ import { GradeIndexEnum, Enums } from '../../../../utils/Enum';
 import moment from 'moment';
 import styles from '../index.less';
 
-const FormItem = Form.Item
+const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const CheckboxGroup = Checkbox.Group;
 @connect(state => ({
@@ -27,7 +27,7 @@ const CheckboxGroup = Checkbox.Group;
     subjectSelectList.forEach(it => {
       subjectFields[`subjectDate${it.id}`] =
         Form.createFormField({ value: twoItem[`subjectDate${it.id}`] || undefined });
-    })
+    });
     return {
       ...subjectFields,
       gradeTeacherIndex: Form.createFormField({ value: gradeTeacherIndex || undefined }),

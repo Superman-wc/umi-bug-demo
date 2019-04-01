@@ -1,8 +1,8 @@
-import { Table, Button, notification } from 'antd';
+import {Table, Button, notification} from 'antd';
 import React from 'react';
-import { ExamDetail as namespace } from '../../utils/namespace';
-import { connect } from 'dva';
-import { stdColumns } from '../ListPage/index';
+import {ExamDetail as namespace} from '../../utils/namespace';
+import {connect} from 'dva';
+import {stdColumns} from '../ListPage/index';
 import styles from './exam.less';
 
 const teacherMap = new Map();
@@ -17,7 +17,7 @@ export default class TeacherSelectTable extends React.Component {
   state = {
     bordered: true,
     scrollX: 1000,
-  }
+  };
 
   componentDidMount() {
     if (this.props.examinationId && this.props.examinationSubjectId) {
@@ -42,18 +42,18 @@ export default class TeacherSelectTable extends React.Component {
         s: 10000
       },
       resolve: () => {
-        const { listTeacher, monitorNum } = this.props;
+        const {listTeacher, monitorNum} = this.props;
         tempList = listTeacher ? listTeacher.list : [];
         teacherMap.clear();
         this.getTableData(tempList);
-        this.getColumnsData(tempList, monitorNum)
-        this.setState({ bordered: true });
+        this.getColumnsData(tempList, monitorNum);
+        this.setState({bordered: true});
       }
     });
-  }
+  };
 
   getColumnsData(teacherStatisticList = [], monitorNum = 1) {
-    const { handleClickName, handleMultiClick } = this.props
+    const {handleClickName, handleMultiClick} = this.props;
     const subjectMap = new Map();
     teacherStatisticList.map(it => {
       if (it.subjectList) {
@@ -63,7 +63,7 @@ export default class TeacherSelectTable extends React.Component {
             subjectMap.get(id).push(subject);
           } else {
             const subjectList = [];
-            subjectList.push(subject)
+            subjectList.push(subject);
             subjectMap.set(id, subjectList);
           }
         })
@@ -98,7 +98,7 @@ export default class TeacherSelectTable extends React.Component {
         key: 'colkey' + i,
         align: 'center',
         render: (text, record, index) => {
-          const teacherItem = record[`teacherItem${i}`]
+          const teacherItem = record[`teacherItem${i}`];
           if (teacherItem) {
             const teacherTextDisable = styles['teacherTextDisable'];
             const btnType = teacherItem.choose ? 'primary' : 'default';
@@ -106,7 +106,7 @@ export default class TeacherSelectTable extends React.Component {
             if (selected) {
               return <span
                 className={teacherTextDisable}
-              >{teacherItem.teacherName}<br />{teacherItem.count}</span>;
+              >{teacherItem.teacherName}<br/>{teacherItem.count}</span>;
             } else {
               // console.log('monitorNum: ', monitorNum)
               if (monitorNum === 1) {// 单选
@@ -120,12 +120,12 @@ export default class TeacherSelectTable extends React.Component {
                         teacherList: teacherItem.teacherId
                       },
                       resolve: () => {
-                        notification.success({ message: '分配教师成功' });
+                        notification.success({message: '分配教师成功'});
                         handleClickName()
                       }
                     })
                   }}
-                >{teacherItem.teacherName}<br />{teacherItem.count}</Button>;
+                >{teacherItem.teacherName}<br/>{teacherItem.count}</Button>;
               } else {// 多选
                 return <Button
                   type={btnType}
@@ -135,29 +135,29 @@ export default class TeacherSelectTable extends React.Component {
                       // 同一个教师可能会有多个科目
                       if (index === teacherMap.get(teacherId)) {
                         teacherMap.delete(teacherId);
-                        tableData[index][`teacherItem${i}`].choose = false
+                        tableData[index][`teacherItem${i}`].choose = false;
                         handleMultiClick(teacherMap);
                         this.setState({
                           bordered: true
                         })
                       } else {
                         const sub = tableData[teacherMap.get(teacherId)].subjectName;
-                        notification.warning({ message: `${teacherItem.teacherName}已在${sub}科目中选择` })
+                        notification.warning({message: `${teacherItem.teacherName}已在${sub}科目中选择`})
                       }
                     } else {
                       if (teacherMap.size < 2) {
                         teacherMap.set(teacherId, index);
-                        tableData[index][`teacherItem${i}`].choose = true
+                        tableData[index][`teacherItem${i}`].choose = true;
                         handleMultiClick(teacherMap);
                         this.setState({
                           bordered: true
                         })
                       } else {
-                        notification.error({ message: '超过最大选择数量！' });
+                        notification.error({message: '超过最大选择数量！'});
                       }
                     }
                   }}
-                >{teacherItem.teacherName}<br />{teacherItem.count}</Button>;
+                >{teacherItem.teacherName}<br/>{teacherItem.count}</Button>;
               }
             }
           } else {
@@ -172,9 +172,9 @@ export default class TeacherSelectTable extends React.Component {
 
   getTableData(teacherStatisticList = []) {
     const subjectMap = new Map();
-    teacherStatisticList.map(it => {
+    teacherStatisticList.forEach(it => {
       if (it.subjectList) {
-        it.subjectList.map(subject => {
+        it.subjectList.forEach(subject => {
           const id = subject.id;
           subject.teacherName = it.name;
           subject.count = it.count;
@@ -184,7 +184,7 @@ export default class TeacherSelectTable extends React.Component {
             subjectMap.get(id).push(subject);
           } else {
             const subjectList = [];
-            subjectList.push(subject)
+            subjectList.push(subject);
             subjectMap.set(id, subjectList);
           }
         })
@@ -215,12 +215,12 @@ export default class TeacherSelectTable extends React.Component {
   }
 
   render() {
-    const { monitorNum } = this.props;
+    const {monitorNum} = this.props;
     this.getColumnsData(tempList, monitorNum);
     return (
       <div>
         <Table
-          scroll={{ x: this.state.scrollX }}
+          scroll={{x: this.state.scrollX}}
           rowKey={record => record.id}
           columns={stdColumns(tableColumns)}
           dataSource={tableData || []}

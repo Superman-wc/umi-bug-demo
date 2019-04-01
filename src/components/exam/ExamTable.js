@@ -1,11 +1,11 @@
-import { Table, Button, notification } from 'antd';
+import {Table, Button, notification} from 'antd';
 import React from 'react';
 import moment from 'moment';
 import StudentModal from './StudentModal';
 import TeacherSelectTableModal from './TeacherSelectModal'
 import styles from './exam.less'
-import { ExamDetail as namespace } from '../../utils/namespace';
-import { connect } from 'dva';
+import {ExamDetail as namespace} from '../../utils/namespace';
+import {connect} from 'dva';
 
 @connect()
 export default class ExamTable extends React.Component {
@@ -16,8 +16,8 @@ export default class ExamTable extends React.Component {
   };
 
   render() {
-    const { examDetail = {}, examinationId, canEdit, searchValue } = this.props;
-    const { arrangeList = [], periodList = [], roomList = [] } = examDetail;
+    const {examDetail = {}, examinationId, canEdit, searchValue} = this.props;
+    const {arrangeList = [], periodList = [], roomList = []} = examDetail;
     const columns = [
       {
         title: 'ID',
@@ -80,7 +80,7 @@ export default class ExamTable extends React.Component {
                             })
                           }
                         }}>{teacherName}</Button>
-                      <br />
+                      <br/>
                       <Button
                         className={styles['studentButton']}
                         size='small'
@@ -111,17 +111,17 @@ export default class ExamTable extends React.Component {
         roomName: it.name || '-' + index,
         roomPriorityNum: it.roomPriorityNum || index
       };
-      periodList.map((period) => {
+      periodList.some((period) => {
         item[`id${period.examinationSubjectId}`] = 'id' + period.examinationSubjectId;
         item[`subjectName${period.examinationSubjectId}`] = period.name;
-        arrangeList.map((arrange) => {
-          if ((arrange.examinationSubjectId == period.examinationSubjectId) && (arrange.roomId == it.roomId)) {
+        arrangeList.some((arrange) => {
+          if ((arrange.examinationSubjectId === period.examinationSubjectId) && (arrange.roomId === it.roomId)) {
             if (arrange.teacherList && arrange.teacherList.length > 0) {
               let teachers = '';
               arrange.teacherList.map((teacher) => {
                 teachers += `${teacher.name}/`;
-              })
-              var str = teachers.substring(0, teachers.length - 1);
+              });
+              const str = teachers.substring(0, teachers.length - 1);
               item[`name${arrange.examinationSubjectId}`] = str;
               item[`placeId${arrange.examinationSubjectId}${index}`] = arrange.examinationPlaceId;
             } else {
@@ -130,7 +130,7 @@ export default class ExamTable extends React.Component {
                 item[`placeId${arrange.examinationSubjectId}${index}`] = arrange.examinationPlaceId;
               }
             }
-            return;
+            return true;
           }
         })
       });
@@ -147,18 +147,19 @@ export default class ExamTable extends React.Component {
           bordered={this.state.bordered}
         />
         <StudentModal visible={this.state.studentModalVisible}
-          title={this.state.studentModalTitle}
-          placeId={this.state.placeId}
-          onCancel={() => {
-            this.setState({ studentModalVisible: false });
-          }}
+                      title={this.state.studentModalTitle}
+                      placeId={this.state.placeId}
+                      onCancel={() => {
+                        this.setState({studentModalVisible: false});
+                      }}
         />
-        <TeacherSelectTableModal visible={this.state.teacherModalVisible}
+        <TeacherSelectTableModal
+          visible={this.state.teacherModalVisible}
           title={this.state.teacherModalTitle}
           monitorNum={examDetail.monitorNum}
           examinationId={examinationId}
           handleClickName={() => {
-            this.setState({ teacherModalVisible: false });
+            this.setState({teacherModalVisible: false});
             this.props.dispatch({
               type: namespace + '/examDetail',
               payload: {
@@ -170,7 +171,7 @@ export default class ExamTable extends React.Component {
             let strs = '';
             teacherMap.forEach((it, key) => {
               strs += (key + ',')
-            })
+            });
             let teachers = '';
             if (strs.length > 0) {
               teachers = strs.substring(0, strs.length - 1);
@@ -181,7 +182,7 @@ export default class ExamTable extends React.Component {
           examinationSubjectId={this.state.examinationSubjectId}
           examinationPlaceId={this.state.placeId}
           onCancel={() => {
-            this.setState({ teacherModalVisible: false });
+            this.setState({teacherModalVisible: false});
           }}
           onClear={() => {// 清空监考
             this.props.dispatch({
@@ -197,8 +198,8 @@ export default class ExamTable extends React.Component {
                   }
                 })
               }
-            })
-            this.setState({ teacherModalVisible: false });
+            });
+            this.setState({teacherModalVisible: false});
           }}
           onOk={() => {
             if (this.state.teacherList) {
@@ -209,18 +210,18 @@ export default class ExamTable extends React.Component {
                   teacherList: this.state.teacherList
                 },
                 resolve: () => {
-                  notification.success({ message: '分配教师成功' });
+                  notification.success({message: '分配教师成功'});
                   this.props.dispatch({
                     type: namespace + '/examDetail',
                     payload: {
                       id: this.props.examinationId
                     }
-                  })
-                  this.setState({ teacherModalVisible: false });
+                  });
+                  this.setState({teacherModalVisible: false});
                 }
               })
             } else {
-              this.setState({ teacherModalVisible: false });
+              this.setState({teacherModalVisible: false});
             }
           }}
         />

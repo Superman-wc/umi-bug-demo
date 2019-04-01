@@ -16,7 +16,7 @@ const steps = [
   { title: '选择考试时间', description: '选择监考老师、确定考试时间' },
   { title: '配置考场信息', description: '分配考场' }
 ];
-const StepItem = Steps.Step
+const StepItem = Steps.Step;
 @connect(state => ({
   item: state[ExamCreate].item,
   loading: state[ExamCreate].loading,

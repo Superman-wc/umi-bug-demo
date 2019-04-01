@@ -49,8 +49,8 @@ export default class ExamList extends Component {
         dispatch({
           type: namespace + '/listExam',
           payload: { ...query },
-        })
-        if (row.releaseStatus == 0) {
+        });
+        if (row.releaseStatus === 0) {
           notification.success({ message: '发布成功' });
         } else {
           notification.success({ message: '下线成功' });
@@ -90,8 +90,8 @@ export default class ExamList extends Component {
         },
       },
     ];
-    const gradeIndexs = Enums(GradeIndexEnum)
-    const examTypes = Enums(ExamTypeEnum)
+    const gradeIndexs = Enums(GradeIndexEnum);
+    const examTypes = Enums(ExamTypeEnum);
 
     const columns = [
       {
@@ -153,17 +153,17 @@ export default class ExamList extends Component {
           let stateName = '';
           switch (record.examState) {
             case 1:
-              stateName = '创建中'
+              stateName = '创建中';
               break;
             case 2:
-              stateName = '创建失败'
+              stateName = '创建失败';
               break;
             case 3:
-              stateName = '创建成功'
+              stateName = '创建成功';
               break;
             default:
               stateName = '-'
-          };
+          }
           return stateName;
         }
       },
@@ -177,8 +177,8 @@ export default class ExamList extends Component {
         filterMultiple: false,
         filteredValue: query.releaseStatus ? [query.releaseStatus] : [],
         render: (id, row) => {
-          if (row.examState == 3) {// 创建成功
-            if (row.releaseStatus == 0) {
+          if (row.examState === 3) {// 创建成功
+            if (row.releaseStatus === 0) {
               return (
                 <TableCellOperation
                   operations={{
@@ -194,7 +194,7 @@ export default class ExamList extends Component {
                             id: row.id
                           },
                           resolve: () => {
-                            notification.success({ message: '删除成功' })
+                            notification.success({ message: '删除成功' });
                             dispatch({
                               type: namespace + '/listExam',
                               payload: { ...query },
@@ -229,7 +229,7 @@ export default class ExamList extends Component {
                         id: row.id
                       },
                       resolve: () => {
-                        notification.success({ message: '删除成功' })
+                        notification.success({ message: '删除成功' });
                         dispatch({
                           type: namespace + '/listExam',
                           payload: { ...query },

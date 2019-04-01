@@ -1,15 +1,15 @@
-import { Table } from 'antd';
+import {Table} from 'antd';
 import React from 'react';
 
 export default class TeacherTable extends React.Component {
 
   state = {
     scrollX: 1000
-  }
+  };
 
   render() {
-    const { examDetail = {} } = this.props;
-    const { teacherStatisticList = [] } = examDetail;
+    const {examDetail = {}} = this.props;
+    const {teacherStatisticList = []} = examDetail;
     const subjectMap = new Map();
     teacherStatisticList.map(it => {
       if (it.subjectList) {
@@ -23,7 +23,7 @@ export default class TeacherTable extends React.Component {
             subjectMap.get(id).push(subject);
           } else {
             const subjectList = [];
-            subjectList.push(subject)
+            subjectList.push(subject);
             subjectMap.set(id, subjectList);
           }
         })
@@ -82,7 +82,7 @@ export default class TeacherTable extends React.Component {
         align: 'center',
         render: (text, record) => {
           if (record[`teacherItem${i}`]) {
-            return <span>{record[`teacherItem${i}`].teacherName}<br />{record[`teacherItem${i}`].count}</span>;
+            return <span>{record[`teacherItem${i}`].teacherName}<br/>{record[`teacherItem${i}`].count}</span>;
           } else {
             return '';
           }
@@ -93,7 +93,7 @@ export default class TeacherTable extends React.Component {
 
     return (
       <Table
-        scroll={{ x: this.state.scrollX }}
+        scroll={{x: this.state.scrollX}}
         rowKey={record => record.id}
         columns={columns}
         dataSource={data}

@@ -7,11 +7,11 @@ import { ExamTypeEnum, GradeIndexEnum, Enums } from '../../../../utils/Enum';
 import styles from '../index.less';
 import moment from 'moment';
 
-const FormItem = Form.Item
+const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const RangePicker = DatePicker.RangePicker;
-const CheckboxGroup = Checkbox.Group
+const CheckboxGroup = Checkbox.Group;
 @connect(state => ({
   subjectList: state[ExamCreate].subjectList,
   doorPlateList: state[ExamCreate].doorPlateList,
@@ -38,7 +38,7 @@ const CheckboxGroup = Checkbox.Group
     }
   },
   onValuesChange(props, values) {
-    const { form: { getFieldsValue }, dispatch } = props
+    const { form: { getFieldsValue }, dispatch } = props;
     let item = getFieldsValue();
     if (values['gradeIndex']) {
       item['subjectIds'] = [];
@@ -58,7 +58,7 @@ export default class StepOne extends React.Component {
     if (nextProps.updateOne && nextProps.updateOne !== this.props.updateOne) {
       // console.log('update: updateOne: ', nextProps.updateOne);
       const { form: { getFieldsValue, validateFieldsAndScroll }, onCheckSuccess, studentNum } = this.props
-      const item = getFieldsValue()
+      const item = getFieldsValue();
       validateFieldsAndScroll((errors, payload) => {
         if (errors) {
           if (errors['roomId']) {
@@ -134,7 +134,7 @@ export default class StepOne extends React.Component {
     const { subjectList, dispatch, oneItem: { rowCol } } = this.props;
     const totals = [0];
     value.forEach(it => {
-      const subject = subjectList.find(value => value.id == it);
+      const subject = subjectList.find(value => value.id === it);
       if (subject) {
         totals.push(subject.studentNum);
       }
@@ -171,7 +171,7 @@ export default class StepOne extends React.Component {
         }
       });
     }
-  }
+  };
 
   // 选择的人数需大于考试科目最大数
   handleRoom = (rule, value, callback) => {
@@ -428,7 +428,7 @@ class RoomTree extends Component {
       roomIds,
       selectKeys: value
     });
-  }
+  };
 
   renderTreeNodes = data => data.map(building => {
     return (

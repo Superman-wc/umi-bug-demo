@@ -1,8 +1,8 @@
-import { Table } from 'antd';
+import {Table} from 'antd';
 import React from 'react';
-import { ExamDetail as namespace } from '../../utils/namespace';
-import { connect } from 'dva';
-import { stdColumns } from '../ListPage/index'
+import {ExamDetail as namespace} from '../../utils/namespace';
+import {connect} from 'dva';
+import {stdColumns} from '../ListPage/index'
 
 @connect(state => ({
   listStudent: state[namespace].listStudent
@@ -29,13 +29,13 @@ export default class StudentTable extends React.Component {
         s: 10000
       }
     });
-  }
+  };
 
   render() {
 
-    const { listStudent } = this.props;
+    const {listStudent} = this.props;
     // console.log('listStudent: ', listStudent);
-    const data = listStudent ? listStudent.list : []
+    const data = listStudent ? listStudent.list : [];
 
     const columns = [
       {
