@@ -9,6 +9,7 @@ export const ManagesCourse = '/manages/course';
 export const ManagesRoom = '/manages/room';
 export const ManagesPeriod = '/manages/period';
 export const ManagesSemester = '/manages/semester';
+export const ManagesSemesterDetail = '/manages/semester-detail';
 export const ManagesSubject = '/manages/subject';
 export const ManagesDevice = '/manages/device';
 export const ManagesTimetable = '/manages/timetable';
@@ -45,4 +46,7 @@ export const ExaminerPrint = '/examiner/print';
 
 
 
+export const ExamList = '/exam/exam-list';
+export const ExamDetail = '/exam/exam-detail';
+export const ExamCreate = '/exam/exam-create';
 

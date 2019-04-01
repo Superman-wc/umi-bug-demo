@@ -14,7 +14,11 @@ const OperationType = {
   allot: '分配',
   relate: '关联',
   edit: '编辑',
-  print:'打印'
+  print:'打印',
+  preview: '预览',
+  publish: '发布',
+  offline: '下线',
+  teachCalendar: '教学日历',
 };
 
 export default function TableCellOperation({ children, operations = {} }) {
