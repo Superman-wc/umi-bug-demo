@@ -2,7 +2,6 @@ import React, {Component, Fragment, createRef} from 'react';
 import {connect} from 'dva';
 import {Form, Checkbox, Button, Menu, Icon, Spin, InputNumber, Select, DatePicker, Cascader} from 'antd';
 import classNames from 'classnames';
-import uuid from 'uuid/v4';
 import styles from './answer.less';
 import PaddingEditor from "./PaddingEditor";
 import {PAGE_SIZE} from "./const";

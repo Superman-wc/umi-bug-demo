@@ -144,9 +144,9 @@ PaddingEditor.js
 CreateFilePanel.js
  */
 .create-file-panel {
-  padding: 50px;
+  padding: 50px !important;
   width: 700px;
-  margin: 0 auto;
+  margin: 0 auto !important;
 
   label {
     font-size: 14px;
@@ -587,6 +587,7 @@ EditorFile.js
  */
 .editor-file {
   position: relative;
+  margin: auto;
 }
 
 .editor-message-bar {
@@ -712,6 +713,7 @@ EditorColumn.js
   .editor-file {
     padding: 0 !important;
     width: auto !important;
+    margin: 0 !important;
   }
 
   .editor-page {
@@ -745,13 +747,13 @@ EditorColumn.js
 
 }
 
-.print{
+.print {
   .fun-print();
 }
 
 
-@media print{
-  html{
+@media print {
+  html {
     .fun-print();
   }
 }
