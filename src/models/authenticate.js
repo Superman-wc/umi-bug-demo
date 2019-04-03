@@ -166,6 +166,10 @@ export default Model({
                 id: 'examiner-upload',
                 title: '答题卡上传',
                 link: '/examiner/workspace'
+              },{
+                id: 'examiner-marking',
+                title: '在线批阅',
+                link: '/examiner/marking'
               },
             ]
           }

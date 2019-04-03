@@ -61,6 +61,9 @@ export default class WorkspacePage extends Component {
           this.ref.current.clear();
         }
       },
+      {
+        key: 'rollback'
+      }
     ];
 
     const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={buttons}/>;
