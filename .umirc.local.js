@@ -27,8 +27,8 @@ export default {
     },
     "/api/examiner/*": {
       // "target": "http://172.18.12.227:8000/",
-      // "target": "http://smart-campus.yunzhiyuan100.com.cn/",
-      "target": "http://192.168.1.253:8000/",
+      "target": "http://smart-campus.yunzhiyuan100.com.cn/",
+      // "target": "http://192.168.1.253:8000/",
       "changeOrigin": true
     }
   },

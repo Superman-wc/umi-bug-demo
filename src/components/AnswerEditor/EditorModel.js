@@ -934,7 +934,7 @@ export default Model(
               });
             }
           }
-          if (pathname === '/examiner') {
+          if (pathname === '/examiner' || (pathname === namespace+'/marking')) {
             dispatch({
               type: 'list',
               payload: {...query}
