@@ -97,14 +97,9 @@ export default class MarkingPage extends Component {
     })
   };
 
-  setMessage = (message, type = 'success', delay = 3000) => {
-    clearTimeout(this._set_message_sid);
+  setMessage = (message, type = 'success') => {
     this.safeSetState({
       alert: {message, type}
-    }, () => {
-      // this._set_message_sid = setTimeout(() => {
-      //   this.safeSetState({alert: null});
-      // }, delay);
     });
   };
 
@@ -116,17 +111,9 @@ export default class MarkingPage extends Component {
         id, studentId, questionNum
       },
       resolve: res => {
-        console.log(res);
         this.setState({score: res.score});
         this.loadStudentList(id, res.questionNum, query.auditStatus);
-        // dispatch({
-        //   type: namespace + '/student',
-        //   payload: {
-        //     id,
-        //     questionNum: res.questionNum
-        //   },
-        //   resolve: console.log
-        // })
+
       }
     })
   };
@@ -186,8 +173,8 @@ export default class MarkingPage extends Component {
       '试卷数:' + item.uploadCount,
       <div className={styles['total-progress']}>
         <label>批改进度:</label>
-        <Progress percent={item.totalProgress}
-                  status={item.totalProgress === 100 ? 'success' : 'active'}/>
+        <Progress percent={item.totalProgress * 100}
+                  status={item.totalProgress === 1 ? 'success' : 'active'}/>
       </div>
     ] : ['电子阅卷', '在线批阅'];
 
@@ -260,7 +247,7 @@ export default class MarkingPage extends Component {
                          min={0}
                          max={100}
                          placeholder="请输入分数"
-                         value={isNaN(this.state.score) ? '' : this.state.score}
+                         value={(isNaN(this.state.score) ? '' : this.state.score) || ''}
                          onChange={(e) => {
                            const score = e.target.value; //.replace(/[^\d]/g, '');
                            this.setState({score});
@@ -336,7 +323,7 @@ function QuestionProgress({item, current, onClick}) {
         onClick={onClick}
     >
       <span className={styles['question-num']}>第{item.questionNum}题</span>
-      <Progress showInfo percent={item.progress} status={item.progress < 100 ? 'active' : 'success'}/>
+      <Progress showInfo percent={item.progress * 100} status={item.progress === 1 ? 'success' : 'active'}/>
     </li>
   )
 }

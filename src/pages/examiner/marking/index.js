@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import router from "umi/router";
-import { Switch} from 'antd';
+import {Switch} from 'antd';
 import {
   AnswerEditor as namespace, ExaminerPrint,
   ManagesGrade, ManagesSubject,
@@ -74,7 +74,7 @@ export default class ExaminerAnswerListPage extends Component {
       {title: '年级', key: 'gradeId', render: v => gradeMap && gradeMap[v] && gradeMap[v].name || v},
       {title: '类型', key: 'type', render: v => AnswerCardTypeEnum[v] || v},
       {title: '试卷数', key: 'hasUploadCount',},
-      {title: '批改进度', key: 'progress', width: 100,},
+      {title: '批改进度', key: 'progress', width: 100, render: v => (v ? v * 100 : v) + '%'},
       {
         title: '自动阅卷',
         key: 'automatic',
