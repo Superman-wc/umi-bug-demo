@@ -9,6 +9,7 @@ import {
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import {AnswerCardTypeEnum} from "../../../utils/Enum";
+import {getDownloadUrl} from "../../../services/examiner/marking";
 
 
 @connect(state => ({
@@ -111,7 +112,17 @@ export default class ExaminerAnswerListPage extends Component {
               },
               download: {
                 children: '下载成绩',
-                onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
+                onClick:()=>{
+                  getDownloadUrl({id}).then((res)=>{
+                    if(res.result){
+                      window.open(res.result);
+                    }else{
+                      message.error('下载失败');
+                    }
+                  }).catch(ex=>{
+                    message.error('下载失败：'+ex.message);
+                  });
+                }
               },
             }}
           />
