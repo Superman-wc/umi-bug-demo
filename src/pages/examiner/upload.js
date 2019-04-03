@@ -61,19 +61,19 @@ export default class UploadPage extends Component {
         render: (id, row) => (
           <TableCellOperation
             operations={{
-              analyze: {
-                children: '阅卷',
-                onClick: () => {
-                  dispatch({
-                    type: namespace + '/analyze',
-                    payload: {id},
-                    resolve: res => {
-                      message.success(`阅卷结果：${ExaminerStatusEnum[res.status]}`);
-                    }
-                  })
-
-                }
-              },
+              // analyze: {
+              //   children: '阅卷',
+              //   onClick: () => {
+              //     dispatch({
+              //       type: namespace + '/analyze',
+              //       payload: {id},
+              //       resolve: res => {
+              //         message.success(`阅卷结果：${ExaminerStatusEnum[res.status]}`);
+              //       }
+              //     })
+              //
+              //   }
+              // },
               remove: {
                 onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
               },
