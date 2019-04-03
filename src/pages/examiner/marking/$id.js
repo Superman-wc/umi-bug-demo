@@ -8,6 +8,8 @@ import classNames from 'classnames';
 import styles from './$id.less';
 import Keyboard from 'keyboardjs';
 import router from "umi/router";
+import {analyze} from "../../../services/examiner/sheet";
+
 
 const MOUNTED = Symbol('MarkingPage#Mounted');
 
@@ -84,6 +86,7 @@ export default class MarkingPage extends Component {
         score
       },
       resolve: () => {
+        analyze({ids: item.sheetId});
         this.setMessage('设置分数成功，正在为你加载下一题...');
         clearTimeout(this._set_score_success_sid);
         this._set_score_success_sid = setTimeout(() => {
