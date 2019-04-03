@@ -173,7 +173,7 @@ export default class MarkingPage extends Component {
       '试卷数:' + item.uploadCount,
       <div className={styles['total-progress']}>
         <label>批改进度:</label>
-        <Progress percent={item.totalProgress * 100}
+        <Progress percent={Math.round(item.totalProgress * 100)}
                   status={item.totalProgress === 1 ? 'success' : 'active'}/>
       </div>
     ] : ['电子阅卷', '在线批阅'];
@@ -323,7 +323,7 @@ function QuestionProgress({item, current, onClick}) {
         onClick={onClick}
     >
       <span className={styles['question-num']}>第{item.questionNum}题</span>
-      <Progress showInfo percent={item.progress * 100} status={item.progress === 1 ? 'success' : 'active'}/>
+      <Progress showInfo percent={Math.round(item.progress * 100)} status={item.progress === 1 ? 'success' : 'active'}/>
     </li>
   )
 }
