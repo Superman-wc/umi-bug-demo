@@ -89,24 +89,26 @@ export default class WorkspacePage extends Component {
   }
 }
 
-
 class DragUploader extends Component {
 
   state = {
     tasks: [],
   };
 
+  /**
+   * 清理工作区
+   */
   clear = () => {
     const state = Object.keys(this.state).reduce((map, key) => {
       map[key] = undefined;
       return map;
     }, {});
-   this.safeSetState(state);
+    this.safeSetState(state);
   };
 
-  safeSetState(state, callback){
-    if(this[DragUploader.mounted]){
-     this.setState(state, callback);
+  safeSetState(state, callback) {
+    if (this[DragUploader.mounted]) {
+      this.setState(state, callback);
     }
   }
 
@@ -132,13 +134,13 @@ class DragUploader extends Component {
   handleDragEnter = e => {
     e.preventDefault();
     e.stopPropagation();
-   this.safeSetState({drag: true});
+    this.safeSetState({drag: true});
   };
 
   handleDragLeave = e => {
     e.preventDefault();
     e.stopPropagation();
-   this.safeSetState({drag: false});
+    this.safeSetState({drag: false});
   };
 
   handleDrop = e => {
@@ -222,7 +224,7 @@ class DragUploader extends Component {
         const {editorMap = {}} = this.state;
         task.step = 3;
         if (editorMap[editorId]) {
-          // console.log('本地已经存在答题卡详情', editorMap[editorId]);
+          console.log('本地已经存在答题卡详情', editorMap[editorId], task);
           resolve();
         } else {
           const {dispatch} = this.props;
@@ -233,7 +235,8 @@ class DragUploader extends Component {
               const {editorMap = {}} = this.state;
               editorMap[editor.id] = copyFields(editor, ['id', 'title']);
               editorMap[editor.id].pageCount = editor.pages.length;
-             this.safeSetState({
+              console.info('加载答题卡详情成功', task);
+              this.safeSetState({
                 editorMap: {...editorMap}
               }, resolve);
             },
@@ -241,6 +244,7 @@ class DragUploader extends Component {
           });
         }
       } else {
+        console.error('答题卡没有Sheet信息或Sheet没有editorId', task);
         resolve();
       }
     });
@@ -274,8 +278,9 @@ class DragUploader extends Component {
         const {unitId, editorId} = task.sheet;
         const {classMap = {}, editorMap = {}} = this.state;
         if (classMap[unitId]) {
+          console.log('本地已经存在班级详情', classMap[unitId], task);
           DragUploader.addTaskToKlassTaskMap(classMap[unitId], task, editorId);
-         this.safeSetState({
+          this.safeSetState({
             classMap,
             editorMap: {...editorMap}
           }, resolve);
@@ -285,7 +290,12 @@ class DragUploader extends Component {
             type: ManagesClass + '/item',
             payload: {id: unitId},
             resolve: (res) => {
+
               const klass = copyFields(res, ['id', 'name']);
+
+              console.log('加载班级详情成功', klass, task);
+
+
               const {editorMap = {}, classMap = {}} = this.state;
 
 
@@ -296,13 +306,28 @@ class DragUploader extends Component {
 
               classMap[unitId] = klass;
 
-             this.safeSetState({
+              this.safeSetState({
                 classMap,
                 editorMap: {...editorMap}
               }, resolve);
             },
             reject,
           })
+        }
+
+      } else {
+        if (!task.sheet) {
+          console.error('答题卡没有Sheet创建记录', task);
+          reject(new Error('答题卡没有Sheet创建记录'));
+        } else if (!task.sheet.editorId) {
+          console.error('答题卡没有EditorId', task);
+          reject(new Error('答题卡没有EditorId'));
+        } else if (!task.sheet.unitId) {
+          console.error('答题卡没有班级ID: unitId', task);
+          reject(new Error('答题卡没有班级ID: unitId'));
+        } else {
+          console.error('loadTaskStudent Error: 程序出错，未知错误', task);
+          reject(new Error('程序出错，未知错误'));
         }
 
       }
@@ -362,7 +387,7 @@ class DragUploader extends Component {
 
           DragUploader.addTaskToStudentTaskMap(studentMap[studentId], task, editorId);
 
-         this.safeSetState({
+          this.safeSetState({
             studentMap,
             classMap,
             editorMap: {...editorMap}
@@ -384,7 +409,7 @@ class DragUploader extends Component {
 
               DragUploader.addTaskToStudentTaskMap(studentMap[studentId], task, editorId);
 
-             this.safeSetState({
+              this.safeSetState({
                 classMap,
                 studentMap,
                 editorMap: {...editorMap}
@@ -394,7 +419,22 @@ class DragUploader extends Component {
           })
         }
       } else {
-        resolve();
+        if (!task.sheet) {
+          console.error('答题卡没有Sheet创建记录', task);
+          reject(new Error('答题卡没有Sheet创建记录'));
+        } else if (!task.sheet.editorId) {
+          console.error('答题卡没有EditorId', task);
+          reject(new Error('答题卡没有EditorId'));
+        } else if (!task.sheet.unitId) {
+          console.error('答题卡没有班级ID: unitId', task);
+          reject(new Error('答题卡没有班级ID: unitId'));
+        } else if (!task.sheet.studentId) {
+          console.error('答题卡没有学生ID: studentId', task);
+          reject(new Error('答题卡没有学生ID: studentId'));
+        } else {
+          console.error('loadTaskStudent Error: 程序出错，未知错误', task);
+          reject(new Error('程序出错，未知错误'));
+        }
       }
     })
   };
@@ -462,7 +502,7 @@ class DragUploader extends Component {
    */
   refreshTasksState = (state = {}) => {
     return new Promise(
-      resolve =>this.safeSetState({
+      resolve => this.safeSetState({
           tasks: [...(this.state.tasks || [])],
           ...state,
         },
@@ -523,7 +563,8 @@ class DragUploader extends Component {
             status: 'exception',
             percent: task.progress.percent,
           };
-          this.refreshTasksState();
+          console.error('upload onError, 上传出错', task);
+          return this.refreshTasksState();
         },
       }).then(({url}) => {
         task.url = url;
@@ -534,6 +575,7 @@ class DragUploader extends Component {
         };
         delete task.error;
         task.step = 1;
+        console.info('upload then, 上传成功', task);
         return this.refreshTasksState();
       }).catch(ex => {
         task.error = ex;
@@ -543,6 +585,7 @@ class DragUploader extends Component {
           percent: 34,
         };
         task.step = 1;
+        console.error('upload catch, 上传出错', task);
         return this.refreshTasksState();
       })
     }
@@ -616,7 +659,9 @@ class DragUploader extends Component {
     if (task && task.url) {
       return createSheet(task).then(
         ({result}) => this.refreshTasksState(this.analyzeSheet(task, result))
-      ).catch(ex => {
+      ).then(() => {
+        console.info('构建答题卡记录 成功 then', task)
+      }).catch(ex => {
         task.error = ex;
         task.status = '识别失败';
         task.progress = {
@@ -624,6 +669,7 @@ class DragUploader extends Component {
           percent: 67,
         };
         task.step = 2;
+        console.error('构建答题卡记录 成功 catch', task);
         return this.refreshTasksState();
       });
     }
@@ -854,10 +900,10 @@ function Task(props) {
   return (
     <li key={data.filename} className={styles['task']}>
       <a className={styles['file-name']}
-           title={data.url ? '查看原始扫描图片' : '未上传'}
-           onClick={() => {
-             data.url ? window.open(data.url + '!page') : message.warning('图片还未上传，请稍等');
-           }}
+         title={data.url ? '查看原始扫描图片' : '未上传'}
+         onClick={() => {
+           data.url ? window.open(data.url + '!page') : message.warning('图片还未上传，请稍等');
+         }}
       >
 
         {data.name}
@@ -875,7 +921,7 @@ function Task(props) {
         {
           data.error ?
             <a className={styles['error']} title={data.error ? '查看详情' : '无详情'} onClick={() => {
-                window.open((data.sheet && (data.sheet.debugUrl || data.sheet.rotatedUrl) || data.url) + '!page')
+              window.open((data.sheet && (data.sheet.debugUrl || data.sheet.rotatedUrl) || data.url) + '!page')
             }}>{data.error.message}</a>
             :
             <Progress {...data.progress}/>
