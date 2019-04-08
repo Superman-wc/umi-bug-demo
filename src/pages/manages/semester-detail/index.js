@@ -597,7 +597,7 @@ class TimeSelect extends Component {
     if (!this.state.endTime) {
       value = {
         startTime: date,
-        endTime: date
+        endTime: moment(date).endOf('day')
       };
     } else {
       value = {
@@ -612,7 +612,7 @@ class TimeSelect extends Component {
     let value;
     if (!this.state.startTime) {
       value = {
-        startTime: date,
+        startTime: moment(date).startOf('day'),
         endTime: date
       };
     } else {
