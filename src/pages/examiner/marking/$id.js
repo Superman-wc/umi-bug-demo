@@ -21,7 +21,11 @@ const MOUNTED = Symbol('MarkingPage#Mounted');
 }))
 export default class MarkingPage extends Component {
 
+  static CID = 0;
+
   state = {};
+
+  studentViewListId = 'student-list-' + MarkingPage.CID++;
 
 
   componentDidMount() {
@@ -55,7 +59,7 @@ export default class MarkingPage extends Component {
     'space': e => {
       e.stopPropagation();
       e.preventDefault();
-      this.nextQuestion();
+      this.prevQuestion();
     }
 
   };
@@ -91,7 +95,7 @@ export default class MarkingPage extends Component {
         clearTimeout(this._set_score_success_sid);
         this._set_score_success_sid = setTimeout(() => {
           this.nextQuestion();
-        }, 500)
+        }, 100)
 
       },
       reject: ex => {
@@ -161,6 +165,54 @@ export default class MarkingPage extends Component {
 
   };
 
+  prevQuestion = () => {
+    clearTimeout(this._set_score_success_sid);
+    this.safeSetState({alert: null});
+    const {item, studentList, match: {params: {id}}} = this.props;
+
+    if (item && studentList && studentList.list && studentList.list.length) {
+      let index = studentList.list.findIndex(it => it.studentCode === item.studentCode);
+      if (index >= 0) {
+        index -= 1;
+        if (index < 0) {
+          index = studentList.list.length - 1;
+        }
+        const student = studentList.list[index]; //上一个学生
+        if (student) {
+          this.loadQuestion(id, student.studentId, item.questionNum);
+        } else {
+          this.setMessage('已经没有学生了', 'warning');
+        }
+      } else {
+        this.setMessage('找不到学生', 'warning');
+      }
+    } else {
+      this.setMessage('没有学生', 'warning');
+    }
+  };
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const studentViewList = document.getElementById(this.studentViewListId);
+    if (studentViewList) {
+      const currentStudent = studentViewList.querySelector('.' + styles['current']);
+      if (currentStudent) {
+        const y = currentStudent.dataset.y * 1;
+
+        const bottom = studentViewList.scrollTop + studentViewList.clientHeight;
+        const top = studentViewList.scrollTop;
+
+        if (y < top) {
+          studentViewList.scrollTo(0, y)
+        } else if (y + 33 > bottom) {
+          studentViewList.scrollTo(0, y - studentViewList.clientHeight + 33);
+        }
+        console.log(y, y + 33, top, bottom);
+
+      }
+    }
+
+  }
+
   render() {
 
     const {dispatch, loading, item, studentList, location, match: {params: {id}}} = this.props;
@@ -219,7 +271,7 @@ export default class MarkingPage extends Component {
               :
               <Empty style={{marginTop: 50}}/>
           }
-          <section style={{marginTop:50}}>
+          <section style={{marginTop: 50}}>
             <div className={styles['alert-box']}>
               {
                 this.state.alert && <Alert {...this.state.alert} showIcon/>
@@ -244,33 +296,36 @@ export default class MarkingPage extends Component {
                 </label>
               </div>
               <div className={styles['submit-box']}>
-                <a onClick={this.nextQuestion}>跳过(Tab or Space)</a>
+                <a onClick={this.nextQuestion}>跳过(Tab)</a>
+                <a onClick={this.prevQuestion} style={{marginLeft: '2em'}}>回屏(Space)</a>
                 <Button type="primary" onClick={this.submit}>提交(Enter)</Button>
               </div>
             </footer>
           </section>
         </div>
         <div className={classNames(styles['panel'], styles['question-panel'])}>
-          <h3 className={styles['panel-title']}>
-            <span>正在批改第{item && item.questionNum}题</span>
-            <span style={{marginLeft: 30}}>
-              <span>当前：{item && item.studentName}</span>
-              <span>{item && item.unitName}</span>
-              <span>{item && item.studentCode}</span>
-            </span>
+          <h3 className={[styles['panel-title'], styles['total-progress']].join(' ')}
+              style={{width: '100%', alignItems: 'center'}}>
+            <span style={{margin: '0 2em'}}>正在批改第{item && item.questionNum}题</span>
+            {/*<span style={{marginLeft: 30}}>*/}
+            {/*  <span>当前：{item && item.studentName}</span>*/}
+            {/*  <span>{item && item.unitName}</span>*/}
+            {/*  <span>{item && item.studentCode}</span>*/}
+            {/*</span>*/}
+            {
+              item ?
+                <Fragment>
+                  <label>批改进度:</label>
+                  <Progress style={{width: 200}} percent={Math.round(item.totalProgress * 100)}
+                            status={item.totalProgress === 1 ? 'success' : 'active'}/>
+                </Fragment>
+                :
+                null
+            }
           </h3>
           <section>
             <main>
-              {
-                item ?
-                  <div className={styles['total-progress']} style={{marginBottom:10}}>
-                    <label>批改进度:</label>
-                    <Progress percent={Math.round(item.totalProgress * 100)}
-                              status={item.totalProgress === 1 ? 'success' : 'active'}/>
-                  </div>
-                  :
-                  null
-              }
+
 
               {
                 item && item.url &&
@@ -299,11 +354,12 @@ export default class MarkingPage extends Component {
               )
             }
           </div>
-          <ul style={{overflow: 'auto'}}>
+          <ul style={{overflow: 'auto'}} id={this.studentViewListId}>
             {
               studentList && studentList.list && studentList.list.length ?
-                studentList.list.map(it =>
+                studentList.list.map((it, index) =>
                   <StudentItem key={[it.studentId, it.editorId].join('-')}
+                               index={index}
                                student={it} item={item}
                                onClick={() => {
                                  this.loadQuestion(id, it.studentId, item && item.questionNum);
@@ -321,14 +377,15 @@ export default class MarkingPage extends Component {
   }
 }
 
-function StudentItem({student, item, onClick}) {
+function StudentItem({student, item, onClick, index}) {
   return (
     <li className={classNames({
       [styles['current']]: item && (student.studentCode === item.studentCode)
     })}
         onClick={onClick}
+        data-y={index * 33}
     >
-      <span>{student.studentCode}</span>
+      <span>{index + 1}</span>
       <span>{typeof student.score === 'number' ? student.score : '未评分'}</span>
     </li>
   )
