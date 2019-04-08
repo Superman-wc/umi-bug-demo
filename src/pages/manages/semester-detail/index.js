@@ -134,19 +134,49 @@ export default class SemsterDetail extends Component {
       return;
     }
 
-    const bedRoomStartTime = updateSelectItem.bedRoomStartTime ?
-      updateSelectItem.bedRoomStartTime.startOf('minute').format('YYYY-MM-DD HH:mm:ss') : null;
+    const bedRoomStartTimeNow = updateSelectItem.bedRoomStartTime ?
+      updateSelectItem.bedRoomStartTime.startOf('minute') : null;
 
-    const bedRoomEndTime = updateSelectItem.bedRoomEndTime ?
-      updateSelectItem.bedRoomEndTime.startOf('minute').format('YYYY-MM-DD HH:mm:ss') : null;
+    const bedRoomEndTimeNow = updateSelectItem.bedRoomEndTime ?
+      updateSelectItem.bedRoomEndTime.startOf('minute') : null;
 
-    const noResidentLeaveSchoolBackTime = updateSelectItem.noResidentLeaveSchoolBackTime ?
-      updateSelectItem.noResidentLeaveSchoolBackTime.startOf('minute').format('YYYY-MM-DD HH:mm:ss') : null;
+    const noResidentLeaveSchoolBackTimeNow = updateSelectItem.noResidentLeaveSchoolBackTime ?
+      updateSelectItem.noResidentLeaveSchoolBackTime.startOf('minute') : null;
 
-    const noResidentLeaveSchoolOutTime = updateSelectItem.noResidentLeaveSchoolOutTime ?
-      updateSelectItem.noResidentLeaveSchoolOutTime.startOf('minute').format('YYYY-MM-DD HH:mm:ss') : null;
+    const noResidentLeaveSchoolOutTimeNow = updateSelectItem.noResidentLeaveSchoolOutTime ?
+      updateSelectItem.noResidentLeaveSchoolOutTime.startOf('minute') : null;
 
     const date = currentSelectDate.format('YYYY-MM-DD HH:mm:ss');
+
+    // 将选择的时间增加到当前选择的日期
+    let bedRoomStartTime = null;
+    if (bedRoomStartTimeNow) {
+      bedRoomStartTime = moment(date).startOf('day')
+        .add(bedRoomStartTimeNow.hours(), 'hours')
+        .add(bedRoomStartTimeNow.minutes(), 'minutes')
+        .format('YYYY-MM-DD HH:mm:ss');
+    }
+    let bedRoomEndTime = null;
+    if (bedRoomEndTimeNow) {
+      bedRoomEndTime = moment(date).startOf('day')
+        .add(bedRoomEndTimeNow.hours(), 'hours')
+        .add(bedRoomEndTimeNow.minutes(), 'minutes')
+        .format('YYYY-MM-DD HH:mm:ss');
+    }
+    let noResidentLeaveSchoolBackTime = null;
+    if (noResidentLeaveSchoolBackTimeNow) {
+      noResidentLeaveSchoolBackTime = moment(date).startOf('day')
+        .add(noResidentLeaveSchoolBackTimeNow.hours(), 'hours')
+        .add(noResidentLeaveSchoolBackTimeNow.minutes(), 'minutes')
+        .format('YYYY-MM-DD HH:mm:ss');
+    }
+    let noResidentLeaveSchoolOutTime = null;
+    if (noResidentLeaveSchoolOutTimeNow) {
+      noResidentLeaveSchoolOutTime = moment(date).startOf('day')
+        .add(noResidentLeaveSchoolOutTimeNow.hours(), 'hours')
+        .add(noResidentLeaveSchoolOutTimeNow.minutes(), 'minutes')
+        .format('YYYY-MM-DD HH:mm:ss');
+    }
 
     console.log('params: ',
       date,
