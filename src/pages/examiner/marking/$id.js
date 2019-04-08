@@ -91,7 +91,7 @@ export default class MarkingPage extends Component {
         clearTimeout(this._set_score_success_sid);
         this._set_score_success_sid = setTimeout(() => {
           this.nextQuestion();
-        }, 2000)
+        }, 500)
 
       },
       reject: ex => {
