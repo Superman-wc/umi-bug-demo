@@ -192,7 +192,8 @@ export default class MarkingPage extends Component {
     );
 
     const pageProps = {
-      header, location, loading: !!loading,
+      // header,
+      location, loading: !!loading,
       className: styles['marking-page']
     };
 
@@ -218,23 +219,7 @@ export default class MarkingPage extends Component {
               :
               <Empty style={{marginTop: 50}}/>
           }
-        </div>
-        <div className={classNames(styles['panel'], styles['question-panel'])}>
-          <h3 className={styles['panel-title']}>正在批改第{item && item.questionNum}题</h3>
-          <section>
-            <header>
-              <span>当前：{item && item.studentName}</span>
-              <span>{item && item.unitName}</span>
-              <span>{item && item.studentCode}</span>
-            </header>
-            <main>
-              {
-                item && item.url &&
-                <img src={item.url} title="点击图片，大图查看" className={styles['question-image']} onClick={() => {
-                  window.open(item.url);
-                }}/>
-              }
-            </main>
+          <section style={{marginTop:50}}>
             <div className={styles['alert-box']}>
               {
                 this.state.alert && <Alert {...this.state.alert} showIcon/>
@@ -265,6 +250,32 @@ export default class MarkingPage extends Component {
             </footer>
           </section>
         </div>
+        <div className={classNames(styles['panel'], styles['question-panel'])}>
+          <h3 className={styles['panel-title']}>
+            <span>正在批改第{item && item.questionNum}题</span>
+            <span style={{marginLeft: 30}}>
+              <span>当前：{item && item.studentName}</span>
+              <span>{item && item.unitName}</span>
+              <span>{item && item.studentCode}</span>
+            </span>
+          </h3>
+          <section>
+            <main>
+              <div className={styles['total-progress']} style={{marginBottom:10}}>
+                <label>批改进度:</label>
+                <Progress percent={Math.round(item.totalProgress * 100)}
+                          status={item.totalProgress === 1 ? 'success' : 'active'}/>
+              </div>
+              {
+                item && item.url &&
+                <img src={item.url} title="点击图片，大图查看" className={styles['question-image']} onClick={() => {
+                  window.open(item.url);
+                }}/>
+              }
+            </main>
+
+          </section>
+        </div>
         <div className={classNames(styles['panel'], styles['student-panel'])}>
           <h3 className={styles['panel-title']}>试卷列表</h3>
           <div className={styles['tabs']}>
@@ -282,7 +293,7 @@ export default class MarkingPage extends Component {
               )
             }
           </div>
-          <ul>
+          <ul style={{overflow: 'auto'}}>
             {
               studentList && studentList.list && studentList.list.length ?
                 studentList.list.map(it =>
