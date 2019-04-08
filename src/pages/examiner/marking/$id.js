@@ -261,11 +261,17 @@ export default class MarkingPage extends Component {
           </h3>
           <section>
             <main>
-              <div className={styles['total-progress']} style={{marginBottom:10}}>
-                <label>批改进度:</label>
-                <Progress percent={Math.round(item.totalProgress * 100)}
-                          status={item.totalProgress === 1 ? 'success' : 'active'}/>
-              </div>
+              {
+                item ?
+                  <div className={styles['total-progress']} style={{marginBottom:10}}>
+                    <label>批改进度:</label>
+                    <Progress percent={Math.round(item.totalProgress * 100)}
+                              status={item.totalProgress === 1 ? 'success' : 'active'}/>
+                  </div>
+                  :
+                  null
+              }
+
               {
                 item && item.url &&
                 <img src={item.url} title="点击图片，大图查看" className={styles['question-image']} onClick={() => {
