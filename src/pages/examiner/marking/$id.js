@@ -83,8 +83,9 @@ export default class MarkingPage extends Component {
   submit = () => {
     const {dispatch, item} = this.props;
     const {score} = this.state;
-    const _score = score * 1;
-    if(_score || _score===0) {
+    if(score === null || score==='' || typeof score === 'undefined') {
+      this.setMessage('请先设置分数', 'error');
+    }else{
       dispatch({
         type: namespace + '/marking',
         payload: {
@@ -104,8 +105,7 @@ export default class MarkingPage extends Component {
           this.setMessage('设置分数失败：' + ex.message, 'error');
         }
       })
-    }else{
-      this.setMessage('请先设置分数', 'error');
+
     }
   };
 
