@@ -59,7 +59,7 @@ export default class StepThree extends React.Component {
     const monitorNum = oneItem['monitorNum'];
     const rowCol = oneItem['rowCol'];
 
-    const teachers = twoItem['teacherIds'] || [];
+    const teachers = twoItem['teacherId'].teacherIds || [];
     const teacherIdList = [];
     teachers.forEach(it => {
       teacherIdList.push({id: it});
@@ -131,11 +131,10 @@ export default class StepThree extends React.Component {
   };
 
   render() {
-    console.log('render');
     const {oneItem = {}, twoItem = {}, roomSelectList = [], dateSelectList = []} = this.props;
     const roomTotal = roomSelectList.length;
     // const subjectTotal = dateSelectList.length;
-    const teacherIds = twoItem['teacherIds'] || [];
+    const teacherIds = twoItem['teacherId'].teacherIds || [];
     const teacherTotal = teacherIds.length;
     const gradeIndex = oneItem['gradeIndex'];
     let gradeName = '';

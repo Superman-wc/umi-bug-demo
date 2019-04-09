@@ -426,7 +426,6 @@ class RoomTree extends Component {
     // this.setState({ currentNum: roomIds.length });
     onChange({
       roomIds,
-      selectKeys: value
     });
   };
 
@@ -461,7 +460,7 @@ class RoomTree extends Component {
 
   render() {
     const { roomTotal, needRoomNum, data, value = {} } = this.props;
-    const { selectKeys = [] } = value;
+    const { roomIds = [] } = value;
     return (
       <div>
         <div>
@@ -479,7 +478,7 @@ class RoomTree extends Component {
           <Tree
             checkable
             onCheck={this.handleRoomId}
-            checkedKeys={selectKeys}
+            checkedKeys={roomIds}
             defaultExpandAll={true}>
             {this.renderTreeNodes(data)}
           </Tree>
