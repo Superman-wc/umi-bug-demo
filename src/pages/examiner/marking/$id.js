@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
-import {Progress, Empty, Button, message, Alert} from 'antd';
+import {Progress, Empty, Button, message, Alert, Spin} from 'antd';
 import {Authenticate, ExaminerMarking as namespace} from "../../../utils/namespace";
 import PageHeaderOperation from "../../../components/Page/HeaderOperation";
 import Page from "../../../components/Page";
@@ -94,7 +94,7 @@ export default class MarkingPage extends Component {
         this.setMessage('设置分数成功，正在为你加载下一题...');
         // clearTimeout(this._set_score_success_sid);
         // this._set_score_success_sid = setTimeout(() => {
-          this.nextQuestion();
+        this.nextQuestion();
         // }, 100)
 
       },
@@ -134,7 +134,7 @@ export default class MarkingPage extends Component {
         questionNum,
         auditStatus
       },
-      resolve: console.log
+      // resolve: console.log
     })
   };
 
@@ -206,7 +206,7 @@ export default class MarkingPage extends Component {
         } else if (y + 33 > bottom) {
           studentViewList.scrollTo(0, y - studentViewList.clientHeight + 33);
         }
-        console.log(y, y + 33, top, bottom);
+        // console.log(y, y + 33, top, bottom);
 
       }
     }
@@ -245,7 +245,8 @@ export default class MarkingPage extends Component {
 
     const pageProps = {
       // header,
-      location, loading: !!loading,
+      location,
+      // loading: !!loading,
       className: styles['marking-page']
     };
 
@@ -278,29 +279,33 @@ export default class MarkingPage extends Component {
               }
 
             </div>
-            <footer>
-              <div className={styles['score-box']}>
-                <label>
-                  评分: (输入分数并回车)
-                  <input autoFocus
-                         type="number"
-                         min={0}
-                         max={100}
-                         placeholder="请输入分数"
-                         value={(isNaN(this.state.score) ? '' : this.state.score) || ''}
-                         onChange={(e) => {
-                           const score = e.target.value; //.replace(/[^\d]/g, '');
-                           this.setState({score});
-                         }}
-                  />
-                </label>
-              </div>
-              <div className={styles['submit-box']}>
-                <a onClick={this.nextQuestion}>跳过(Tab)</a>
-                <a onClick={this.prevQuestion} style={{marginLeft: '2em'}}>回屏(Space)</a>
-                <Button type="primary" onClick={this.submit}>提交(Enter)</Button>
-              </div>
-            </footer>
+            <Spin spinning={!!loading}>
+              <footer>
+
+                <div className={styles['score-box']}>
+                  <label>
+                    评分: (输入分数并回车)
+                    <input autoFocus
+                           type="number"
+                           min={0}
+                           max={100}
+                           placeholder="请输入分数"
+                           value={(isNaN(this.state.score) ? '' : this.state.score) || ''}
+                           onChange={(e) => {
+                             const score = e.target.value; //.replace(/[^\d]/g, '');
+                             this.setState({score});
+                           }}
+                    />
+                  </label>
+                </div>
+                <div className={styles['submit-box']}>
+                  <a onClick={this.nextQuestion}>跳过(Tab)</a>
+                  <a onClick={this.prevQuestion} style={{marginLeft: '2em'}}>回屏(Space)</a>
+                  <Button type="primary" onClick={this.submit}>提交(Enter)</Button>
+                </div>
+              </footer>
+
+            </Spin>
           </section>
         </div>
         <div className={classNames(styles['panel'], styles['question-panel'])}>
