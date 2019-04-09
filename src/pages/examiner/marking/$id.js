@@ -92,10 +92,10 @@ export default class MarkingPage extends Component {
       resolve: () => {
         analyze({ids: item.sheetId});
         this.setMessage('设置分数成功，正在为你加载下一题...');
-        clearTimeout(this._set_score_success_sid);
-        this._set_score_success_sid = setTimeout(() => {
+        // clearTimeout(this._set_score_success_sid);
+        // this._set_score_success_sid = setTimeout(() => {
           this.nextQuestion();
-        }, 100)
+        // }, 100)
 
       },
       reject: ex => {
@@ -139,7 +139,7 @@ export default class MarkingPage extends Component {
   };
 
   nextQuestion = () => {
-    clearTimeout(this._set_score_success_sid);
+    // clearTimeout(this._set_score_success_sid);
     this.safeSetState({alert: null});
     const {item, studentList, match: {params: {id}}} = this.props;
 
@@ -166,7 +166,7 @@ export default class MarkingPage extends Component {
   };
 
   prevQuestion = () => {
-    clearTimeout(this._set_score_success_sid);
+    // clearTimeout(this._set_score_success_sid);
     this.safeSetState({alert: null});
     const {item, studentList, match: {params: {id}}} = this.props;
 
@@ -193,7 +193,7 @@ export default class MarkingPage extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const studentViewList = document.getElementById(this.studentViewListId);
-    if (studentViewList) {
+    if (studentViewList && studentViewList.scrollTo) {
       const currentStudent = studentViewList.querySelector('.' + styles['current']);
       if (currentStudent) {
         const y = currentStudent.dataset.y * 1;
