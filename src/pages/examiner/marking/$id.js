@@ -83,25 +83,30 @@ export default class MarkingPage extends Component {
   submit = () => {
     const {dispatch, item} = this.props;
     const {score} = this.state;
-    dispatch({
-      type: namespace + '/marking',
-      payload: {
-        id: item && item.id,
-        score
-      },
-      resolve: () => {
-        analyze({ids: item.sheetId});
-        this.setMessage('设置分数成功，正在为你加载下一题...');
-        // clearTimeout(this._set_score_success_sid);
-        // this._set_score_success_sid = setTimeout(() => {
-        this.nextQuestion();
-        // }, 100)
+    const _score = score * 1;
+    if(_score || _score===0) {
+      dispatch({
+        type: namespace + '/marking',
+        payload: {
+          id: item && item.id,
+          score
+        },
+        resolve: () => {
+          analyze({ids: item.sheetId});
+          this.setMessage('设置分数成功，正在为你加载下一题...');
+          // clearTimeout(this._set_score_success_sid);
+          // this._set_score_success_sid = setTimeout(() => {
+          this.nextQuestion();
+          // }, 100)
 
-      },
-      reject: ex => {
-        this.setMessage('设置分数失败：' + ex.message, 'error');
-      }
-    })
+        },
+        reject: ex => {
+          this.setMessage('设置分数失败：' + ex.message, 'error');
+        }
+      })
+    }else{
+      this.setMessage('请先设置分数', 'error');
+    }
   };
 
   setMessage = (message, type = 'success') => {
