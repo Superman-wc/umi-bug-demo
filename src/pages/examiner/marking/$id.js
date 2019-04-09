@@ -112,17 +112,26 @@ export default class MarkingPage extends Component {
 
   loadQuestion = (id, studentId, questionNum) => {
     const {dispatch, location: {query}} = this.props;
-    dispatch({
-      type: namespace + '/item',
-      payload: {
-        id, studentId, questionNum
-      },
-      resolve: res => {
-        this.setState({score: res.score});
-        this.loadStudentList(id, res.questionNum, query.auditStatus);
-
-      }
-    })
+    if(!this._load_question_ing) {
+      this._load_question_ing = true;
+      dispatch({
+        type: namespace + '/item',
+        payload: {
+          id, studentId, questionNum
+        },
+        resolve: res => {
+          this.setState({score: res.score});
+          this.loadStudentList(id, res.questionNum, query.auditStatus);
+          delete this._load_question_ing;
+        },
+        reject: ex => {
+          message.error('出错了：' + ex.message);
+          delete this._load_question_ing;
+        }
+      })
+    }else{
+      message.warning('正在加载, 请稍等');
+    }
   };
 
   loadStudentList = (id, questionNum, auditStatus) => {
