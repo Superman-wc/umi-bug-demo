@@ -1,15 +1,14 @@
-import React from 'react';
-import { connect } from 'dva';
-import { Form, Button, Radio, DatePicker, TimePicker, InputNumber, Checkbox, Row, Col } from 'antd';
-import { ExamCreate } from '../../../../utils/namespace';
-import { ManagesSteps } from '../utils/namespace';
-import { GradeIndexEnum, Enums } from '../../../../utils/Enum';
+import React, {Component} from 'react';
+import {connect} from 'dva';
+import {Form, Button, Radio, DatePicker, TimePicker, InputNumber, Tree} from 'antd';
+import {ExamCreate} from '../../../../utils/namespace';
+import {ManagesSteps} from '../utils/namespace';
+import {GradeIndexEnum, Enums} from '../../../../utils/Enum';
 import moment from 'moment';
 import styles from '../index.less';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
-const CheckboxGroup = Checkbox.Group;
 @connect(state => ({
   teacherList: state[ExamCreate].teacherList,
   twoItem: state[ManagesSteps].twoItem,
@@ -21,26 +20,26 @@ const CheckboxGroup = Checkbox.Group;
 @Form.create({
   mapPropsToFields(props) {
     const twoItem = props.twoItem || {};
-    const { gradeTeacherIndex, teacherIds } = twoItem;
-    const { subjectSelectList = [] } = props;
+    const {gradeTeacherIndex, teacherId} = twoItem;
+    const {subjectSelectList = []} = props;
     const subjectFields = {};
     subjectSelectList.forEach(it => {
       subjectFields[`subjectDate${it.id}`] =
-        Form.createFormField({ value: twoItem[`subjectDate${it.id}`] || undefined });
+        Form.createFormField({value: twoItem[`subjectDate${it.id}`] || undefined});
     });
     return {
       ...subjectFields,
-      gradeTeacherIndex: Form.createFormField({ value: gradeTeacherIndex || undefined }),
-      teacherIds: Form.createFormField({ value: teacherIds || undefined }),
+      gradeTeacherIndex: Form.createFormField({value: gradeTeacherIndex || undefined}),
+      teacherId: Form.createFormField({value: teacherId || undefined}),
     }
   },
   onValuesChange(props, values) {
-    const { form: { getFieldsValue }, dispatch } = props;
+    const {form: {getFieldsValue}, dispatch} = props;
     const twoItem = getFieldsValue();
     dispatch({
       type: ManagesSteps + '/saveTwoItem',
       payload: {
-        twoItem: { ...twoItem, ...values }
+        twoItem: {...twoItem, ...values}
       }
     });
   }
@@ -49,14 +48,14 @@ export default class StepTwo extends React.Component {
 
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.updateTwo && nextProps.updateTwo !== this.props.updateTwo) {
-      const { form: { getFieldsValue, validateFieldsAndScroll }, onCheckSuccess } = this.props;
+      const {form: {getFieldsValue, validateFieldsAndScroll}, onCheckSuccess} = this.props;
       const item = getFieldsValue();
       validateFieldsAndScroll((errors, payload) => {
         if (errors) {
           // console.error(errors);
         } else {
-          console.log('stepTwo: ', payload);
-          const { subjectSelectList, dispatch } = this.props;
+          console.log('twoItem: ', payload);
+          const {subjectSelectList, dispatch} = this.props;
           const dateSelectList = [];
           subjectSelectList.forEach(it => {
             it.dateSelect = item[`subjectDate${it.id}`];
@@ -77,9 +76,9 @@ export default class StepTwo extends React.Component {
   }
 
   onGradeDataChange = (e) => {
-    const { dispatch } = this.props;
+    const {dispatch} = this.props;
     dispatch({
-      type: ExamCreate + '/teachersByGradeIndex',
+      type: ExamCreate + '/getTeacher',
       payload: {
         gradeIndex: e.target.value
       },
@@ -87,7 +86,7 @@ export default class StepTwo extends React.Component {
   };
 
   handleSubjectDate = (id, name, rule, value, callback) => {
-    const { subjectSelectList, form: { getFieldsValue } } = this.props;
+    const {subjectSelectList, form: {getFieldsValue}} = this.props;
     // const subjectDate = twoItem[`subjectDate${id}`];
     const subjectDate = value;
     if (subjectDate && subjectDate.startDateTime && subjectDate.endDateTime && id && name) {
@@ -114,11 +113,10 @@ export default class StepTwo extends React.Component {
   };
 
   handleTeacher = (rule, value, callback) => {
-    // console.log('handleTeacher: ', value);
     if (value) {
-      const { needRoomNum, oneItem: { monitorNum, roomId: { roomIds } } } = this.props;
+      const {needRoomNum, oneItem: {monitorNum}} = this.props;
       const needNum = monitorNum * needRoomNum;
-      const currentNum = value.length;
+      const currentNum = value.teacherIds.length;
       if (currentNum < needNum) {
         callback(`监考老师数量过少, 当前${currentNum}, 需要${needNum}位`);
         return;
@@ -130,14 +128,26 @@ export default class StepTwo extends React.Component {
   render() {
     const {
       teacherList = [], subjectSelectList = [], needRoomNum = 0,
-      oneItem: { examDate, monitorNum, roomId: { roomIds } },
-      form: { getFieldDecorator }
+      oneItem: {examDate, monitorNum}, twoItem: {gradeTeacherIndex},
+      form: {getFieldDecorator}
     } = this.props;
     const needTeacherNum = monitorNum * needRoomNum;
 
+    const subjectMap = {};
+    teacherList.reduce((map, it) => {
+      if (!subjectMap[it.subjectId]) {
+        subjectMap[it.subjectId] = {id: it.subjectId, name: it.subjectName, children: []};
+      }
+      subjectMap[it.subjectId].children.push(it);
+      map[it.id] = it;
+      return map;
+    }, {});
+    const subjectList = Object.values(subjectMap);
+    // console.log('subjectList: ', subjectList);
+
     const formlayout = {
-      labelCol: { span: 4 },
-      wrapperCol: { span: 20 },
+      labelCol: {span: 4},
+      wrapperCol: {span: 20},
     };
 
     return (
@@ -145,15 +155,15 @@ export default class StepTwo extends React.Component {
         <Form {...formlayout} layout='horizontal'>
           {
             subjectSelectList.map(it =>
-              <FormItem key={it.id} label={`${it.name}考试时间`} >
+              <FormItem key={it.id} label={`${it.name}考试时间`}>
                 {
                   getFieldDecorator(`subjectDate${it.id}`, {
                     rules: [
-                      { message: `请选择${it.name}考试时间`, required: true },
-                      { validator: this.handleSubjectDate.bind(null, it.id, it.name) }
+                      {message: `请选择${it.name}考试时间`, required: true},
+                      {validator: this.handleSubjectDate.bind(null, it.id, it.name)}
                     ]
                   })(
-                    <DateSelect examDate={examDate} />
+                    <DateSelect examDate={examDate}/>
                   )
                 }
               </FormItem>
@@ -162,7 +172,7 @@ export default class StepTwo extends React.Component {
           <FormItem label="监考老师年级">
             {
               getFieldDecorator('gradeTeacherIndex', {
-                rules: [{ message: '请选择年级', required: true }],
+                rules: [{message: '请选择年级', required: true}],
               })(
                 <RadioGroup onChange={this.onGradeDataChange}>
                   {
@@ -174,35 +184,21 @@ export default class StepTwo extends React.Component {
               )
             }
           </FormItem>
-          <FormItem label='选择监考老师'>
-            {
-              getFieldDecorator('teacherIds', {
-                rules: [
-                  { message: '请选择监考老师', required: true },
-                  { validator: this.handleTeacher }
-                ]
-              })
-                (
-                  <CheckboxGroup>
-                    <div>
-                      <span className={styles['teacher-select']}>
-                        至少需要{needTeacherNum}个老师</span>
-                    </div>
-                    <Row>
-                      {
-                        teacherList.map(it =>
-                          <Col key={it.id} span={4} style={{ height: 40 }}>
-                            <Checkbox value={it.id}>{it.name}</Checkbox>
-                          </Col>
-                        )
-                      }
-                    </Row>
-                  </CheckboxGroup>
-                )
-            }
+          <FormItem label="选择监考老师">
+            {getFieldDecorator('teacherId', {
+              rules: [
+                {message: '选择监考老师', required: true},
+                {validator: this.handleTeacher}
+              ]
+            })(
+              <RoomTree
+                gradeTeacherIndex={gradeTeacherIndex}
+                needTeacherNum={needTeacherNum}
+                data={subjectList}/>
+            )}
           </FormItem>
         </Form>
-        <div style={{ height: 80 }}></div>
+        <div style={{height: 80}}></div>
       </div>
     )
   }
@@ -307,7 +303,7 @@ class DateSelect extends React.Component {
   };
 
   triggerChange = (changeValue) => {
-    const { onChange } = this.props;
+    const {onChange} = this.props;
     if (onChange) {
       onChange(Object.assign({}, this.state, changeValue));
     }
@@ -315,18 +311,18 @@ class DateSelect extends React.Component {
 
   handleStartOpenChange = (open) => {
     if (!open) {
-      this.setState({ openTime: true });
+      this.setState({openTime: true});
     }
   };
 
   handleEndOpenChange = (open) => {
-    this.setState({ openTime: open });
+    this.setState({openTime: open});
   };
 
-  handleClose = () => this.setState({ openTime: false });
+  handleClose = () => this.setState({openTime: false});
 
   disabledDate = (current) => {
-    const { examDate } = this.props;
+    const {examDate} = this.props;
     return (current && current < examDate[0].startOf('day') ||
       current < moment().startOf('day') ||
       current > examDate[1].endOf('day'));
@@ -345,7 +341,7 @@ class DateSelect extends React.Component {
           disabledDate={this.disabledDate}
         />
         <TimePicker
-          style={{ marginLeft: 5 }}
+          style={{marginLeft: 5}}
           minuteStep={5}
           value={state.startTime}
           open={state.openTime}
@@ -359,20 +355,165 @@ class DateSelect extends React.Component {
           )}
         />
         <Radio.Group
-          style={{ marginLeft: 20 }}
+          style={{marginLeft: 20}}
           onChange={this.handleTimeStepChange}
           value={state.timeStep}>
           <Radio value={2.5}>2.5小时</Radio>
           <Radio value={2}>2小时</Radio>
           <Radio value={1.5}>1.5小时</Radio>
         </Radio.Group>
-        <span style={{ marginLeft: 10 }}>自定义:</span>
+        <span style={{marginLeft: 10}}>自定义:</span>
         <InputNumber
-          style={{ marginLeft: 5, marginRight: 5 }}
+          style={{marginLeft: 5, marginRight: 5}}
           onChange={this.handleCustomTimeStepChange}
           defaultValue={0}
-          value={state.customTimeStep} />
+          value={state.customTimeStep}/>
         <span>分</span>
+      </div>
+    )
+  }
+}
+
+
+class RoomTree extends Component {
+
+  handleTeacherId = (checkedKeys, e) => {
+    // console.log('checkedKeys: ', checkedKeys, e);
+    const key = e.node.props.eventKey;
+    const checked = e.checked;
+    const {onChange, value = {}, data} = this.props;
+    const {teacherIds = []} = value;
+    const index = teacherIds.findIndex(id => {
+      return id === key;
+    });
+    if (checked) {
+      if (key.charAt(0) === 'g') {
+        const array = key.split('-');
+        const subjectId = array[1];
+        const subjectIndex = data.findIndex(subject => {
+          return subject.id * 1 === subjectId * 1;
+        });
+        // console.log('subjectIndex: ', subjectIndex, subjectId, array);
+        data[subjectIndex].children.forEach(teacher => {
+          const teacherIndex = teacherIds.findIndex(teacherId => {
+            return teacherId * 1 === teacher.id * 1;
+          });
+          if (teacherIndex === -1) {
+            teacherIds.push(teacher.id + '');
+          }
+        })
+      } else {
+        if (index === -1) {
+          teacherIds.push(key);
+        }
+      }
+    } else {// 取消选中
+      if (key.charAt(0) === 'g') {
+        const array = key.split('-');
+        const subjectId = array[1];
+        const subjectIndex = data.findIndex(subject => {
+          return subject.id * 1 === subjectId * 1;
+        });
+        // console.log('subjectIndex: ', subjectIndex, subjectId, array);
+        data[subjectIndex].children.forEach(teacher => {
+          const teacherIndex = teacherIds.findIndex(teacherId => {
+            return teacherId * 1 === teacher.id * 1;
+          });
+          if (teacherIndex !== -1) {
+            teacherIds.splice(teacherIndex, 1);
+          }
+        })
+      } else {
+        if (index !== -1) {
+          teacherIds.splice(index, 1);
+        }
+      }
+    }
+    // console.log('teacherIds: ', teacherIds);
+    onChange({teacherIds});
+  };
+
+  renderTreeNodes = (gradeTeacherIndex, data) => data.map(subject => {
+    return (
+      <Tree.TreeNode
+        className={styles["tree-container"]}
+        title={subject.name}
+        key={`g${gradeTeacherIndex}-${subject.id}`}>
+        {
+          subject.children.map(teacher => {
+            return (
+              <Tree.TreeNode
+                key={teacher.id}
+                title={teacher.name}/>
+            )
+          })
+        }
+      </Tree.TreeNode>
+    )
+  });
+
+  render() {
+    const {gradeTeacherIndex, needTeacherNum, data, value = {}} = this.props;
+    const {teacherIds = []} = value;
+
+    // 当前年级去除无用的id,保证当前的teacherIds都在tree的节点中
+    const currentTeacherIds = [];
+    for (let subject of data) {
+      for (let teacher of subject.children) {
+        const index = teacherIds.findIndex(id => {
+          return id * 1 === teacher.id * 1;
+        });
+        const currentIndex = currentTeacherIds.findIndex(id => {
+          return id * 1 === teacher.id * 1;
+        });
+        if (index !== -1 && currentIndex === -1) {
+          currentTeacherIds.push(teacher.id + '');
+        }
+      }
+    }
+
+    return (
+      <div>
+        <div>
+          <span className={styles['room-select']}>
+            至少需要{needTeacherNum}位监考老师
+          </span>
+        </div>
+        {
+          data && data.length > 0 && gradeTeacherIndex &&
+          <div>
+            {
+              gradeTeacherIndex * 1 === 10 &&
+              <Tree
+                checkable
+                onCheck={this.handleTeacherId}
+                checkedKeys={currentTeacherIds}
+                defaultExpandAll={true}>
+                {this.renderTreeNodes(gradeTeacherIndex, data)}
+              </Tree>
+            }
+            {
+              gradeTeacherIndex * 1 === 11 &&
+              <Tree
+                checkable
+                onCheck={this.handleTeacherId}
+                checkedKeys={currentTeacherIds}
+                defaultExpandAll={true}>
+                {this.renderTreeNodes(gradeTeacherIndex, data)}
+              </Tree>
+            }
+            {
+              gradeTeacherIndex * 1 === 12 &&
+              <Tree
+                checkable
+                onCheck={this.handleTeacherId}
+                checkedKeys={currentTeacherIds}
+                defaultExpandAll={true}>
+                {this.renderTreeNodes(gradeTeacherIndex, data)}
+              </Tree>
+            }
+          </div>
+        }
       </div>
     )
   }

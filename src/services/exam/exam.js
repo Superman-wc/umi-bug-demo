@@ -61,12 +61,12 @@ export async function listSubject(data) {
 }
 
 /**
- * 考务创建-教师
- * examinationSubjectId  考试科目ID
+ * 教师列表
+ * gradeIndex  年级ID
  * uuid
  */
-export async function createTeacher(data) {
-  return request('/api/8queen/exam/teacher', {data, method: 'GET'});
+export async function getTeacher({gradeIndex}) {
+  return request('/api/8queen/exam/teacher', {data: {gradeIndex}, method: 'GET'});
 }
 
 /**
