@@ -123,7 +123,31 @@ export default class StaffList extends Component {
             enterButton
           />
         </div>
-      )
+      ),
+      onChange: (pagination, filters, sorter) => {
+      let _query = { ...query };
+      Object.keys(filters).forEach(key => {
+        if (filters[key].length) {
+          _query[key] = filters[key].join(',');
+        } else {
+          delete _query[key];
+        }
+      });
+      _query.p = pagination.current;
+      _query.s = pagination.pageSize;
+
+        if (profile && profile.appId) {
+          dispatch({
+            type: namespace + '/list',
+            payload: {
+              appId: profile.appId,
+              ..._query,
+            }
+          })
+        }
+
+      return {};
+    }
     };
 
     const staffModalProps = {
