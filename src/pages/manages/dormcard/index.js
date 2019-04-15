@@ -60,7 +60,6 @@ export default class DormCard extends Component {
     const {query = {}} = location;
     const title = '宿舍卡申请';
     const breadcrumb = ['宿舍卡管理', '宿舍卡申请'];
-    const name = query.name || '';
 
     const searchProps = {
       className: styles['search'],
