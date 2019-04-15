@@ -20,6 +20,7 @@ export const ManagesLectureArrangePlan = '/manages/lecture-arrange-plan';
 export const ManagesBuilding = '/manages/building';
 export const ManagesClassroom = '/manages/classroom';
 export const ManagesDormitory = '/manages/dormitory';
+export const ManagesDormCard = '/manages/dormcard';
 export const ManagesBed = '/manages/bed';
 export const ManagesPew = '/manages/pew';
 
