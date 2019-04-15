@@ -45,14 +45,14 @@ export default class DormCard extends Component {
 
   reset = () => {
     this.setState({searchValue: ''});
-    const {dispatch, location: {query}} = this.props;
-    dispatch({
-      type: namespace + '/list',
-      payload: {
+    const {dispatch, location: {pathname, query}} = this.props;
+    dispatch(routerRedux.replace({
+      pathname,
+      query: {
         ...query,
         name: null
       }
-    });
+    }));
   };
 
   render() {
