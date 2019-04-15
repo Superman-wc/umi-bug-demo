@@ -4,6 +4,7 @@ import {Input, Button, notification, Popconfirm, Row, Col} from 'antd';
 import moment from 'moment';
 import {ManagesDormCard as namespace} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
+import {routerRedux} from 'dva/router';
 import styles from './index.less';
 
 @connect(state => ({
@@ -17,16 +18,28 @@ export default class DormCard extends Component {
     searchValue: '',
   };
 
+  componentDidMount() {
+    // 刷新时恢复搜索框的值
+    const {location = {}} = this.props;
+    const {query = {}} = location;
+    const name = query.name || '';
+    if (name) {
+      this.setState({
+        searchValue: name
+      })
+    }
+  }
+
   onSearch(value) {
     if (value) {
-      const {dispatch, location: {query}} = this.props;
-      dispatch({
-        type: namespace + '/list',
-        payload: {
+      const {dispatch, location: {pathname, query}} = this.props;
+      dispatch(routerRedux.replace({
+        pathname,
+        query: {
           ...query,
           name: value
         }
-      });
+      }));
     }
   };
 
@@ -47,6 +60,7 @@ export default class DormCard extends Component {
     const {query = {}} = location;
     const title = '宿舍卡申请';
     const breadcrumb = ['宿舍卡管理', '宿舍卡申请'];
+    const name = query.name || '';
 
     const searchProps = {
       className: styles['search'],
@@ -73,9 +87,9 @@ export default class DormCard extends Component {
     );
 
     const statusList = [
-      {value: 0, text: '已撤销'},
       {value: 1, text: '未开卡'},
-      {value: 2, text: '已开卡'}
+      {value: 2, text: '已开卡'},
+      {value: 3, text: '已撤销'},
     ];
 
     const columns = [
@@ -129,10 +143,6 @@ export default class DormCard extends Component {
           const id = record.id;
           const name = record.studentName;
           switch (status) {
-            case 0:
-              return (
-                <span>已撤销</span>
-              );
             case 1:
               return (
                 <Popconfirm
@@ -164,6 +174,10 @@ export default class DormCard extends Component {
             case 2:
               return (
                 <span>已开卡</span>
+              );
+            case 3:
+              return (
+                <span>已撤销</span>
               );
           }
         },
