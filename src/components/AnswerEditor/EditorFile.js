@@ -18,6 +18,7 @@ class EditorFile extends Component {
 
   componentDidUpdate(prevProps, prevState, snap) {
     this.checkContentOverflow('componentDidUpdate');
+    // this.props.file && this.props.file.data && window.debugShowData(this.props.file.data)
   }
 
   componentWillUnmount(){
@@ -57,7 +58,7 @@ class EditorFile extends Component {
             :
             null
         }
-        <div id={file.key} className={styles['editor-file']} style={style}>
+        <div id={file.key} className={styles['editor-file']} role="file" style={style}>
           {
             file.pages && file.pages.length ?
               file.pages.map((page, index) =>

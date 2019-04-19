@@ -929,7 +929,11 @@ function Task(props) {
 
       </div>
       <div className={classNames(styles['status'], {[styles['error']]: data.error})}>
+        <a onClick={()=>{
+          window.open((data.sheet && (data.sheet.debugUrl || data.sheet.rotatedUrl) || data.url) + '!page')
+        }}>
         {data.status}
+        </a>
       </div>
     </li>
   )

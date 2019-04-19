@@ -70,12 +70,13 @@ Score.js
   border-right: 1px solid #000;
   border-left: 1px solid #000;
   padding: 0 -1px;
-
+  height:19px;
   & > div {
     width: 30px;
     text-align: center;
     border-right: 1px solid #000;
     margin-left: -1px;
+    height:18px;
   }
 }
 
@@ -263,6 +264,7 @@ StudentInfoBox.js
   //border: 1px solid #333;
   margin-right: 19px;
   min-width: 169px;
+  height:222px;
 
   .student-info-header {
     display: flex;
@@ -365,6 +367,8 @@ CompletionQuestionBox.js
       & > label {
         float: left;
         margin: 15px 10px 10px 0;
+        width:72px;
+        height:18px;
       }
     }
   }
@@ -372,18 +376,22 @@ CompletionQuestionBox.js
   .completion-question {
     //background-color: #fa0;
     float: left;
-    min-width: 27%;
-    padding: 15px 0 0 0;
-    margin-bottom: 10px;
-    margin-right: 10px;
-
+    min-width: 50px;
+    padding: 15px 10px 10px 0;
+    //margin-bottom: 10px;
+    //margin-right: 10px;
+    display: flex;
     & > label {
       float: left;
+      width:20px;
+      text-align: right;
     }
 
     & > .content-editable-area {
       float: left;
-      min-width: 80%;
+      //min-width: 80%;
+      min-width: 20px;
+      flex:1;
       margin-left: 0.5em;
     }
 
@@ -402,6 +410,7 @@ ChoiceQuestionBox.js
   margin: 5px;
 
   .options-area {
+    height:18px;
     margin-bottom: 3px;
     display: flex;
     flex-direction: row;

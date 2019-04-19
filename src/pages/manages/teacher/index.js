@@ -135,7 +135,7 @@ export default class StudentList extends Component {
       subjectList, gradeList, classList,
       onCancel: () => this.setState({visible: false}),
       onOk: (payload) => {
-        console.log(payload);
+        // console.log(payload);
         dispatch({
           type: namespace + (payload.id ? '/modify' : '/create'),
           payload,

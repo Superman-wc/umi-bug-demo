@@ -151,7 +151,7 @@ function createFile(state, action) {
       let gs = Math.ceil(choiceCount / 5) + (ys === 0 ? 1 : 0);
       let i = 0;
 
-      const createChoiceQuestion = (count)=> {
+      const createChoiceQuestion = (count) => {
         return ElementObject.create({
           type: 'choice-question',
           startNumber: i * 5 + 1,
@@ -865,6 +865,31 @@ function buildElementOffset(state) {
   return {...state, file: ElementObject.create(file)};
 }
 
+window.debugShowData = (data) => {
+  if (typeof data === "string") {
+    data = JSON.parse(data);
+  }
+  if (data.pages && data.pages.length) {
+    const fileNode = document.querySelector('[role="file"]');
+    const pageNodes = fileNode.querySelectorAll('[role="page"]');
+    data.pages.forEach((pageElements, pageIndex) => {
+      const pageNode = pageNodes[pageIndex];
+      pageElements.forEach((ele) => {
+        const {type, x, y, width, height} = ele;
+        const node = document.createElement('div');
+        node.style.width = width + 'px';
+        node.style.height = height + 'px';
+        node.style.top = y + 'px';
+        node.style.left = x + 'px';
+        node.style.position = 'absolute';
+        node.style.background = 'rgba(255,0,0,.3)';
+        pageNode.appendChild(node);
+        // ele.style
+      })
+    });
+  }
+};
+
 /**
  * DOM元素位置信息
  * @param id
@@ -934,7 +959,7 @@ export default Model(
               });
             }
           }
-          if (pathname === '/examiner' || (pathname === namespace+'/marking')) {
+          if (pathname === '/examiner' || (pathname === namespace + '/marking')) {
             dispatch({
               type: 'list',
               payload: {...query}

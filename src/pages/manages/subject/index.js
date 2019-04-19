@@ -47,9 +47,9 @@ export default class SubjectListPage extends Component {
       wrapperCol: {span: 24}
     };
 
-    console.log('currentMenu=', currentMenu,
-      currentMenu && currentMenu.resource.actions && currentMenu.resource.actions[URLResourceEnum.创建],
-    );
+    // console.log('currentMenu=', currentMenu,
+    //   currentMenu && currentMenu.resource.actions && currentMenu.resource.actions[URLResourceEnum.创建],
+    // );
 
     return (
       <Page header={header}
@@ -85,7 +85,7 @@ export default class SubjectListPage extends Component {
               getFieldDecorator('subjectIds', {
                 rules: [{message: '请输入科目名称', required: true}]
               })(
-                <Checkbox.Group onChange={console.log}>
+                <Checkbox.Group>
                   <Row>
                     {
                       all.map(it =>

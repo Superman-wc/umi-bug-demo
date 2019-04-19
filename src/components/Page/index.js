@@ -66,7 +66,7 @@ Page.Header = function ({breadcrumb, title, operation, children, className, styl
           style={{position: 'relative', zIndex: 100, borderBottom: 0}}
           mode="horizontal"
           onClick={({item, key, keyPath}) => {
-            console.log(item, key, keyPath);
+            // console.log(item, key, keyPath);
             const func = map[key];
             func && func();
           }}
