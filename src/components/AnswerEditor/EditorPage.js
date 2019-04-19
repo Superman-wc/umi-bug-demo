@@ -42,7 +42,7 @@ export default function EditorPage(props) {
 
 
   return (
-    <div id={page.key} className={className} style={style} onClick={() => {
+    <div id={page.key} role="page" className={className} style={style} onClick={() => {
       dispatch({
         type: namespace + '/set',
         payload: {

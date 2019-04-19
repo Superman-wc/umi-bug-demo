@@ -57,7 +57,6 @@ export default class LoginPage extends Component {
               <Form.Item wrapperCol={{span: 18, offset: 6}}>
                 <Button type="primary" style={{display: 'block', width: '100%'}} onClick={() => {
                   validateFieldsAndScroll((errors, payload) => {
-                    console.log(errors, payload);
                     if (errors) {
                       console.error(errors);
                     } else {

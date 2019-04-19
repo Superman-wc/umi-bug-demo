@@ -124,7 +124,7 @@ class DeviceModal extends Component {
             if (item && item.id) {
               payload.id = item.id;
             }
-            console.log(payload);
+            // console.log(payload);
             onOk(payload);
           }
         })

@@ -33,16 +33,14 @@ export default function EditorElement({element, ...restProps}) {
             ...obj,
             value: element[key],
             onChange: (value) => {
-
               dispatch({
                 type: namespace + '/setElementAttribute',
                 payload: {
                   key, value
                 }
               });
+
               obj.onChange && obj.onChange({self: obj, key, value, dispatch, element});
-
-
               console.log(element, key, value);
             }
           };
