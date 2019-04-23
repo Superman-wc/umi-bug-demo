@@ -275,6 +275,38 @@ StudentInfoBox.js
     }
   }
 }
+/**
+EnglishTranslationQuestionBox.js
+ */
+.english-translation-question-box{
+  width:100%;
+  margin: 0;
+  height:40px;
+  .stem-box{
+    line-height: 15px;
+    height:15px;
+    font-style: italic;
+    label{
+      margin-right: 0.3em;
+    }
+  }
+  .answer-box{
+    height:25px;
+    padding-bottom: 4px;
+    &:before{
+      display: block;
+      line-height: 18px;
+      border-bottom:1px solid #000;
+      text-indent: -9999px;
+      content:'这里是学生填写答案的地方';
+      height:20px;
+    }
+  }
+  .student-info-box + &{
+    margin-top: 23px;
+  }
+}
+
 
 /**
 AnswerQuestionBox.js

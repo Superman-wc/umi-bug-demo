@@ -5,12 +5,14 @@ import StudentInfoBox from "./StudentInfoBox";
 import ChoiceQuestionBox from "./ChoiceQuestionBox";
 import CompletionQuestionBox from "./CompletionQuestionBox";
 import AnswerQuestionBox from "./AnswerQuestionBox";
+import EnglishTranslationQuestionBox from './EnglishTranslationQuestionBox';
 
 const ElementTypes = {
   'student-info': StudentInfoBox,
   'choice-question': ChoiceQuestionBox,
   'answer-question': AnswerQuestionBox,
   'completion-question': CompletionQuestionBox,
+  'english-translation-question': EnglishTranslationQuestionBox
   // 'page-title': TitleBox,
 };
 
@@ -77,6 +79,9 @@ export default function EditorElement({element, ...restProps}) {
                 :
                 element.type === 'answer-question' ?
                   <AnswerQuestionBox {...props}/>
+                  :
+                  element.type === 'english-translation-question' ?
+                    <EnglishTranslationQuestionBox {...props} />
                   :
                   null
       }

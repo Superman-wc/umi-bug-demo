@@ -1,6 +1,5 @@
 import React from 'react';
 import {connect} from 'dva';
-import {Button} from 'antd';
 import styles from './answer.less';
 import CreateFilePanel from "./CreateFilePanel";
 import {AnswerEditor as namespace} from "../../utils/namespace";
