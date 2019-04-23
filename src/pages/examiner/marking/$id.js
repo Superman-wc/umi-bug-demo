@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
-import {Progress, Empty, Button, message, Alert} from 'antd';
+import {Progress, Empty, Button, message, Alert, Spin} from 'antd';
 import {Authenticate, ExaminerMarking as namespace} from "../../../utils/namespace";
 import PageHeaderOperation from "../../../components/Page/HeaderOperation";
 import Page from "../../../components/Page";
@@ -21,7 +21,11 @@ const MOUNTED = Symbol('MarkingPage#Mounted');
 }))
 export default class MarkingPage extends Component {
 
+  static CID = 0;
+
   state = {};
+
+  studentViewListId = 'student-list-' + MarkingPage.CID++;
 
 
   componentDidMount() {
@@ -55,7 +59,7 @@ export default class MarkingPage extends Component {
     'space': e => {
       e.stopPropagation();
       e.preventDefault();
-      this.nextQuestion();
+      this.prevQuestion();
     }
 
   };
@@ -79,25 +83,30 @@ export default class MarkingPage extends Component {
   submit = () => {
     const {dispatch, item} = this.props;
     const {score} = this.state;
-    dispatch({
-      type: namespace + '/marking',
-      payload: {
-        id: item && item.id,
-        score
-      },
-      resolve: () => {
-        analyze({ids: item.sheetId});
-        this.setMessage('设置分数成功，正在为你加载下一题...');
-        clearTimeout(this._set_score_success_sid);
-        this._set_score_success_sid = setTimeout(() => {
+    if(score === null || score==='' || typeof score === 'undefined') {
+      this.setMessage('请先设置分数', 'error');
+    }else{
+      dispatch({
+        type: namespace + '/marking',
+        payload: {
+          id: item && item.id,
+          score
+        },
+        resolve: () => {
+          analyze({ids: item.sheetId});
+          this.setMessage('设置分数成功，正在为你加载下一题...');
+          // clearTimeout(this._set_score_success_sid);
+          // this._set_score_success_sid = setTimeout(() => {
           this.nextQuestion();
-        }, 2000)
+          // }, 100)
 
-      },
-      reject: ex => {
-        this.setMessage('设置分数失败：' + ex.message, 'error');
-      }
-    })
+        },
+        reject: ex => {
+          this.setMessage('设置分数失败：' + ex.message, 'error');
+        }
+      })
+
+    }
   };
 
   setMessage = (message, type = 'success') => {
@@ -108,17 +117,26 @@ export default class MarkingPage extends Component {
 
   loadQuestion = (id, studentId, questionNum) => {
     const {dispatch, location: {query}} = this.props;
-    dispatch({
-      type: namespace + '/item',
-      payload: {
-        id, studentId, questionNum
-      },
-      resolve: res => {
-        this.setState({score: res.score});
-        this.loadStudentList(id, res.questionNum, query.auditStatus);
-
-      }
-    })
+    if(!this._load_question_ing) {
+      this._load_question_ing = true;
+      dispatch({
+        type: namespace + '/item',
+        payload: {
+          id, studentId, questionNum
+        },
+        resolve: res => {
+          this.setState({score: res.score});
+          this.loadStudentList(id, res.questionNum, query.auditStatus);
+          delete this._load_question_ing;
+        },
+        reject: ex => {
+          message.error('出错了：' + ex.message);
+          delete this._load_question_ing;
+        }
+      })
+    }else{
+      message.warning('正在加载, 请稍等');
+    }
   };
 
   loadStudentList = (id, questionNum, auditStatus) => {
@@ -130,12 +148,12 @@ export default class MarkingPage extends Component {
         questionNum,
         auditStatus
       },
-      resolve: console.log
+      // resolve: console.log
     })
   };
 
   nextQuestion = () => {
-    clearTimeout(this._set_score_success_sid);
+    // clearTimeout(this._set_score_success_sid);
     this.safeSetState({alert: null});
     const {item, studentList, match: {params: {id}}} = this.props;
 
@@ -160,6 +178,54 @@ export default class MarkingPage extends Component {
     }
 
   };
+
+  prevQuestion = () => {
+    // clearTimeout(this._set_score_success_sid);
+    this.safeSetState({alert: null});
+    const {item, studentList, match: {params: {id}}} = this.props;
+
+    if (item && studentList && studentList.list && studentList.list.length) {
+      let index = studentList.list.findIndex(it => it.studentCode === item.studentCode);
+      if (index >= 0) {
+        index -= 1;
+        if (index < 0) {
+          index = studentList.list.length - 1;
+        }
+        const student = studentList.list[index]; //上一个学生
+        if (student) {
+          this.loadQuestion(id, student.studentId, item.questionNum);
+        } else {
+          this.setMessage('已经没有学生了', 'warning');
+        }
+      } else {
+        this.setMessage('找不到学生', 'warning');
+      }
+    } else {
+      this.setMessage('没有学生', 'warning');
+    }
+  };
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const studentViewList = document.getElementById(this.studentViewListId);
+    if (studentViewList && studentViewList.scrollTo) {
+      const currentStudent = studentViewList.querySelector('.' + styles['current']);
+      if (currentStudent) {
+        const y = currentStudent.dataset.y * 1;
+
+        const bottom = studentViewList.scrollTop + studentViewList.clientHeight;
+        const top = studentViewList.scrollTop;
+
+        if (y < top) {
+          studentViewList.scrollTo(0, y)
+        } else if (y + 33 > bottom) {
+          studentViewList.scrollTo(0, y - studentViewList.clientHeight + 33);
+        }
+        // console.log(y, y + 33, top, bottom);
+
+      }
+    }
+
+  }
 
   render() {
 
@@ -192,7 +258,9 @@ export default class MarkingPage extends Component {
     );
 
     const pageProps = {
-      header, location, loading: !!loading,
+      // header,
+      location,
+      // loading: !!loading,
       className: styles['marking-page']
     };
 
@@ -218,16 +286,66 @@ export default class MarkingPage extends Component {
               :
               <Empty style={{marginTop: 50}}/>
           }
+          <section style={{marginTop: 50}}>
+            <div className={styles['alert-box']}>
+              {
+                this.state.alert && <Alert {...this.state.alert} showIcon/>
+              }
+
+            </div>
+            <Spin spinning={!!loading}>
+              <footer>
+
+                <div className={styles['score-box']}>
+                  <label>
+                    评分: (输入分数并回车)
+                    <input autoFocus
+                           type="number"
+                           min={0}
+                           max={100}
+                           placeholder="请输入分数"
+                           value={(isNaN(this.state.score) ? '' : this.state.score) || ''}
+                           onChange={(e) => {
+                             const score = e.target.value; //.replace(/[^\d]/g, '');
+                             this.setState({score});
+                           }}
+                    />
+                  </label>
+                </div>
+                <div className={styles['submit-box']}>
+                  <a onClick={this.nextQuestion}>跳过(Tab)</a>
+                  <a onClick={this.prevQuestion} style={{marginLeft: '2em'}}>回屏(Space)</a>
+                  <Button type="primary" onClick={this.submit}>提交(Enter)</Button>
+                </div>
+              </footer>
+
+            </Spin>
+          </section>
         </div>
         <div className={classNames(styles['panel'], styles['question-panel'])}>
-          <h3 className={styles['panel-title']}>正在批改第{item && item.questionNum}题</h3>
+          <h3 className={[styles['panel-title'], styles['total-progress']].join(' ')}
+              style={{width: '100%', alignItems: 'center'}}>
+            <span style={{margin: '0 2em'}}>正在批改第{item && item.questionNum}题</span>
+            {/*<span style={{marginLeft: 30}}>*/}
+            {/*  <span>当前：{item && item.studentName}</span>*/}
+            {/*  <span>{item && item.unitName}</span>*/}
+            {/*  <span>{item && item.studentCode}</span>*/}
+            {/*</span>*/}
+            {
+              item ?
+                <Fragment>
+                  <label>批改进度:</label>
+                  <Progress style={{width: 200}} percent={Math.round(item.totalProgress * 100)}
+                            status={item.totalProgress === 1 ? 'success' : 'active'}/>
+                </Fragment>
+                :
+                null
+            }
+          </h3>
           <section>
-            <header>
-              <span>当前：{item && item.studentName}</span>
-              <span>{item && item.unitName}</span>
-              <span>{item && item.studentCode}</span>
-            </header>
             <main>
+
+
               {
                 item && item.url &&
                 <img src={item.url} title="点击图片，大图查看" className={styles['question-image']} onClick={() => {
@@ -235,34 +353,7 @@ export default class MarkingPage extends Component {
                 }}/>
               }
             </main>
-            <div className={styles['alert-box']}>
-              {
-                this.state.alert && <Alert {...this.state.alert} showIcon/>
-              }
 
-            </div>
-            <footer>
-              <div className={styles['score-box']}>
-                <label>
-                  评分: (输入分数并回车)
-                  <input autoFocus
-                         type="number"
-                         min={0}
-                         max={100}
-                         placeholder="请输入分数"
-                         value={(isNaN(this.state.score) ? '' : this.state.score) || ''}
-                         onChange={(e) => {
-                           const score = e.target.value; //.replace(/[^\d]/g, '');
-                           this.setState({score});
-                         }}
-                  />
-                </label>
-              </div>
-              <div className={styles['submit-box']}>
-                <a onClick={this.nextQuestion}>跳过(Tab or Space)</a>
-                <Button type="primary" onClick={this.submit}>提交(Enter)</Button>
-              </div>
-            </footer>
           </section>
         </div>
         <div className={classNames(styles['panel'], styles['student-panel'])}>
@@ -282,11 +373,12 @@ export default class MarkingPage extends Component {
               )
             }
           </div>
-          <ul>
+          <ul style={{overflow: 'auto'}} id={this.studentViewListId}>
             {
               studentList && studentList.list && studentList.list.length ?
-                studentList.list.map(it =>
+                studentList.list.map((it, index) =>
                   <StudentItem key={[it.studentId, it.editorId].join('-')}
+                               index={index}
                                student={it} item={item}
                                onClick={() => {
                                  this.loadQuestion(id, it.studentId, item && item.questionNum);
@@ -304,14 +396,15 @@ export default class MarkingPage extends Component {
   }
 }
 
-function StudentItem({student, item, onClick}) {
+function StudentItem({student, item, onClick, index}) {
   return (
     <li className={classNames({
       [styles['current']]: item && (student.studentCode === item.studentCode)
     })}
         onClick={onClick}
+        data-y={index * 33}
     >
-      <span>{student.studentCode}</span>
+      <span>{index + 1}</span>
       <span>{typeof student.score === 'number' ? student.score : '未评分'}</span>
     </li>
   )

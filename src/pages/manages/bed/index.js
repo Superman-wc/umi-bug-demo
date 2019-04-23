@@ -182,7 +182,7 @@ class BedModal extends Component {
               payload.id = item.id;
             }
             payload.studentId = payload.studentId[2];
-            console.log(payload);
+            // console.log(payload);
             dispatch({
               type: namespace + (payload.id ? '/modify' : '/create'),
               payload,
@@ -254,7 +254,7 @@ class BedModal extends Component {
                           klassId: targetOption.value
                         },
                         resolve: ({list = []} = {}) => {
-                          console.log(list);
+                          // console.log(list);
                           targetOption.loading = false;
                           targetOption.children = list.filter(it => it.gender.toString() === query.gender.toString()).map(({id, name, gender, avatar}) => ({
                             gender, avatar,
@@ -270,7 +270,7 @@ class BedModal extends Component {
 
                   }}
                   onChange={([gradeId, klassId, studentId]) => {
-                    console.log(gradeId, klassId, studentId);
+                    // console.log(gradeId, klassId, studentId);
                     if (gradeId, klassId, studentId) {
                       const grade = gradeList.find(it => it.value === gradeId);
                       if (grade && grade.children) {

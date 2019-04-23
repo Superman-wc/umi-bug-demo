@@ -6,15 +6,18 @@
       padding: 10px;
       flex-direction: row;
     }
-    .ant-breadcrumb{
+
+    .ant-breadcrumb {
       display: flex !important;
     }
   }
-  .total-progress{
+
+  .total-progress {
     display: flex;
-    width:250px;
-    label{
-      width:70px;
+    width: 250px;
+
+    label {
+      width: 70px;
     }
   }
 
@@ -53,6 +56,75 @@
           }
         }
       }
+
+      & > section {
+        & > .alert-box {
+          position: relative;
+
+          :global {
+            .ant-alert {
+              border-radius: 0;
+              position: absolute;
+              bottom: 0;
+              left: -1px;
+              right: -1px;
+            }
+          }
+        }
+
+         footer {
+
+          height: 200px;
+          padding: 10px;
+          display: flex;
+          flex-direction: column;
+
+          & > div {
+            &:first-child {
+              flex: 1
+            }
+
+            &.score-box {
+              position: relative;
+
+              input {
+                border: none;
+                background-color: transparent;
+                position: absolute;
+                left: 0;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                width: 100%;
+                height: 100%;
+                font-size: 30px;
+                text-align: center;
+
+                &:active,
+                &:focus {
+                  outline: none;
+                }
+
+                &:focus {
+                  &::-webkit-input-placeholder {
+                    color: transparent;
+                  }
+                }
+
+              }
+            }
+
+            &.submit-box {
+              text-align: center;
+
+              button {
+                //margin-left: 2em;
+                margin-top: 20px;
+              }
+            }
+          }
+        }
+      }
     }
 
     &.question-panel {
@@ -79,79 +151,17 @@
 
           background-color: #fff;
           padding: 10px;
-          min-height: 400px;
+          //height: 700px;
+          overflow: auto;
 
-          display: flex;
-          align-items: center;
-          justify-content: center;
+
+          //display: flex;
+          //align-items: center;
+          //justify-content: center;
           border-bottom: 1px solid #ddd;
         }
 
-        & > .alert-box {
-          position: relative;
 
-          :global {
-            .ant-alert {
-              border-radius: 0;
-              position: absolute;
-              bottom: 0;
-              left: -1px;
-              right: -1px;
-            }
-          }
-        }
-
-        & > footer {
-
-          height: 300px;
-          padding: 10px;
-          display: flex;
-          flex-direction: column;
-
-          & > div {
-            &:first-child {
-              flex: 1
-            }
-
-            &.score-box {
-              position: relative;
-
-              input {
-                border: none;
-                background-color: transparent;
-                position: absolute;
-                left: 0;
-                top: 0;
-                right: 0;
-                bottom: 0;
-                width: 100%;
-                height: 100%;
-                font-size: 100px;
-                text-align: center;
-
-                &:active,
-                &:focus {
-                  outline: none;
-                }
-
-                &:focus {
-                  &::-webkit-input-placeholder {
-                    color: transparent;
-                  }
-                }
-
-              }
-            }
-
-            &.submit-box {
-              text-align: right;
-
-              button {
-                margin-left: 2em;
-              }
-            }
-          }
-        }
       }
 
     }
@@ -223,7 +233,7 @@
           border-right-color: @primary-color;
           margin-left: -1px;
           margin-right: -1px;
-          background-color:  #d2e5f8;;
+          background-color: #d2e5f8;;
         }
       }
     }
@@ -234,7 +244,7 @@
 
 
 .question-image {
-  max-width: 600px;
-  width: 100%;
+  max-width: 100%;
+  //width: 100%;
 }
 

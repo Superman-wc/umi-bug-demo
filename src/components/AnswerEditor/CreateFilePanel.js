@@ -1,6 +1,7 @@
 import React, {Component, Fragment, createRef} from 'react';
 import {connect} from 'dva';
-import {Form, Checkbox, Button, Menu, Icon, Spin, InputNumber, Select, DatePicker, Cascader} from 'antd';
+import router from 'umi/router';
+import {Form, Row, Col, Button, Spin, InputNumber, Select, DatePicker, Cascader, Tabs, Input} from 'antd';
 import classNames from 'classnames';
 import styles from './answer.less';
 import PaddingEditor from "./PaddingEditor";
@@ -19,15 +20,260 @@ import {AnswerCardTypeEnum, Enums} from "../../utils/Enum";
 
 const Mounted = Symbol('#CreateFilePanel@Mounted');
 
+export function ExaminerInfoFields({form: {getFieldDecorator}, gradeList, subjectList, onChange}) {
+
+  const wrapper = {labelCol: {span: 8}, wrapperCol: {span: 14}};
+
+  return (
+    <div>
+      <Row>
+        <Col span={12}>
+          <Form.Item {...wrapper} label="日期">
+            {
+              getFieldDecorator('info.date', {
+                initialValue: moment(),
+                rules: [{required: true, message: '必须填写'}]
+              })(
+                <DatePicker locale={locale}/>
+              )
+            }
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          <Form.Item {...wrapper} label="年级/班级">
+            {
+              getFieldDecorator('info.grade', {
+                initialValue: [1],
+                rules: [{required: true, message: '必须填写'}]
+              })(
+                <Cascader style={{width: 150}} options={gradeList} placeholder="请选择年级班级" changeOnSelect/>
+              )
+            }
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row>
+        <Col span={12}>
+          <Form.Item {...wrapper} label="学科">
+            {
+              getFieldDecorator('info.subject', {
+                initialValue: subjectList && subjectList.length && subjectList[0].id,
+                rules: [{required: true, message: '必须填写'}]
+              })(
+                <Select style={{width: 150}} placeholder="请选择学科" onChange={subjectId => {
+                  if (onChange) {
+                    const subject = subjectList.find(it => it.id === subjectId);
+                    onChange({subject});
+                  }
+                }}>
+                  {
+                    subjectList.map((subject) =>
+                      <Select.Option key={subject.id} value={subject.id}>{subject.name}</Select.Option>
+                    )
+                  }
+                </Select>
+              )
+            }
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          <Form.Item {...wrapper} label="类型">
+            {
+              getFieldDecorator('info.type', {
+                initialValue: AnswerCardTypeEnum.作业.toString(),
+                rules: [{required: true, message: '必须填写'}]
+              })(
+                <Select style={{width: 150}} placeholder="类型" onChange={(v) => {
+
+                }}>
+                  {
+                    Enums(AnswerCardTypeEnum).map((type) =>
+                      <Select.Option key={type.value} value={type.value}>{type.name}</Select.Option>
+                    )
+                  }
+                </Select>
+              )
+            }
+          </Form.Item>
+        </Col>
+      </Row>
+    </div>
+  )
+}
+
+export function CommonQuestionFields({form: {getFieldDecorator}}) {
+  const wrapper = {labelCol: {span: 4}, wrapperCol: {span: 14}};
+  return (
+    <div>
+      <Form.Item {...wrapper} label="客观题数量" help="判断题、单选题、多选题统一设置数量">
+        {
+          getFieldDecorator('content.choiceCount', {
+            initialValue: 30,
+            rules: [{required: true, message: '必须填写'}]
+          })(
+            <InputNumber style={{width: 60}} min={0} max={100}/>
+          )
+        }
+      </Form.Item>
+      <Form.Item {...wrapper} label="填空题数量" help="此项指填空题大题数量，自动生成每大题下3个小题">
+        {
+          getFieldDecorator('content.completionCount', {
+            initialValue: 4,
+            rules: [{required: true, message: '必须填写'}]
+          })(
+            <InputNumber style={{width: 60}} min={0} max={20}/>
+          )
+        }
+      </Form.Item>
+      <Form.Item {...wrapper} label="解答题数量" help="需要较大范围用于填写答案的都计为此项">
+        {
+          getFieldDecorator('content.answerCount', {
+            initialValue: 1,
+            rules: [{required: true, message: '必须填写'}]
+          })(
+            <InputNumber style={{width: 60}} min={0} max={100}/>
+          )
+        }
+      </Form.Item>
+    </div>
+  )
+}
+
+export function EnglishTranslationFields({form: {getFieldDecorator}, onChange, englishTranslation = ''}) {
+  let placeholder = '你好吗?\nhow are you?\n你叫什么名字?\nWhat\'s your name?';
+  let lines = (englishTranslation || '').split(/\n/g);
+
+  return (
+    <div>
+      <h3>按行输入，一行题目，一行答案， <strong>共{lines.length}行，{Math.floor(lines.length / 2)}题</strong></h3>
+      <Form.Item>
+        {
+          getFieldDecorator('content.englishTranslation', {
+            initialValue: '',
+            rules: [{
+              validator: (rule, value, callback) => {
+                const list = value.split(/\n/g);
+                if (list.length % 2 === 0) {
+                  callback();
+                } else {
+                  callback(new Error('请按一行题目，一行答案的格式输入'));
+                }
+              }
+            }]
+          })(
+            <Input.TextArea
+              autosize={{minRows: 16, maxRows: 30}}
+              placeholder={placeholder}
+              onChange={e => {
+                onChange && onChange({englishTranslation: e.target.value});
+              }}/>
+          )
+        }
+      </Form.Item>
+    </div>
+  )
+}
+
+export function PrintFields({form: {getFieldDecorator}, onChange, maxColCount, senior}) {
+  const wrapper = {labelCol: {span: 4}, wrapperCol: {span: 14}};
+  return (
+    <div>
+      <Form.Item {...wrapper} label="纸张大小" help="纸张大小设置应于打印时设置一致">
+        {
+          getFieldDecorator('print.type', {
+            initialValue: 'A4',
+            rules: [{required: true, message: '必须填写'}]
+          })(
+            <Select style={{width: 220}}
+                    onChange={(v) => {
+                      if (v === 'A3' || v === '8K') {
+                        onChange({maxColCount: 3});
+                      } else {
+                        onChange({maxColCount: 1});
+                      }
+
+                    }}
+            >
+              {
+                Object.entries(PAGE_SIZE).map(([key, page]) =>
+                  <Select.Option key={key} value={key}>
+                    {`${key} (${page.print.width}x${page.print.height}mm ${page.direction})`}
+                  </Select.Option>
+                )
+              }
+            </Select>
+          )
+        }
+      </Form.Item>
+      <Form.Item {...wrapper} label="纸张分列数量" help="A4、16K建议1列，8K建议2列">
+        {
+          getFieldDecorator('print.colCount', {
+            initialValue: 1,
+            rules: [{required: true, message: '必须填写'}]
+          })(
+            <InputNumber style={{width: 60}} max={maxColCount || 2} min={1}/>
+          )
+        }
+      </Form.Item>
+      {
+        <div style={{display: senior ? 'block' : 'none'}}>
+          <Form.Item {...wrapper} label="分辨率" help="此项视打印机情况而定，一般为96DPI">
+            {
+              getFieldDecorator('print.dpi', {
+                initialValue: 96,
+                rules: [{required: true, message: '必须填写'}]
+              })(
+                <Select style={{width: 90}}>
+                  {
+                    [72, 96, 120, 300].map((value) =>
+                      <Select.Option key={value} value={value}>{value}</Select.Option>
+                    )
+                  }
+                </Select>
+              )
+            }
+          </Form.Item>
+          <Form.Item {...wrapper} label="纸张边距" help="纸张边缘留白部分，设置后打印机的边距请设置成“无”">
+            {
+              getFieldDecorator('print.padding', {
+                initialValue: [80, 60, 80, 60],
+                rules: [{required: true, message: '必须填写'}]
+              })(
+                <PaddingEditor/>
+              )
+            }
+          </Form.Item>
+          <Form.Item {...wrapper} label="分列间距" help="列与列的间距">
+            {
+              getFieldDecorator('print.colSpan', {
+                initialValue: 30,
+                rules: [{required: true, message: '必须填写'}]
+              })(
+                <InputNumber style={{width: 60}} max={100} min={0}/>
+              )
+            }
+          </Form.Item>
+        </div>
+      }
+      <div style={{paddingLeft: 100, marginTop: 30}}>
+        <a onClick={() => {
+          onChange({senior: !senior});
+        }}>{senior ? '简单' : '高级设置'}</a>
+      </div>
+    </div>
+  )
+}
+
 class CreateFilePanel extends Component {
 
   state = {
     senior: false,
     maxColCount: 1,
+    contentType: 'common'
   };
 
   componentDidMount() {
-    const {dispatch, gradeList, subjectList, classMap, gradeMap} = this.props;
+    const {dispatch, gradeList, subjectList, classMap, gradeMap, createFilePayload} = this.props;
     this[Mounted] = true;
     if (!gradeList || !subjectList || !classMap || !gradeMap) {
       Promise.all([
@@ -80,6 +326,11 @@ class CreateFilePanel extends Component {
           return map;
         }, {});
 
+        if (subjectList && createFilePayload.info && createFilePayload.info.subject) {
+          const subject = subjectList.find(it => it.id === createFilePayload.info.subject);
+          this.setState({subject});
+        }
+
         dispatch({
           type: namespace + '/set',
           payload: {
@@ -89,291 +340,126 @@ class CreateFilePanel extends Component {
             gradeMap,
           }
         });
-
-        // this[Mounted] && this.setState({
-        //   gradeList: Object.values(gradeMap),
-        //   subjectList: subjectList.reverse(),
-        //   classMap,
-        //   gradeMap,
-        // });
       })
     }
+    console.log(createFilePayload);
+
+    if (subjectList && createFilePayload.info && createFilePayload.info.subject) {
+      const subject = subjectList.find(it => it.id === createFilePayload.info.subject);
+      this.setState({subject});
+    }
+    if (createFilePayload && createFilePayload.content && createFilePayload.content.type) {
+      this.setState({contentType: createFilePayload.content.type});
+    }
+
   }
 
   componentWillUnmount() {
     delete this[Mounted];
   }
 
+  handleSubmit = e => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const {
+      form: {validateFieldsAndScroll}, dispatch,
+      profile, subjectList = [], classMap = {}, gradeMap = {},
+    } = this.props;
+
+    validateFieldsAndScroll((errors, payload) => {
+      if (errors) {
+        console.error(errors);
+      } else {
+        const year = payload.info.date.year();
+        const grade = gradeMap[payload.info.grade[0]];
+        const klass = classMap[payload.info.grade[1]];
+        const subjectMap = subjectList.reduce((map, it) => {
+          map[it.id] = it;
+          return map;
+        }, {});
+        const subject = subjectMap[payload.info.subject];
+        const {schoolName} = profile;
+
+        payload.content.title = `${year}年${schoolName}${klass ? klass.label : grade.label + '年级'}${AnswerCardTypeEnum[payload.info.type]}\n${subject.name}答题卡 (${payload.info.date.format('YYYY.MM.DD')})`;
+
+        payload.content.type = this.state.contentType;
+
+        if (payload.content.type === 'englishTranslation') {
+          payload.print.colCount = 2;
+        }
+
+        payload.info.schoolYear = grade.schoolYear;
+
+        console.log(payload);
+
+        dispatch({
+          type: namespace + '/createFile',
+          payload
+        });
+
+        router.push('/examiner/editor');
+
+      }
+    })
+  };
+
   render() {
 
     const {
-      dispatch, form: {getFieldDecorator, validateFieldsAndScroll},
-      profile, loading, gradeList = [], subjectList = [], classMap = {}, gradeMap = {},
+      dispatch, form, loading, gradeList = [], subjectList = [],
     } = this.props;
-
-    const {senior} = this.state;
-
-
-    const wrapper = {labelCol: {span: 8}, wrapperCol: {span: 14}};
 
     const formProps = {
       layout: 'horizontal',
       className: styles['create-file-panel'],
       hideRequiredMark: true,
-      onSubmit: (e) => {
-        console.log(e);
-        e.preventDefault();
-        e.stopPropagation();
-        validateFieldsAndScroll((errors, payload) => {
-          if (errors) {
-            console.error(errors);
-          } else {
-            const year = payload.info.date.year();
-            const grade = gradeMap[payload.info.grade[0]];
-            const klass = classMap[payload.info.grade[1]];
-            const subjectMap = subjectList.reduce((map, it) => {
-              map[it.id] = it;
-              return map;
-            }, {});
-            const subject = subjectMap[payload.info.subject];
-
-            payload.content.title = `${year}年${profile.schoolName}${klass ? klass.label : grade.label + '年级'}${AnswerCardTypeEnum[payload.info.type]}\n${subject.name}答题卡 (${payload.info.date.format('YYYY.MM.DD')})`;
-
-            console.log(payload, year, grade, klass, subject);
-
-            payload.info.schoolYear = grade.schoolYear;
-
-            dispatch({
-              type: namespace + '/createFile',
-              payload
-            })
-          }
-        })
-      }
+      onSubmit: this.handleSubmit
+    };
+    const onChange = state => this.setState(state);
+    const infoFieldsProps = {
+      form, gradeList, subjectList,
+      onChange
     };
 
-
-    const itemMap = {
-      info: {
-        date: {
-          label: '日期',
-          ...wrapper,
-          fieldOptions: {
-            initialValue: moment(),
-            rules: [{required: true, message: '必须填写'}]
-          },
-          children: (
-            <DatePicker locale={locale}/>
-          )
-        },
-        grade: {
-          label: '年级/班级',
-          ...wrapper,
-          fieldOptions: {
-            initialValue: [1],
-            rules: [{required: true, message: '必须填写'}]
-          },
-          children: (
-            <Cascader style={{width: 150}} options={gradeList} placeholder="请选择年级班级" changeOnSelect/>
-          )
-        },
-        subject: {
-          label: '学科',
-          ...wrapper,
-          fieldOptions: {
-            initialValue: subjectList && subjectList.length && subjectList[0].id,
-            rules: [{required: true, message: '必须填写'}]
-          },
-          children: (
-            <Select style={{width: 150}} placeholder="请选择学科">
-              {
-                subjectList.map((subject) =>
-                  <Select.Option key={subject.id} value={subject.id}>{subject.name}</Select.Option>
-                )
-              }
-            </Select>
-          )
-        },
-        type: {
-          label: '类型',
-          ...wrapper,
-          fieldOptions: {
-            initialValue: AnswerCardTypeEnum.作业.toString(),
-            rules: [{required: true, message: '必须选择'}],
-          },
-          children: (
-            <Select style={{width: 150}} placeholder="类型" onChange={(v) => {
-
-            }}>
-              {
-                Enums(AnswerCardTypeEnum).map((type) =>
-                  <Select.Option key={type.value} value={type.value}>{type.name}</Select.Option>
-                )
-              }
-            </Select>
-          )
-        }
-      },
-      content: {
-        // title: {
-        //   label: '考试或作业名称',
-        //   help: '例如：2019年杭州第十四中学康桥校区高一年级暑假作业检测',
-        //   ...wrapper,
-        //   fieldOptions: {
-        //     initialValue: '2019年杭州第十四中学康桥校区高一年级暑假作业检测\n综合答题卡',
-        //     rules: [{required: true, message: '必须填写'}]
-        //   },
-        //   children: <Input.TextArea placeholder="请输入考试或作业名称" autosize={{maxRows: 3, minRows: 1}}/>
-        // },
-        choiceCount: {
-          label: '选择题数量',
-          help: '判断题、单选题、多选题统一设置数量',
-          ...wrapper,
-          fieldOptions: {
-            initialValue: 30,
-            rules: [{required: true, message: '必须填写'}]
-          },
-          children: <InputNumber style={{width: 60}} min={0} max={100}/>
-        },
-        completionCount: {
-          label: '填空题数量',
-          help: '此项指填空题大题数量，自动生成每大题下3个小题',
-          ...wrapper,
-          fieldOptions: {
-            initialValue: 4,
-            rules: [{required: true, message: '必须填写'}]
-          },
-          children: <InputNumber style={{width: 60}} min={0} max={20}/>
-        },
-        answerCount: {
-          label: '解答题数量',
-          help: '需要较大范围用于填写答案的都计为此项',
-          ...wrapper,
-          fieldOptions: {
-            initialValue: 1,
-            rules: [{required: true, message: '必须填写'}]
-          },
-          children: <InputNumber style={{width: 60}} min={0} max={20}/>
-        }
-      },
-      print: {
-        type: {
-          label: '纸张大小',
-          help: '纸张大小设置应于打印时设置一致',
-          ...wrapper,
-          fieldOptions: {
-            initialValue: 'A4',
-            rules: [{required: true, message: '必须填写'}]
-          },
-          children: (
-            <Select style={{width: 220}}
-                    onChange={(v) => {
-                      if(v==='A3' || v==='8K'){
-                        this.setState({maxColCount: 3});
-                      }else{
-                        this.setState({maxColCount: 1});
-                      }
-
-                    }}
-            >
-              {
-                Object.entries(PAGE_SIZE).map(([key, page]) =>
-                  <Select.Option key={key} value={key}>
-                    {`${key} (${page.print.width}x${page.print.height}mm ${page.direction})`}
-                  </Select.Option>
-                )
-              }
-            </Select>
-          )
-        },
-        colCount: {
-          label: '纸张分列数量',
-          help: 'A4、16K建议1列，8K建议2列',
-          ...wrapper,
-          fieldOptions: {
-            initialValue: 1,
-            rules: [{required: true, message: '必须填写'}]
-          },
-          children: (
-            <InputNumber style={{width: 60}} max={this.state.maxColCount || 2} min={1}/>
-          )
-        },
-        dpi: {
-          style: {display: senior ? 'block' : 'none'},
-          label: '分辨率',
-          help: '此项视打印机情况而定，一般为96DPI',
-          ...wrapper,
-          fieldOptions: {
-            initialValue: 96,
-            rules: [{required: true, message: '必须填写'}]
-          },
-          children: (
-            <Select style={{width: 90}}>
-              {
-                [72, 96, 120, 300].map((value) =>
-                  <Select.Option key={value} value={value}>{value}</Select.Option>
-                )
-              }
-            </Select>
-          )
-        },
-        padding: {
-          style: {display: senior ? 'block' : 'none'},
-          label: '纸张边距',
-          help: '纸张边缘留白部分，设置后打印机的边距请设置成"无"',
-          ...wrapper,
-          fieldOptions: {
-            initialValue: [80, 60, 80, 60],
-            rules: [{required: true, message: '必须填写'}]
-          },
-          children: <PaddingEditor/>
-        },
-        colSpan: {
-          style: {display: senior ? 'block' : 'none'},
-          label: '分列间距',
-          help: '列与列有间距',
-          ...wrapper,
-          fieldOptions: {
-            initialValue: 30,
-            rules: [{required: true, message: '必须填写'}]
-          },
-          children: <InputNumber style={{width: 60}} max={100} min={0}/>
-        },
-      }
+    const printFieldsProps = {
+      form, ...this.state,
+      onChange
     };
+
 
     return (
       <Spin spinning={!!loading}>
         <Form {...formProps}>
-          {
-            Object.entries(itemMap).map(([group, items], index) =>
-              <Fragment key={group}>
-                {
-                  index ?
-                    <hr style={{marginBottom: '2em'}}/>
-                    :
-                    null
-                }
-                {
-                  Object.entries(items).map(([key, {fieldOptions, children, ...itemProps}]) =>
-                    <Form.Item key={key} {...itemProps}>
-                      {
-                        getFieldDecorator(`${group}.${key}`, fieldOptions)(children)
-                      }
-                    </Form.Item>
-                  )
-                }
-              </Fragment>
-            )
-          }
-          <div style={{paddingLeft:200, marginTop:30}}>
-            <a onClick={()=>{
-              this.setState({senior: !this.state.senior});
-            }}>{this.state.senior ? '简单' : '高级'}</a>
-          </div>
-          <Form.Item wrapperCol={{offset: 8, span: 14}} style={{marginTop: 50}}>
-            <Button type="primary" htmlType="submit" style={{width: 120}}>创建</Button>
-            <Button type="danger" htmlType="reset" style={{width: 120, marginLeft: '1em'}} onClick={() => {
+          <Tabs defaultActiveKey="info">
+            <Tabs.TabPane tab="基本信息" key="info">
+              <ExaminerInfoFields {...infoFieldsProps}/>
+            </Tabs.TabPane>
+          </Tabs>
+
+          <Tabs defaultActiveKey={this.state.contentType} onChange={type => this.setState({contentType: type})}>
+            <Tabs.TabPane tab="通用答题卡" key="common">
+              <CommonQuestionFields form={form}/>
+            </Tabs.TabPane>
+            {
+              this.state.subject && this.state.subject.name === '英语' ?
+                <Tabs.TabPane tab="英语翻译答题卡" key="englishTranslation">
+                  <EnglishTranslationFields {...printFieldsProps}/>
+                </Tabs.TabPane>
+                :
+                null
+            }
+          </Tabs>
+          <Tabs defaultActiveKey="print">
+            <Tabs.TabPane tab="页面设置" key="print">
+              <PrintFields {...printFieldsProps} />
+            </Tabs.TabPane>
+          </Tabs>
+
+
+          <Form.Item wrapperCol={{offset: 4, span: 14}} style={{marginTop: 50}}>
+            <Button type="primary" htmlType="submit" style={{width: 100}}>创建</Button>
+            <Button type="danger" htmlType="reset" style={{width: 100, marginLeft: '1em'}} onClick={() => {
               dispatch({
                 type: namespace + '/set',
                 payload: {
@@ -397,20 +483,24 @@ export default connect(state => ({
   classMap: state[namespace].classMap,
   gradeMap: state[namespace].gradeMap,
   createFilePayload: state[namespace].createFilePayload,
-}))(Form.create({
-  mapPropsToFields(props) {
-    const ret = {};
-    if (props.createFilePayload) {
-      Object.entries(props.createFilePayload).forEach(([key, group]) => {
-        if (group) {
-          Object.entries(group).forEach(([subKey, value]) => {
-            ret[`${key}.${subKey}`] = Form.createFormField({value});
-          });
+}))(
+  Form.create({
+      mapPropsToFields(props) {
+        const ret = {};
+        if (props.createFilePayload) {
+          Object.entries(props.createFilePayload).forEach(([key, group]) => {
+            if (group) {
+              Object.entries(group).forEach(([subKey, value]) => {
+                ret[`${key}.${subKey}`] = Form.createFormField({value});
+              });
+            }
+          })
         }
-      })
+        delete ret['info.date'];
+        console.log(ret);
+        return ret;
+      }
     }
-    delete ret['info.date'];
-    console.log(ret);
-    return ret;
-  }
-})(CreateFilePanel))
+  )(CreateFilePanel)
+)
+

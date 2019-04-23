@@ -12,7 +12,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf/dist/jspdf.debug.js';
 import {pipes, pipe} from "../../utils/pipe";
 import cache from './cache';
-import styles from './answer.less';
+
 
 window.html2canvas = html2canvas;
 
@@ -67,13 +67,12 @@ function createFile(state, action) {
           choiceCount = 30,
           completionCount = 5,
           answerCount = 1,
+          englishTranslation = '',  // 英语翻译专用
+          // type='common', || 'englishTranslation'
         },
         info = {}
       }
     } = action;
-
-    // 缓存创建文件表单提交的数据
-    cache('createFilePayload', action.payload);
 
     const {print: {width, height}, direction} = PAGE_SIZE[type];
 
@@ -146,57 +145,83 @@ function createFile(state, action) {
       code: (info.schoolYear || new Date().getFullYear()).toString(),
     }));
 
-    if (choiceCount) {
-      const ys = choiceCount % 5;
-      let gs = Math.ceil(choiceCount / 5) + (ys === 0 ? 1 : 0);
-      let i = 0;
-
-      const createChoiceQuestion = (count)=> {
-        return ElementObject.create({
-          type: 'choice-question',
-          startNumber: i * 5 + 1,
-          count,
-          optionCount: 4,
-          questionType: QuestionTypeEnum.单选题
-        });
-      }
-
-      for (; i < gs - 1; i++) {
-        firstCol.elements.push(createChoiceQuestion(5));
-      }
-      if (ys) {
-        firstCol.elements.push(createChoiceQuestion(ys));
-      }
-    }
-
-    if (completionCount) {
-      const cs = (choiceCount || 0) + 1;
-      for (let i = 0; i < completionCount; i++) {
-        firstCol.elements.push(ElementObject.create({
-          type: 'completion-question',
-          number: cs + i,
-          count: 3,
-        }));
+    // 英语翻译专用
+    if (action.payload.content.type === 'englishTranslation') {
+      const content = (englishTranslation || '').split(/\n/g);
+      const secondCol = firstPage.columns[1];
+      for (let i = 0; i < content.length ;i += 2) {
+        if(i<32) {
+          firstCol.elements.push(ElementObject.create({
+            type: 'english-translation-question',
+            number: Math.floor(i / 2) + 1,
+            stem: content[i],
+            answer: content[i + 1],
+            score: 1,
+          }));
+        }else{
+          secondCol.elements.push(ElementObject.create({
+            type: 'english-translation-question',
+            number: Math.floor(i / 2) + 1,
+            stem: content[i],
+            answer: content[i + 1],
+            score: 1,
+          }));
+        }
       }
     }
+    // 通用答题卡内容
+    else {
+      if (choiceCount) {
+        const ys = choiceCount % 5;
+        let gs = Math.ceil(choiceCount / 5) + (ys === 0 ? 1 : 0);
+        let i = 0;
 
-    if (answerCount) {
-      const as = ((choiceCount + completionCount) || 0) + 1;
-      for (let i = 0; i < answerCount; i++) {
-        firstCol.elements.push(ElementObject.create({
-          type: 'answer-question',
-          number: as + i,
-        }));
+        const createChoiceQuestion = (count) => {
+          return ElementObject.create({
+            type: 'choice-question',
+            startNumber: i * 5 + 1,
+            count,
+            optionCount: 4,
+            questionType: QuestionTypeEnum.单选题
+          });
+        }
+
+        for (; i < gs - 1; i++) {
+          firstCol.elements.push(createChoiceQuestion(5));
+        }
+        if (ys) {
+          firstCol.elements.push(createChoiceQuestion(ys));
+        }
+      }
+
+      if (completionCount) {
+        const cs = (choiceCount || 0) + 1;
+        for (let i = 0; i < completionCount; i++) {
+          firstCol.elements.push(ElementObject.create({
+            type: 'completion-question',
+            number: cs + i,
+            count: 3,
+          }));
+        }
+      }
+
+      if (answerCount) {
+        const as = ((choiceCount + completionCount) || 0) + 1;
+        for (let i = 0; i < answerCount; i++) {
+          firstCol.elements.push(ElementObject.create({
+            type: 'answer-question',
+            number: as + i,
+          }));
+        }
       }
     }
-
-
     return {
       ...state, file, activePageKey: firstPage.key, activeColumnKey: firstCol.key,
+      createFilePayload: action.payload,
     };
   } catch (e) {
     console.error(e);
-    return {...state};
+    return {...state, createFilePayload: action.payload,};
   }
 
 }
@@ -865,6 +890,31 @@ function buildElementOffset(state) {
   return {...state, file: ElementObject.create(file)};
 }
 
+window.debugShowData = (data) => {
+  if (typeof data === "string") {
+    data = JSON.parse(data);
+  }
+  if (data.pages && data.pages.length) {
+    const fileNode = document.querySelector('[role="file"]');
+    const pageNodes = fileNode.querySelectorAll('[role="page"]');
+    data.pages.forEach((pageElements, pageIndex) => {
+      const pageNode = pageNodes[pageIndex];
+      pageElements.forEach((ele) => {
+        const {type, x, y, width, height} = ele;
+        const node = document.createElement('div');
+        node.style.width = width + 'px';
+        node.style.height = height + 'px';
+        node.style.top = y + 'px';
+        node.style.left = x + 'px';
+        node.style.position = 'absolute';
+        node.style.background = 'rgba(255,0,0,.3)';
+        pageNode.appendChild(node);
+        // ele.style
+      })
+    });
+  }
+};
+
 /**
  * DOM元素位置信息
  * @param id
@@ -934,7 +984,7 @@ export default Model(
               });
             }
           }
-          if (pathname === '/examiner' || (pathname === namespace+'/marking')) {
+          if (pathname === '/examiner' || (pathname === namespace + '/marking')) {
             dispatch({
               type: 'list',
               payload: {...query}

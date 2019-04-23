@@ -29,7 +29,9 @@ export async function marking({id, score}) {
  * @returns {Promise<any>}
  */
 export async function student({id, questionNum, auditStatus}) {
-  return request('/api/8queen/examiner/student', {data: {editorId: id, questionNum, auditStatus}, method: 'GET'});
+  return request('/api/8queen/examiner/student', {
+    data: {editorId: id, questionNum, auditStatus}, method: 'GET'
+  });
 }
 
 

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import router from "umi/router";
-import {Switch} from 'antd';
+import {Switch, Modal} from 'antd';
 import {
   AnswerEditor as namespace, ExaminerPrint,
   ManagesGrade, ManagesSubject,
@@ -82,13 +82,20 @@ export default class ExaminerAnswerListPage extends Component {
         width: 100,
         render: (v, item) => <Switch checked={v === 1} onChange={(value) => {
           console.log(v);
-          dispatch({
-            type: namespace + '/modify',
-            payload: {
-              id: item.id,
-              automatic: value ? 1 : 0
+
+          Modal.confirm({
+            title:'警告，二次确认操作',
+            content:'修改阅卷方式将清空原有数据，请谨慎操作',
+            onOk:()=>{
+              dispatch({
+                type: namespace + '/modify',
+                payload: {
+                  id: item.id,
+                  automatic: value ? 1 : 0
+                }
+              })
             }
-          })
+          });
         }}/>
       },
       {title: '创建时间', key: 'dateCreated', width: 150,},

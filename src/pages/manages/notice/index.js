@@ -88,7 +88,7 @@ export default class ManagesNotice extends Component {
       item: this.state.item,
       onCancel: () => this.setState({visible: false}),
       onOk: (payload) => {
-        console.log(payload);
+        // console.log(payload);
         dispatch({
           type: namespace + (payload.id ? '/modify' : '/create'),
           payload,
