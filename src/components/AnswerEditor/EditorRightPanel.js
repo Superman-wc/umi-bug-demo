@@ -1,10 +1,9 @@
 import React, {Fragment} from 'react';
 import {connect} from 'dva';
-import {Button, Form, Input} from 'antd';
+import {Button, Form, Input, Popconfirm} from 'antd';
 import styles from './answer.less';
 import AttributePanel from "./AttributePanel";
 import {AnswerEditor as namespace} from "../../utils/namespace";
-
 
 
 function EditorRightPanel(props) {
@@ -16,23 +15,23 @@ function EditorRightPanel(props) {
         file ?
           query.readOnly ?
             <section className={styles['editor-right-panel']}>
-              <div style={{padding:'100px 50px 20px 50px'}}>
+              <div style={{padding: '100px 50px 20px 50px'}}>
                 <h3 className="tac">请按如下要求设置打印机</h3>
                 <h4>
                   <label>尺寸：</label>
-                  <span style={{color:'#f00'}}>{file.print.type}</span>
+                  <span style={{color: '#f00'}}>{file.print.type}</span>
                 </h4>
                 <h4>
                   <label>布局：</label>
-                  <span style={{color:'#f00'}}>{file.print.direction}</span>
+                  <span style={{color: '#f00'}}>{file.print.direction}</span>
                 </h4>
                 <h4>
                   <label>边距：</label>
-                  <span style={{color:'#f00'}}>无</span>
+                  <span style={{color: '#f00'}}>无</span>
                 </h4>
                 <h4>
                   <label>背景图形：</label>
-                  <span style={{color:'#f00'}}>需要</span>
+                  <span style={{color: '#f00'}}>需要</span>
                 </h4>
               </div>
               <div className="tac">
@@ -55,14 +54,21 @@ function EditorRightPanel(props) {
                 activeColumnKey ?
                   <div className="tac">
                     <hr/>
-                    <Button type="danger" onClick={() => {
-                      dispatch({
-                        type: namespace + '/removeActiveColumn',
-                        payload: {
-                          key: activeColumnKey
-                        }
-                      })
-                    }}>删除列</Button>
+                    <Popconfirm
+                      placement="rightBottom"
+                      title="删除列将会删除列内的所有内容，确定要删除列吗？"
+                      okText="删除"
+                      cancelText="取消"
+                      onConfirm={() => {
+                        dispatch({
+                          type: namespace + '/removeActiveColumn',
+                          payload: {
+                            key: activeColumnKey
+                          }
+                        })
+                      }}>
+                      <Button type="danger">删除列</Button>
+                    </Popconfirm>
                   </div>
                   :
                   null

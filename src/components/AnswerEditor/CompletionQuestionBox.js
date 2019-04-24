@@ -12,13 +12,14 @@ class CompletionQuestion extends Component {
 
 
   render() {
-    const {number, value, onChange} = this.props;
+    const {number, value, onChange, answer} = this.props;
 
     const props = {
       className: styles['completion-question'],
       role:'box',
       'data-type': 'sub-completion-question',
       'data-sub-number': number,
+      'data-value': answer,
     };
 
     return (
@@ -63,17 +64,22 @@ export default class CompletionQuestionBox extends Component {
         min: 1,
         max: 50
       }
+    },
+    answer:{
+      type:'Array[string]', label:'答案',
+
     }
   };
 
   render() {
     const {value = {}, ...props} = this.props;
-    const {score = 1, number = 1, count = 3, content=[]} = value || {};
+    const {score = 1, number = 1, count = 3, content=[], answer=[]} = value || {};
     const list = [];
     for (let i = 0; i < count; i++) {
       const _props = {
         number:count > 1 ? i + 1 : 0,
         value: content[i],
+        answer: answer[i],
         onChange:(e)=>{
           const v= [...content];
           v[i] = e.value;

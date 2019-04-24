@@ -15,19 +15,22 @@ export function Score({value = 10}) {
 
   scores.push(<ScoreItem key={0} value={0}/>);
 
+  let max = 0;
+
   // 整数按位分割， 反向， 个位在前，
   valueStr.split('').reverse().forEach((s, v) => {
     const m = valueStr.length - 1 > v ? 9 : parseInt(s, 10);
     const k = Math.pow(10, v);
     for (let i = 1; i <= m; i++) {
       const j = i * k;
+      max = j;
       scores.push(
         <ScoreItem key={j} value={j}/>
       )
     }
   });
 
-  if (value > 10) {
+  if (value > 10 && value !== max) {
     scores.push(<ScoreItem key={value} value={value}/>);
   }
 

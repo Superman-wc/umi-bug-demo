@@ -6,14 +6,15 @@ import ChoiceQuestionBox from "./ChoiceQuestionBox";
 import CompletionQuestionBox from "./CompletionQuestionBox";
 import AnswerQuestionBox from "./AnswerQuestionBox";
 import EnglishTranslationQuestionBox from './EnglishTranslationQuestionBox';
+import EnglishCompositionQuestionBox from './EnglishCompositionQuestionBox';
 
 const ElementTypes = {
   'student-info': StudentInfoBox,
   'choice-question': ChoiceQuestionBox,
   'answer-question': AnswerQuestionBox,
   'completion-question': CompletionQuestionBox,
-  'english-translation-question': EnglishTranslationQuestionBox
-  // 'page-title': TitleBox,
+  'english-translation-question': EnglishTranslationQuestionBox,
+  'english-composition-question': EnglishCompositionQuestionBox,
 };
 
 export default function EditorElement({element, ...restProps}) {
@@ -82,8 +83,11 @@ export default function EditorElement({element, ...restProps}) {
                   :
                   element.type === 'english-translation-question' ?
                     <EnglishTranslationQuestionBox {...props} />
-                  :
-                  null
+                    :
+                    element.type === 'english-composition-question' ?
+                      <EnglishCompositionQuestionBox {...props} />
+                      :
+                      null
       }
     </Fragment>
   )
