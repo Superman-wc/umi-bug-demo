@@ -317,7 +317,44 @@ EnglishTranslationQuestionBox.js
     margin-top: 23px;
   }
 }
+/**
+EnglishCompositionQuestionBox.js
+ */
+.english-composition-question-box{
+  .subjective-questions-box{
+    &>main{
+      padding-top: 10px;
+    }
+  }
+  .question-toolbar label span{
+    opacity: 0.3;
+  }
+  ul{
+    margin-bottom: 0;
+    li{
+      height:40px;
+      line-height: 40px;
 
+      padding-bottom:4px;
+      position: relative;
+      span{
+        opacity: 0.3;
+        &:after{
+          content:'行'
+        }
+      }
+      &:after{
+        position: absolute;
+        left:0;
+        top:0;
+        width:100%;
+        height:36px;
+        content:'';
+        border-bottom:1px solid;
+      }
+    }
+  }
+}
 
 /**
 AnswerQuestionBox.js
@@ -598,7 +635,9 @@ EditorRightPanel.js
   background-color: #f0f0f0;
   border-left: 1px solid #ccc;
   box-shadow: 0 0 10px #ccc;
-  padding-top: 20px;
+  overflow: auto;
+  padding-left: 10px;
+  padding-right: 10px;
 
   :global {
     .ant-form-item {
@@ -765,7 +804,9 @@ EditorColumn.js
   .editor-header,
   .editor-right-panel,
   .read-only,
-  .english-translation-question-box .answer-box span{
+  .english-translation-question-box .answer-box span,
+  .english-composition-question-box ul li span,
+  .english-composition-question-box .question-toolbar label span{
     display: none !important;
   }
 

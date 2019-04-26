@@ -183,9 +183,10 @@ function createFile(state, action) {
             startNumber: i * 5 + 1,
             count,
             optionCount: 4,
-            questionType: QuestionTypeEnum.单选题
+            questionType: QuestionTypeEnum.单选题,
+            score:1,
           });
-        }
+        };
 
         for (; i < gs - 1; i++) {
           firstCol.elements.push(createChoiceQuestion(5));
@@ -216,8 +217,12 @@ function createFile(state, action) {
         }
       }
     }
+
     return {
-      ...state, file, activePageKey: firstPage.key, activeColumnKey: firstCol.key,
+      ...state,
+      file: calculationTotalScore(file),
+      activePageKey: firstPage.key,
+      activeColumnKey: firstCol.key,
       createFilePayload: action.payload,
     };
   } catch (e) {
@@ -728,28 +733,29 @@ function createPosition(state) {
               });
               roleBox.children = c;
               roleBox.items = items;
-            } else if (roleBox.type === 'english-translation-question') {
-              // 英语翻译题处理成填空题
-              const items = [];
-              const c = [];
-              let n = 1;
-              roleBox.children.forEach((it => {
-                if (it.type === 'english-translation-question-answer-box') {
-                  it.type = 'sub-completion-question';
-                  it.value = roleBox.value;
-                  it.score = roleBox.score * 1;
-                  it.subNumber = n++;
-                  items.push(it);
-                } else {
-                  c.push(it);
-                }
-              }));
-              roleBox.type = 'completion-question';
-              delete roleBox.children ;
-              roleBox.items = items;
-              delete roleBox.value;
-
             }
+            // else if (roleBox.type === 'english-translation-question') {
+            //   // 英语翻译题处理成填空题
+            //   const items = [];
+            //   const c = [];
+            //   let n = 1;
+            //   roleBox.children.forEach((it => {
+            //     if (it.type === 'english-translation-question-answer-box') {
+            //       it.type = 'sub-completion-question';
+            //       it.value = roleBox.value;
+            //       it.score = roleBox.score * 1;
+            //       it.subNumber = n++;
+            //       items.push(it);
+            //     } else {
+            //       c.push(it);
+            //     }
+            //   }));
+            //   roleBox.type = 'completion-question';
+            //   delete roleBox.children ;
+            //   roleBox.items = items;
+            //   delete roleBox.value;
+            //
+            // }
 
           }
           if (roleBox.number) {

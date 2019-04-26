@@ -76,16 +76,16 @@ export default class AnswerQuestionBox extends Component {
     };
 
 
-    const contentEditorProps = {
-      value: content || '<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>',
-      onChange: e => props.dispatch({
-        type: namespace + '/setElementAttribute',
-        payload: {
-          key: 'content',
-          value: e.value
-        }
-      }),
-    };
+    // const contentEditorProps = {
+    //   value: content || '<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>',
+    //   onChange: e => props.dispatch({
+    //     type: namespace + '/setElementAttribute',
+    //     payload: {
+    //       key: 'content',
+    //       value: e.value
+    //     }
+    //   }),
+    // };
 
 
     return (
@@ -95,16 +95,17 @@ export default class AnswerQuestionBox extends Component {
             <label className={styles['question-number']}>
               {number}.
               {score ? `（${score}分）` : null}
+              <span>英语作文</span>
             </label>
           </div>
-          <ul>
+          <ul role="box" data-type="english-composition-question-answer-box">
           {
-            new Array(lineCount || 1).fill('').map((it, index)=>
-              <li key={index} >{index}</li>
+            new Array(lineCount || 5).fill('').map((it, index)=>
+              <li key={index} ><span>{index+1}</span></li>
             )
           }
           </ul>
-          <ContentEditableArea {...contentEditorProps}/>
+          {/*<ContentEditableArea {...contentEditorProps}/>*/}
         </SubjectiveQuestionsBox>
       </Element>
     )

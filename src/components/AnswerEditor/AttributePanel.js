@@ -4,7 +4,6 @@ import styles from './answer.less';
 import {AnswerEditor as namespace} from "../../utils/namespace";
 import {Enums} from '../../utils/Enum';
 
-
 function AttributePanel(props) {
 
   const {
@@ -33,15 +32,18 @@ function AttributePanel(props) {
               getFieldDecorator(key, setting.fieldOptions)(
                 setting.type === 'number' ?
                   <InputNumber {...setting.props} onChange={(value) => {
-                    if (setting.props) {
-                      if (typeof setting.props.max === "number") {
-                        value = Math.min(value, setting.props.max);
+                    if (typeof value === 'number') {
+                      if (setting.props) {
+                        if (typeof setting.props.max === "number") {
+                          value = Math.min(value, setting.props.max);
+                        }
+                        if (typeof setting.props.min === "number") {
+                          value = Math.max(setting.props.min, value);
+                        }
                       }
-                      if (typeof setting.props.min === "number") {
-                        value = Math.max(setting.props.min, value);
-                      }
+                      //(setting.props && setting.props.min)
+                      setting.onChange && setting.onChange(value);
                     }
-                    setting.onChange && setting.onChange(value || (setting.props && setting.props.min) || 1);
                   }}/>
                   :
                   setting.type === 'enum' ?
@@ -114,7 +116,7 @@ class ArrayInput extends Component {
           new Array(count).fill('').map((it, index) =>
             <div key={index}>
               <Input
-                placeholder={`第${index+1}小题`}
+                placeholder={`第${index + 1}小题`}
                 value={value[index]}
                 onChange={e => {
                   value[index] = e.target.value;

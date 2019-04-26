@@ -95,7 +95,9 @@ export interface ICreateFilePayload {
   info: ICreateFilePayloadInfo
 }
 
-export function createFile(ICreateFilePayload): void {
-
+export interface IChoiceQuestion extends IQuestion{
+  startNumber:number,
+  count:number,
+  optionCount:number,
+  questionType:number,
 }
-

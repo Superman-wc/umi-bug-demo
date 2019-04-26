@@ -154,7 +154,7 @@ export function EnglishTranslationFields({form: {getFieldDecorator}, onChange, e
             rules: [{
               validator: (rule, value, callback) => {
                 const list = value.split(/\n/g);
-                if (contentType*1 !== EditorContentTypeEnum.英语翻译答题卡 || list.length % 2 === 0) {
+                if (contentType * 1 !== EditorContentTypeEnum.英语翻译答题卡 || list.length % 2 === 0) {
                   callback();
                 } else {
                   callback(new Error('请按一行题目，一行答案的格式输入'));
@@ -175,6 +175,9 @@ export function EnglishTranslationFields({form: {getFieldDecorator}, onChange, e
   )
 }
 
+
+
+
 export function PrintFields({form: {getFieldDecorator}, onChange, maxColCount, senior}) {
   const wrapper = {labelCol: {span: 4}, wrapperCol: {span: 14}};
   return (
@@ -192,7 +195,6 @@ export function PrintFields({form: {getFieldDecorator}, onChange, maxColCount, s
                       } else {
                         onChange({maxColCount: 1});
                       }
-
                     }}
             >
               {
@@ -258,7 +260,7 @@ export function PrintFields({form: {getFieldDecorator}, onChange, maxColCount, s
       }
       <div style={{paddingLeft: 100, marginTop: 30}}>
         <a onClick={() => {
-          onChange({senior: !senior});
+          onChange && onChange({senior: !senior});
         }}>{senior ? '简单' : '高级设置'}</a>
       </div>
     </div>
@@ -327,7 +329,7 @@ class CreateFilePanel extends Component {
           return map;
         }, {});
 
-        if (subjectList && createFilePayload.info && createFilePayload.info.subject) {
+        if (subjectList && createFilePayload && createFilePayload.info && createFilePayload.info.subject) {
           const subject = subjectList.find(it => it.id === createFilePayload.info.subject);
           this.setState({subject});
         }
@@ -345,7 +347,7 @@ class CreateFilePanel extends Component {
     }
     console.log(createFilePayload);
 
-    if (subjectList && createFilePayload.info && createFilePayload.info.subject) {
+    if (subjectList && createFilePayload && createFilePayload.info && createFilePayload.info.subject) {
       const subject = subjectList.find(it => it.id === createFilePayload.info.subject);
       this.setState({subject});
     }
@@ -386,7 +388,7 @@ class CreateFilePanel extends Component {
 
         payload.content.type = this.state.contentType;
 
-        if (payload.content.type*1 === EditorContentTypeEnum.英语翻译答题卡) {
+        if (payload.content.type * 1 === EditorContentTypeEnum.英语翻译答题卡) {
           payload.print.colCount = 2;
         }
 
