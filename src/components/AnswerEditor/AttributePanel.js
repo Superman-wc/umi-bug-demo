@@ -1,9 +1,8 @@
-import React from 'react';
+import React, {Component} from 'react';
 import {Form, Button, Input, InputNumber, Select} from 'antd';
 import styles from './answer.less';
 import {AnswerEditor as namespace} from "../../utils/namespace";
 import {Enums} from '../../utils/Enum';
-
 
 function AttributePanel(props) {
 
@@ -21,24 +20,30 @@ function AttributePanel(props) {
     className: styles['attribute-panel']
   };
 
+  console.log(attributePanelConfig);
+
+
   return (
     <Form {...formProps}>
       {
         Object.entries(attributePanelConfig || {}).map(([key, setting]) =>
-          <Form.Item key={key} label={setting.label} labelCol={{span: 8}} wrapperCol={{span: 14}}>
+          <Form.Item key={key} label={setting.label} labelCol={{span: 6}} wrapperCol={{span: 14}}>
             {
               getFieldDecorator(key, setting.fieldOptions)(
                 setting.type === 'number' ?
                   <InputNumber {...setting.props} onChange={(value) => {
-                    if (setting.props) {
-                      if (typeof setting.props.max === "number") {
-                        value = Math.min(value, setting.props.max);
+                    if (typeof value === 'number') {
+                      if (setting.props) {
+                        if (typeof setting.props.max === "number") {
+                          value = Math.min(value, setting.props.max);
+                        }
+                        if (typeof setting.props.min === "number") {
+                          value = Math.max(setting.props.min, value);
+                        }
                       }
-                      if (typeof setting.props.min === "number") {
-                        value = Math.max(setting.props.min, value);
-                      }
+                      //(setting.props && setting.props.min)
+                      setting.onChange && setting.onChange(value);
                     }
-                    setting.onChange && setting.onChange(value || (setting.props && setting.props.min) || 1);
                   }}/>
                   :
                   setting.type === 'enum' ?
@@ -57,15 +62,21 @@ function AttributePanel(props) {
                         setting.onChange && setting.onChange(e.target.value);
                       }}/>
                       :
-                      <Input onChange={(e) => {
-                        setting.onChange && setting.onChange(e.target.value);
-                      }}/>
+                      setting.type === 'Array[string]' ?
+                        <ArrayInput count={attributePanelConfig.count.value} onChange={(value) => {
+                          console.log(value);
+                          setting.onChange && setting.onChange(value);
+                        }}/>
+                        :
+                        <Input onChange={(e) => {
+                          setting.onChange && setting.onChange(e.target.value);
+                        }}/>
               )
             }
           </Form.Item>
         )
       }
-      <Form.Item wrapperCol={{offset: 8, span: 14}}>
+      <Form.Item wrapperCol={{offset: 6, span: 14}}>
         <Button onClick={() => {
           dispatch({
             type: namespace + '/removeActiveElement',
@@ -93,3 +104,28 @@ export default Form.create({
     }, {});
   }
 })(AttributePanel);
+
+class ArrayInput extends Component {
+  render() {
+
+    const {value = [], onChange, count = 1} = this.props;
+
+    return (
+      <div>
+        {
+          new Array(count).fill('').map((it, index) =>
+            <div key={index}>
+              <Input
+                placeholder={`第${index + 1}小题`}
+                value={value[index]}
+                onChange={e => {
+                  value[index] = e.target.value;
+                  onChange && onChange(value);
+                }}/>
+            </div>
+          )
+        }
+      </div>
+    )
+  }
+}

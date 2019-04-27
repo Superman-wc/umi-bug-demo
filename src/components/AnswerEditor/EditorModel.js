@@ -6,7 +6,7 @@ import ver from './version';
 import {PAGE_SIZE} from "./const";
 import {html2text, mm2px, text2html} from "./helper";
 import * as ElementObject from './ElementObject';
-import {QuestionTypeEnum} from "../../utils/Enum";
+import {EditorContentTypeEnum, QuestionTypeEnum} from "../../utils/Enum";
 import {list, create, item, remove, modify} from '../../services/examiner/answer';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf/dist/jspdf.debug.js';
@@ -68,7 +68,7 @@ function createFile(state, action) {
           completionCount = 5,
           answerCount = 1,
           englishTranslation = '',  // 英语翻译专用
-          // type='common', || 'englishTranslation'
+          // type=EditorContentTypeEnum.通用答题卡
         },
         info = {}
       }
@@ -99,7 +99,8 @@ function createFile(state, action) {
         colCount,
         colSpan,
       },
-      pages: []
+      pages: [],
+      contentType: action.payload.content.type * 1,
     });
 
     const colWidth = calcColWidth(file.print.w, padding, colCount, colSpan);
@@ -146,11 +147,11 @@ function createFile(state, action) {
     }));
 
     // 英语翻译专用
-    if (action.payload.content.type === 'englishTranslation') {
+    if (file.contentType === EditorContentTypeEnum.英语翻译答题卡) {
       const content = (englishTranslation || '').split(/\n/g);
       const secondCol = firstPage.columns[1];
-      for (let i = 0; i < content.length ;i += 2) {
-        if(i<32) {
+      for (let i = 0; i < content.length; i += 2) {
+        if (i < 32) {
           firstCol.elements.push(ElementObject.create({
             type: 'english-translation-question',
             number: Math.floor(i / 2) + 1,
@@ -158,7 +159,7 @@ function createFile(state, action) {
             answer: content[i + 1],
             score: 1,
           }));
-        }else{
+        } else {
           secondCol.elements.push(ElementObject.create({
             type: 'english-translation-question',
             number: Math.floor(i / 2) + 1,
@@ -182,9 +183,10 @@ function createFile(state, action) {
             startNumber: i * 5 + 1,
             count,
             optionCount: 4,
-            questionType: QuestionTypeEnum.单选题
+            questionType: QuestionTypeEnum.单选题,
+            score:1,
           });
-        }
+        };
 
         for (; i < gs - 1; i++) {
           firstCol.elements.push(createChoiceQuestion(5));
@@ -215,8 +217,12 @@ function createFile(state, action) {
         }
       }
     }
+
     return {
-      ...state, file, activePageKey: firstPage.key, activeColumnKey: firstCol.key,
+      ...state,
+      file: calculationTotalScore(file),
+      activePageKey: firstPage.key,
+      activeColumnKey: firstCol.key,
       createFilePayload: action.payload,
     };
   } catch (e) {
@@ -463,6 +469,8 @@ function autoQuestionNumber(file) {
             break;
           case 'completion-question':
           case 'answer-question':
+          case 'english-composition-question':
+          case 'english-translation-question':
             ele.number = number++;
             break;
           default:
@@ -537,6 +545,18 @@ function addAnswerQuestion(state) {
     type: 'answer-question',
     number: 1,
   }));
+}
+
+/**
+ * 添加英语作文题
+ * @param state
+ * @returns {*}
+ */
+function addEnglishCompositionQuestion(state) {
+  return insertQuestion(state, ElementObject.create({
+    type: 'english-composition-question',
+    number: 1
+  }))
 }
 
 /**
@@ -714,6 +734,29 @@ function createPosition(state) {
               roleBox.children = c;
               roleBox.items = items;
             }
+            // else if (roleBox.type === 'english-translation-question') {
+            //   // 英语翻译题处理成填空题
+            //   const items = [];
+            //   const c = [];
+            //   let n = 1;
+            //   roleBox.children.forEach((it => {
+            //     if (it.type === 'english-translation-question-answer-box') {
+            //       it.type = 'sub-completion-question';
+            //       it.value = roleBox.value;
+            //       it.score = roleBox.score * 1;
+            //       it.subNumber = n++;
+            //       items.push(it);
+            //     } else {
+            //       c.push(it);
+            //     }
+            //   }));
+            //   roleBox.type = 'completion-question';
+            //   delete roleBox.children ;
+            //   roleBox.items = items;
+            //   delete roleBox.value;
+            //
+            // }
+
           }
           if (roleBox.number) {
             roleBox.number = parseInt(roleBox.number, 10);
@@ -1047,6 +1090,7 @@ export default Model(
       addChoiceQuestion,
       addCompletionQuestion,
       addAnswerQuestion,
+      addEnglishCompositionQuestion,
       addStudentInfoBox,
       setElementAttribute,
       autoQuestionNumber(state) {

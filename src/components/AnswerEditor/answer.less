@@ -293,25 +293,74 @@ EnglishTranslationQuestionBox.js
   .answer-box{
     height:25px;
     padding-bottom: 4px;
+    position: relative;
+    width:100%;
     &:before{
       display: block;
+      position: absolute;
+      top:0;
+      left:0;
+      width:100%;
       line-height: 18px;
       border-bottom:1px solid #000;
       text-indent: -9999px;
       content:'这里是学生填写答案的地方';
       height:20px;
     }
+    span{
+      opacity: 0.3;
+      display: block;
+      font-size:18px;
+    }
   }
   .student-info-box + &{
     margin-top: 23px;
   }
 }
+/**
+EnglishCompositionQuestionBox.js
+ */
+.english-composition-question-box{
+  .subjective-questions-box{
+    &>main{
+      padding-top: 10px;
+    }
+  }
+  .question-toolbar label span{
+    opacity: 0.3;
+  }
+  ul{
+    margin-bottom: 0;
+    li{
+      height:40px;
+      line-height: 40px;
 
+      padding-bottom:4px;
+      position: relative;
+      span{
+        opacity: 0.3;
+        &:after{
+          content:'行'
+        }
+      }
+      &:after{
+        position: absolute;
+        left:0;
+        top:0;
+        width:100%;
+        height:36px;
+        content:'';
+        border-bottom:1px solid;
+      }
+    }
+  }
+}
 
 /**
 AnswerQuestionBox.js
  */
-.answer-question-box {
+.answer-question-box,
+.english-composition-question-box{
   width: 100%;
 
   .subjective-questions-box {
@@ -476,6 +525,10 @@ TitleBox.js
   padding: 0 60px 0 80px;
   height: 80px;
 
+  .content-editable-area{
+    margin-top: -5px;
+  }
+
   .html-input {
     height: 78px;
     overflow: hidden;
@@ -492,7 +545,7 @@ Editor.js
 #editor {
   user-select: none;
   overflow: auto !important;
-  padding: 30px 230px 0 0;
+  padding: 30px 300px 0 0;
   background-color: #f0f4f8;
 
   :global {
@@ -578,11 +631,13 @@ EditorRightPanel.js
   top: 30px;
   right: 0;
   bottom: 0;
-  width: 230px;
+  width: 300px;
   background-color: #f0f0f0;
   border-left: 1px solid #ccc;
   box-shadow: 0 0 10px #ccc;
-  padding-top: 20px;
+  overflow: auto;
+  padding-left: 10px;
+  padding-right: 10px;
 
   :global {
     .ant-form-item {
@@ -672,7 +727,8 @@ EditorPage.js
     }
 
     .completion-question-box,
-    .answer-question-box {
+    .answer-question-box,
+    .english-composition-question-box{
       &:first-child {
         margin-top: 0;
       }
@@ -747,7 +803,10 @@ EditorColumn.js
   .uploader,
   .editor-header,
   .editor-right-panel,
-  .read-only {
+  .read-only,
+  .english-translation-question-box .answer-box span,
+  .english-composition-question-box ul li span,
+  .english-composition-question-box .question-toolbar label span{
     display: none !important;
   }
 

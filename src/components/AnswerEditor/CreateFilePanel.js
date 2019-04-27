@@ -15,7 +15,7 @@ import {
 } from "../../utils/namespace";
 import locale from 'antd/lib/date-picker/locale/zh_CN';
 import moment from 'moment';
-import {AnswerCardTypeEnum, Enums} from "../../utils/Enum";
+import {AnswerCardTypeEnum, EditorContentTypeEnum, Enums} from "../../utils/Enum";
 
 
 const Mounted = Symbol('#CreateFilePanel@Mounted');
@@ -139,13 +139,14 @@ export function CommonQuestionFields({form: {getFieldDecorator}}) {
   )
 }
 
-export function EnglishTranslationFields({form: {getFieldDecorator}, onChange, englishTranslation = ''}) {
+export function EnglishTranslationFields({form: {getFieldDecorator}, onChange, englishTranslation = '', contentType}) {
   let placeholder = '你好吗?\nhow are you?\n你叫什么名字?\nWhat\'s your name?';
   let lines = (englishTranslation || '').split(/\n/g);
 
   return (
     <div>
-      <h3>按行输入，一行题目，一行答案， <strong>共{lines.length}行，{Math.floor(lines.length / 2)}题</strong></h3>
+      <h3>按行输入，一行题目，一行答案， <strong>共{englishTranslation ? lines.length : 0}行，{Math.floor(lines.length / 2)}题</strong>
+      </h3>
       <Form.Item>
         {
           getFieldDecorator('content.englishTranslation', {
@@ -153,7 +154,7 @@ export function EnglishTranslationFields({form: {getFieldDecorator}, onChange, e
             rules: [{
               validator: (rule, value, callback) => {
                 const list = value.split(/\n/g);
-                if (list.length % 2 === 0) {
+                if (contentType * 1 !== EditorContentTypeEnum.英语翻译答题卡 || list.length % 2 === 0) {
                   callback();
                 } else {
                   callback(new Error('请按一行题目，一行答案的格式输入'));
@@ -174,6 +175,9 @@ export function EnglishTranslationFields({form: {getFieldDecorator}, onChange, e
   )
 }
 
+
+
+
 export function PrintFields({form: {getFieldDecorator}, onChange, maxColCount, senior}) {
   const wrapper = {labelCol: {span: 4}, wrapperCol: {span: 14}};
   return (
@@ -191,7 +195,6 @@ export function PrintFields({form: {getFieldDecorator}, onChange, maxColCount, s
                       } else {
                         onChange({maxColCount: 1});
                       }
-
                     }}
             >
               {
@@ -257,7 +260,7 @@ export function PrintFields({form: {getFieldDecorator}, onChange, maxColCount, s
       }
       <div style={{paddingLeft: 100, marginTop: 30}}>
         <a onClick={() => {
-          onChange({senior: !senior});
+          onChange && onChange({senior: !senior});
         }}>{senior ? '简单' : '高级设置'}</a>
       </div>
     </div>
@@ -269,7 +272,7 @@ class CreateFilePanel extends Component {
   state = {
     senior: false,
     maxColCount: 1,
-    contentType: 'common'
+    contentType: EditorContentTypeEnum.通用答题卡,
   };
 
   componentDidMount() {
@@ -326,7 +329,7 @@ class CreateFilePanel extends Component {
           return map;
         }, {});
 
-        if (subjectList && createFilePayload.info && createFilePayload.info.subject) {
+        if (subjectList && createFilePayload && createFilePayload.info && createFilePayload.info.subject) {
           const subject = subjectList.find(it => it.id === createFilePayload.info.subject);
           this.setState({subject});
         }
@@ -344,7 +347,7 @@ class CreateFilePanel extends Component {
     }
     console.log(createFilePayload);
 
-    if (subjectList && createFilePayload.info && createFilePayload.info.subject) {
+    if (subjectList && createFilePayload && createFilePayload.info && createFilePayload.info.subject) {
       const subject = subjectList.find(it => it.id === createFilePayload.info.subject);
       this.setState({subject});
     }
@@ -385,7 +388,7 @@ class CreateFilePanel extends Component {
 
         payload.content.type = this.state.contentType;
 
-        if (payload.content.type === 'englishTranslation') {
+        if (payload.content.type * 1 === EditorContentTypeEnum.英语翻译答题卡) {
           payload.print.colCount = 2;
         }
 
@@ -427,6 +430,10 @@ class CreateFilePanel extends Component {
       onChange
     };
 
+    const englishTranslationFields = {
+      form, ...this.state, onChange,
+    };
+    console.log(this.state);
 
     return (
       <Spin spinning={!!loading}>
@@ -436,15 +443,14 @@ class CreateFilePanel extends Component {
               <ExaminerInfoFields {...infoFieldsProps}/>
             </Tabs.TabPane>
           </Tabs>
-
-          <Tabs defaultActiveKey={this.state.contentType} onChange={type => this.setState({contentType: type})}>
-            <Tabs.TabPane tab="通用答题卡" key="common">
+          <Tabs activeKey={this.state.contentType.toString()} onChange={type => this.setState({contentType: type})}>
+            <Tabs.TabPane tab="通用答题卡" key={EditorContentTypeEnum.通用答题卡}>
               <CommonQuestionFields form={form}/>
             </Tabs.TabPane>
             {
               this.state.subject && this.state.subject.name === '英语' ?
-                <Tabs.TabPane tab="英语翻译答题卡" key="englishTranslation">
-                  <EnglishTranslationFields {...printFieldsProps}/>
+                <Tabs.TabPane tab="英语翻译答题卡" key={EditorContentTypeEnum.英语翻译答题卡}>
+                  <EnglishTranslationFields {...englishTranslationFields}/>
                 </Tabs.TabPane>
                 :
                 null

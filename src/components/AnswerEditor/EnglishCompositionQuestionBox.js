@@ -9,7 +9,7 @@ import {AnswerEditor as namespace} from "../../utils/namespace";
 import styles from './answer.less';
 
 /**
- * 解答题
+ * 英语作文题
  * @returns {*}
  * @constructor
  */
@@ -33,32 +33,40 @@ export default class AnswerQuestionBox extends Component {
         max: 100
       }
     },
+    lineCount: {
+      type: 'number', label: '行数',
+      fieldOptions: {
+        initialValue: 10,
+      },
+      props: {
+        min: 5,
+        max: 50
+      }
+    }
   };
 
 
-  shouldComponentUpdate(nextProps, nextState, nextContent) {
-    const {value} = nextProps;
-    const oldValue = this.props.value || {};
-    return value && (
-      value.number !== oldValue.number ||
-      value.score !== oldValue.score ||
-      value.content !== oldValue.content
-    )
-  }
+  // shouldComponentUpdate(nextProps, nextState, nextContent) {
+  //   const {value} = nextProps;
+  //   const oldValue = this.props.value || {};
+  //   return value && (
+  //     value.number !== oldValue.number ||
+  //     value.score !== oldValue.score ||
+  //     value.content !== oldValue.content ||
+  //     value.lineCount !== oldValue.lineCount
+  //   )
+  // }
 
 
   render() {
     const {value = {}, ...props} = this.props;
-    const {number = 1, score = 1, content = ''} = value || {};
-
-    const {profile} = props;
+    const {number = 1, score = 1, content = '', lineCount} = value || {};
 
     const eleProps = {
       ...props,
-      className: styles['answer-question-box'],
+      className: styles['english-composition-question-box'],
       element: value,
       border: true,
-      ableMove: 'y',
       role: {
         role: 'box',
         'data-type': value.type,
@@ -67,27 +75,17 @@ export default class AnswerQuestionBox extends Component {
       },
     };
 
-    const uploadProps = {
-      qiNiuYunConfig: buildQiniuConfig(profile && profile.token),
-      success: ({url}) => {
-        message.success('上传图片成功');
-        console.log(url);
-        document.execCommand('insertImage', false, url);
-      }
-    };
 
-    const contentEditorProps = {
-      value: content || '<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>',
-      onChange: e => props.dispatch({
-        type: namespace + '/setElementAttribute',
-        payload: {
-          key: 'content',
-          value: e.value
-        }
-      }),
-      allowDragUpload: true,
-      uploadConfig: uploadProps,
-    };
+    // const contentEditorProps = {
+    //   value: content || '<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>',
+    //   onChange: e => props.dispatch({
+    //     type: namespace + '/setElementAttribute',
+    //     payload: {
+    //       key: 'content',
+    //       value: e.value
+    //     }
+    //   }),
+    // };
 
 
     return (
@@ -97,10 +95,17 @@ export default class AnswerQuestionBox extends Component {
             <label className={styles['question-number']}>
               {number}.
               {score ? `（${score}分）` : null}
+              <span>英语作文</span>
             </label>
-            <Uploader {...uploadProps}><a>上传图片</a></Uploader>
           </div>
-          <ContentEditableArea {...contentEditorProps}/>
+          <ul role="box" data-type="english-composition-question-answer-box">
+          {
+            new Array(lineCount || 5).fill('').map((it, index)=>
+              <li key={index} ><span>{index+1}</span></li>
+            )
+          }
+          </ul>
+          {/*<ContentEditableArea {...contentEditorProps}/>*/}
         </SubjectiveQuestionsBox>
       </Element>
     )

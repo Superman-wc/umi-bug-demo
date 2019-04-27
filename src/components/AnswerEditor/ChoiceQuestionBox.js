@@ -39,7 +39,11 @@ export default class ChoiceQuestionBox extends Component {
       type: 'number', label: '起始题号',
       fieldOptions: {
         initialValue: 1,
-      }
+      },
+      props: {
+        max: 100,
+        min: 1
+      },
     },
     count: {
       type: 'number', label: '数量',
@@ -47,7 +51,7 @@ export default class ChoiceQuestionBox extends Component {
         initialValue: 10,
       },
       props: {
-        max: 10,
+        max: 20,
         min: 1
       },
       onChange({dispatch}) {

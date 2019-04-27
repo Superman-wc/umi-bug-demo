@@ -1,10 +1,10 @@
 import React, {Component, Fragment} from 'react';
-import ContentEditableArea from './ContentEditableArea';
 import Element from "./Element";
 import styles from "./answer.less";
 
-const line = '<u>　　　　　　　　　　　　</u>';
-
+/**
+ * 英语翻译题目
+ */
 export default class EnglishTranslationQuestionBox extends Component {
 
   static attributes = {
@@ -60,13 +60,15 @@ export default class EnglishTranslationQuestionBox extends Component {
         <div className={styles['stem-box']}>
           {
             number ?
-              <label>({number})</label>
+              <label>{number}.</label>
               :
               null
           }
           <span>{stem}</span>
         </div>
-        <div className={styles['answer-box']} role="box" data-type="english-translation-question-answer-box"/>
+        <div className={styles['answer-box']} role="box" data-type="english-translation-question-answer-box">
+          <span>{answer}</span>
+        </div>
       </Element>
     )
   }

@@ -95,6 +95,11 @@ export const enum AnswerCardTypeEnum {
   考试 = 2,
 }
 
+export const enum EditorContentTypeEnum {
+  通用答题卡 = 1,
+  英语翻译答题卡 = 2,
+}
+
 
 export const enum ExaminerStatusEnum {
   删了 = 0, //  // NO_NEED_PROCESSING

@@ -25,11 +25,12 @@ function EditorHeader(props) {
       items: [
         {key: 'addPage', title: '添加纸张'},
         {key: 'addColumn', title: '添加列', disabled: !activePageKey},
-        {key: 'addTitleBox', title: '标题', dispatch: !activeColumnKey},
-        {key: 'addStudentInfoBox', title: '学生信息', dispatch: !activeColumnKey},
-        {key: 'addChoiceQuestion', title: '选择题', dispatch: !activeColumnKey},
-        {key: 'addCompletionQuestion', title: '填空题', dispatch: !activeColumnKey},
-        {key: 'addAnswerQuestion', title: '解答题', dispatch: !activeColumnKey}
+        {key: 'addTitleBox', title: '标题', disabled: !activeColumnKey},
+        {key: 'addStudentInfoBox', title: '学生信息', disabled: !activeColumnKey},
+        {key: 'addChoiceQuestion', title: '选择题', disabled: !activeColumnKey},
+        {key: 'addCompletionQuestion', title: '填空题', disabled: !activeColumnKey},
+        {key: 'addAnswerQuestion', title: '解答题', disabled: !activeColumnKey},
+        {key: 'addEnglishCompositionQuestion', title: '英语作文题', disabled: !activeColumnKey}
       ]
     }
   ];
@@ -46,7 +47,7 @@ function EditorHeader(props) {
           key, keyPath,
         },
         resolve: (res) => {
-          if (key === 'save') {
+          if (key === 'save') {  // is effect
             console.log(res);
             message.success('保存成功');
             if (!props.query.id || props.query.id * 1 !== res.id) {
@@ -55,6 +56,9 @@ function EditorHeader(props) {
           }
         }
       });
+      if (key === 'newFile') { // not is effect
+        router.replace({pathname: props.pathname, query: {...props.query, id: undefined}});
+      }
     }
   };
 

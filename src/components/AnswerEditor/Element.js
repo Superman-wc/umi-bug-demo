@@ -74,7 +74,10 @@ export default class Element extends Component {
 
     const {x = 0, y = 0, move} = this.state;
 
-    const style = {...this.props.style, transform: `translateX(${x}px) translateY(${y}px)`};
+    const style = {
+      ...this.props.style,
+      // transform: `translateX(${x}px) translateY(${y}px)`
+    };
 
 
     const props = {
