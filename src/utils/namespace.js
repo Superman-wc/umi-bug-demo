@@ -40,10 +40,11 @@ export const AdminMenu = '/admin/menu';
 
 
 export const AnswerEditor = '/examiner';
+export const Examiner = '/examiner';
 export const ExaminerSheet = '/examiner/sheet';
 export const ExaminerPrint = '/examiner/print';
 export const ExaminerMarking = '/examiner/marking';
-
+export const ExaminerRecord = '/examiner/record';
 
 
 

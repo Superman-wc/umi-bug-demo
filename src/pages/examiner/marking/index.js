@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import router from "umi/router";
-import {Switch, Modal} from 'antd';
+import {Switch, Modal, message} from 'antd';
 import {
   AnswerEditor as namespace, ExaminerPrint,
   ManagesGrade, ManagesSubject,

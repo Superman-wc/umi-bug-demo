@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
 import {message, Progress, Tabs,} from 'antd';
-import {Authenticate} from "../../utils/namespace";
+import {Authenticate, ExaminerSheet} from "../../utils/namespace";
 import {ExaminerSheet as namespace, ManagesClass, ManagesStudent, AnswerEditor} from '../../utils/namespace';
 import {ExaminerStatusEnum} from '../../utils/Enum';
 import Page from '../../components/Page';
@@ -11,7 +11,7 @@ import {buildQiniuConfig} from '../../services'
 import Qiniuyun from "../../utils/Qiniuyun";
 import {pipes, flowLine} from "../../utils/pipe";
 import styles from './workspace.less';
-import {create as createSheet, analyze} from '../../services/examiner/sheet';
+import {create as createSheet, analyze, notifyToTeacher} from '../../services/examiner/sheet';
 import classNames from 'classnames';
 import router from 'umi/router';
 import {toArray, copyFields, delay} from "../../utils/helper";
@@ -455,13 +455,28 @@ class DragUploader extends Component {
       (list = []) => {
         console.log('上传并创建完成', list);
         const ids = [];
+        const ue = {};
         const sheetMap = list.filter(it => it && it.sheet).reduce((map, it) => {
+          if (it.sheet.unitId && it.sheet.editorId) {
+            const key = `unitId=${it.sheet.unitId}&editorId=${it.sheet.editorId}`;
+            ue[key] = {
+              unitId: it.sheet.unitId,
+              unitName: it.sheet.unitName,
+              editorId: it.sheet.editorId,
+              editorTitle: it.sheet.editorTitle,
+              subjectId: it.sheet.subjectId,
+              subjectName: it.sheet.subjectName,
+            }
+          }
           map[it.sheet.id] = it;
           if (it.sheet.status === ExaminerStatusEnum.等待处理 || it.sheet.status === ExaminerStatusEnum.处理中) {
             ids.push(it.sheet.id);
           }
           return map;
         }, {});
+
+        Object.values(ue).map(notifyToTeacher);
+
         const run = (ids, waitTime = 2000) => {
           return new Promise((resolve, reject) => {
             clearTimeout(this.analyze_sid);
@@ -929,10 +944,10 @@ function Task(props) {
 
       </div>
       <div className={classNames(styles['status'], {[styles['error']]: data.error})}>
-        <a onClick={()=>{
+        <a onClick={() => {
           window.open((data.sheet && (data.sheet.debugUrl || data.sheet.rotatedUrl) || data.url) + '!page')
         }}>
-        {data.status}
+          {data.status}
         </a>
       </div>
     </li>

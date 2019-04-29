@@ -3,7 +3,7 @@ import {connect} from 'dva';
 import router from "umi/router";
 import {Form, Modal, InputNumber, Radio} from 'antd';
 import {
-  AnswerEditor as namespace, ExaminerPrint,
+  AnswerEditor as namespace, ExaminerPrint, ExaminerRecord,
   ManagesGrade, ManagesSubject,
 } from '../../utils/namespace';
 import ListPage from '../../components/ListPage';
@@ -25,7 +25,7 @@ export default class ExaminerAnswerListPage extends Component {
   state = {};
 
   componentDidMount() {
-    const {dispatch, location: {query}} = this.props;
+    const {dispatch, location: {pathname, query}, subjectList = []} = this.props;
     // dispatch({
     //   type: namespace + '/list',
     //   payload: {...query}
@@ -36,8 +36,23 @@ export default class ExaminerAnswerListPage extends Component {
     });
     dispatch({
       type: ManagesSubject + '/list',
-      payload: {s: 10000}
+      payload: {s: 10000},
+      resolve: (res) => {
+        if (!query.subjectId && res && res.list && res.list.length) {
+          const subject = res.list.find(it => it.name === '英语');
+          if (subject) {
+            router.replace({pathname, query: {...query, subjectId: subject.id}});
+          }
+        }
+      }
     });
+    if (!query.subjectId && subjectList && subjectList.length) {
+      const subject = subjectList.find(it => it.name === '英语');
+      if (subject) {
+        router.replace({pathname, query: {...query, subjectId: subject.id}});
+      }
+    }
+
     // dispatch({
     //   type: ManagesClass + '/list',
     //   payload: {s: 10000, simple: 1}
@@ -64,7 +79,7 @@ export default class ExaminerAnswerListPage extends Component {
 
     const {pathname, query} = location;
 
-    const title = '答题卡列表';
+    const title = '英语答题卡列表';
 
     const breadcrumb = ['管理', '答题卡管理', title];
 
@@ -101,11 +116,14 @@ export default class ExaminerAnswerListPage extends Component {
         render: (id, row) => (
           <TableCellOperation
             operations={{
-              print: () => {
-                this.setState({printModalVisible: true, item: row});
-              },
-              edit: () => {
-                router.push({pathname: namespace + '/editor', query: {id}});
+              record: {
+                children: '题目',
+                onClick: () => {
+                  router.push({
+                    pathname: ExaminerRecord,
+                    query: {editorId: id, editorTitle: row.title}
+                  })
+                }
               },
               upload: {
                 children: '上传记录',
@@ -129,93 +147,9 @@ export default class ExaminerAnswerListPage extends Component {
       pagination: true,
     };
 
-    const printModalProps = {
-      loading: loadingPrint,
-      visible: this.state.printModalVisible,
-      onOk: (payload) => {
-        const {item} = this.state;
-        payload.editorId = item.id;
-        payload.name = item.title;
-        dispatch({
-          type: ExaminerPrint + '/create',
-          payload,
-          resolve: () => {
-            this.setState({printModalVisible: false});
-            Modal.success({
-              title: '您的打印需求已经成功受理',
-              content: '请注意打印完成的消息，及时领取您的答题卡'
-            });
-          }
-        })
-      },
-      onCancel: () => this.setState({printModalVisible: false})
-    };
 
     return (
-      <ListPage {...listPageProps}>
-        <PrintModal {...printModalProps}/>
-      </ListPage>
+      <ListPage {...listPageProps}/>
     );
-  }
-}
-
-@Form.create()
-class PrintModal extends Component {
-  render() {
-
-    const {
-      onOk, onCancel, visible, loading,
-      form: {getFieldDecorator, validateFieldsAndScroll},
-    } = this.props;
-
-    const modalProps = {
-      visible, loading, onCancel,
-      title: '打印申请',
-      onOk: () => {
-        validateFieldsAndScroll((errors, payload) => {
-          if (errors) {
-            console.error(errors);
-          } else {
-            console.log(payload);
-            payload.requirement = payload.requirement ? '双面' : '单面';
-            onOk && onOk(payload);
-          }
-        })
-      }
-    };
-    const formProps = {
-      layout: 'horizontal',
-    };
-    const formItemProps = {
-      wrapperCol: {span: 16},
-      labelCol: {span: 4}
-    };
-    return (
-      <Modal {...modalProps}>
-        <Form {...formProps}>
-          <Form.Item label="打印要求" {...formItemProps}>
-            {
-              getFieldDecorator('requirement', {
-                initialValue: 0,
-                rules: [{required: true, message: '请输入打印份数'}]
-              })(
-                <Radio.Group options={[{label: '单面打印', value: 0}, {label: '双面打印', value: 1}]}/>
-              )
-            }
-          </Form.Item>
-          <Form.Item label="打印份数" {...formItemProps}>
-            {
-              getFieldDecorator('count', {
-                initialValue: 50,
-                rules: [{required: true, message: '请输入打印份数'}]
-              })(
-                <InputNumber min={1} max={1000}/>
-              )
-            }
-          </Form.Item>
-
-        </Form>
-      </Modal>
-    )
   }
 }
