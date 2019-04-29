@@ -170,6 +170,10 @@ export default Model({
                 id: 'examiner-marking',
                 title: '在线批阅',
                 link: '/examiner/marking'
+              },{
+                id: 'examiner-english',
+                title: '英语作文',
+                link: '/examiner/english?subjectId=35'
               },
             ]
           }

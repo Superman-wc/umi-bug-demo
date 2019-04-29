@@ -184,7 +184,7 @@ function createFile(state, action) {
             count,
             optionCount: 4,
             questionType: QuestionTypeEnum.单选题,
-            score:1,
+            score: 1,
           });
         };
 
@@ -1027,12 +1027,20 @@ export default Model(
               });
             }
           }
-          if (pathname === '/examiner' || (pathname === namespace + '/marking')) {
+          if (
+            pathname === '/examiner' || (pathname === namespace + '/marking')
+          ) {
+            dispatch({
+              type: 'list',
+              payload: {...query}
+            })
+          }else if(pathname === namespace + '/english' && query.subjectId){
             dispatch({
               type: 'list',
               payload: {...query}
             })
           }
+
         });
       },
     },

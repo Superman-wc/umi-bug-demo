@@ -1,10 +1,5 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {message, Progress, Button} from 'antd';
-import Uploader from '../../components/Uploader';
-import {Authenticate} from "../../utils/namespace";
-import {QiniuDomain, QiniuUpToken} from "../../services";
-import Flex from '../../components/Flex';
 import {ExaminerSheet as namespace} from '../../utils/namespace';
 import ListPage from '../../components/ListPage'
 import TableCellOperation from '../../components/TableCellOperation';
@@ -33,7 +28,9 @@ export default class UploadPage extends Component {
       list, total, loading, location, dispatch,
     } = this.props;
 
-    const title = '答题卡上传';
+    const {query} = location;
+
+    const title =   '上传记录' + (query.title?' - '+query.title:'');
 
     const breadcrumb = ['管理', '电子阅卷', title];
 
