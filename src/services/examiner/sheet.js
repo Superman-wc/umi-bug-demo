@@ -1,7 +1,7 @@
 import request from '../../utils/request';
 
 
-export async function list({editorId, p=1, s=30,}={}) {
+export async function list({editorId, p = 1, s = 30,} = {}) {
   return request('/api/examiner/1.0/sheet', {data: {p, s, editorId}, method: 'GET'});
 }
 
@@ -34,7 +34,11 @@ export async function analyze({ids}) {
  * @param subjectName
  * @returns {Promise<any>}
  */
-export async function notifyToTeacher({unitId, editorId, unitName, editorTitle, subjectName}){
-  console.log(`微信通知unitId=${unitId}editorId=${ editorId}, ${unitName}, ${subjectName}, ${editorTitle}`);
-  return request('/api/hii/1.0/examinationNotify', {data:{unitId, editorId}, method:'POST'});
+export async function notifyToTeacher({unitId, editorId, unitName, editorTitle, subjectName}) {
+  console.log(`微信通知unitId=${unitId}editorId=${editorId}, ${unitName}, ${subjectName}, ${editorTitle}`);
+  return request('/api/hii/1.0/examinationNotify', {data: {unitId, editorId}, method: 'POST'});
+}
+
+export async function statistic({editorId} = {}) {
+  return request('/api/examiner/1.0/sheet/submit_statistic', {data: {editorId}, method: 'GET'});
 }

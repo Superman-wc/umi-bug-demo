@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {ExaminerSheet as namespace} from '../../utils/namespace';
+import router from 'umi/router';
+import {ExaminerSheet as namespace, Examiner} from '../../utils/namespace';
 import ListPage from '../../components/ListPage'
 import TableCellOperation from '../../components/TableCellOperation';
 import {ExaminerStatusEnum} from '../../utils/Enum';
@@ -13,15 +14,6 @@ import {ExaminerStatusEnum} from '../../utils/Enum';
 }))
 export default class UploadPage extends Component {
 
-  // componentWillMount() {
-  //   const {dispatch, location: {query}} = this.props;
-  //   dispatch({
-  //     type: namespace + '/list',
-  //     payload: {
-  //       ...query
-  //     }
-  //   });
-  // }
 
   render() {
     const {
@@ -30,21 +22,36 @@ export default class UploadPage extends Component {
 
     const {query} = location;
 
-    const title =   '上传记录' + (query.title?' - '+query.title:'');
+    const title = '上传记录' + (query.title ? ' - ' + query.title : '');
 
     const breadcrumb = ['管理', '电子阅卷', title];
 
     const buttons = [{
-      key:'rollback'
+      key: 'rollback'
     }];
+
+    if (query.editorId) {
+      buttons.unshift({
+        key: '统计',
+        children: '统计',
+        onClick: () => {
+          router.push({pathname: Examiner + '/statistic', query});
+        }
+      })
+    }
 
     const columns = [
       {title: 'ID', key: 'id'},
       {title: '答题卡', key: 'editorTitle', width: 250,},
 
-      {title: '文件', key: 'rotatedUrl', width: 60, render: (v, it) => <img src={(v || it.url) + '!t'} height={40} onClick={()=>{
-        window.open((v || it.url)+'!page');
-        }}/>},
+      {
+        title: '文件',
+        key: 'rotatedUrl',
+        width: 60,
+        render: (v, it) => <img src={(v || it.url) + '!t'} height={40} onClick={() => {
+          window.open((v || it.url) + '!page');
+        }}/>
+      },
       {title: '上传者', key: 'createdBy',},
       {
         title: '状态',
@@ -53,7 +60,7 @@ export default class UploadPage extends Component {
       },
       {title: '创建时间', key: 'dateCreated',},
       {
-        title: '操作', width:120,
+        title: '操作', width: 120,
         key: 'operate',
         render: (id, row) => (
           <TableCellOperation
@@ -76,9 +83,9 @@ export default class UploadPage extends Component {
               },
               look: {
                 hidden: !row.debugUrl,
-                children:'查看',
-                onClick:()=>{
-                  window.open(row.debugUrl+'!page');
+                children: '查看',
+                onClick: () => {
+                  window.open(row.debugUrl + '!page');
                 }
               }
             }}

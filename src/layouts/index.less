@@ -1,5 +1,5 @@
 //@import '../utils/variable';
-@import "~antd/dist/antd.less"; // 引入官方提供的 less 样式入口文件
+//@import "~antd/dist/antd.less"; // 引入官方提供的 less 样式入口文件
 
 .logo {
   display: block;
@@ -60,8 +60,8 @@
     .ant-menu-inline .ant-menu-item,
     .ant-menu-vertical .ant-menu-submenu-title,
     .ant-menu-inline .ant-menu-submenu-title {
-      height: 36px;
-      line-height: 36px;
+      height: 40px;
+      line-height: 40px;
       margin-top: 0;
       margin-bottom: 0;
     }
@@ -120,8 +120,19 @@
     }
   }
 
+  .menu-submenu{
+    background-repeat: no-repeat;
+    background-size: 16px;
+    background-position: left center;
+    padding-left: 24px;
+    display: block;
+  }
+
   &.min-side {
     width: 60px;
+    .logo{
+      transform: translateX(-77px);
+    }
     .menu-handle {
       :global {
         .anticon-bars {
@@ -129,7 +140,33 @@
         }
       }
     }
+
+    .menu-submenu{
+
+      background-size: 24px;
+      background-position: center center;
+      padding-left: 24px;
+      text-indent: -9999px;
+    }
+
+
     :global {
+
+      .ant-menu-vertical .ant-menu-item,
+      .ant-menu-inline .ant-menu-item,
+      .ant-menu-vertical .ant-menu-submenu-title,
+      .ant-menu-inline .ant-menu-submenu-title {
+        height: 50px;
+        line-height: 50px;
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+      .ant-menu-submenu-title{
+        &>.ant-menu-submenu-arrow{
+          display: none;  // 小侧边栏模式下子菜单的arrow隐藏
+        }
+      }
+
       .ant-menu-item-group-title {
         display: none;
       }

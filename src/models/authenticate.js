@@ -111,6 +111,8 @@ export default Model({
     menuSuccess(state, action) {
       const {menus = [], resources = []} = action.result;
 
+
+
       const resourceMap = resources.reduce((map, it) => {
         it.actions = resourceActions(it.userMask).reduce((map, {value, label}) => {
           map[value] = label;

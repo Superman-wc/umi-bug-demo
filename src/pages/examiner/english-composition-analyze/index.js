@@ -173,7 +173,18 @@ class EnglishCompositionAnalyze extends Component {
           </div>
         </Flex.Item>
         <Flex id={this.id + '-panel'} direction="column"  className={styles['analyze-box']}>
-
+          <div>
+            <h3>学生信息：</h3>
+            <Row className={styles['analyze-info']}>
+              <Col span={12}>
+                <AnalyzeInfoItem label="姓名" value={this.props.studentName}/>
+                <AnalyzeInfoItem label="学号" value={this.props.studentCode}/>
+              </Col>
+              <Col span={12}>
+                <img src={this.props.studentAvatar} width={60} />
+              </Col>
+            </Row>
+          </div>
           <div>
             <h3>基本信息：</h3>
             <Row className={styles['analyze-info']}>

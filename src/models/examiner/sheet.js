@@ -1,5 +1,5 @@
 import Model from 'dva-model';
-import {list, create, modify, remove, analyze} from '../../services/examiner/sheet';
+import {list, create, modify, remove, analyze, statistic} from '../../services/examiner/sheet';
 import {ExaminerSheet as namespace} from '../../utils/namespace';
 
 export default Model(
@@ -34,5 +34,6 @@ export default Model(
     modify,
     remove,
     analyze,
+    statistic,
   }
 );

@@ -110,7 +110,12 @@ export default class ExaminerAnswerListPage extends Component {
               upload: {
                 children: '上传记录',
                 onClick: () => {
-                  router.push({pathname: namespace + '/upload', query: {editorId: id, title: row.title}})
+                  router.push({
+                    pathname: namespace + '/upload', query: {
+                      editorId: id, title: row.title,
+                      pageCount: row.duplex ? 1 : 2
+                    }
+                  })
                 }
               },
               remove: {
