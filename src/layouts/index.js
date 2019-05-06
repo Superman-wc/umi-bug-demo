@@ -14,6 +14,8 @@ import styles from './index.less';
 import {MenuCategoryEnum, URLResourceCategoryEnum} from "../utils/Enum";
 import resourceActions from '../utils/ResourceActions';
 
+import {addClass, removeClass} from "../utils/dom";
+
 import icon_admin from '../assets/admin.svg';
 import icon_guanli from '../assets/guanli.svg';
 import icon_fenban from '../assets/fenban.svg';
@@ -26,12 +28,12 @@ import icon_yuejuan from '../assets/yuejuan.svg';
 const ICON_MAP = {
   '管理': icon_guanli,
   '管理员': icon_admin,
-  '排课':icon_paike,
+  '排课': icon_paike,
   '考务管理': icon_kaowu,
   '选班排课': icon_fenban,
   '考勤': icon_kaoqin,
   '文印管理': icon_wenyin,
-  '电子阅卷':icon_yuejuan
+  '电子阅卷': icon_yuejuan
 };
 
 
@@ -103,7 +105,6 @@ function SideFooter({isMin}) {
 }
 
 
-
 function Side(props) {
   const {
     loading, user, defaultOpenKeys, openKeys = [], pathname, onOpenChange,
@@ -145,7 +146,8 @@ function Side(props) {
                       //     <div className="ant-menu-submenu-title-div"/>
                       //   </Tooltip>
                       //   :
-                        <span className={styles['menu-submenu']} style={{backgroundImage:'url('+ICON_MAP[submenu.title]+')'}}>{submenu.title}</span>
+                      <span className={styles['menu-submenu']}
+                            style={{backgroundImage: 'url(' + ICON_MAP[submenu.title] + ')'}}>{submenu.title}</span>
                     }
                   >
                     {
@@ -209,13 +211,21 @@ class App extends Component {
     });
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if(this.state.minSide){
-      document.documentElement.classList.add('side-small');
-    }else{
-      document.documentElement.classList.remove('side-small');
-    }
+  componentDidMount() {
+    this.setDocumentElementClassName();
   }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    this.setDocumentElementClassName();
+  }
+
+  setDocumentElementClassName = () => {
+    if (this.state.minSide) {
+      addClass(document.documentElement, 'side-small');
+    } else {
+      removeClass(document.documentElement, 'side-small');
+    }
+  };
 
 
   render() {
