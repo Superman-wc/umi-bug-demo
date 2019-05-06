@@ -196,7 +196,7 @@ class App extends Component {
   };
 
   state = {
-    minSide: false,
+    minSide: true,
   };
 
   componentDidCatch(error, info) {
@@ -207,6 +207,14 @@ class App extends Component {
         info: info
       }
     });
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if(this.state.minSide){
+      document.documentElement.classList.add('side-small');
+    }else{
+      document.documentElement.classList.remove('side-small');
+    }
   }
 
 

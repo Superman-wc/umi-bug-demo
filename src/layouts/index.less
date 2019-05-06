@@ -37,6 +37,7 @@
   height: 30px;
   line-height: 30px;
   text-align: center;
+
   &:hover,
   &:active,
   &:focus {
@@ -55,6 +56,7 @@
   background-color: #001529;
   transition: width 0.3s;
   box-shadow: 0 0 10px #000;
+
   :global {
     .ant-menu-vertical .ant-menu-item,
     .ant-menu-inline .ant-menu-item,
@@ -65,20 +67,25 @@
       margin-top: 0;
       margin-bottom: 0;
     }
+
     .ant-menu {
       color: #fff;
       background: rgba(255, 255, 255, .05);
     }
+
     .ant-menu-item > a {
       color: #fff;
     }
+
     .ant-menu-item-group-title {
       color: #aaa;
     }
+
     .ant-menu-inline,
     .ant-menu-vertical {
       border-right: 0;
     }
+
     .ant-menu-item:hover,
     .ant-menu-item-active,
     .ant-menu-submenu-active,
@@ -86,6 +93,7 @@
       color: #fff;
       background-color: @primary-color * 0.75;
     }
+
     .ant-menu-inline {
       .ant-menu-selected,
       .ant-menu-item-selected {
@@ -93,12 +101,14 @@
         background-color: @primary-color;
       }
     }
+
     .ant-menu-inline .ant-menu-item,
     .ant-menu-vertical .ant-menu-item {
       border-right: 0;
       margin-left: 0;
       left: 0;
     }
+
     .ant-menu-item:hover,
     .ant-menu-item-active,
     .ant-menu-submenu-active,
@@ -106,6 +116,7 @@
       &:hover {
         color: #fff;
       }
+
       .ant-menu-submenu-title-div {
         position: absolute;
         width: 100%;
@@ -120,7 +131,7 @@
     }
   }
 
-  .menu-submenu{
+  .menu-submenu {
     background-repeat: no-repeat;
     background-size: 16px;
     background-position: left center;
@@ -130,9 +141,11 @@
 
   &.min-side {
     width: 60px;
-    .logo{
+
+    .logo {
       transform: translateX(-77px);
     }
+
     .menu-handle {
       :global {
         .anticon-bars {
@@ -141,7 +154,7 @@
       }
     }
 
-    .menu-submenu{
+    .menu-submenu {
 
       background-size: 24px;
       background-position: center center;
@@ -152,6 +165,13 @@
 
     :global {
 
+      .ant-menu-vertical .ant-menu-item {
+        height: 36px;
+        line-height: 36px;
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+
       .ant-menu-vertical .ant-menu-item,
       .ant-menu-inline .ant-menu-item,
       .ant-menu-vertical .ant-menu-submenu-title,
@@ -161,15 +181,17 @@
         margin-top: 0;
         margin-bottom: 0;
       }
-      .ant-menu-submenu-title{
-        &>.ant-menu-submenu-arrow{
-          display: none;  // 小侧边栏模式下子菜单的arrow隐藏
+
+      .ant-menu-submenu-title {
+        & > .ant-menu-submenu-arrow {
+          display: none; // 小侧边栏模式下子菜单的arrow隐藏
         }
       }
 
       .ant-menu-item-group-title {
         display: none;
       }
+
       .ant-menu-submenu-inline > .ant-menu-submenu-title {
         &:after {
           right: auto;
@@ -182,12 +204,14 @@
 
         }
       }
+
       .ant-menu-inline .ant-menu-item,
       .ant-menu-vertical .ant-menu-item {
         padding: 0 !important;
         text-align: center;
 
       }
+
       .ant-menu-item-group-list {
         .ant-menu-item {
           a {
@@ -211,6 +235,7 @@
     line-height: 36px;
 
   }
+
   h2 {
     font-size: 16px;
     color: #666;
@@ -218,6 +243,7 @@
     line-height: 30px;
 
   }
+
   h3 {
     font-size: 14px;
     color: #888;
@@ -230,35 +256,43 @@
     height: 100%;
     flex: 1 0 auto;
     position: relative;
+
     & > :global(.ant-spin-container) {
       height: 100%;
       position: relative;
     }
   }
+
   :global {
     .card-container {
 
       .ant-card {
         border-radius: 0;
+
         &:hover {
           box-shadow: none;
         }
+
         .ant-card-head h3.ant-card-head-title {
           line-height: inherit;
         }
       }
     }
+
     .main-form {
       padding-top: 24px;
     }
+
     .authorities-checkbox-group {
       .ant-checkbox-group-item {
         display: block;
       }
+
       .ant-checkbox-wrapper + .ant-checkbox-wrapper {
         margin-left: 0;
       }
     }
+
     .list-table-container {
       background-color: #fff;
       //padding: 0 10px;
@@ -281,11 +315,14 @@
         border-radius: 0;
       }
     }
+
     .ant-table {
       border-bottom: 1px solid #eee;
+
       tr.ant-table-expanded-row {
         .ant-table {
           border-bottom: 0 !important;
+
           .ant-table-thead {
             display: none;
           }
@@ -296,14 +333,17 @@
         &:first-child {
           padding-left: 20px;
         }
+
         &:last-child {
           padding-right: 20px;
         }
       }
+
       th {
         background-color: #eee;
         //.borderBottom;
       }
+
       .ant-table-tbody {
 
         tr {
@@ -314,6 +354,7 @@
               background-color: #fcfcfc;
             }
           }
+
           &.ant-table-row-hover,
           &:hover {
             &,
@@ -330,12 +371,15 @@
           }
         }
       }
+
       .ant-table-thead > tr > th,
       .ant-table-tbody > tr > td {
         padding: 10px 7px;
       }
+
       .ant-table-tbody > tr.ant-table-expanded-row > td {
         padding: 0;
+
         table {
           border: 0 !important;
         }
@@ -347,6 +391,7 @@
     &.border-collapse {
       .ant-table table {
         border-collapse: collapse;
+
         tr {
           td, th {
             border: 1px solid #e9e9e9;
@@ -361,15 +406,18 @@
 
     & > div {
       position: relative;
+
       &:first-child {
         flex: 1;
         width: 100%;
       }
 
     }
+
     .ant-spin-container {
       text-align: center;
     }
+
     .ant-table-pagination {
       float: none;
       margin: 10px 0;
@@ -389,16 +437,49 @@
   height: 100%;
   max-width: 100vw;
   max-height: 100vh;
+
   .side {
     width: 230px;
+
     &.min-side {
       width: 60px;
     }
   }
+
   .main {
     flex: 1;
     height: 100vh;
     max-height: 100vh;
     width: calc(100vh - 230px);
+  }
+}
+
+:global {
+  .side-small {
+    .ant-menu-submenu {
+      &.ant-menu-submenu-popup {
+        .ant-menu {
+          &.ant-menu-sub {
+            &.ant-menu-vertical {
+              .ant-menu-item-group{
+                .ant-menu-item-group-title{
+                  display: none;
+                }
+                .ant-menu-item {
+                  height: 36px;
+                  line-height: 36px;
+                  margin-top: 0;
+                  margin-bottom: 0;
+                }
+              }
+
+            }
+          }
+        }
+
+      }
+
+    }
+
   }
 }
