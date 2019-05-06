@@ -61,12 +61,12 @@ export default class StatisticPage extends Component {
                 tab={klass.name}
               >
                 <div style={{padding:10}}>
-                <h3>
-                  {klass.name}共{klass.students.length}人,
-                  每份答题卡为{query.pageCount}张,
-                  需收集{klass.students.length * query.pageCount}张,
-                  {/*目前处理{klass.taskMap && klass.taskMap[editor.id] && klass.taskMap[editor.id].length || 0}张*/}
-                </h3>
+                {/*<h3>*/}
+                {/*  {klass.name}共{klass.students.length}人,*/}
+                {/*  每份答题卡为{query.pageCount}张,*/}
+                {/*  需收集{klass.students.length * query.pageCount}张,*/}
+                {/*  /!*目前处理{klass.taskMap && klass.taskMap[editor.id] && klass.taskMap[editor.id].length || 0}张*!/*/}
+                {/*</h3>*/}
                 <ul className={styles['class-student-list']}>
                   {
                     klass.students.map(student =>
