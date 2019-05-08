@@ -176,10 +176,8 @@ export function EnglishTranslationFields({form: {getFieldDecorator}, onChange, e
 }
 
 
-
-
 export function PrintFields({form: {getFieldDecorator}, onChange, maxColCount, senior}) {
-  const wrapper = {labelCol: {span: 4}, wrapperCol: {span: 14}};
+  const wrapper = {labelCol: {span: 6}, wrapperCol: {span: 16}};
   return (
     <div>
       <Form.Item {...wrapper} label="纸张大小" help="纸张大小设置应于打印时设置一致">
@@ -188,12 +186,12 @@ export function PrintFields({form: {getFieldDecorator}, onChange, maxColCount, s
             initialValue: 'A4',
             rules: [{required: true, message: '必须填写'}]
           })(
-            <Select style={{width: 220}}
-                    onChange={(v) => {
-                      if (v === 'A3' || v === '8K') {
-                        onChange({maxColCount: 3});
+            <Select style={{width: '100%'}}
+                    onChange={(type) => {
+                      if (type === 'A3' || type === '8K') {
+                        onChange && onChange({maxColCount: 3, type});
                       } else {
-                        onChange({maxColCount: 1});
+                        onChange && onChange({maxColCount: 1, type});
                       }
                     }}
             >
@@ -208,13 +206,27 @@ export function PrintFields({form: {getFieldDecorator}, onChange, maxColCount, s
           )
         }
       </Form.Item>
-      <Form.Item {...wrapper} label="纸张分列数量" help="A4、16K建议1列，8K建议2列">
+      <Form.Item {...wrapper} label="分列数量" help="A4、16K建议1列，8K建议2列">
         {
           getFieldDecorator('print.colCount', {
             initialValue: 1,
             rules: [{required: true, message: '必须填写'}]
           })(
-            <InputNumber style={{width: 60}} max={maxColCount || 2} min={1}/>
+            <InputNumber style={{width: 60}} max={maxColCount || 2} min={1} onChange={(colCount)=>{
+              onChange && onChange({colCount});
+            }}/>
+          )
+        }
+      </Form.Item>
+      <Form.Item {...wrapper} label="纸张边距" help="纸张边缘留白部分，设置后打印机的边距请设置成“无”">
+        {
+          getFieldDecorator('print.padding', {
+            initialValue: [80, 60, 80, 60],
+            rules: [{required: true, message: '必须填写'}]
+          })(
+            <PaddingEditor onChange={(v) => {
+              onChange && onChange({padding: v});
+            }}/>
           )
         }
       </Form.Item>
@@ -226,7 +238,9 @@ export function PrintFields({form: {getFieldDecorator}, onChange, maxColCount, s
                 initialValue: 96,
                 rules: [{required: true, message: '必须填写'}]
               })(
-                <Select style={{width: 90}}>
+                <Select style={{width: 90}} onChange={dpi=>{
+                  onChange && onChange({dpi});
+                }}>
                   {
                     [72, 96, 120, 300].map((value) =>
                       <Select.Option key={value} value={value}>{value}</Select.Option>
@@ -236,23 +250,15 @@ export function PrintFields({form: {getFieldDecorator}, onChange, maxColCount, s
               )
             }
           </Form.Item>
-          <Form.Item {...wrapper} label="纸张边距" help="纸张边缘留白部分，设置后打印机的边距请设置成“无”">
-            {
-              getFieldDecorator('print.padding', {
-                initialValue: [80, 60, 80, 60],
-                rules: [{required: true, message: '必须填写'}]
-              })(
-                <PaddingEditor/>
-              )
-            }
-          </Form.Item>
           <Form.Item {...wrapper} label="分列间距" help="列与列的间距">
             {
               getFieldDecorator('print.colSpan', {
                 initialValue: 30,
                 rules: [{required: true, message: '必须填写'}]
               })(
-                <InputNumber style={{width: 60}} max={100} min={0}/>
+                <InputNumber style={{width: 60}} max={100} min={0} onChange={(colSpan)=>{
+                  onChange && onChange({colSpan});
+                }}/>
               )
             }
           </Form.Item>

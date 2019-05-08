@@ -16,7 +16,7 @@ function EditorHeader(props) {
         {key: 'newFile', title: '新建'},
         {key: 'open', title: '打开'},
         {key: 'save', title: '保存', disabled: !file},
-        {key: 'save-as', title: '另存为', disabled: !file},
+        {key: 'saveAs', title: '另存为', disabled: !file},
         {key: 'print', title: '打印', disabled: !file},
         // {key: 'saveToPDF', title: '保存成PDF', disabled: !file}
       ]
@@ -48,8 +48,12 @@ function EditorHeader(props) {
         },
         resolve: (res) => {
           if (key === 'save') {  // is effect
-            console.log(res);
             message.success('保存成功');
+            if (!props.query.id || props.query.id * 1 !== res.id) {
+              router.replace({pathname: props.pathname, query: {...props.query, id: res.id}});
+            }
+          }else if(key==='saveAs'){ // is effect
+            message.success('另存成功');
             if (!props.query.id || props.query.id * 1 !== res.id) {
               router.replace({pathname: props.pathname, query: {...props.query, id: res.id}});
             }

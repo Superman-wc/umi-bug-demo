@@ -44,6 +44,80 @@ function calcColWidth(pageWidth, padding, colCount, colSpan) {
   return Math.floor((pageWidth - padding[1] - padding[3] - (colCount - 1) * colSpan) / colCount);
 }
 
+
+function setOptions(state, action) {
+  console.log(action);
+  let {payload: {padding, type, dpi, colSpan, colCount}} = action;
+  const {file} = state;
+  if (padding) {
+    // 修改页边距
+    file.print.padding = padding;
+  }
+  if (type) {
+    file.print.type = type;
+    const {print: {width, height}, direction} = PAGE_SIZE[type];
+    file.print.width = width;
+    file.print.height = height;
+    file.print.w = mm2px(width);
+    file.print.height = mm2px(height) - 1;
+    file.print.direction = direction;
+  }
+
+  if (dpi) {
+    file.print.dpi = dpi;
+  }
+
+  const oldColCount = file.print.colCount;
+  if (colCount) {
+    file.print.colCount = colCount;
+  }
+
+  if (colSpan) {
+    file.print.colSpan = colSpan;
+  }
+
+  const colWidth = calcColWidth(file.print.w, file.print.padding, file.print.colCount, file.print.colSpan);
+  file.print.colWidth = colWidth;
+
+  file.pages.forEach((page, i) => {
+    page.width = file.print.w;
+    page.height = file.print.h;
+    page.colCount = file.print.colCount;
+    page.colSpan = file.print.colSpan;
+    page.colWidth = colWidth;
+    page.padding = file.print.padding;
+    page.index = i;
+
+    const elements = [];
+
+    page.columns.forEach((col) => {
+      col.elements.forEach(ele=>{
+        elements.push(ElementObject.create(ele));
+      });
+    });
+
+    page.columns = [];
+
+    for(let j=0; j<file.print.colCount;j++){
+      page.columns[j] = ElementObject.create({
+        width : colWidth,
+        height : file.print.h,
+        index : j,
+        path : [i, j],
+        colSpan : file.print.colSpan,
+        elements:[]
+      });
+    }
+
+    page.columns[0].elements = elements;
+
+    file.pages[i] = ElementObject.create(page);
+  });
+
+
+  return {...state, file: ElementObject.create(file)};
+}
+
 /**
  * 创建文件
  * @param state
@@ -229,7 +303,6 @@ function createFile(state, action) {
     console.error(e);
     return {...state, createFilePayload: action.payload,};
   }
-
 }
 
 /**
@@ -1034,7 +1107,7 @@ export default Model(
               type: 'list',
               payload: {...query}
             })
-          }else if(pathname === namespace + '/english' && query.subjectId){
+          } else if (pathname === namespace + '/english' && query.subjectId) {
             dispatch({
               type: 'list',
               payload: {...query}
@@ -1061,9 +1134,6 @@ export default Model(
         const data = createPosition(state);
         const file = JSON.parse(JSON.stringify(state.file || {}));
         delete file.qrCode;
-        if (!file.id) {
-          delete file.id;
-        }
         const titleElement = file.pages && file.pages[0] && file.pages[0].columns &&
           file.pages[0].columns[0] && file.pages[0].columns[0].elements && file.pages[0].columns[0].elements[0];
         if (titleElement && titleElement.type === 'page-title' && titleElement.title !== file.title) {
@@ -1082,12 +1152,36 @@ export default Model(
           reject: action.reject
         });
       },
+      * saveAs(action, saga) {
+        const state = yield saga.select(state => state[namespace]);
+        const data = createPosition(state);
+        const file = JSON.parse(JSON.stringify(state.file || {}));
+        delete file.qrCode;
+        const titleElement = file.pages && file.pages[0] && file.pages[0].columns &&
+          file.pages[0].columns[0] && file.pages[0].columns[0].elements && file.pages[0].columns[0].elements[0];
+        if (titleElement && titleElement.type === 'page-title' && titleElement.title !== file.title) {
+          file.title = html2text(titleElement.title || '');
+        } else {
+          file.title = file.name || file.title;
+        }
+        file.pages = JSON.stringify(file.pages || []);
+        file.print = JSON.stringify(file.print || {});
+        file.data = JSON.stringify(data || {});
+        delete file.id;
+        yield saga.put({
+          type: 'create',
+          payload: file,
+          resolve: action.resolve,
+          reject: action.reject
+        });
+      },
       saveToPDF,
 
     },
     reducers: wrapperCacheWorkspace({
       buildElementOffset,
       createFile,
+      setOptions,
       newFile,
       addPage,
       removeActiveElement,
