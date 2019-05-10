@@ -16,12 +16,13 @@ import resourceActions from '../utils/ResourceActions';
 
 import {addClass, removeClass} from "../utils/dom";
 
-import icon_admin from '../assets/icon/2@2x.png'; //admin.svg
+
 import icon_guanli from '../assets/icon/1@2x.png'; //guanli.svg
-import icon_fenban from '../assets/icon/3@2x.png'; //fenban.svg
-import icon_kaoqin from '../assets/icon/4@2x.png'; //kaoqin.svg
-import icon_kaowu from '../assets/icon/5@2x.png'; //kaowu.svg
-import icon_paike from '../assets/icon/6@2x.png'; //paike.svg
+import icon_admin from '../assets/icon/2@2x.png'; //admin.svg
+import icon_paike from '../assets/icon/3@2x.png'; //fenban.svg
+import icon_kaowu from '../assets/icon/4@2x.png'; //kaoqin.svg
+import icon_fenban from '../assets/icon/5@2x.png'; //kaowu.svg
+import icon_kaoqin from '../assets/icon/6@2x.png'; //paike.svg
 import icon_wenyin from '../assets/icon/7@2x.png'; //wenyin.svg
 import icon_yuejuan from '../assets/icon/8@2x.png'; //yuejuan.svg
 
