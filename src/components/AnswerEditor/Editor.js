@@ -10,6 +10,12 @@ export default class Editor extends Component {
     document.body.id = styles['editor'];
     document.querySelector('#root').className = styles['editor-root'];
 
+    window.onbeforeprint = (ex) => {
+      ex.preventDefault();
+      ex.stopPropagation();
+      console.log('onbeforeprint===>', ex);
+    }
+
   }
 
   componentWillUnmount() {
@@ -18,7 +24,7 @@ export default class Editor extends Component {
   }
 
   render() {
-    const {location:{query, pathname}} = this.props;
+    const {location: {query, pathname}} = this.props;
     return (
       <Fragment>
         <EditorHeader query={query} pathname={pathname}/>
