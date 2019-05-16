@@ -11,7 +11,7 @@ const CheckContentOverflow = Symbol('EditorFile#checkContentOverflow');
 class EditorFile extends Component {
   componentDidMount() {
     this.props.dispatch({
-      type: namespace+'/buildElementOffset',
+      type: namespace + '/buildElementOffset',
     });
     this.checkContentOverflow('componentDidMount');
   }
@@ -21,7 +21,7 @@ class EditorFile extends Component {
     // this.props.file && this.props.file.data && window.debugShowData(this.props.file.data)
   }
 
-  componentWillUnmount(){
+  componentWillUnmount() {
     const {dispatch} = this.props;
     dispatch({
       type: namespace + '/set',
@@ -64,6 +64,12 @@ class EditorFile extends Component {
               file.pages.map((page, index) =>
                 <EditorPage key={page.key} index={index} page={page} {...pageProps}/>
               )
+              :
+              null
+          }
+          {
+            !file.id ?
+              <div data-save="打印校验"/>
               :
               null
           }
