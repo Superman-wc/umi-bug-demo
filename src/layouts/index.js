@@ -42,15 +42,15 @@ function MenuItemContent({menu, min, resource = {}, dispatch}) {
 
   const {link, title, onClick,} = menu;
 
-  const _title = min ? title.substr(0, 2) : title;
+  // const _title = min ? title.substr(0, 2) : title;
   const _onClick = onClick || (() => {
     router.push(link);
   });
-  const render = () => (
-    <a href={"javascript:void('" + title + "');"} onClick={_onClick}>
-      <span>{_title}</span>
-    </a>
-  );
+  // const render = () => (
+  //   <a href={"javascript:void('" + title + "');"} onClick={_onClick}>
+  //     <span>{_title}</span>
+  //   </a>
+  // );
 
   // return min ?
   //   (
