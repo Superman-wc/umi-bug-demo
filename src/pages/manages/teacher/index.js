@@ -106,7 +106,18 @@ export default class StudentList extends Component {
         render: v => v && v.map((it, index) =>
           <span className={styles['subject-item']}
                 key={[it.klassId, it.subjectId, index].join('-')}>
-            {it.klassName + (it.klassName.indexOf(it.subjectName) >= 0 ? '' : it.subjectName)}
+            {
+              it.klassName ? ( //后端输出的时候居然会没有班级名字，出错会死循环的
+                  it.klassName + (
+                    it.klassName.indexOf(it.subjectName) >= 0 ?
+                      ''
+                      :
+                      it.subjectName
+                  )
+                )
+                :
+                null
+            }
             </span>
         )
       },
