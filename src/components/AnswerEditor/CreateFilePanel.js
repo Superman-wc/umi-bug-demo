@@ -189,9 +189,9 @@ export function PrintFields({form: {getFieldDecorator}, onChange, maxColCount, s
             <Select style={{width: '100%'}}
                     onChange={(type) => {
                       if (type === 'A3' || type === '8K') {
-                        onChange && onChange({maxColCount: 3, type});
+                        onChange && onChange({maxColCount: 4, type});
                       } else {
-                        onChange && onChange({maxColCount: 1, type});
+                        onChange && onChange({maxColCount: 3, type});
                       }
                     }}
             >
@@ -212,7 +212,7 @@ export function PrintFields({form: {getFieldDecorator}, onChange, maxColCount, s
             initialValue: 1,
             rules: [{required: true, message: '必须填写'}]
           })(
-            <InputNumber style={{width: 60}} max={maxColCount || 2} min={1} onChange={(colCount)=>{
+            <InputNumber style={{width: 60}} max={maxColCount || 3} min={1} onChange={(colCount)=>{
               onChange && onChange({colCount});
             }}/>
           )
@@ -277,7 +277,7 @@ class CreateFilePanel extends Component {
 
   state = {
     senior: false,
-    maxColCount: 1,
+    maxColCount: 3,
     contentType: EditorContentTypeEnum.通用答题卡,
   };
 
