@@ -714,7 +714,7 @@ class DragUploader extends Component {
       map[it.name] = it;
       return map;
     }, {});
-    const keys = Object.keys(nameMap).sort();
+    const keys = Object.keys(nameMap); //.sort(); // 土豪说按拖入序， 好像就不用排序了啊
     console.log('=====>文件排序为<=======', keys);
     return keys.reduce((list, key) => {
       list.push(nameMap[key]);
