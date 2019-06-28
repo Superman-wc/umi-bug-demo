@@ -16,13 +16,13 @@ export default class SubstituteModal extends Component {
     }
   }
 
-  onFilterChange = (type, {gradeId, courseId}) => {
+  onFilterChange = (type, {gradeId, subjectId}) => {
     if (type === 'grade') {
-      this.setState({teacherList: [], courseId: null});
+      this.setState({teacherList: [], subjectId: null});
     } else if (type === 'course') {
       const {lecture: {id}} = this.props;
-      fetchTeacherList({gradeId, courseId, lectureId: id}).then(({result: {list}}) => {
-        this.setState({courseId, teacherList: list.sort((a, b) => a.workStatus - b.workStatus)});
+      fetchTeacherList({gradeId, subjectId, lectureId: id}).then(({result: {list}}) => {
+        this.setState({subjectId, teacherList: list.sort((a, b) => a.workStatus - b.workStatus)});
       })
     }
   };

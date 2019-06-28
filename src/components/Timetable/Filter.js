@@ -224,7 +224,7 @@ export default class Filter extends Component {
             :
             type === 'course' ?
               <Fragment>
-                <Form.Item label="科目">
+                <Form.Item label="课程">
                   <Select loading={!!loadingCourse} disabled={disabled} placeholder={gradeId ? '请选择' : '请先选择年级'} value={courseId}
                           onChange={this.onCourseChange}
                           style={selectStyle}>
