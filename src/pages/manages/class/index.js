@@ -229,7 +229,7 @@ class ClassModal extends Component {
         payload: {s: 10000}
       })
     }
-    if (!this.props.subjectList) {
+    if (!this.props.roomList) {
       this.props.dispatch({
         type: ManagesRoom + '/list',
         payload: {s: 10000}

@@ -102,7 +102,7 @@ export default class CourseUniqueList extends Component {
         filteredValue: query.subjectId ? [query.subjectId] : [],
       },
       {title: '名称', key: 'name', width: 100},
-      {ttile: '类型', key: 'type', render: v => CourseTypeEnum[v]},
+      {title: '类型', key: 'type', render: v => CourseTypeEnum[v]},
       {
         title: '行政班', key: 'belongToExecutiveClass', render: v => v ? '是' : '',
         filters: [{value: true, text: '是'}, {value: false, text: '否'}],

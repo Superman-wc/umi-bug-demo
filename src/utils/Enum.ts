@@ -11,7 +11,10 @@ export const enum BuildingTypeEnum {
 export const enum GradeIndexEnum {
   高一 = 10,
   高二 = 11,
-  高三 = 12
+  高三 = 12,
+  初一 = 7,
+  初二 = 8,
+  初三 = 9,
 }
 
 export const enum SemesterTypeEnum {

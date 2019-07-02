@@ -24,6 +24,8 @@ export const ManagesDormCard = '/manages/dormcard';
 export const ManagesBed = '/manages/bed';
 export const ManagesPew = '/manages/pew';
 
+export const ManagesScheduling = '/manages/scheduling';
+
 
 export const ManagesLeave = '/manages/leave';
 
