@@ -147,9 +147,15 @@ export default class BuildTimeTable extends Component {
                         gradeId,
                         semesterId,
                       },
-                      resolve:()=>{
+                      resolve:(res)=>{
                         modal.destroy();
+                        message.success('导入成功');
+                        console.log('导入到学期课表成功', res);
                       },
+                      reject:(error)=>{
+                        message.error('导入到学期课表失败：'+error.message);
+                        console.error('导入到学期课表失败', error);
+                      }
                     });
                   }
                 }

@@ -153,6 +153,9 @@ export default class CreateScheduling extends Component {
       resolve: (res) => {
         console.log(res);
         message.success('创建成功');
+        router.push({
+          pathname: '/manages/lecture-arrange-plan/'+res.id
+        });
       },
       reject: (ex) => {
         console.error(ex);
@@ -363,24 +366,6 @@ export default class CreateScheduling extends Component {
                                       </Row>
                                     </Checkbox.Group>
                                   </div>
-                                  {
-                                    subjectConfig[subject.id].count && subjectConfig[subject.id].teacherIds && subjectConfig[subject.id].teacherIds.length ?
-                                      <div style={{
-                                        background: '#f8f8f8',
-                                        borderTop: '1px solid #ccc',
-                                        padding: '5px 10px',
-                                        margin: '10px -10px -5px -10px'
-                                      }}>
-                                        平均每个老师每周上
-                                        {
-                                          Math.ceil(this.state.klassIds.length * subjectConfig[subject.id].count / subjectConfig[subject.id].teacherIds.length)
-                                        }
-                                        节
-                                      </div>
-                                      :
-                                      null
-                                  }
-
                                 </div>
                                 :
                                 null
