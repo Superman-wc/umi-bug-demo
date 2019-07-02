@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {Form, Select, notification, Button, Modal} from 'antd';
+import {Form, Select, notification, Button, Modal, message} from 'antd';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
 import TimeTable from '../../../components/Timetable/CourseTable';
