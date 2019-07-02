@@ -7,7 +7,7 @@
   }
 
   .steps-header {
-    padding: 0 50px 50px;
+    padding: 0 50px 0;
   }
 
   .steps-content {
@@ -22,17 +22,55 @@
 }
 
 .step-content-box{
-  width:800px;
+  width:830px;
   margin: 0 auto;
   h2{
-    margin-top: 30px;
+    margin-top: 50px;
+    margin-bottom: 10px;
+    background-color: #f8f8f8;
+    padding: 8px 15px;
+
+  }
+  &>p{
+
+  }
+  &>div.step-content-box-body{
+    margin-top: 10px;
+    padding: 0 15px;
+    :global{
+      .ant-checkbox-group{
+        display: block;
+      }
+    }
+    .checkbox-group-row-col{
+      :global{
+        .ant-col{
+          padding: 5px 0;
+        }
+      }
+    }
   }
 }
 
+
 .subject-config-table {
   width: 100%;
-  border: 1px solid #ccc;
 
+  .subject-row{
+    border-bottom: 1px solid #ddd;
+    margin: 10px -15px;
+    padding: 20px 15px;
+    line-height: 32px;
+    &:first-child{
+      background-color: #f8f8f8;
+      padding:10px 15px;
+    }
+  }
+  :global{
+    .ant-row{
+
+    }
+  }
   tr {
     border-bottom: 1px solid #ccc;
 

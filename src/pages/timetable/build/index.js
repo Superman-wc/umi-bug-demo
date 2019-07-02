@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
-import {Form, Select, notification, Button} from 'antd';
+import {Form, Select, notification, Button, Modal} from 'antd';
 import Page from '../../../components/Page';
 import PageHeaderOperation from '../../../components/Page/HeaderOperation';
 import TimeTable from '../../../components/Timetable/CourseTable';
@@ -10,9 +10,10 @@ import {
   ManagesClass, ManagesCourse,
   ManagesGrade,
   ManagesPeriod,
-  ManagesRoom,
+  ManagesRoom, ManagesSemester,
   TimetableBuild as namespace
 } from "../../../utils/namespace";
+import {SemesterTypeEnum} from "../../../utils/Enum";
 
 
 @connect(state => ({
@@ -24,7 +25,8 @@ import {
   klassList: state[ManagesClass].list,
   lectureList: state[namespace].list,
   gradeId: state[namespace].gradeId,
-  selectedLecture: state[namespace].selectedLecture
+  selectedLecture: state[namespace].selectedLecture,
+  semesterList: state[ManagesSemester].list,
 }))
 export default class BuildTimeTable extends Component {
 
@@ -79,7 +81,8 @@ export default class BuildTimeTable extends Component {
     const {
       location, dispatch, loading,
       selectedLecture,
-      gradeList = [], roomList = [], periodList = [], courseList = [], klassList = [], lectureList = [], gradeId
+      gradeList = [], roomList = [], periodList = [], courseList = [], klassList = [], lectureList = [], gradeId,
+      semesterList=[],
     } = this.props;
 
     const {pathname, query} = location;
@@ -88,8 +91,80 @@ export default class BuildTimeTable extends Component {
 
     const breadcrumb = ['排课', '课表', title];
 
+    const headerButtons = [{
+      key: 'ro'
+    }];
 
-    const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={[]}/>;
+    if(lectureList && gradeId){
+      headerButtons.push(
+        {
+          key:'导入到学期课表',
+          onClick:()=>{
+
+            const getSemesterList = ()=>new Promise((resolve, reject)=>{
+              if(!semesterList || !semesterList.length){
+                dispatch({
+                  type: ManagesSemester+'/list',
+                  payload:{
+                    s: 10000,
+                  },
+                  resolve:({list})=>{
+                    resolve(list);
+                  },
+                  reject,
+                })
+              }else{
+                resolve(semesterList);
+              }
+            });
+
+            getSemesterList().then(list=>{
+              let semesterId;
+              const modal = Modal.confirm({
+                width:500,
+                title:'导入课表到学期',
+                content:(
+                  <div>
+                    <div>请选择学期</div>
+                    <Select style={{width:300}} onChange={(value)=>{
+                      semesterId = value;
+                    }}>
+                      {
+                        list.map(it=>
+                          <Select.Option key={it.id} value={it.id}>
+                            {(it.currentType===1?'[当前] ':'')+it.academicYear+'学年'+SemesterTypeEnum[it.semesterType]}
+                          </Select.Option>
+                        )
+                      }
+                    </Select>
+                  </div>
+                ),
+                onOk:()=>{
+                  if(semesterId){
+                    dispatch({
+                      type: namespace + '/importToSemester',
+                      payload: {
+                        gradeId,
+                        semesterId,
+                      },
+                      resolve:()=>{
+                        modal.destroy();
+                      },
+                    });
+                  }
+                }
+              })
+            })
+
+
+          }
+        }
+      )
+    }
+
+
+
+    const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={headerButtons}/>;
     const header = (
       <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>
     );

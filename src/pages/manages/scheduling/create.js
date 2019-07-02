@@ -175,7 +175,7 @@ export default class CreateScheduling extends Component {
       return map;
     }, {}) : {};
 
-    const {current, gradeId, periodMap = {}, teacherMapOfSubjectId = {}, subjectConfig = {}} = this.state;
+    const {klassIds,current, gradeId, periodMap = {}, teacherMapOfSubjectId = {}, subjectConfig = {}} = this.state;
 
     const title = '创建行政班排课方案';
 
@@ -210,36 +210,37 @@ export default class CreateScheduling extends Component {
 
     console.log(this.state);
 
+    const resetProps = {
+      gradeId,
+      klassIds,
+      dispatch,
+      gradeList,
+      klassList,
+      subjectList,
+      subjectConfig,
+      teacherMapOfSubjectId,
+      onChange: state=>this.setState(state),
+    };
+
     const steps = [
       {
         title: '选择年级/班级',
         content: () => (
-          <Step1 gradeId={this.state.gradeId}
-                 klassIds={this.state.klassIds}
-                 gradeList={gradeList}
-                 klassList={klassList}
-                 onChange={state=>this.setState(state)}
-                 dispatch={dispatch}
-          />
+          <Step1  {...resetProps}  />
         ),
       },
       {
         title: '选择科目/教师/课时数量',
         content: () => (
           <Fragment>
+
             {
               gradeId && subjectList && subjectList.length ?
-                <div style={{width: 800, margin: '0 auto'}}>
-                  <h2>每周每班每科目上课课时</h2>
-                  <table className={styles['subject-config-table']}>
-                    <colgroup>
-                      <col width="20%"/>
-                      <col width="20%"/>
-                      <col width="60%"/>
-                    </colgroup>
-                    <thead>
-                    <tr>
-                      <th><Checkbox onChange={e => {
+                <StepContentBox title="每周每班每科目上课课时" >
+                  <div className={styles['subject-config-table']}>
+
+                    <Row className={styles['subject-row']}>
+                      <Col span={4}><Checkbox onChange={e => {
                         if (e.target.checked) {
                           subjectList.map(subject => {
                             subjectConfig[subject.id] = {subjectId: subject.id, subjectName: subject.name};
@@ -266,9 +267,9 @@ export default class CreateScheduling extends Component {
                             subjectConfig: {},
                           });
                         }
-                      }}>科目</Checkbox></th>
-                      <th>课时</th>
-                      <th><Checkbox onChange={e => {
+                      }}>科目</Checkbox></Col>
+                      <Col span={4}>课时</Col>
+                      <Col span={16}><Checkbox onChange={e => {
                         if (e.target.checked) {
                           Object.entries(subjectConfig).forEach(([subjectId, config]) => {
                             const teachers = teacherMapOfSubjectId[subjectId] || [];
@@ -280,14 +281,13 @@ export default class CreateScheduling extends Component {
                           });
                         }
                         this.setState({subjectConfig: {...subjectConfig}});
-                      }}>参与排课的教师</Checkbox></th>
-                    </tr>
-                    </thead>
-                    <tbody>
+                      }}>参与排课的教师</Checkbox></Col>
+                    </Row>
+
                     {
                       subjectList.map(subject =>
-                        <tr key={subject.id}>
-                          <th>
+                        <Row className={styles['subject-row']} key={subject.id}>
+                          <Col span={4}>
 
                             <Checkbox checked={!!subjectConfig[subject.id]} value={subject.id} onChange={(e) => {
                               const {subjectConfig = {}} = this.state;
@@ -312,8 +312,8 @@ export default class CreateScheduling extends Component {
                               }
                               this.setState({subjectConfig: {...subjectConfig}});
                             }}>{subject.name}</Checkbox>
-                          </th>
-                          <td>
+                          </Col>
+                          <Col span={4}>
                             {
                               subjectConfig[subject.id] ?
                                 <InputNumber value={subjectConfig[subject.id].count || 0} min={0} max={54}
@@ -337,8 +337,8 @@ export default class CreateScheduling extends Component {
                                 :
                                 null
                             }
-                          </td>
-                          <td>
+                          </Col>
+                          <Col span={16}>
 
                             {
                               subjectConfig[subject.id] && teacherMapOfSubjectId[subject.id] ?
@@ -387,19 +387,18 @@ export default class CreateScheduling extends Component {
                             }
 
 
-                          </td>
-                        </tr>
+                          </Col>
+                        </Row>
                       )
                     }
-                    </tbody>
-                  </table>
+                  </div>
                   {
                     this.state.totalSubjectPeriodCount ?
                       <h3>总科目课时数量：{this.state.totalSubjectPeriodCount}</h3>
                       :
                       null
                   }
-                </div>
+                </StepContentBox>
                 :
                 null
             }
@@ -581,6 +580,34 @@ export default class CreateScheduling extends Component {
       </Page>
     );
   }
+
+  checkSubject = (subject, checked)=>{
+    const {gradeId, subjectConfig={}, teacherMapOfSubjectId={}} = this.state;
+    const {dispatch} = this.props;
+    if(checked) {
+      subjectConfig[subject.id] = {subjectId: subject.id, subjectName: subject.name};
+      if(!teacherMapOfSubjectId[subject.id]){
+        dispatch({
+          type: ManagesTeacher + '/list',
+          payload: {
+            subjectId:subject.id,
+            gradeId,
+            s: 10000
+          },
+          resolve: ({list = []} = {}) => {
+            teacherMapOfSubjectId[subject.id] = list;
+            this.setState({
+              teacherMapOfSubjectId: {...teacherMapOfSubjectId}
+            });
+          },
+        })
+      }
+
+    }else{
+      delete subjectConfig[subject.id];
+    }
+    this.setState({subjectConfig:{...subjectConfig}});
+  }
 }
 
 const WeekList = ['一', '二', '三', '四', '五', '六', '日'];
@@ -706,6 +733,17 @@ function LimitSubject({limit, subject}) {
   )
 }
 
+function StepContentBox({title, children}) {
+  return (
+    <div className={styles['step-content-box']}>
+      <h2>{title}</h2>
+      <div className={styles['step-content-box-body']}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
 function Step1({gradeId, klassIds, dispatch, gradeList = [], klassList = [], onChange}) {
 
   const onGradeChange = gradeId => {
@@ -726,54 +764,63 @@ function Step1({gradeId, klassIds, dispatch, gradeList = [], klassList = [], onC
       }
     });
   };
-  const onKlassChange = klassIds => onChange && onChange({klassIds});
 
   return (
-    <div className={styles['step-content-box']}>
-      <h2>请选择年级</h2>
-      {
-        gradeList && gradeList.length ?
-          <Select value={gradeId} style={{width: 200}} onChange={onGradeChange}>
-            {
-              gradeList.map(it =>
-                <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
-              )
-            }
-          </Select>
-          :
-          null
-      }
+    <Fragment>
+      <StepContentBox title="请选择年级">
+        {
+          gradeList && gradeList.length ?
+            <Select value={gradeId} style={{width: 200}} onChange={onGradeChange}>
+              {
+                gradeList.map(it =>
+                  <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
+                )
+              }
+            </Select>
+            :
+            null
+        }
+      </StepContentBox>
       {
         gradeId && klassList && klassList.length ?
-          <Fragment>
-            <h2>请选择班级</h2>
-            {
-              <Checkbox.Group value={klassIds || []} onChange={onKlassChange}>
-                <Row>
-                  {
-                    klassList.map(it =>
-                      <Col span={6} key={it.id}>
-                        <Checkbox value={it.id + ''}>{it.name}</Checkbox>
-                      </Col>
-                    )
-                  }
-
-                </Row>
-              </Checkbox.Group>
-            }
-            <div>
-              <Checkbox onChange={e=>{
-                if(e.target.checked){
-                  onChange && onChange({klassIds: klassList.map(it => it.id + '')});
-                }else{
-                  onChange && onChange({klassIds: []});
-                }
-              }}>全选</Checkbox>
-            </div>
-          </Fragment>
+          <Step1SelectKlass klassIds={klassIds} onChange={onChange} klassList={klassList}/>
           :
           null
       }
-    </div>
+
+    </Fragment>
+  )
+}
+
+function Step1SelectKlass({klassIds, onChange, klassList}) {
+  const onKlassChange = klassIds => onChange && onChange({klassIds});
+  return (
+    <StepContentBox title={
+      <Fragment>
+        <span>请选择班级</span>
+        <span style={{float: 'right'}}>
+                <Checkbox onChange={e => {
+                  if (e.target.checked) {
+                    onChange && onChange({klassIds: klassList.map(it => it.id + '')});
+                  } else {
+                    onChange && onChange({klassIds: []});
+                  }
+                }}>全选</Checkbox>
+              </span>
+      </Fragment>
+    }>
+      <Checkbox.Group value={klassIds || []} onChange={onKlassChange}>
+        <Row className={styles['checkbox-group-row-col']}>
+          {
+            klassList.map(it =>
+              <Col span={6} key={it.id}>
+                <Checkbox value={it.id + ''}>{it.name}</Checkbox>
+              </Col>
+            )
+          }
+
+        </Row>
+      </Checkbox.Group>
+    </StepContentBox>
   )
 }
