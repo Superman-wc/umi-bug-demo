@@ -16,3 +16,6 @@ export async function remove({id}) {
   return request('/api/8queen/lecture_plan/' + id, {method: 'DELETE'});
 }
 
+export async function importToSemester({gradeId, semesterId}) {
+  return request('/api/8queen/lecture/import', {data: {gradeId, semesterId}, method: 'POST'});
+}

@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
-import {Button, Tabs, Row, Col, Empty, Spin} from 'antd';
+import {Button, Tabs, Row, Col, Empty, Spin, Popconfirm, message} from 'antd';
 import Moment from 'moment';
 import {Authenticate, ManagesLectureArrangePlan as namespace} from '../../../utils/namespace';
 import Page from '../../../components/Page';
@@ -85,7 +85,7 @@ export default class DashboardPage extends Component {
               null
           }
 
-          <Plan item={item} loading={!item}/>
+          <Plan item={item} loading={!item} dispatch={dispatch} enableRelease/>
 
           <Tabs defaultActiveKey="对比方案" onChange={(key) => {
 
@@ -143,7 +143,7 @@ export default class DashboardPage extends Component {
 }
 
 
-function Plan({item = {}, loading, load}) {
+function Plan({item = {}, loading, load, dispatch, enableRelease}) {
   return (
     <Spin spinning={!!loading}>
       <Row className={styles['plan-item']}>
@@ -151,7 +151,36 @@ function Plan({item = {}, loading, load}) {
           item ?
             <Fragment>
               <Col span={8} className={styles['plan-item-left']}>
-                <h1>{item.name}</h1>
+                <h1>
+                  {item.name}
+                  {
+                    enableRelease ?
+                      <Popconfirm title="真的要发布这个排课方案么？"
+                                  okText="发布"
+                                  cancelText="取消"
+                                  onConfirm={() => {
+                                    dispatch({
+                                      type: namespace + '/release',
+                                      payload: {
+                                        id: item.id
+                                      },
+                                      resolve: (res) => {
+                                        console.log('发布排课方案成功', res);
+                                        message.success('发布成功');
+                                      },
+                                      reject: (error) => {
+                                        console.error('发布排课方案失败', error);
+                                        message.error('发布排课方案失败：' + error.message);
+                                      }
+                                    })
+                                  }}>
+                        <Button type="primary" size="small" style={{marginLeft: '2em'}}>发布</Button>
+                      </Popconfirm>
+                      :
+                      null
+                  }
+
+                </h1>
                 <div style={{marginBottom: 15}}>
                   <a style={{marginRight: 50}}>重命名</a>
                   <span>{new Moment(item.dateCreated).format('YYYY-MM-DD HH:mm:ss')}</span>
@@ -192,7 +221,7 @@ function Plan({item = {}, loading, load}) {
                       null
                   }
                   {
-                    item.studyExaminationPlanName?
+                    item.studyExaminationPlanName ?
                       <Col span={24}>
                         <label>学考分班</label>
                         <p>{item.studyExaminationPlanName}</p>

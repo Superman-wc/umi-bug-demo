@@ -1,5 +1,5 @@
 import Model, {RestfulReducers} from 'dva-model';
-import {list, create, modify, remove,} from '../../services/timetable/build';
+import {list, create, modify, remove, importToSemester} from '../../services/timetable/build';
 import {TimetableBuild as namespace} from '../../utils/namespace';
 
 
@@ -38,5 +38,6 @@ export default Model(
     create,
     modify,
     remove,
+    importToSemester,
   }
 );
