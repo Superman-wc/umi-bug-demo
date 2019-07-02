@@ -3,8 +3,6 @@ import classnames from 'classnames';
 import styles from './CourseTable.less';
 import Selection from './selection';
 import Point from "./point";
-// import Range from './range';
-// import Rect from './rect';
 import Scrollbar from './Scrollbar';
 import {ILecture, IPeriod, IRoom, StatusEnum} from "./interface";
 import LectureStatus from './LectureStatus';
@@ -143,6 +141,7 @@ export default class CourseTable extends Component<CourseTableProps, any> {
       className,
     } = this.props;
     const {width, height, scrollOffset} = this.state;
+
     const weekWidth = 30;
     const periodWidth = 40;
     const headerWidth = weekWidth + periodWidth;
@@ -158,8 +157,9 @@ export default class CourseTable extends Component<CourseTableProps, any> {
     const viewStartRow = Math.floor(scrollOffset.y / stdHeight);
     const viewStartCol = Math.floor(scrollOffset.x / stdWidth);
 
-    this.lectureWidth = stdWidth * roomList.length - viewPortWidth;
-    this.lectureHeight = stdHeight * periodList.length - viewPortHeight;
+    // 这里要保证大于0
+    this.lectureWidth = Math.max(stdWidth * roomList.length - viewPortWidth, 0);
+    this.lectureHeight = Math.max(stdHeight * periodList.length - viewPortHeight, 0);
 
     const roomIndexMap = {};
     const roomMap = {};
