@@ -1,6 +1,4 @@
 import React, {Component} from 'react';
-import {connect} from 'dva';
-import {routerRedux} from 'dva/router';
 import {notification, Button, Modal, Icon, Spin} from 'antd';
 import Flex from '../Flex';
 import WeekOfDate from './WeekOfDate';

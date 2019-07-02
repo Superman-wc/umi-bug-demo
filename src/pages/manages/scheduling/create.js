@@ -12,7 +12,8 @@ import {
   Col,
   message,
   Dropdown,
-  Menu
+  Menu,
+  Spin
 } from 'antd';
 import classNames from 'classnames';
 import {
@@ -31,6 +32,7 @@ import styles from './create.less';
   klassList: state[ManagesClass].list,
   subjectList: state[ManagesSubject].list,
   loading: state[ManagesGrade].loading || state[ManagesClass].loading,
+  saving: state[namespace].loading
 }))
 export default class CreateScheduling extends Component {
 
@@ -154,7 +156,10 @@ export default class CreateScheduling extends Component {
         console.log(res);
         message.success('创建成功');
         router.push({
-          pathname: '/manages/lecture-arrange-plan/'+res.id
+          pathname: '/manages/lecture-arrange-plan/' + res.id,
+          query:{
+            noContrast:1
+          }
         });
       },
       reject: (ex) => {
@@ -178,7 +183,7 @@ export default class CreateScheduling extends Component {
       return map;
     }, {}) : {};
 
-    const {klassIds,current, gradeId, periodMap = {}, teacherMapOfSubjectId = {}, subjectConfig = {}} = this.state;
+    const {klassIds, current, gradeId, periodMap = {}, teacherMapOfSubjectId = {}, subjectConfig = {}} = this.state;
 
     const title = '创建行政班排课方案';
 
@@ -222,7 +227,7 @@ export default class CreateScheduling extends Component {
       subjectList,
       subjectConfig,
       teacherMapOfSubjectId,
-      onChange: state=>this.setState(state),
+      onChange: state => this.setState(state),
     };
 
     const steps = [
@@ -239,7 +244,7 @@ export default class CreateScheduling extends Component {
 
             {
               gradeId && subjectList && subjectList.length ?
-                <StepContentBox title="每周每班每科目上课课时" >
+                <StepContentBox title="每周每班每科目上课课时">
                   <div className={styles['subject-config-table']}>
 
                     <Row className={styles['subject-row']}>
@@ -479,7 +484,13 @@ export default class CreateScheduling extends Component {
       },
       {
         title: '保存生成方案',
-        content: '保存生成方案',
+        content: ()=>(
+          <StepContentBox title="正在生成并保存方案">
+            <Spin spinning={this.props.saving}>
+              <div style={{height:300}} />
+            </Spin>
+          </StepContentBox>
+        ),
       },
     ];
 
@@ -537,13 +548,31 @@ export default class CreateScheduling extends Component {
                                 message.error('请设置科目课时');
                                 return;
                               }
+
+                              try {
+                                const sum = Object.values(this.state.subjectConfig).reduce((sum, config) => {
+                                  if (config.teacherIds && config.teacherIds.length) {
+                                    return sum + config.teacherIds.length;
+                                  } else {
+                                    throw new Error(`${config.subjectName}需要有参与排课的教师`);
+                                  }
+                                }, 0);
+                              }catch(ex){
+                                message.error(ex.message);
+                                return;
+                              }
                               break;
                             case 2:
+                              if(!Object.values(this.state.periodMap).filter(it=>!!it).length){
+                                message.error('请选择每周的上课课时');
+                                return;
+                              }
                               break;
                             case 3:
+                              this.save();
                               break;
                           }
-                          console.log(this.state);
+
                           this.next();
                         }}>
                   下一步
@@ -553,7 +582,7 @@ export default class CreateScheduling extends Component {
             {
               current === steps.length - 1 && (
                 <Button size="large" type="primary" onClick={() => {
-                  this.save();
+
                 }}>
                   完成
                 </Button>
@@ -566,16 +595,16 @@ export default class CreateScheduling extends Component {
     );
   }
 
-  checkSubject = (subject, checked)=>{
-    const {gradeId, subjectConfig={}, teacherMapOfSubjectId={}} = this.state;
+  checkSubject = (subject, checked) => {
+    const {gradeId, subjectConfig = {}, teacherMapOfSubjectId = {}} = this.state;
     const {dispatch} = this.props;
-    if(checked) {
+    if (checked) {
       subjectConfig[subject.id] = {subjectId: subject.id, subjectName: subject.name};
-      if(!teacherMapOfSubjectId[subject.id]){
+      if (!teacherMapOfSubjectId[subject.id]) {
         dispatch({
           type: ManagesTeacher + '/list',
           payload: {
-            subjectId:subject.id,
+            subjectId: subject.id,
             gradeId,
             s: 10000
           },
@@ -588,10 +617,10 @@ export default class CreateScheduling extends Component {
         })
       }
 
-    }else{
+    } else {
       delete subjectConfig[subject.id];
     }
-    this.setState({subjectConfig:{...subjectConfig}});
+    this.setState({subjectConfig: {...subjectConfig}});
   }
 }
 

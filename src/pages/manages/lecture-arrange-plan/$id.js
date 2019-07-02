@@ -49,8 +49,10 @@ export default class DashboardPage extends Component {
 
   render() {
     const {
-      dispatch, profile, item, list = [],
+      dispatch, profile, item, list = [], location, loading,
     } = this.props;
+
+    const {query} = location;
 
     const schoolName = profile && profile.schoolName || '';
 
@@ -70,8 +72,6 @@ export default class DashboardPage extends Component {
 
     const {selectedKey = "对比方案"} = this.state;
 
-    console.log(list);
-
     return (
       <Page header={header} mainClassName={styles['arrange-plan-page']}
             location={location}
@@ -85,57 +85,59 @@ export default class DashboardPage extends Component {
               null
           }
 
-          <Plan item={item} loading={!item} dispatch={dispatch} enableRelease/>
+          <Plan item={item} loading={!item || !!loading} dispatch={dispatch} enableRelease/>
 
-          <Tabs defaultActiveKey="对比方案" onChange={(key) => {
+          {
+            query.noContrast * 1 !== 1 ?
+              <Tabs defaultActiveKey="对比方案" onChange={(key) => {
 
-            this.setState({selectedKey: key, [selectedKey]: list});
+                this.setState({selectedKey: key, [selectedKey]: list});
 
-            if (this.state[key]) {
-              dispatch({
-                type: namespace + '/set',
-                payload: {
-                  list: this.state[key]
+                if (this.state[key]) {
+                  dispatch({
+                    type: namespace + '/set',
+                    payload: {
+                      list: this.state[key]
+                    }
+                  });
+                } else {
+                  dispatch({
+                    type: namespace + '/list',
+                    payload: {
+                      gradeId: item.gradeId,
+                      electionExamination: key === '对比方案' ? item.electionExamination : !item.electionExamination,
+                      semesterId: item.semesterId,
+                    }
+                  })
                 }
-              });
-            } else {
-              dispatch({
-                type: namespace + '/list',
-                payload: {
-                  gradeId: item.gradeId,
-                  electionExamination: key === '对比方案' ? item.electionExamination : !item.electionExamination,
-                  semesterId: item.semesterId,
-                }
-              })
-            }
-          }}>
+              }}>
+                <Tabs.TabPane tab="对比方案" key="对比方案">
+                  {
+                    item && selectedKey === '对比方案' && list.length ?
+                      list.map(it =>
+                        <Plan key={it.id} item={it} loading={it.loading} load={(id) => {
+                          it.loading = true;
+                          dispatch({
+                            type: namespace + '/set',
+                            payload: {
+                              list: [...list]
+                            }
+                          });
+                          dispatch({
+                            type: namespace + '/fetchDetail',
+                            payload: {id},
+                          })
+                        }}/>
+                      )
+                      :
+                      <Empty description="暂无方案"/>
+                  }
+                </Tabs.TabPane>
+              </Tabs>
+              :
+              null
+          }
 
-
-            <Tabs.TabPane tab="对比方案" key="对比方案">
-              {
-                item && selectedKey === '对比方案' && list.length ?
-                  list.map(it =>
-                    <Plan key={it.id} item={it} loading={it.loading} load={(id) => {
-                      it.loading = true;
-                      dispatch({
-                        type: namespace + '/set',
-                        payload: {
-                          list: [...list]
-                        }
-                      });
-                      dispatch({
-                        type: namespace + '/fetchDetail',
-                        payload: {id},
-                      })
-                    }}/>
-                  )
-                  :
-                  <Empty description="暂无方案"/>
-              }
-            </Tabs.TabPane>
-
-
-          </Tabs>
         </div>
       </Page>
     );
@@ -230,14 +232,21 @@ function Plan({item = {}, loading, load, dispatch, enableRelease}) {
                       null
                   }
                 </Row>
+                {
+                  item.lectureVMList && item.teacherKlassStatisticVMList ?
+                    <Fragment>
+                      <h2>师资分班</h2>
+                      <TeacherKlassStatisticVMList list={item.teacherKlassStatisticVMList || []}/>
+                    </Fragment>
+                    :
+                    null
+                }
+
               </Col>
               <Col span={16} className={styles['plan-item-main']}>
                 {
                   item.lectureVMList && item.teacherKlassStatisticVMList ?
                     <Fragment>
-
-                      <h2>师资分班</h2>
-                      <TeacherKlassStatisticVMList list={item.teacherKlassStatisticVMList || []}/>
                       <h2>年级课表</h2>
                       <LectureVMList list={item.lectureVMList || []}/>
                     </Fragment>
@@ -307,11 +316,8 @@ function LectureVMList({list = []}) {
     roomList,
     lectureList: list,
   };
-
-  console.log(periodList);
-
   return (
-    <div style={{height: (Math.min(periodList.length, 4) * 90 + 45) || 0, display: 'flex'}}>
+    <div style={{height: (Math.min(periodList.length, 8) * 90 + 45) || 0, display: 'flex'}}>
       <TimeTable {...timetableProps} />
     </div>
   )

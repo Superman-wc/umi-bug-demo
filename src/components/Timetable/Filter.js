@@ -224,12 +224,12 @@ export default class Filter extends Component {
             :
             type === 'course' ?
               <Fragment>
-                <Form.Item label="课程">
-                  <Select loading={!!loadingCourse} disabled={disabled} placeholder={gradeId ? '请选择' : '请先选择年级'} value={courseId}
-                          onChange={this.onCourseChange}
+                <Form.Item label="科目">
+                  <Select loading={!!loadingSubject} disabled={disabled} placeholder={'请选择'} value={subjectId}
+                          onChange={this.onSubjectChange}
                           style={selectStyle}>
                     {
-                      courseList.map(it =>
+                      subjectList.map(it =>
                         <Select.Option key={it.id} value={it.id}>{it.name}</Select.Option>
                       )
                     }

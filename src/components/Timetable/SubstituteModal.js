@@ -18,8 +18,10 @@ export default class SubstituteModal extends Component {
 
   onFilterChange = (type, {gradeId, subjectId}) => {
     if (type === 'grade') {
-      this.setState({teacherList: [], subjectId: null});
-    } else if (type === 'course') {
+
+      this.setState({teacherList: [], courseId: null});
+    } else if (type === 'subject') {
+
       const {lecture: {id}} = this.props;
       fetchTeacherList({gradeId, subjectId, lectureId: id}).then(({result: {list}}) => {
         this.setState({subjectId, teacherList: list.sort((a, b) => a.workStatus - b.workStatus)});
@@ -42,11 +44,11 @@ export default class SubstituteModal extends Component {
       visible, onCancel,
       onOk: () => {
         const {lecture: {id}} = this.props;
-        if (this.state.teacherId && this.state.courseId) {
+        if (this.state.teacherId && this.state.subjectId) {
           onOk && onOk({
             id,
             teacherId: this.state.teacherId,
-            courseId: this.state.courseId
+            subjectId: this.state.subjectId
           })
         } else {
           message.warning('请选择代课的教师', 3);
