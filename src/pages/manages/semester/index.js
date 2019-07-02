@@ -44,12 +44,12 @@ export default class MeterList extends Component {
 
     const columns = [
       {title: 'ID', key: 'id'},
-      {title: '学年', key: 'academicYear'},
-      {title: '学期', key: 'semesterType', render: v => SemesterTypeEnum[v]},
-      {title: '开学时间', key: 'startDate', render: v => moment(v).format('YYYY-MM-DD')},
-      {title: '放假时间', key: 'endDate', render: v => moment(v).format('YYYY-MM-DD')},
+      {title: '学年', key: 'academicYear', width:100,},
+      {title: '学期', key: 'semesterType',width:60, render: v => SemesterTypeEnum[v]},
+      {title: '开学时间', key: 'startDate',width:100, render: v => moment(v).format('YYYY-MM-DD')},
+      {title: '放假时间', key: 'endDate',width:100, render: v => moment(v).format('YYYY-MM-DD')},
       {
-        title: '是否当前学期', key: 'currentType',
+        title: '是否当前学期', key: 'currentType', width:80,
         render: (v, row) =>
           <Switch checked={v === 1}
                   disabled={v === 1}
@@ -74,9 +74,9 @@ export default class MeterList extends Component {
                   }}
           />
       },
-      {title: '创建时间', key: 'dateCreated'},
+      {title: '创建时间', key: 'dateCreated', width:120},
       {
-        title: '操作',
+        title: '操作', width:120,
         key: 'operate',
         render: (id, row) => {
           let operation;

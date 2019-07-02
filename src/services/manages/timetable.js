@@ -15,3 +15,6 @@ export async function create(data) {
 export async function remove({ id }) {
   return request('/api/8queen/timetable/' + id, { method: 'DELETE' });
 }
+
+
+

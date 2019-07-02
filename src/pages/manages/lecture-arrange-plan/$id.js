@@ -182,16 +182,24 @@ function Plan({item = {}, loading, load}) {
                     <label>相关场地</label>
                     <p>{item.roomNum}</p>
                   </Col>
-                  <Col span={24}>
-                    <label>选考分班</label>
-                    <p>{item.electionExaminationPlanName}</p>
-                  </Col>
-                  <Col span={24}>
-                    <label>学考分班</label>
-                    <p>{item.studyExaminationPlanName}</p>
-                  </Col>
-
-
+                  {
+                    item.electionExaminationPlanName ?
+                      <Col span={24}>
+                        <label>选考分班</label>
+                        <p>{item.electionExaminationPlanName}</p>
+                      </Col>
+                      :
+                      null
+                  }
+                  {
+                    item.studyExaminationPlanName?
+                      <Col span={24}>
+                        <label>学考分班</label>
+                        <p>{item.studyExaminationPlanName}</p>
+                      </Col>
+                      :
+                      null
+                  }
                 </Row>
               </Col>
               <Col span={16} className={styles['plan-item-main']}>
