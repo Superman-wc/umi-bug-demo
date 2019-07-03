@@ -92,7 +92,7 @@ export default class BuildTimeTable extends Component {
     const breadcrumb = ['排课', '课表', title];
 
     const headerButtons = [{
-      key: 'ro'
+      key: 'rollback'
     }];
 
     if(lectureList && gradeId){
