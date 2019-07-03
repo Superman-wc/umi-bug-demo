@@ -32,7 +32,6 @@ import styles from './create.less';
   klassList: state[ManagesClass].list,
   subjectList: state[ManagesSubject].list,
   loading: state[ManagesGrade].loading || state[ManagesClass].loading,
-  saving: state[namespace].loading
 }))
 export default class CreateScheduling extends Component {
 
@@ -149,24 +148,31 @@ export default class CreateScheduling extends Component {
 
     const {dispatch} = this.props;
 
-    dispatch({
-      type: namespace + '/create',
-      payload,
-      resolve: (res) => {
-        console.log(res);
-        message.success('创建成功');
-        router.push({
-          pathname: '/manages/lecture-arrange-plan/' + res.id,
-          query:{
-            noContrast:1
-          }
-        });
-      },
-      reject: (ex) => {
-        console.error(ex);
-        message.error('创建失败：' + ex.message);
-      }
+    this.setState({saving: true, saveMessage:'正在生成并保存方案...'}, ()=>{
+      dispatch({
+        type: namespace + '/create',
+        payload,
+        resolve: (res) => {
+          console.log(res);
+          message.success('创建成功');
+          this.setState({saving: false, saveMessage:'创建方案成功'},()=>{
+            router.push({
+              pathname: '/manages/lecture-arrange-plan/' + res.id,
+              query:{
+                noContrast:1
+              }
+            });
+          });
+        },
+        reject: (ex) => {
+          console.error(ex);
+          message.error('创建失败：' + ex.message);
+          this.setState({saving: false, saveMessage: '创建方案失败'});
+        }
+      });
     });
+
+
   };
 
   render() {
@@ -191,16 +197,6 @@ export default class CreateScheduling extends Component {
 
     const buttons = [
       {
-        key: 'save',
-        type: 'primary',
-        children: '保存',
-        title: '保存',
-        icon: 'save',
-        onClick: () => {
-
-        },
-      },
-      {
         key: 'rollback'
       }
     ];
@@ -211,12 +207,6 @@ export default class CreateScheduling extends Component {
       <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}/>
     );
 
-    const wrapper = {
-      // wrapperCol: {span: 18},
-      // labelCol: {span: 6}
-    };
-
-    console.log(this.state);
 
     const resetProps = {
       gradeId,
@@ -485,8 +475,8 @@ export default class CreateScheduling extends Component {
       {
         title: '保存生成方案',
         content: ()=>(
-          <StepContentBox title="正在生成并保存方案">
-            <Spin spinning={this.props.saving}>
+          <StepContentBox title={this.state.saveMessage}>
+            <Spin spinning={this.state.saving}>
               <div style={{height:300}} />
             </Spin>
           </StepContentBox>
