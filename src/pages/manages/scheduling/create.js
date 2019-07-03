@@ -563,7 +563,7 @@ export default class CreateScheduling extends Component {
                               }
                               break;
                             case 2:
-                              if(!Object.values(this.state.periodMap).filter(it=>!!it).length){
+                              if(!this.state.periodMap || !Object.values(this.state.periodMap).filter(it=>!!it).length){
                                 message.error('请选择每周的上课课时');
                                 return;
                               }
