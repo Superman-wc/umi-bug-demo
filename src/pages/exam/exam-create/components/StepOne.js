@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'dva';
 import { Form, Tree, Radio, DatePicker, InputNumber, Select, Checkbox, Row, Col, notification } from 'antd';
-import { ExamCreate } from '../../../../utils/namespace';
+import {ExamCreate, ManagesGrade} from '../../../../utils/namespace';
 import { ManagesSteps } from '../utils/namespace';
 import { ExamTypeEnum, GradeIndexEnum, Enums } from '../../../../utils/Enum';
 import styles from '../index.less';
@@ -18,7 +18,8 @@ const CheckboxGroup = Checkbox.Group;
   oneItem: state[ManagesSteps].oneItem,
   updateOne: state[ManagesSteps].updateOne,
   studentNum: state[ManagesSteps].studentNum,
-  needRoomNum: state[ManagesSteps].needRoomNum
+  needRoomNum: state[ManagesSteps].needRoomNum,
+  gradeList:state[ManagesGrade].list,
 }))
 @Form.create({
   mapPropsToFields(props) {
@@ -53,6 +54,15 @@ const CheckboxGroup = Checkbox.Group;
   }
 })
 export default class StepOne extends React.Component {
+
+  componentDidMount() {
+    this.props.dispatch({
+      type: ManagesGrade+'/list',
+      payload:{
+        s:1000
+      }
+    })
+  }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.updateOne && nextProps.updateOne !== this.props.updateOne) {
@@ -203,7 +213,7 @@ export default class StepOne extends React.Component {
 
   render() {
     const {
-      subjectList = [], doorPlateList = [], studentNum = 0, needRoomNum = 0,
+      subjectList = [], doorPlateList = [], gradeList=[], studentNum = 0, needRoomNum = 0,
       form: { getFieldDecorator }
     } = this.props;
     // console.log('needRoomNum: ', needRoomNum);
@@ -241,8 +251,8 @@ export default class StepOne extends React.Component {
               })(
                 <RadioGroup onChange={this.onGradeDataChange}>
                   {
-                    Enums(GradeIndexEnum).map(it =>
-                      <Radio key={it.value} value={it.value}>{it.name}</Radio>
+                    gradeList.map(it =>
+                      <Radio key={it.id} value={it.gradeIndex}>{it.name}</Radio>
                     )
                   }
                 </RadioGroup>
