@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {Form, Modal, Input, notification, Select} from 'antd';
-import {ManagesGrade as namespace, ManagesTimetable} from '../../../utils/namespace';
+import {ManagesClass, ManagesGrade as namespace, ManagesTimetable} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import router from 'umi/router';
@@ -58,6 +58,12 @@ export default class MeterList extends Component {
                 },
                 children: '课时配置'
               },
+              klass:{
+                children:'班级管理',
+                onClick:()=>{
+                  router.push({pathname: ManagesClass, query: {gradeId: id, gradeIndex: row.gradeIndex.toString()}})
+                }
+              },
               edit: () => this.setState({visible: true, item: row}),
               remove: {
                 onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
@@ -79,6 +85,7 @@ export default class MeterList extends Component {
           payload,
           resolve: () => {
             notification.success({message: (payload.id ? '修改' : '创建') + '年级成功'});
+
             this.setState({visible: false});
           }
         });

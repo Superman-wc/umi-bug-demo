@@ -8,10 +8,11 @@ import request from '../../utils/request';
  * @param s 分页大小
  * @param name 搜索名字
  * @param mobile 搜索手机号
+ * @param lectureId 当前课表单元Id
  * @returns {Promise<*>}
  */
-export async function list({gradeId, subjectId, p = 1, s = 30, name, mobile} = {}) {
-  return request('/api/8queen/teacher', {data: {gradeId, subjectId, p, s, name, mobile}, method: 'GET'});
+export async function list({gradeId, subjectId, p = 1, s = 30, name, mobile, lectureId} = {}) {
+  return request('/api/8queen/teacher', {data: {gradeId, subjectId, p, s, name, mobile, lectureId}, method: 'GET'});
 }
 
 export async function modify(data) {

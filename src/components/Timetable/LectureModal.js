@@ -7,20 +7,10 @@ import {FormComponentProps} from 'antd/lib/form';
 import {ICourse, IKlass, ILecture, ITeacher} from "@/components/Timetable/interface";
 import {ManagesTeacher} from '../../utils/namespace';
 
-export type LectureModalProps = {
-  lecture: ILecture;
-  gradeId: number;
-  visible: boolean;
-  klassList: IKlass[];
-  courseList: ICourse[];
-  // teacherList: ITeacher[];
-  onCancel: () => void;
-  onOk: (payload: ILecture) => void;
-  // dispatch: (action: { type: string, payload: any }) => void;
-} & FormComponentProps
 
 
-class LectureModal extends Component<LectureModalProps, any> {
+
+class LectureModal extends Component {
 
   static propTypes = {
     lecture: Proptypes.object,
@@ -35,8 +25,8 @@ class LectureModal extends Component<LectureModalProps, any> {
 
 
   state = {
-    courseId: undefined,
-    teacherList: []
+    // subjectId
+    // teacherList: []
   };
 
   fetchTeacherList = (courseId) => {
@@ -48,13 +38,13 @@ class LectureModal extends Component<LectureModalProps, any> {
     //     s: 10000,
     //   }
     // });
-    const course = this.props.courseList.find((it: ICourse) => it.id === courseId);
+    const course = this.props.courseList.find((it) => it.id === courseId);
     if (course) {
       this.setState({teacherList: course.teacherList});
     }
   };
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps, nextContent) {
     if (nextProps.lecture && nextProps.lecture !== this.props.lecture) {
       if (nextProps.lecture.course && nextProps.lecture.course.id) {
         this.fetchTeacherList(nextProps.lecture.course.id);
@@ -146,7 +136,7 @@ class LectureModal extends Component<LectureModalProps, any> {
 
                 }} style={selectStyle}>
                   {
-                    courseList.sort((a: ICourse, b: ICourse): number => (a.id as number) - (b.id as number)).map(it =>
+                    courseList.sort((a,b) => a-b).map(it =>
                       <Select.Option key={it.id.toString()} value={it.id}>{it.name}</Select.Option>
                     )
                   }
@@ -159,7 +149,7 @@ class LectureModal extends Component<LectureModalProps, any> {
               getFieldDecorator('teacherId', {})(
                 <Select placeholder={this.state.courseId ? '请选择' : '请先选择科目'} style={selectStyle}>
                   {
-                    this.state.courseId && teacherList.map((it: ITeacher) =>
+                    this.state.courseId && teacherList.map((it) =>
                       <Select.Option key={it.id.toString()} value={it.id}>{it.name}</Select.Option>
                     )
                   }
@@ -188,9 +178,10 @@ class LectureModal extends Component<LectureModalProps, any> {
 }
 
 export default Form.create({
-  mapPropsToFields: (props: LectureModalProps) => {
+  mapPropsToFields: (props) => {
     return {
       klassId: Form.createFormField({value: props.lecture && props.lecture.klass && props.lecture.klass.id || undefined}),
+
       courseId: Form.createFormField({value: props.lecture && props.lecture.course && props.lecture.course.id || undefined}),
       teacherId: Form.createFormField({value: props.lecture && props.lecture.teacher && props.lecture.teacher.id || undefined}),
       reserveName: Form.createFormField({value: props.lecture && props.lecture.reserveName || undefined}),

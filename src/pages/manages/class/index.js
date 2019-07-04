@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import router from 'umi/router';
-import {Form,  Modal, Select,  Input, notification} from 'antd';
+import {Form,  Modal, Select,  Input, notification, Checkbox} from 'antd';
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import {
@@ -124,6 +124,7 @@ export default class MeterList extends Component {
     const classModalProps = {
       visible: this.state.visible,
       item: this.state.item,
+      query,
       onCancel: () => this.setState({visible: false}),
       onOk: (payload) => {
         dispatch({
@@ -199,7 +200,7 @@ export default class MeterList extends Component {
     return {
       name: Form.createFormField({value: name || undefined}),
       type: Form.createFormField({value: type && type.toString() || undefined}),
-      gradeId: Form.createFormField({value: gradeId || undefined}),
+      gradeId: Form.createFormField({value: gradeId || (props.query && parseInt(props.query.gradeId)) || undefined}),
       teacherId: Form.createFormField({value: teacherId || undefined}),
       subjectId: Form.createFormField({value: subjectId || undefined}),
       roomId: Form.createFormField({value: roomId || undefined}),
@@ -290,6 +291,15 @@ class ClassModal extends Component {
               )
             }
           </Form.Item>
+          <Form.Item label="名称" {...wrapper}>
+            {
+              getFieldDecorator('name', {
+                rules: [{message: '请输入班级名称', required: true}]
+              })(
+                <Input maxLength={64}/>
+              )
+            }
+          </Form.Item>
           <Form.Item label="类型" {...wrapper}>
             {
               getFieldDecorator('type', {
@@ -354,15 +364,7 @@ class ClassModal extends Component {
                 :
                 null
           }
-          <Form.Item label="名称" {...wrapper}>
-            {
-              getFieldDecorator('name', {
-                rules: [{message: '请输入班级名称', required: true}]
-              })(
-                <Input maxLength={64}/>
-              )
-            }
-          </Form.Item>
+
           <Form.Item label="教室" {...wrapper}>
             {
               getFieldDecorator('roomId', {})(

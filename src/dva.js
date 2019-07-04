@@ -1,4 +1,5 @@
 import {notification} from 'antd';
+import DingTalk from './utils/DingTalk';
 
 notification.config({
   placement: 'topRight',
@@ -23,6 +24,7 @@ export function config() {
         });
       }
       window.TDAPP && window.TDAPP.onEvent('error', 'dva', {...err});
+      // DingTalk.Send()
     },
     initialState: {  // 初始化
       '/manages/class': {
