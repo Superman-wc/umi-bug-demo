@@ -14,7 +14,7 @@ const MOUNT = Symbol('mount');
 
 export default class WeekTimeTable extends Component {
   state = {
-    timetable: transformLectureListToWeekTimetable([])
+    ...transformLectureListToWeekTimetable([], 7, 9)
   };
 
   componentDidMount() {
@@ -39,7 +39,9 @@ export default class WeekTimeTable extends Component {
 
 
   setTimetable = (list) => {
-    this[MOUNT] && this.setState({timetable: transformLectureListToWeekTimetable(list || [])});
+    const data = list || [];
+
+    this[MOUNT] && this.setState({...transformLectureListToWeekTimetable(data, 7, data.length ? 0 : 9)});
   };
 
   render() {
@@ -47,7 +49,7 @@ export default class WeekTimeTable extends Component {
       loading, dispatch, now, type, namespace,
     } = this.props;
 
-    const {timetable, selectedLecture} = this.state;
+    const {timetable, maxTimeslot, selectedLecture} = this.state;
 
     const buttons = [];
 
@@ -113,6 +115,7 @@ export default class WeekTimeTable extends Component {
       now,
       type,
       weekLectures: timetable,
+      maxTimeslot,
       onSelect: lecture => {
         console.log(lecture);
         if (!this.state.startSwap) {
@@ -201,14 +204,11 @@ export default class WeekTimeTable extends Component {
       let payload;
       if (this.props.type === 'klass' && gradeId && klassId) {
         payload = {gradeId, klassId, weekIndex};
-      }
-      else if (this.props.type === 'student' && gradeId && studentId) {
+      } else if (this.props.type === 'student' && gradeId && studentId) {
         payload = {gradeId, studentId, weekIndex};
-      }
-      else if (this.props.type === 'teacher' && gradeId && teacherId) {
+      } else if (this.props.type === 'teacher' && gradeId && teacherId) {
         payload = {gradeId, teacherId, weekIndex};
-      }
-      else if (this.props.type === 'grade' && gradeId && type) {
+      } else if (this.props.type === 'grade' && gradeId && type) {
         payload = {gradeId, type, weekIndex};
       }
 

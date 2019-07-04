@@ -5,7 +5,7 @@ export async function list(data) {
 }
 
 export async function modify(data) {
-  return request('/api/8queen/lecture/teacher/' + data.id + '/op/substitute', {data, method: 'PUT'});
+  return request('/api/8queen/lecture/' + data.id + '/op/substitute', {data, method: 'PUT'});
 }
 
 export async function create(data) {

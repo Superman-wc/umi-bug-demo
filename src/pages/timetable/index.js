@@ -39,7 +39,9 @@ export default class TimetablePage extends Component {
                       {title: '年级管理', link: '/manages/grade'},
                       {title: '班级管理', link: '/manages/class'},
                       {title: '科目管理', link: '/manages/subject'},
+                      {title: '课程管理', link: '/manages/course'},
                       {title: '教师管理', link: '/manages/teacher'},
+                      {title: '教室管理', link: '/manages/room'},
                       {title: '学期管理', link: '/manages/semester'},
                     ].map(({title, link}) =>
                       <Link key={link} to={link}>{title}</Link>

@@ -11,6 +11,7 @@ export type TimetableType = 'teacher' | 'student' | 'klass';
 
 export interface BaseTimetableProps {
   weekLectures?: Array<Array<ILecture>>;
+  maxTimeslot?: number,
   now?: INow;
   type: TimetableType;
 }
@@ -20,6 +21,7 @@ export type TimetableProps = BaseTimetableProps & BaseComponentProps & IEvent & 
 export default class Timetable extends Component<TimetableProps, any> {
   static propTypes = {
     weekLectures: PropTypes.array,
+    maxTimeslot: PropTypes.number,
     now: PropTypes.object,
     type: PropTypes.oneOf(['teacher', 'student', 'klass']),
     className: PropTypes.string,
@@ -45,7 +47,7 @@ export default class Timetable extends Component<TimetableProps, any> {
 
   render() {
     const {
-      weekLectures, now, type,
+      weekLectures, maxTimeslot=9, now, type,
       prefixCls, className, style, children,
       ...lectureProps
     } = this.props;
@@ -55,11 +57,13 @@ export default class Timetable extends Component<TimetableProps, any> {
     };
     const headerClassName = `${prefixCls}-header`;
 
+    console.log(weekLectures, maxTimeslot);
+
     return (
       <div {...props}>
         <div className={headerClassName}>
           <div>节次 \ 星期</div>
-          <Timeslot count={9}/>
+          <Timeslot count={maxTimeslot}/>
         </div>
         {
           weekLectures && weekLectures.length ?

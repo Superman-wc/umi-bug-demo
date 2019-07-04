@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, Fragment} from 'react';
 import {connect} from 'dva';
 import {Form, Modal, Select, Input, notification, Checkbox, Radio} from 'antd';
 import {
@@ -129,7 +129,7 @@ export default class CourseUniqueList extends Component {
           <TableCellOperation
             operations={{
               allot: {
-                children: '分配', onClick: () => {
+                children: '分配教师', onClick: () => {
                   dispatch({
                     type: ManagesTeacher + '/list',
                     payload: {
@@ -219,10 +219,11 @@ class AllotTeacherModal extends Component {
   render() {
     const {
       visible, onCancel, onOk, item = {}, teacherList = [],
-      form: {getFieldDecorator, validateFieldsAndScroll},
+      form: {getFieldDecorator, validateFieldsAndScroll, setFieldsValue},
     } = this.props;
     console.log(item);
     const modalProps = {
+      destroyOnClose: true,
       visible,
       title: `给${item.gradeName}${item.name}分配教师`,
       onCancel,
@@ -243,18 +244,30 @@ class AllotTeacherModal extends Component {
     };
     return (
       <Modal {...modalProps}>
-        <Form layout="horizontal">
-          <Form.Item label="教师" {...wrapper}>
-            {
-              teacherList && teacherList.length ?
-                getFieldDecorator('teacherIds', {rules: [{message: '请选择教师', required: true}]})(
-                  <Checkbox.Group options={teacherList.map(it => ({value: it.id, label: it.name}))}/>
-                )
-                :
-                <div>还没有教{item.subjectName}的教师，去<a onClick={() => router.push(ManagesTeacher)}>教师管理</a>设置</div>
-            }
-          </Form.Item>
-        </Form>
+        {
+          teacherList && teacherList.length ?
+            <Form layout="horizontal">
+              <Form.Item label="教师" {...wrapper} help={
+                <Checkbox onChange={e => {
+                  if (e.target.checked) {
+                    const teacherIds = teacherList.map(it => it.id);
+                    setFieldsValue({teacherIds});
+                  } else {
+                    setFieldsValue({teacherIds: []});
+                  }
+                }}>全选</Checkbox>
+              }>
+                {
+                  getFieldDecorator('teacherIds', {rules: [{message: '请选择教师', required: true}]})(
+                    <Checkbox.Group className={styles['teacher-checkbox-list']} options={teacherList.map(it => ({value: it.id, label: it.name}))}/>
+                  )
+                }
+              </Form.Item>
+            </Form>
+            :
+            <div>还没有教{item.subjectName}的教师，去<a onClick={() => router.push(ManagesTeacher)}>教师管理</a>设置</div>
+        }
+
       </Modal>
     )
   }
@@ -287,6 +300,7 @@ class CourseModal extends Component {
       visible,
       title: item && item.id ? '修改课程' : '创建课程',
       onCancel,
+      width: 600,
       onOk: () => {
         validateFieldsAndScroll((errors, payload) => {
           if (errors) {
@@ -337,7 +351,7 @@ class CourseModal extends Component {
               )
             }
           </Form.Item>
-          <Form.Item label="类型" {...wrapper}>
+          <Form.Item label="类型" {...wrapper} help="高中阶段选科使用，初中都是“非学考选考”">
             {
               getFieldDecorator('type', {
                 rules: [{message: '请选择课程类型', required: true}]
@@ -352,7 +366,7 @@ class CourseModal extends Component {
               )
             }
           </Form.Item>
-          <Form.Item label="行政班" {...wrapper}>
+          <Form.Item label="行政班" {...wrapper} help="高中阶段区别于走班形式">
             {
               getFieldDecorator('belongToExecutiveClass', {
                 rules: [{message: '请选择是否行政班', required: true}]
@@ -363,8 +377,9 @@ class CourseModal extends Component {
                 </Radio.Group>
               )
             }
+
           </Form.Item>
-          <Form.Item label="分层" {...wrapper}>
+          <Form.Item label="分层" {...wrapper} help="高中阶段同一科目走班时区分不同层次的学生， 如物理A、物理B">
             {
               getFieldDecorator('hierarchy', {
                 rules: [{message: '请选择是否分层', required: true}]

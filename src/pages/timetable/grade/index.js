@@ -19,12 +19,7 @@ export default class GradeTimeTable extends Component {
   state = {};
 
   componentDidMount() {
-    this.props.dispatch({
-      type: ManagesPeriod + '/list',
-      payload: {
-        s: 1000,
-      },
-    });
+
   }
 
   componentWillUnmount() {
@@ -37,6 +32,15 @@ export default class GradeTimeTable extends Component {
   }
 
   onFilterChange = (changeType, {gradeId, type, weekIndex}) => {
+    if(!this.props.periodList){
+      this.props.dispatch({
+        type: ManagesPeriod + '/list',
+        payload: {
+          s: 1000,
+          gradeId
+        },
+      });
+    }
     if (gradeId && type) {
       this.setState({gradeId});
       this.props.dispatch({
