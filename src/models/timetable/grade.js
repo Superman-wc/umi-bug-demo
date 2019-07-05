@@ -1,4 +1,5 @@
-import Model, {RestfulReducers} from 'dva-model';
+import Model from 'dva-model';
+import {modifySuccess} from 'dva-model/restful';
 import {list, create, modify, remove, available, swap, cancel} from '../../services/timetable/grade';
 import {TimetableGrade as namespace} from '../../utils/namespace';
 
@@ -24,7 +25,7 @@ export default Model(
         });
         return {...state, loading: false, list: [...state.list]};
       },
-      cancelSuccess: RestfulReducers.modifySuccess
+      cancelSuccess: modifySuccess
     }
   },
   {

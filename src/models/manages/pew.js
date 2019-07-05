@@ -20,19 +20,20 @@ export default Model(
     reducers: {
       modifySuccess(state, action) {
         let {list = []} = state;
-        if (Array.isArray(action.result)) {
-          for (let i = 0, len = action.result.length; i < len; i++) {
-            const index = list.findIndex(it => it.id === action.result.id);
+        const {payload} = action;
+        if (Array.isArray(payload)) {
+          for (let i = 0, len = payload.length; i < len; i++) {
+            const index = list.findIndex(it => it.id === payload.id);
             if (index >= 0) {
-              list[index] = action.result;
-              state.item = action.result[0];
+              list[index] = payload;
+              state.item = payload[0];
             }
           }
         } else {
-          const index = list.findIndex(it => it.id === action.result.id);
+          const index = list.findIndex(it => it.id === payload.id);
           if (index >= 0) {
-            list[index] = action.result;
-            state.item = action.result;
+            list[index] = payload;
+            state.item = payload;
           }
         }
         return {...state, list: [...list], loading: false};

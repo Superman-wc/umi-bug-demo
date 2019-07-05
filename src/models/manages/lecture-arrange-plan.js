@@ -23,7 +23,7 @@ export default Model(
     reducers: {
       fetchDetailSuccess(state, action) {
         const {list = []} = state;
-        const item = action.result;
+        const item = action.payload;
         const index = list.findIndex(it => it.id === item.id);
         if (index >= 0) {
           list[index] = item;

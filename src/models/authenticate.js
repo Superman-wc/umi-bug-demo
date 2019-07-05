@@ -75,7 +75,7 @@ export default Model({
           action.payload = {};
         }
         action.payload.appId = authenticate.appId;
-        yield saga.call(effect(menu, 'menuSuccess', staffMenuCache), action, saga);
+        yield saga.call(effect(menu, 'menuSuccess', undefined, staffMenuCache), action, saga);
       }
     },
 
@@ -109,8 +109,7 @@ export default Model({
       return {};
     },
     menuSuccess(state, action) {
-      const {menus = [], resources = []} = action.result;
-
+      const {menus = [], resources = []} = action.payload;
 
 
       const resourceMap = resources.reduce((map, it) => {
@@ -168,11 +167,11 @@ export default Model({
                 id: 'examiner-upload',
                 title: '答题卡上传',
                 link: '/examiner/workspace'
-              },{
+              }, {
                 id: 'examiner-marking',
                 title: '在线批阅',
                 link: '/examiner/marking'
-              },{
+              }, {
                 id: 'examiner-english',
                 title: '英语作文',
                 link: '/examiner/english?subjectId=35'

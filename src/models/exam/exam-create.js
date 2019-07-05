@@ -7,7 +7,7 @@ export default Model(
     namespace,
     subscriptions: {
       setup({dispatch, history}) {
-        history.listen(({pathname, query}) => {
+        history.listen(({pathname}) => {
           if (pathname === namespace) {
             dispatch({
               type: 'doorPlate',
@@ -19,23 +19,19 @@ export default Model(
     },
     reducers: {
       doorPlateSuccess(state, action) {
-        const {list} = action.result;
+        const {list} = action.payload;
         return {...state, doorPlateList: list, loading: false};
       },
       listSubjectSuccess(state, action) {
-        const {list} = action.result;
+        const {list} = action.payload;
         return {...state, subjectList: list, loading: false};
       },
-      // teachersByGradeIndexSuccess(state, action) {
-      //   const {list} = action.result;
-      //   return {...state, teacherList: list, loading: false};
-      // },
       getTeacherSuccess(state, action) {
-        const {list} = action.result;
+        const {list} = action.payload;
         return {...state, teacherList: list, loading: false};
       },
       distributionStudentSuccess(state, action) {
-        const {list} = action.result;
+        const {list} = action.payload;
         return {...state, studentList: list, loading: false};
       },
     }
@@ -43,7 +39,6 @@ export default Model(
   {
     listSubject,
     doorPlate,
-    // teachersByGradeIndex,
     distributionStudent,
     getTeacher
   }

@@ -19,10 +19,10 @@ export default Model(
     },
     reducers: {
       analyzeSuccess(state, action) {
-        const {result} = action;
-        const index = state.list.findIndex(it => it.id === result.id);
+        const {payload} = action;
+        const index = state.list.findIndex(it => it.id === payload.id);
         if (index >= 0) {
-          state.list[index] = result;
+          state.list[index] = payload;
         }
         return {...state, list: [...state.list], loading: false};
       }

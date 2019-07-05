@@ -23,10 +23,10 @@ export default Model(
     },
     reducers: {
       createSuccess(state, action) {
-        return {...state, list: action.result, loading: false};
+        return {...state, list: action.payload, loading: false};
       },
       allSuccess(state, action) {
-        return {...state, all: action.result.list || [], loading: false};
+        return {...state, all: action.payload.list || [], loading: false};
       }
     }
   },

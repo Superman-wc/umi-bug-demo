@@ -19,7 +19,7 @@ export default Model(
     },
     reducers: {
       excelImportSuccess(state, action) {
-        const {list = [], total = 0} = action.result;
+        const {list = [], total = 0} = action.payload;
         return {...state, list, total, loading: false};
       }
     }

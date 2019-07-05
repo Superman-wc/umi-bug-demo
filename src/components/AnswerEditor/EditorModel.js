@@ -1198,14 +1198,6 @@ export default Model(
       autoQuestionNumber(state) {
         return {...state, file: ElementObject.create(autoQuestionNumber(state.file))};
       },
-
-      createSuccess(state, action) {
-        const {result} = action;
-        const {list = []} = state;
-        state.file = calculationTotalScore(result);
-        return {...state, list: [result, ...list], loading: false};
-      },
-
       checkContentOverflow(state) {
         if (runCheckContentOverflow(state)) {
           return {...state, file: ElementObject.create(state.file)}
@@ -1213,15 +1205,22 @@ export default Model(
         return state;
       },
 
+      createSuccess(state, action) {
+        const {payload} = action;
+        const {list = []} = state;
+        state.file = calculationTotalScore(payload);
+        return {...state, list: [payload, ...list], loading: false};
+      },
+
       itemSuccess(state, action) {
-        const {result = {}} = action;
-        const firstPage = result && result.pages && result.pages[0];
+        const {payload = {}} = action;
+        const firstPage = payload && payload.pages && payload.pages[0];
         const activePageKey = firstPage && firstPage.key;
         const firstCol = firstPage && firstPage.columns && firstPage.columns[0];
         const activeColumnKey = firstCol && firstCol.key;
-        calculationTotalScore(result);
+        calculationTotalScore(payload);
 
-        return {...state, file: result, activePageKey, activeColumnKey, loading: false};
+        return {...state, file: payload, activePageKey, activeColumnKey, loading: false};
       },
       set(state, action) {
         return {...state, ...action.payload};

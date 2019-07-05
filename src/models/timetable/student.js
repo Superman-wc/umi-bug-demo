@@ -1,4 +1,4 @@
-import Model, {RestfulReducers} from 'dva-model';
+import Model from 'dva-model';
 import {list} from '../../services/timetable/student';
 import {TimetableStudent as namespace} from '../../utils/namespace';
 

@@ -19,13 +19,13 @@ export default Model(
     },
     reducers: {
       noticeSuccess(state, action) {
-        const {result} = action;
+        const {payload} = action;
         const {list = []} = state;
-        const index = list.findIndex(it => it.id === result.id);
+        const index = list.findIndex(it => it.id === payload.id);
         if (index >= 0) {
-          list[index] = result;
+          list[index] = payload;
         }
-        return {...state, list: [...list], item: result, loading: false};
+        return {...state, list: [...list], item: payload, loading: false};
 
       }
     }

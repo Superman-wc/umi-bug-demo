@@ -11,15 +11,6 @@ export default Model(
     state: {
       examName: null,
     },
-    reducers: {
-      updateTitle(state, { payload: { examName } }) {
-        return { ...state, examName };
-      },
-      examDetailExportSuccess(state, action) {
-        const exportUrl = action.result;
-        return { ...state, exportUrl, loading: false };
-      },
-    },
     subscriptions: {
       setup({ dispatch, history }) {
         history.listen(({ pathname, query }) => {
@@ -38,6 +29,16 @@ export default Model(
         });
       },
     },
+    reducers: {
+      updateTitle(state, { payload: { examName } }) {
+        return { ...state, examName };
+      },
+      examDetailExportSuccess(state, action) {
+        const exportUrl = action.paylaod;
+        return { ...state, exportUrl, loading: false };
+      },
+    },
+
   },
   {
     examDetail,

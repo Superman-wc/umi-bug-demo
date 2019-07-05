@@ -1,4 +1,4 @@
-import Model, {RestfulReducers} from 'dva-model';
+import Model from 'dva-model';
 import {list, create, modify, remove, importToSemester} from '../../services/timetable/build';
 import {TimetableBuild as namespace} from '../../utils/namespace';
 
