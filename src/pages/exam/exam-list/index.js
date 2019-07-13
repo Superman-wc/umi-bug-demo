@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import { connect } from 'dva';
-import { notification, Modal } from 'antd';
+import React, {Component} from 'react';
+import {connect} from 'dva';
+import {notification} from 'antd';
 import moment from 'moment';
 import {
   ExamList as namespace,
@@ -11,7 +11,7 @@ import {
 import ListPage from '../../../components/ListPage';
 import TableCellOperation from '../../../components/TableCellOperation';
 import router from 'umi/router';
-import { GradeIndexEnum, ExamTypeEnum, ExamStatusEnum, Enums, getNameByValue } from "../../../utils/Enum";
+import {ExamTypeEnum, ExamStatusEnum, Enums} from "../../../utils/Enum";
 
 @connect(state => ({
   listExam: state[namespace].listExam,
@@ -26,53 +26,48 @@ export default class ExamList extends Component {
     if (!this.props.gradeList) {
       this.props.dispatch({
         type: ManagesGrade + '/list',
-        payload: { s: 1000 }
+        payload: {s: 1000}
       })
     }
   }
 
   // 预览
-  onPreview(row) {
-    router.push({ pathname: ExamDetail, query: { id: row.id, name: row.name, releaseStatus: row.releaseStatus } });
-  }
+  onPreview = ({id, name, releaseStatus}) => {
+    router.push({pathname: ExamDetail, query: {id, name, releaseStatus}});
+  };
 
   // 上下线
-  onPublishOffline(row) {
-    const { dispatch } = this.props;
+  onPublishOffline = ({id, releaseStatus}) => {
+    const {dispatch} = this.props;
     dispatch({
       type: namespace + '/examPublishOffline',
       payload: {
-        id: row.id
+        id
       },
       resolve: () => {
-        const { query } = this.props.location;
+        const {query} = this.props.location;
         dispatch({
           type: namespace + '/listExam',
-          payload: { ...query },
+          payload: {...query},
         });
-        if (row.releaseStatus === 0) {
-          notification.success({ message: '发布成功' });
-        } else {
-          notification.success({ message: '下线成功' });
-        }
+        notification.success({message: releaseStatus === 0 ? '发布成功' : '下线成功'});
       }
     })
   }
 
   render() {
-    const { listExam, gradeList = [], loading, location, dispatch } = this.props;
+    const {listExam, gradeList = [], loading, location, dispatch} = this.props;
     let list = [];
     let total = 0;
     if (listExam) {
       list = listExam.list;
       total = listExam.total;
     }
-    // console.log(gradeList)
     const gradeMap = gradeList.reduce((map, it) => {
       map[it.id] = it;
       return map;
     }, {});
-    const { query } = location;
+    const {query} = location;
 
     const title = '考务列表';
 
@@ -86,12 +81,10 @@ export default class ExamList extends Component {
         title: '创建',
         icon: 'plus',
         onClick: () => {
-          router.push({ pathname: ExamCreate });
+          router.push({pathname: ExamCreate});
         },
       },
     ];
-    const gradeIndexs = Enums(GradeIndexEnum);
-    const examTypes = Enums(ExamTypeEnum);
 
     const columns = [
       {
@@ -99,149 +92,91 @@ export default class ExamList extends Component {
         render: (text, record, index) => index + 1
       },
       {
-        title: '考试名称', key: 'examName', width: 120,
-        render: (text, record, index) => record.name
+        title: '考试名称', key: 'name', width: 120,
       },
       {
         title: '考试时间', key: 'examTime', width: 120,
-        render: (text, record, index) => {
-          const startDay = record.startDay ? moment(record.startDay).format('YYYY-MM-DD') : '-';
-          const endDay = record.endDay ? moment(record.endDay).format('YYYY-MM-DD') : '-';
-          return startDay + '~' + endDay
-        }
+        render: (text, {startDay, endDay}) => (
+          (startDay ? moment(startDay).format('MM-DD') : '-') +
+          '~' +
+          (endDay ? moment(endDay).format('MM-DD') : '-')
+        )
       },
       {
-        title: '考试年级', key: 'gradeId',
-        render: (v, row) => getNameByValue(gradeIndexs, row.gradeIndex) + '（' + (gradeMap[row.gradeId] && gradeMap[row.gradeId].schoolYear || '') + '级）',
-        filters: gradeList.map(it => ({ value: it.id, text: it.name + '（' + it.schoolYear + '级' + '）' })),
+        title: '考试年级', key: 'gradeId', width: 120,
+        render: (v) => gradeMap[v] ? `${gradeMap[v].name}(${gradeMap[v].schoolYear}级)` : '-',
+        filters: gradeList.map(it => ({value: it.id, text: `${it.name}(${it.schoolYear}级)`})),
         filtered: !!query.gradeId,
         filterMultiple: false,
         filteredValue: query.gradeId ? [query.gradeId] : [],
       },
       {
-        title: '类型', key: 'examType',
-        render: (text, record, index) => {
-          return getNameByValue(examTypes, record.examType);
-        },
-        filters: [
-          { value: ExamTypeEnum['期末考'], text: '期末考' },
-          { value: ExamTypeEnum['期中考'], text: '期中考' },
-          { value: ExamTypeEnum['月考'], text: '月考' }
-        ],
+        title: '类型', key: 'examType', width:80,
+        render: (v) => ExamTypeEnum[v] || '-',
+        filters: Enums(ExamTypeEnum).map(it=>({value: it.value, text:it.name})),
         filtered: !!query.examType,
         filterMultiple: false,
         filteredValue: query.examType ? [query.examType] : [],
       },
-      { title: '考试科目', key: 'subjectCount', },
-      { title: '考生人数', key: 'studentNum', },
+      {title: '考试科目', key: 'subjectCount',},
+      {title: '考生人数', key: 'studentNum',},
       {
-        title: '每场人数', key: 'oneRoomNum',
-        render: (text, record, index) => {
-          let roomStudent = '-';
-          if (record.roomColumnTotal && record.roomRowTotal) {
-            roomStudent = (record.roomColumnTotal * record.roomRowTotal).toString();
-          }
-          return roomStudent;
-        }
+        title: '每场人数', key: 'roomColumnTotal',
+        render: (v, {roomRowTotal}) => (v * roomRowTotal || '-')
       },
-      { title: '监考老师数', key: 'teacherNum', },
-      { title: '更新时间', key: 'lastUpdated', width: 120, },
-      { title: '发布时间', key: 'releaseTime', width: 120, },
+      {title: '监考教师', key: 'teacherNum', width: 80, render: v => v ? v + '人' : '-'},
+      {title: '更新时间', key: 'lastUpdated', width: 120, format: 'MM-DD HH:mm'},
+      {title: '发布时间', key: 'releaseTime', width: 120, format: 'MM-DD HH:mm'},
       {
-        title: '状态', key: 'examstate',
-        render: (text, record, index) => {
-          let stateName = '';
-          switch (record.examState) {
-            case 1:
-              stateName = '创建中';
-              break;
-            case 2:
-              stateName = '创建失败';
-              break;
-            case 3:
-              stateName = '创建成功';
-              break;
-            default:
-              stateName = '-'
-          }
-          return stateName;
-        }
-      },
-      {
-        title: '操作', key: 'releaseStatus', width: 120,
+        title: '状态', key: 'releaseStatus', width:80,
+        render: (v, row) => v !== 0 ?'已发布':(['-', '创建中', '创建失败', '创建成功'][row.examState] || '-'),
         filters: [
-          { value: ExamStatusEnum['未发布'], text: '未发布' },
-          { value: ExamStatusEnum['已发布'], text: '已发布' },
+          {value: ExamStatusEnum['未发布'], text: '未发布'},
+          {value: ExamStatusEnum['已发布'], text: '已发布'},
         ],
         filtered: !!query.releaseStatus,
         filterMultiple: false,
         filteredValue: query.releaseStatus ? [query.releaseStatus] : [],
-        render: (id, row) => {
-          if (row.examState === 3) {// 创建成功
-            if (row.releaseStatus === 0) {
-              return (
-                <TableCellOperation
-                  operations={{
-                    preview: () => this.onPreview(row),
-                    publish: {
-                      onConfirm: () => this.onPublishOffline(row)
+      },
+      {
+        title: '操作', key: 'op', width: 140,
+        render: (id, row) => (
+          <TableCellOperation
+            operations={{
+              preview: {
+                children: '预览',
+                hidden: row.examState !== 3,
+                onClick: () => this.onPreview(row),
+              },
+              publish: {
+                hidden: !(row.examState === 3 && row.releaseStatus === 0),
+                onConfirm: () => this.onPublishOffline(row)
+              },
+              offline: {
+                hidden: !(row.examState === 3 && row.releaseStatus !== 0),
+                onConfirm: () => this.onPublishOffline(row),
+              },
+              remove: {
+                hidden: row.releaseStatus !== 0,
+                onConfirm: () => {
+                  dispatch({
+                    type: namespace + '/examRemove',
+                    payload: {
+                      id: row.id
                     },
-                    remove: {
-                      onConfirm: () => {
-                        dispatch({
-                          type: namespace + '/examRemove',
-                          payload: {
-                            id: row.id
-                          },
-                          resolve: () => {
-                            notification.success({ message: '删除成功' });
-                            dispatch({
-                              type: namespace + '/listExam',
-                              payload: { ...query },
-                            })
-                          }
-                        })
-                      },
-                    },
-                  }}
-                />
-              )
-            } else {
-              return (
-                <TableCellOperation
-                  operations={{
-                    preview: () => this.onPreview(row),
-                    offline: {
-                      onConfirm: () => this.onPublishOffline(row),
-                    },
-                  }}
-                />
-              )
-            }
-          } else {// 创建失败  创建中
-            return <TableCellOperation
-              operations={{
-                remove: {
-                  onConfirm: () => {
-                    dispatch({
-                      type: namespace + '/examRemove',
-                      payload: {
-                        id: row.id
-                      },
-                      resolve: () => {
-                        notification.success({ message: '删除成功' });
-                        dispatch({
-                          type: namespace + '/listExam',
-                          payload: { ...query },
-                        })
-                      }
-                    })
-                  },
+                    resolve: () => {
+                      notification.success({message: '删除成功'});
+                      dispatch({
+                        type: namespace + '/listExam',
+                        payload: {...query},
+                      })
+                    }
+                  })
                 },
-              }}
-            />
-          }
-        },
+              },
+            }}
+          />
+        )
       },
     ];
 

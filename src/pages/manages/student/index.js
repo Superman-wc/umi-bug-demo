@@ -120,7 +120,7 @@ export default class StudentList extends Component {
 
     const columns = [
       {title: 'ID', key: 'id'},
-      {title: '学号', key: 'code', width: 80},
+      {title: '学号', key: 'code', width: 100},
       {title: '姓名', key: 'name', width: 100},
       {
         title: '年级', key: 'gradeId',
@@ -138,7 +138,7 @@ export default class StudentList extends Component {
         filterMultiple: false,
         filteredValue: query.klassId ? [query.klassId] : [],
         render: (classId, row) => row.klassName,
-        width: 100,
+        width: 130, tac:false,
       },
       {
         title: '性别', key: 'gender', render: v => v ? '男' : '女',
@@ -152,17 +152,17 @@ export default class StudentList extends Component {
         title: '照片', key: 'avatar', render: v => v ? <img src={v + '!avatar'} width={40}/> : '', width: 60,
       },
       {
-        title: '选考科目', key: 'electionExaminationCourseEntityList', width: 120,
+        title: '选考科目', key: 'electionExaminationCourseEntityList', width: 'auto', tac:false,
         render: list => list ? list.map(it => <span className={styles['separate']} key={it.id}>{it.name}</span>) : ''
       },
       {
-        title: '学考科目', key: 'studyExaminationCourseEntityList', width: 120,
+        title: '学考科目', key: 'studyExaminationCourseEntityList', width: 'auto', tac:false,
         render: list => list ? list.map(it => <span className={styles['separate']} key={it.id}>{it.name}</span>) : ''
       },
       {
         title: '操作',
         key: 'operate',
-        width: 100,
+        width: 120,
         render: (id, item) => (
           <TableCellOperation
             operations={{
@@ -216,7 +216,7 @@ export default class StudentList extends Component {
         title={title}
         scrollHeight={162}
         onChange={(pagination, filters) => {
-          if (filters.klassId[0] && filters.gradeId && filters.gradeId.length) {
+          if (filters.klassId && filters.klassId[0] && filters.gradeId && filters.gradeId.length) {
             const klass = classList.find(it => it.id * 1 === filters.klassId[0] * 1);
             if (klass && klass.gradeId && klass.gradeId !== filters.gradeId[0] * 1) {
               return {klassId: undefined};

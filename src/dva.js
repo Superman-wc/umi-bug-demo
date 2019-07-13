@@ -1,5 +1,6 @@
 import {notification} from 'antd';
 import DingTalk from './utils/DingTalk';
+import {inElectron, inMac} from "./utils/helper";
 
 notification.config({
   placement: 'topRight',
@@ -27,6 +28,10 @@ export function config() {
       // DingTalk.Send()
     },
     initialState: {  // 初始化
+      '/env':{
+        inElectron: inElectron(),
+        inMac: inMac()
+      },
       '/manages/class': {
         text: 'hi umi + dva',
       },

@@ -1,3 +1,4 @@
+export const Env = '/env';
 export const Authenticate = '/authenticate';
 
 export const ManagesSchool = '/manages/school';

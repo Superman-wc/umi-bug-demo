@@ -1,6 +1,3 @@
-//@import '../utils/variable';
-//@import "~antd/dist/antd.less"; // 引入官方提供的 less 样式入口文件
-
 .logo {
   display: block;
   height: 55px;
@@ -55,7 +52,7 @@
   color: #eee;
   background-color: #001529;
   transition: width 0.3s;
-  box-shadow: 0 0 10px #000;
+  //box-shadow: 0 0 10px #000;
 
   :global {
     .ant-menu-vertical .ant-menu-item,
@@ -140,7 +137,6 @@
   }
 
   &.min-side {
-    width: 60px;
 
     .logo {
       transform: translateX(-77px);
@@ -374,7 +370,7 @@
 
       .ant-table-thead > tr > th,
       .ant-table-tbody > tr > td {
-        padding: 10px 7px;
+        padding: 8px 5px;
       }
 
       .ant-table-tbody > tr.ant-table-expanded-row > td {
@@ -440,6 +436,7 @@
 
   .side {
     width: 230px;
+    -webkit-app-region: drag;
 
     &.min-side {
       width: 60px;
@@ -457,6 +454,9 @@
 :global {
   .side-small {
     .ant-menu-submenu {
+      &.ant-menu-submenu-selected{
+        background-color: @primary-color;
+      }
       &.ant-menu-submenu-popup {
         .ant-menu {
           &.ant-menu-sub {
@@ -476,6 +476,85 @@
             }
           }
         }
+      }
+    }
+  }
+}
+
+.menu-submenu {
+  &.icon-guanli {
+    background-image: url('../assets/svg/1-01.svg');
+  }
+
+  &.icon-admin {
+    background-image: url('../assets/svg/1-02.svg');
+  }
+
+  &.icon-paike {
+    background-image: url('../assets/svg/1-03.svg');
+  }
+
+  &.icon-kaowu {
+    background-image: url('../assets/svg/1-04.svg');
+  }
+
+  &.icon-fenban {
+    background-image: url('../assets/svg/1-05.svg');
+  }
+
+  &.icon-kaoqin {
+    background-image: url('../assets/svg/1-06.svg');
+  }
+
+  &.icon-wenyin {
+    background-image: url('../assets/svg/1-07.svg');
+  }
+
+  &.icon-yuejuan {
+    background-image: url('../assets/svg/1-08.svg');
+  }
+}
+
+
+:global(.in-electron){
+  .side{
+    &.min-side {
+      width: 68px;
+      .side-header{
+        a{
+          display: none;
+          //display: block;
+          margin: 20px auto 0;
+          width:20px;
+          height:40px;
+          overflow: hidden;
+          //background-color: #ffaa00;
+          img{
+            transform: scale(0.6) translateY(-10px) translateX(-72px);
+          }
+        }
+      }
+      .user-menu{
+        display: block;
+        height:40px;
+        background-image: url('../assets/svg/user.svg');
+        background-size: 26px;
+        background-position: center center;
+        background-repeat: no-repeat;
+        text-indent: -99999px;
+        overflow: hidden;
+        &:hover{
+          background-image: url('../assets/svg/user-hover.svg');
+        }
+      }
+
+    }
+    .menu-handle{
+      display: none;
+    }
+    :global{
+      .ant-menu{
+        background-color: transparent;
       }
     }
   }

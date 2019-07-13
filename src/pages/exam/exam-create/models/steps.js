@@ -1,7 +1,7 @@
 import { ManagesSteps as namespace } from '../utils/namespace'
 import Model from 'dva-model';
 
-export default {
+export default Model({
   namespace,
   state: {
     current: 0,
@@ -52,4 +52,4 @@ export default {
       return { ...state, updateThree };
     },
   }
-}
+})

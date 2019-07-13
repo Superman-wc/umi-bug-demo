@@ -1,9 +1,9 @@
-import React, { Component, Fragment } from 'react';
-import { connect } from 'dva';
-import { Form, Tree, Radio, DatePicker, InputNumber, Select, Checkbox, Row, Col, notification } from 'antd';
+import React, {Component, Fragment} from 'react';
+import {connect} from 'dva';
+import {Form, Tree, Radio, DatePicker, InputNumber, Select, Checkbox, Row, Col, notification} from 'antd';
 import {ExamCreate, ManagesGrade} from '../../../../utils/namespace';
-import { ManagesSteps } from '../utils/namespace';
-import { ExamTypeEnum, GradeIndexEnum, Enums } from '../../../../utils/Enum';
+import {ManagesSteps} from '../utils/namespace';
+import {ExamTypeEnum, GradeIndexEnum, Enums} from '../../../../utils/Enum';
 import styles from '../index.less';
 import moment from 'moment';
 
@@ -19,7 +19,7 @@ const CheckboxGroup = Checkbox.Group;
   updateOne: state[ManagesSteps].updateOne,
   studentNum: state[ManagesSteps].studentNum,
   needRoomNum: state[ManagesSteps].needRoomNum,
-  gradeList:state[ManagesGrade].list,
+  gradeList: state[ManagesGrade].list,
 }))
 @Form.create({
   mapPropsToFields(props) {
@@ -28,18 +28,18 @@ const CheckboxGroup = Checkbox.Group;
       roomId, seatAssignment
     } = props.oneItem || {};
     return {
-      examType: Form.createFormField({ value: examType || undefined }),
-      gradeIndex: Form.createFormField({ value: gradeIndex || undefined }),
-      examDate: Form.createFormField({ value: examDate || undefined }),
-      rowCol: Form.createFormField({ value: rowCol || undefined }),
-      monitorNum: Form.createFormField({ value: monitorNum || undefined }),
-      subjectIds: Form.createFormField({ value: subjectIds || undefined }),
-      roomId: Form.createFormField({ value: roomId || undefined }),
-      seatAssignment: Form.createFormField({ value: seatAssignment || 0 }),
+      examType: Form.createFormField({value: examType || undefined}),
+      gradeIndex: Form.createFormField({value: gradeIndex || undefined}),
+      examDate: Form.createFormField({value: examDate || undefined}),
+      rowCol: Form.createFormField({value: rowCol || undefined}),
+      monitorNum: Form.createFormField({value: monitorNum || undefined}),
+      subjectIds: Form.createFormField({value: subjectIds || undefined}),
+      roomId: Form.createFormField({value: roomId || undefined}),
+      seatAssignment: Form.createFormField({value: seatAssignment || 0}),
     }
   },
   onValuesChange(props, values) {
-    const { form: { getFieldsValue }, dispatch } = props;
+    const {form: {getFieldsValue}, dispatch} = props;
     let item = getFieldsValue();
     if (values['gradeIndex']) {
       item['subjectIds'] = [];
@@ -48,7 +48,7 @@ const CheckboxGroup = Checkbox.Group;
     dispatch({
       type: ManagesSteps + '/saveOneItem',
       payload: {
-        oneItem: { ...item, ...values }
+        oneItem: {...item, ...values}
       }
     });
   }
@@ -57,9 +57,9 @@ export default class StepOne extends React.Component {
 
   componentDidMount() {
     this.props.dispatch({
-      type: ManagesGrade+'/list',
-      payload:{
-        s:1000
+      type: ManagesGrade + '/list',
+      payload: {
+        s: 1000
       }
     })
   }
@@ -67,7 +67,7 @@ export default class StepOne extends React.Component {
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.updateOne && nextProps.updateOne !== this.props.updateOne) {
       // console.log('update: updateOne: ', nextProps.updateOne);
-      const { form: { getFieldsValue, validateFieldsAndScroll }, onCheckSuccess, studentNum } = this.props
+      const {form: {getFieldsValue, validateFieldsAndScroll}, onCheckSuccess, studentNum} = this.props
       const item = getFieldsValue();
       validateFieldsAndScroll((errors, payload) => {
         if (errors) {
@@ -79,14 +79,14 @@ export default class StepOne extends React.Component {
               const total = row * col * length;
               const needRoomNum = Math.ceil(studentNum / (row * col));
               if (studentNum > total) {
-                notification.warning({ message: `考场数量过少, 当前已选${length}, 需要${needRoomNum}` });
+                notification.warning({message: `考场数量过少, 当前已选${length}, 需要${needRoomNum}`});
               }
             }
           }
         } else {
           console.log('stepOne: ', payload);
-          const { subjectIds = [], roomId: { roomIds = [] } } = item;
-          const { subjectList, doorPlateList, dispatch } = this.props;
+          const {subjectIds = [], roomId: {roomIds = []}} = item;
+          const {subjectList, doorPlateList, dispatch} = this.props;
 
           const subjectSelectList = [];
           subjectList.forEach(it => {
@@ -123,7 +123,7 @@ export default class StepOne extends React.Component {
   }
 
   onGradeDataChange = (e) => {
-    const { dispatch } = this.props;
+    const {dispatch} = this.props;
     dispatch({
       type: ExamCreate + '/listSubject',
       payload: {
@@ -141,7 +141,7 @@ export default class StepOne extends React.Component {
   };
 
   onSubjectChange = (value) => {
-    const { subjectList, dispatch, oneItem: { rowCol } } = this.props;
+    const {subjectList, dispatch, oneItem: {rowCol}} = this.props;
     const totals = [0];
     value.forEach(it => {
       const subject = subjectList.find(value => value.id === it);
@@ -170,7 +170,7 @@ export default class StepOne extends React.Component {
   };
 
   onRowcolChange = (value) => {
-    const { studentNum, dispatch } = this.props;
+    const {studentNum, dispatch} = this.props;
     if (value && value.row && value.col && studentNum) {
       const needRoomNum = Math.ceil(studentNum / (value.row * value.col));
       // console.log('needRoomNum: ', needRoomNum);
@@ -185,7 +185,7 @@ export default class StepOne extends React.Component {
 
   // 选择的人数需大于考试科目最大数
   handleRoom = (rule, value, callback) => {
-    const { studentNum, oneItem: { rowCol = {} } } = this.props;
+    const {studentNum, oneItem: {rowCol = {}}} = this.props;
     // console.log('handleRoom: ', value);
     if (value && value.roomIds && rowCol.row && rowCol.col) {
       const length = value.roomIds.length;
@@ -213,41 +213,39 @@ export default class StepOne extends React.Component {
 
   render() {
     const {
-      subjectList = [], doorPlateList = [], gradeList=[], studentNum = 0, needRoomNum = 0,
-      form: { getFieldDecorator }
+      subjectList = [], doorPlateList = [], gradeList = [], studentNum = 0, needRoomNum = 0,
+      form: {getFieldDecorator}
     } = this.props;
     // console.log('needRoomNum: ', needRoomNum);
 
-    const formlayout = {
-      labelCol: { span: 3 },
-      wrapperCol: { span: 21 },
+    const formLayout = {
+      labelCol: {span: 4},
+      wrapperCol: {span: 20},
     };
 
     const roomTotal = doorPlateList.length;
 
     const buildingMap = {};
     const layerMap = {};
-    doorPlateList.reduce((map, it) => {
+    doorPlateList.forEach(it => {
       if (!buildingMap[it.buildingId]) {
-        buildingMap[it.buildingId] = { id: it.buildingId, name: it.buildingName, children: [] };
+        buildingMap[it.buildingId] = {id: it.buildingId, name: it.buildingName, children: []};
       }
       if (!layerMap[it.layerId]) {
-        layerMap[it.layerId] = { id: it.layerId, name: it.layerName, children: [] };
+        layerMap[it.layerId] = {id: it.layerId, name: it.layerName, children: []};
         buildingMap[it.buildingId].children.push(layerMap[it.layerId]);
       }
       layerMap[it.layerId].children.push(it);
-      map[it.id] = it;
-      return map;
     }, {});
     const buildingList = Object.values(buildingMap);
-    // console.log('buildingList: ', buildingList);
+
     return (
       <div>
-        <Form {...formlayout} layout='horizontal'>
+        <Form {...formLayout} layout='horizontal'>
           <FormItem label="考试年级">
             {
               getFieldDecorator('gradeIndex', {
-                rules: [{ message: '请选择年级', required: true }],
+                rules: [{message: '请选择年级', required: true}],
               })(
                 <RadioGroup onChange={this.onGradeDataChange}>
                   {
@@ -263,7 +261,7 @@ export default class StepOne extends React.Component {
             {
               getFieldDecorator('seatAssignment', {
                 initialValue: 0,
-                rules: [{ message: '请选择', required: true }],
+                rules: [{message: '请选择', required: true}],
               })(
                 <RadioGroup>
                   <Radio value={0}>随机</Radio>
@@ -275,11 +273,11 @@ export default class StepOne extends React.Component {
           <FormItem label="考试类型">
             {
               getFieldDecorator('examType', {
-                rules: [{ message: '请选择考试类型', required: true }]
+                rules: [{message: '请选择考试类型', required: true}]
               })(
                 <Select
                   showSearch={false}
-                  style={{ width: 300 }}
+                  style={{width: 300}}
                   placeholder="请选择考试类型"
                   filterOption={(input, option) => option.props.children.indexOf(input) >= 0}
                 >
@@ -294,43 +292,43 @@ export default class StepOne extends React.Component {
           </FormItem>
           <FormItem label="考试时间">
             {getFieldDecorator('examDate', {
-              rules: [{ message: '请选择考试时间', required: true }]
+              rules: [{message: '请选择考试时间', required: true}]
             })(
               <RangePicker
                 disabledDate={this.disabledDate}
-                style={{ width: 300 }} />
+                style={{width: 300}}/>
             )}
           </FormItem>
           <FormItem label="考场排列">
             {getFieldDecorator('rowCol', {
               rules: [
-                { message: '请选择排数或列数', required: true },
-                { validator: this.handleRowcol }
+                {message: '请选择排数或列数', required: true},
+                {validator: this.handleRowcol}
               ]
             })
-              (
-                <RowColInputNumber onChange={this.onRowcolChange} />
-              )}
+            (
+              <RowColInputNumber onChange={this.onRowcolChange}/>
+            )}
           </FormItem>
           <FormItem label="每考场监考数">
             {getFieldDecorator('monitorNum', {
-              rules: [{ message: '请选择监考数', required: true }]
+              rules: [{message: '请选择监考数', required: true}]
             })(
-              <InputNumber min={1} placeholder='监考数' />
+              <InputNumber min={1} placeholder='监考数'/>
             )}
           </FormItem>
           <FormItem label="考试科目">
             {getFieldDecorator('subjectIds', {
-              rules: [{ message: '请选择考试科目', required: true }]
+              rules: [{message: '请选择考试科目', required: true}]
             })(
-              <CheckboxGroup style={{ width: 800 }} onChange={this.onSubjectChange}>
+              <CheckboxGroup style={{width: 800}} onChange={this.onSubjectChange}>
                 <div>
                   <span className={styles['student-num']}>{`考试最大人数: ${studentNum}`}</span>
                 </div>
                 <Row>
                   {
                     subjectList.map(it =>
-                      <Col key={it.id} span={5} style={{ height: 40 }}>
+                      <Col key={it.id} span={5} style={{height: 40}}>
                         <Checkbox value={it.id}>{it.name}</Checkbox>
                       </Col>
                     )
@@ -342,18 +340,17 @@ export default class StepOne extends React.Component {
           <FormItem label="选择考场">
             {getFieldDecorator('roomId', {
               rules: [
-                { message: '请选择考场', required: true },
-                { validator: this.handleRoom }
+                {message: '请选择考场', required: true},
+                {validator: this.handleRoom}
               ]
             })(
               <RoomTree
                 roomTotal={roomTotal}
                 needRoomNum={needRoomNum}
-                data={buildingList} />
+                data={buildingList}/>
             )}
           </FormItem>
         </Form>
-        <div style={{ height: 100 }}></div>
       </div>
     )
   }
@@ -374,30 +371,19 @@ class RowColInputNumber extends Component {
   }
 
   handleRowChange = (row) => {
-    const value = {
-      row: row
-    };
-    this.setState(value);
-    this.triggerChange(value);
+    this.setState({row});
+    const {onChange} = this.props;
+    onChange && onChange({row, col: this.state.col});
   };
 
   handleColChange = (col) => {
-    const value = {
-      col: col
-    };
-    this.setState(value);
-    this.triggerChange(value);
-  };
-
-  triggerChange = (changeValue) => {
-    const { onChange } = this.props;
-    if (onChange) {
-      onChange(Object.assign({}, this.state, changeValue));
-    }
+    this.setState({col});
+    const {onChange} = this.props;
+    onChange && onChange({col, row: this.state.row});
   };
 
   render() {
-    const { row, col } = this.state;
+    const {row, col} = this.state;
     return (
       <Fragment>
         <InputNumber
@@ -405,15 +391,15 @@ class RowColInputNumber extends Component {
           value={row}
           defaultValue={1}
           placeholder="排"
-          onChange={this.handleRowChange} />
+          onChange={this.handleRowChange}/>
         <InputNumber
           min={4}
           max={6}
           value={col}
           defaultValue={4}
-          style={{ marginLeft: 20 }}
+          style={{marginLeft: 20}}
           placeholder="4~6列"
-          onChange={this.handleColChange} />
+          onChange={this.handleColChange}/>
       </Fragment>
     )
   }
@@ -421,56 +407,35 @@ class RowColInputNumber extends Component {
 
 class RoomTree extends Component {
 
-  // state = {
-  //   currentNum: 0
-  // }
-
   handleRoomId = (value) => {
-    const { onChange } = this.props;
-    const roomIds = [];
-    value.forEach(it => {
-      if (it.charAt(0) !== 'p') {
-        roomIds.push(it);
-      }
-    });
-    // this.setState({ currentNum: roomIds.length });
+    const {onChange} = this.props;
     onChange({
-      roomIds,
+      roomIds: value.reduce((arr, it) => {
+        if (it.charAt(0) !== 'p') {
+          arr.push(it);
+        }
+        return arr;
+      }, [])
     });
   };
 
-  renderTreeNodes = data => data.map(building => {
-    return (
-      <Tree.TreeNode
-        title={building.name}
-        key={`p1${building.id}`}>
-        {
-          building.children.map(layer => {
-            return (
-              <Tree.TreeNode
-                className={styles["tree-container"]}
-                title={layer.name}
-                key={`p2${layer.id}`}>
-                {
-                  layer.children.map(room => {
-                    return (
-                      <Tree.TreeNode
-                        title={room.code}
-                        key={room.id} />
-                    )
-                  })
-                }
-              </Tree.TreeNode>
-            )
-          })
-        }
-      </Tree.TreeNode>
-    )
-  });
+  renderTreeNodes = data => data.map(building => (
+    <Tree.TreeNode title={building.name} key={`p1${building.id}`}>
+      {
+        building.children.map(layer => (
+          <Tree.TreeNode key={`p2${layer.id}`} className={styles["tree-container"]} title={layer.name}>
+            {
+              layer.children.map(room => (<Tree.TreeNode key={room.id} title={room.code}/>))
+            }
+          </Tree.TreeNode>
+        ))
+      }
+    </Tree.TreeNode>
+  ));
 
   render() {
-    const { roomTotal, needRoomNum, data, value = {} } = this.props;
-    const { roomIds = [] } = value;
+    const {roomTotal, needRoomNum, data, value} = this.props;
+    const {roomIds = []} = value || {};
     return (
       <div>
         <div>
@@ -482,6 +447,12 @@ class RoomTree extends Component {
           <span className={styles['room-select']}>
             至少需要{needRoomNum}个教室
           </span>
+          {
+            roomIds && roomIds.length?
+              <span>，已选择{roomIds.length}个教室</span>
+              :
+              null
+          }
         </div>
         {
           data && data.length > 0 &&

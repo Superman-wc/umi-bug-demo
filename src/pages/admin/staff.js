@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Switch, Input} from 'antd';
+import {Switch, Input, message} from 'antd';
 import {connect} from 'dva';
 import ListPage from '../../components/ListPage';
 import {AdminStaff as namespace, Authenticate} from '../../utils/namespace';
@@ -50,23 +50,21 @@ export default class StaffList extends Component {
 
 
     const columns = [
-      {title: 'ID', key: 'id',},
-      {title: '手机号', key: 'mobile', width: 80},
-      // {title: '用户名', key: 'username', width: 100, tac: false,},
-      {title: '昵名', key: 'nick', width: 100, tac: false,},
+      {title: 'ID', key: 'id', width:60,},
+      {title: '手机号', key: 'mobile', width: 150},
+      {title: '昵名', key: 'nick', width: 150,},
       {
-        title: '角色', key: 'authorities', width: 200, tac: false,
+        title: '角色', key: 'authorities', width: 'auto', tac: false,
         render: v => v && v.length && (v.find(it => it.id === 'ROLE_APPADMIN') ? '超级管理员' : v.map(it => it.description).join(',') || '')
       },
-      {title: 'E-mail', key: 'email', width: 100},
-
       {
-        title: '状态', key: 'status', width: 80,
+        title: '状态', key: 'status', width: 130,
         render: (status, item) =>
           (item.authorities && item.authorities.find(it => it.id === 'ROLE_APPADMIN')) ?
             '--'
             :
-            <Switch checkedChildren={'已启用'} unCheckedChildren={'已禁用'}
+            <Switch checkedChildren={'已启用'}
+                    unCheckedChildren={'已禁用'}
                     defaultChecked={!!status}
                     onChange={checked =>
                       dispatch({
@@ -74,15 +72,13 @@ export default class StaffList extends Component {
                         payload: {
                           id: item.id,
                           status: checked ? 1 : 0
-                        },
-                        callback: () => {
                         }
                       })
                     }
             />
       },
       {
-        title: '操作', key: 'operation', width: 120,
+        title: '操作', key: 'operation', width: 150,
         render: (id, item) =>
           (item.authorities && item.authorities.find(it => it.id === 'ROLE_APPADMIN')) ?
             '--'
@@ -105,20 +101,21 @@ export default class StaffList extends Component {
       pagination: true,
       location, columns, breadcrumb, list, total, title,
       headerChildren: (
-        <div style={{width: 250}}>
+        <div style={{width: 300}}>
           <Input.Search
             placeholder="请输入手机号或用户名"
             onSearch={value => {
-              dispatch({
-                type: namespace + '/list',
-                payload: {
-                  ...query,
-                  mobile: value,
-                  username: value,
-                  p: 1,
-                  appId: profile.appId,
-                }
-              })
+              message.error('暂未实现');
+              // dispatch({
+              //   type: namespace + '/list',
+              //   payload: {
+              //     ...query,
+              //     mobile: value,
+              //     username: value,
+              //     p: 1,
+              //     appId: profile.appId,
+              //   }
+              // })
             }}
             enterButton
           />
@@ -179,8 +176,7 @@ export default class StaffList extends Component {
           })
         })
       }
-    }
-
+    };
 
     return (
       <ListPage {...listPageProps}>

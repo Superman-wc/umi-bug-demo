@@ -79,28 +79,28 @@ export default class MeterList extends Component {
     ];
 
     const columns = [
-      {title: 'ID', key: 'id'},
+      {title: 'ID', key: 'id', width:50,},
       {
-        title: '年级', key: 'gradeId', width: 70,
+        title: '年级', key: 'gradeId', width:130,
         render: (v, row) => row.gradeName + '（' + (gradeMap[row.gradeId] && gradeMap[row.gradeId].schoolYear || '') + '级）',
         filters: gradeList.map(it => ({value: it.id, text: it.name + '（' + it.schoolYear + '级' + '）'})),
         filtered: !!query.gradeId,
         filterMultiple: false,
         filteredValue: query.gradeId ? [query.gradeId] : [],
       },
-      {title: '班级名称', key: 'name',},
+      {title: '班级名称', key: 'name', width:130},
       {
-        title: '类型', key: 'type', render: type => ClassTypeEnum[type] || '',
+        title: '类型', key: 'type', width:100, render: type => ClassTypeEnum[type] || '',
         filters: Enums(ClassTypeEnum).map(it => ({value: it.value, text: it.name})),
         filtered: !!query.type,
         filterMultiple: false,
         filteredValue: query.type ? [query.type] : [],
       },
-      {title: '科目', key: 'subjectName',},
-      {title: '班主任', key: 'teacherName',},
-      {title: '教室', key: 'roomName'},
+      {title: '科目', key: 'subjectName', width:120},
+      {title: '班主任', key: 'teacherName',width:120},
+      {title: '教室', key: 'roomName', width:'auto', tac:false},
       {
-        title: '操作', key: 'operate', width: 100, tac: false,
+        title: '操作', key: 'operate', width: 220,
         render: (id, row) => (
           <TableCellOperation
             operations={{

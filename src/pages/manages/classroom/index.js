@@ -62,20 +62,16 @@ export default class ClassroomList extends Component {
     ];
 
     const columns = [
-      {title: 'ID', key: 'id'},
-      {title: '楼层', key: 'buildingName', render: (v, it) => v + it.layerName},
-      {title: '教室', key: 'name',},
-      {title: '座位(行x列)', key: 'rowTotal', render: (v, it) => `${v || 0}x${it.columnTotal || 0}`},
+      {title: 'ID', key: 'id', width:'20%',},
+      {title: '楼层', key: 'buildingName',width:'20%', render: (v, it) => v + it.layerName},
+      {title: '教室', key: 'name',width:'20%',},
+      {title: '座位(行x列)', key: 'rowTotal',width:'20%', render: (v, it) => `${v || 0}x${it.columnTotal || 0}`},
       {
-        title: '操作',
+        title: '操作',width:'20%',
         key: 'operate',
         render: (id, row) => (
           <TableCellOperation
             operations={{
-              edit: () => this.setState({visible: true, item: row}),
-              remove: {
-                onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
-              },
               look: () => router.push({
                 pathname: ManagesPew,
                 query: {
@@ -84,7 +80,11 @@ export default class ClassroomList extends Component {
                   rowTotal: row.rowTotal,
                   columnTotal: row.columnTotal
                 }
-              })
+              }),
+              edit: () => this.setState({visible: true, item: row}),
+              remove: {
+                onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
+              },
             }}
           />
         ),

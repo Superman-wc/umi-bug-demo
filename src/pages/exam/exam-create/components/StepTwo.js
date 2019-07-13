@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from 'dva';
 import {Form, Button, Radio, DatePicker, TimePicker, InputNumber, Tree} from 'antd';
-import {ExamCreate} from '../../../../utils/namespace';
+import {ExamCreate, ManagesGrade} from '../../../../utils/namespace';
 import {ManagesSteps} from '../utils/namespace';
 import {GradeIndexEnum, Enums} from '../../../../utils/Enum';
 import moment from 'moment';
@@ -16,6 +16,7 @@ const RadioGroup = Radio.Group;
   updateTwo: state[ManagesSteps].updateTwo,
   subjectSelectList: state[ManagesSteps].subjectSelectList,
   needRoomNum: state[ManagesSteps].needRoomNum,
+  gradeList: state[ManagesGrade].list,
 }))
 @Form.create({
   mapPropsToFields(props) {
@@ -44,15 +45,15 @@ const RadioGroup = Radio.Group;
     });
   }
 })
-export default class StepTwo extends React.Component {
+export default class StepTwo extends Component {
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps, nextContent) {
     if (nextProps.updateTwo && nextProps.updateTwo !== this.props.updateTwo) {
       const {form: {getFieldsValue, validateFieldsAndScroll}, onCheckSuccess} = this.props;
       const item = getFieldsValue();
       validateFieldsAndScroll((errors, payload) => {
         if (errors) {
-          // console.error(errors);
+          console.error(errors);
         } else {
           console.log('twoItem: ', payload);
           const {subjectSelectList, dispatch} = this.props;
@@ -128,31 +129,30 @@ export default class StepTwo extends React.Component {
   render() {
     const {
       teacherList = [], subjectSelectList = [], needRoomNum = 0,
+      gradeList=[],
       oneItem: {examDate, monitorNum}, twoItem: {gradeTeacherIndex},
       form: {getFieldDecorator}
     } = this.props;
+
     const needTeacherNum = monitorNum * needRoomNum;
 
-    const subjectMap = {};
-    teacherList.reduce((map, it) => {
-      if (!subjectMap[it.subjectId]) {
-        subjectMap[it.subjectId] = {id: it.subjectId, name: it.subjectName, children: []};
+    const subjectMap  = teacherList.reduce((map, it) => {
+      if (!map[it.subjectId]) {
+        map[it.subjectId] = {id: it.subjectId, name: it.subjectName, children: []};
       }
-      subjectMap[it.subjectId].children.push(it);
-      map[it.id] = it;
+      map[it.subjectId].children.push(it);
       return map;
     }, {});
     const subjectList = Object.values(subjectMap);
-    // console.log('subjectList: ', subjectList);
 
-    const formlayout = {
+    const formLayout = {
       labelCol: {span: 4},
       wrapperCol: {span: 20},
     };
 
     return (
       <div>
-        <Form {...formlayout} layout='horizontal'>
+        <Form {...formLayout} layout='horizontal'>
           {
             subjectSelectList.map(it =>
               <FormItem key={it.id} label={`${it.name}考试时间`}>
@@ -176,8 +176,8 @@ export default class StepTwo extends React.Component {
               })(
                 <RadioGroup onChange={this.onGradeDataChange}>
                   {
-                    Enums(GradeIndexEnum).map(it =>
-                      <Radio.Button key={it.value} value={it.value}>{it.name}</Radio.Button>
+                    gradeList.map(it =>
+                      <Radio.Button key={it.id} value={it.gradeIndex}>{it.name}</Radio.Button>
                     )
                   }
                 </RadioGroup>
@@ -191,14 +191,13 @@ export default class StepTwo extends React.Component {
                 {validator: this.handleTeacher}
               ]
             })(
-              <RoomTree
+              <TeacherTree
                 gradeTeacherIndex={gradeTeacherIndex}
                 needTeacherNum={needTeacherNum}
                 data={subjectList}/>
             )}
           </FormItem>
         </Form>
-        <div style={{height: 80}}></div>
       </div>
     )
   }
@@ -208,7 +207,7 @@ export default class StepTwo extends React.Component {
  * 科目考试时间控件
  */
 
-class DateSelect extends React.Component {
+class DateSelect extends Component {
 
   constructor(props) {
     super(props);
@@ -368,14 +367,14 @@ class DateSelect extends React.Component {
           onChange={this.handleCustomTimeStepChange}
           defaultValue={0}
           value={state.customTimeStep}/>
-        <span>分</span>
+        <span>分钟</span>
       </div>
     )
   }
 }
 
 
-class RoomTree extends Component {
+class TeacherTree extends Component {
 
   handleTeacherId = (checkedKeys, e) => {
     // console.log('checkedKeys: ', checkedKeys, e);
@@ -476,8 +475,14 @@ class RoomTree extends Component {
       <div>
         <div>
           <span className={styles['room-select']}>
-            至少需要{needTeacherNum}位监考老师
+            至少需要{needTeacherNum}位监考教师
           </span>
+          {
+            currentTeacherIds && currentTeacherIds.length ?
+              <span>，已选择{currentTeacherIds.length}位教师</span>
+              :
+              null
+          }
         </div>
         {
           data && data.length > 0 && gradeTeacherIndex &&

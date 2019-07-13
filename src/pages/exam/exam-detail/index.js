@@ -79,11 +79,11 @@ export default class ExamDetail extends React.Component {
     const Search = Input.Search;
     const { examName, examDetail = {}, loading } = this.props;
     const canEdit = examDetail.releaseStatus === 0;
-    const title = '考务详情';
-    const breadcrumb = ['考务管理', '考务列表', title];
+    const title =['考务详情', examName];
+    const breadcrumb = ['考务管理', '考务列表', title[0]];
     const headerOperation = <PageHeaderOperation buttons={[{ key: 'rollback' }]} />;
     const header = (
-      <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation} />
+      <Page.Header breadcrumb={breadcrumb} title={title.join('-')} operation={headerOperation} />
     );
     const gradeIndexs = Enums(GradeIndexEnum);
     const gradeName = getNameByValue(gradeIndexs, examDetail.gradeIndex);
@@ -95,8 +95,7 @@ export default class ExamDetail extends React.Component {
     const titleTip = `${gradeName}、${examDetail.studentNum || '-'}人、${examDetail.roomNum || '-'}个教室，每个教室${roomStudent}人`;
 
     return (
-      <Page loading={!!loading}
-        header={header}>
+      <Page loading={!!loading} header={header}>
         <div className={styles['container']}>
           <div className={styles['exam-title']}>{examName}</div>
           <div className={styles['exam-title-tip']}>{titleTip}</div>
@@ -108,7 +107,7 @@ export default class ExamDetail extends React.Component {
               size="default"
               onSearch={value => { this.onSearch(value) }}
             />
-            {/* <Button className={styles['button']} type='primary' onClick={this.edit}>编辑</Button> */}
+
             <Button
               className={styles['button']}
               type='primary'
@@ -122,13 +121,11 @@ export default class ExamDetail extends React.Component {
           </div>
 
           <div className={styles['exam-title']}>教师监考场次统计</div>
-          {/* <div className={styles['opetate-top-container']}>
-            <Button className={styles['button']} type='primary' onClick={this.importTeacherTable}>导出</Button>
-          </div> */}
+
           <div className={styles['exam-table-container']}>
             <TeacherTable examDetail={examDetail} />
           </div>
-          <div className={styles['bottom']}/>
+          <div style={{height:100}}/>
         </div>
       </Page>
     )

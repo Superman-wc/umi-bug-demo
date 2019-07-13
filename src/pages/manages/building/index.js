@@ -63,24 +63,25 @@ export default class MeterList extends Component {
     ];
 
     const columns = [
-      {title: 'ID', key: 'id'},
-      {title: '名称', key: 'name'},
-      {title: '类型', key: 'type', render: v => BuildingTypeEnum[v] || v},
-      {title: '总楼层', key: 'layerTotal',},
+      {title: 'ID', key: 'id', width:'20%'},
+      {title: '名称', key: 'name', width:'20%'},
+      {title: '类型', key: 'type', width:'20%',render: v => BuildingTypeEnum[v] || v},
+      {title: '总楼层', key: 'layerTotal', width:'20%',},
       {
-        title: '操作',
+        title: '操作', width:'20%',
         key: 'operate',
         render: (id, row) => (
           <TableCellOperation
             operations={{
               // edit: () => this.setState({visible: true, item: row}),
-              remove: {
-                onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
-              },
               look: () => router.push({
                 pathname: row.type === BuildingTypeEnum.生活区 ? ManagesDormitory : ManagesClassroom,
                 query: {buildingId: id, buildingType: row.type, buildingName: row.name}
-              })
+              }),
+              remove: {
+                onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
+              },
+
             }}
           />
         ),

@@ -95,30 +95,15 @@ export default class StudentList extends Component {
       {title: '工号', key: 'code', width: 80},
       {title: '手机号', key: 'mobile', width: 120},
       {
-        title: '教学范围', key: 'teachScopeList', width: 150,
+        title: '教学范围', key: 'teachScopeList', width: '15%', tac: false,
         render: v => v && v.map(it =>
-          <span className={styles['subject-item']}
-                key={[it.gradeId, it.subjectId].join('-')}>{it.gradeName + it.subjectName}</span>
+          <TeacherScopeList key={[it.gradeId, it.subjectId].join('-')} {...it} />
         )
       },
       {
-        title: '任课班级', key: 'klassTeacherList', width: 350,
+        title: '任课班级', key: 'klassTeacherList', width: 'auto', tac: false,
         render: v => v && v.map((it, index) =>
-          <span className={styles['subject-item']}
-                key={[it.klassId, it.subjectId, index].join('-')}>
-            {
-              it.klassName ? ( //后端输出的时候居然会没有班级名字，出错会死循环的
-                  it.klassName + (
-                    it.klassName.indexOf(it.subjectName) >= 0 ?
-                      ''
-                      :
-                      it.subjectName
-                  )
-                )
-                :
-                null
-            }
-            </span>
+          <KlassTeacherList key={[it.klassId, it.subjectId, index].join('-')} {...it} />
         )
       },
       {
@@ -210,6 +195,34 @@ export default class StudentList extends Component {
     )
   }
 }
+
+function TeacherScopeList({gradeName, subjectName} = {}) {
+  const title = gradeName && subjectName ? null : ('错误：未知的' + (!gradeName ? '年级' : '科目'));
+  const children = (gradeName || '--') + (subjectName || '--');
+  const props = {
+    title,
+    children,
+    className: styles['subject-item'],
+    style: title ? {color: '#f00'} : null
+  };
+  return (
+    <span {...props} />
+  )
+}
+
+function KlassTeacherList({klassName, subjectName} = {}) {
+  const title = klassName && subjectName ? null : ('错误：未知的' + (!klassName ? '班级' : '科目'));
+  //后端输出的时候居然会没有班级名字，出错会死循环的
+  const children = klassName && subjectName ? (klassName + (klassName.indexOf(subjectName) >= 0 ? '' : subjectName)) : title;
+  const props = {
+    title, children,
+    style: title ? {color: '#f00'} : null,
+    className: styles['subject-item'],
+  };
+
+  return (<span {...props}/>);
+}
+
 
 @Form.create({
   mapPropsToFields(props) {

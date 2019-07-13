@@ -1,12 +1,13 @@
-import React, { Component } from 'react';
+import React, {Component, Fragment, createRef} from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'dva';
-import { Table } from 'antd';
-import { routerRedux } from 'dva/router';
+import {connect} from 'dva';
+import {Table, Pagination} from 'antd';
+import {routerRedux} from 'dva/router';
 import moment from 'moment';
 import Page from '../Page';
 import PageHeaderOperation from '../Page/HeaderOperation';
-import './ListPage.less';
+import styles from './ListPage.less';
+import {Env} from "../../utils/namespace";
 
 
 /**
@@ -64,7 +65,9 @@ export function stdColumns(cols) {
   });
 }
 
-@connect()
+@connect(state => ({
+  env: state[Env],
+}))
 export default class ListPage extends Component {
   static propTypes = {
     list: PropTypes.array,
@@ -82,6 +85,8 @@ export default class ListPage extends Component {
     rowKey: PropTypes.string,
   };
 
+  _refListMain = createRef();
+
   render() {
     const {
       list,
@@ -93,22 +98,23 @@ export default class ListPage extends Component {
       operations,
       headerChildren,
       dispatch,
-      location: { query, pathname },
+      location: {query, pathname},
       pagination,
       scrollHeight = 175,
       children,
       rowClassName,
       rowKey = 'id',
+      env,
     } = this.props;
 
-    const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={operations} />;
+    const headerOperation = <PageHeaderOperation dispatch={dispatch} buttons={operations}/>;
     const header = (
       <Page.Header breadcrumb={breadcrumb} title={title} operation={headerOperation}>
         {headerChildren}
       </Page.Header>
     );
     const handleTableChange = (pagination, filters, sorter) => {
-      let _query = { ...query };
+      let _query = {...query};
       Object.keys(filters).forEach(key => {
         if (filters[key].length) {
           _query[key] = filters[key].join(',');
@@ -119,27 +125,103 @@ export default class ListPage extends Component {
       _query.p = pagination.current;
       _query.s = pagination.pageSize;
       const __query = this.props.onChange && this.props.onChange(pagination, filters, sorter) || {};
-      dispatch(routerRedux.replace({ pathname, query: { ..._query, ...__query } }));
+      dispatch(routerRedux.replace({pathname, query: {..._query, ...__query}}));
     };
+
+    const _columns = stdColumns(columns) || [];
+
     return (
-      <Page header={header} loading={!!loading}>
-        <div className="list-page-main">
-          {children}
-          <div className="list-table-container">
-            <Table
-              className="list-table"
-              bordered
-              columns={stdColumns(columns)}
-              dataSource={Array.isArray(list) ? list : []}
-              pagination={pagination ? paginationConfig(query, total) : false}
-              onChange={handleTableChange}
-              scroll={{ y: window.innerHeight - (pagination ? scrollHeight : 125) }}
-              rowClassName={rowClassName}
-              rowKey={rowKey}
-            />
-          </div>
-        </div>
+      <Page header={header} loading={!!loading} className={styles['list-page']}>
+        {
+          env.inElectron ?
+            <Fragment>
+              <section className={styles['list']}>
+                <header>
+                  {
+                    _columns && _columns.length ?
+                      _columns.map(it =>
+                        <Col key={it.key} className={it.className} width={it.width}>{it.title}</Col>
+                      )
+                      :
+                      null
+                  }
+                </header>
+                <main ref={this._refListMain}>
+                  <ul>
+                    {
+                      list && list.length ?
+                        list.map((item, index) =>
+                          <li key={item[rowKey]}>
+                            {
+                              _columns && _columns.length ?
+                                _columns.map(col =>
+                                  <Col key={col.key} className={col.className} width={col.width}>
+                                    {
+                                      col.render ?
+                                        col.render(item[col.dataIndex], item, index)
+                                        :
+                                        item[col.dataIndex]
+                                    }
+                                  </Col>
+                                )
+                                :
+                                null
+                            }
+                          </li>
+                        )
+                        :
+                        null
+                    }
+                  </ul>
+                </main>
+                <footer>
+                  {
+                    pagination && <Pagination {...paginationConfig(query, total)} onChange={(current, pageSize) => {
+                      handleTableChange({current, pageSize}, {}, {});
+                      this._refListMain.current.scrollTo(0,0);
+                    }} onShowSizeChange={(current, pageSize) => {
+                      handleTableChange({current, pageSize}, {}, {});
+                      this._refListMain.current.scrollTo(0,0);
+                    }}/>
+                  }
+                </footer>
+              </section>
+              {children}
+            </Fragment>
+            :
+            <div className="list-page-main">
+              {children}
+              <div className="list-table-container">
+                <Table
+                  className="list-table"
+                  bordered
+                  columns={_columns}
+                  dataSource={Array.isArray(list) ? list : []}
+                  pagination={pagination ? paginationConfig(query, total) : false}
+                  onChange={handleTableChange}
+                  scroll={{y: window.innerHeight - (pagination ? scrollHeight : 125)}}
+                  rowClassName={rowClassName}
+                  rowKey={rowKey}
+                />
+              </div>
+            </div>
+        }
       </Page>
     );
   }
+}
+
+function Col({children, className, width}) {
+  const style = {};
+  if (width) {
+    if (width === 'auto') {
+      style.flex = '1';
+      style.minWidth = '20%';
+    } else {
+      style.width = width;
+    }
+  }
+  return (
+    <div className={className} style={style}>{children}</div>
+  )
 }

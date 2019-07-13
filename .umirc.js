@@ -13,14 +13,11 @@ export default {
       routes: {
         exclude: [],
       },
-      hardSource: true,
+      // hardSource: true,
     }],
   ],
   hash: true,
-  targets: {
-    ie: 9,
-    ios: '8.4',
-  },
+  targets: {},
   theme: {
     "@primary-color": "#1DA57A",
     "@font-size-base": "12px",

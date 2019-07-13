@@ -85,46 +85,46 @@ export default class CourseUniqueList extends Component {
     ];
 
     const columns = [
-      {title: 'ID', key: 'id'},
+      {title: 'ID', key: 'id', width:40,},
       {
-        title: '年级', key: 'gradeId', width: 80,
-        render: (v, row) => row.gradeName + '（' + (gradeMap[row.gradeId] && gradeMap[row.gradeId].schoolYear) + '级）',
+        title: '年级', key: 'gradeId', width: 130,
+        render: (v, row) => row.gradeName + '（' + (gradeMap[row.gradeId] && gradeMap[row.gradeId].schoolYear || '-') + '级）',
         filters: gradeList.map(it => ({value: it.id, text: it.name + '（' + it.schoolYear + '级' + '）'})),
         filtered: !!query.gradeId,
         filterMultiple: false,
         filteredValue: query.gradeId ? [query.gradeId] : [],
       },
       {
-        title: '科目', key: 'subjectId', render: (v, row) => row.subjectName,
+        title: '科目', key: 'subjectId', width:80, render: (v, row) => row.subjectName,
         filters: subjectList.map(it => ({value: it.id, text: it.name})),
         filtered: !!query.subjectId,
         filterMultiple: false,
         filteredValue: query.subjectId ? [query.subjectId] : [],
       },
-      {title: '名称', key: 'name', width: 100},
-      {title: '类型', key: 'type', render: v => CourseTypeEnum[v]},
+      {title: '名称', key: 'name', width: 120},
+      {title: '类型', key: 'type', width:100, render: v => CourseTypeEnum[v]},
       {
-        title: '行政班', key: 'belongToExecutiveClass', render: v => v ? '是' : '',
+        title: '行政班', key: 'belongToExecutiveClass', width:80, render: v => v ? '是' : '',
         filters: [{value: true, text: '是'}, {value: false, text: '否'}],
         filtered: !!query.belongToExecutiveClass,
         filterMultiple: false,
         filteredValue: query.belongToExecutiveClass ? [query.belongToExecutiveClass] : [],
       },
       {
-        title: '分层', key: 'hierarchy', render: v => v ? '是' : '',
+        title: '分层', key: 'hierarchy', width:80, render: v => v ? '是' : '',
         filters: [{value: true, text: '是'}, {value: false, text: '否'}],
         filtered: !!query.hierarchy,
         filterMultiple: false,
         filteredValue: query.hierarchy ? [query.hierarchy] : [],
       },
       {
-        title: '教师', key: 'teacherList', width: 120,
+        title: '教师', key: 'teacherList', width: 'auto', tac:false,
         render: v => (
           v ? v.map(it => <span className={styles['course-teacher']} key={it.id}>{it.name}</span>) : null
         )
       },
       {
-        title: '操作', key: 'operate', width: 100,
+        title: '操作', key: 'operate', width: 180,
         render: (id, row) => (
           <TableCellOperation
             operations={{
@@ -221,7 +221,7 @@ class AllotTeacherModal extends Component {
       visible, onCancel, onOk, item = {}, teacherList = [],
       form: {getFieldDecorator, validateFieldsAndScroll, setFieldsValue},
     } = this.props;
-    console.log(item);
+
     const modalProps = {
       destroyOnClose: true,
       visible,

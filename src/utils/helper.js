@@ -21,3 +21,19 @@ export function delay(time=0){
   return new Promise(resolve=>setTimeout(resolve, time));
 }
 
+export function inElectron(){
+  const match = navigator.userAgent.match(/(Electron)\/(\d+\.\d+\.\d+)/);
+  if(match){
+    return {[match[1]]: match[2]};
+  }
+  return null;
+}
+
+export function inMac(){
+  const match = navigator.userAgent.match(/(Mac OS X) (\d+\_\d+\_\d+)/);
+  if(match){
+    return {[match[1]]: match[2]};
+  }
+  return null;
+}
+

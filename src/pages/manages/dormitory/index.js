@@ -53,27 +53,29 @@ export default class MeterList extends Component {
     ];
 
     const columns = [
-      {title: 'ID', key: 'id'},
-      {title: '楼宇', key: 'buildingName'},
-      {title: '楼层', key: 'layerName'},
-      {title: '编号', key: 'code'},
-      {title: '寝室', key: 'name'},
-      {title: '床位数', key: 'bedCount'},
-      {title: '男/女', key: 'gender', render: v => v ? '男生' : '女生'},
+      {title: 'ID', key: 'id', width:'12.5%',},
+      {title: '楼宇', key: 'buildingName', width:'12.5%',},
+      {title: '楼层', key: 'layerName', width:'12.5%',},
+      {title: '编号', key: 'code', width:'12.5%'},
+      {title: '寝室', key: 'name', width:'12.5%'},
+      {title: '床位数', key: 'bedCount', width:'12.5%'},
+      {title: '男/女', key: 'gender', width:'12.5%', render: v => v ? '男生' : '女生'},
       {
         title: '操作',
         key: 'operate',
+        width:'12.5%',
         render: (id, row) => (
           <TableCellOperation
             operations={{
               // edit: () => this.setState({visible: true, item: row}),
-              remove: {
-                onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
-              },
               look: () => router.push({
                 pathname: ManagesBed,
                 query: {dormitoryId: id, name: row.name, gender: row.gender}
-              })
+              }),
+              remove: {
+                onConfirm: () => dispatch({type: namespace + '/remove', payload: {id}}),
+              },
+
             }}
           />
         ),

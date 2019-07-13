@@ -9,9 +9,9 @@ import router from "umi/router";
 @connect(state => ({
   total: state[namespace].total,
   list: state[namespace].list,
-  loading: state[namespace].loading,
+  loading: state.loading.models[namespace],
 }))
-export default class ArrangePlanList extends Component {
+export default class LectureArrangePlanList extends Component {
 
   state = {};
 
@@ -31,17 +31,14 @@ export default class ArrangePlanList extends Component {
     ];
 
     const columns = [
-      // {title: 'ID', key: 'id'},
-      {title: '方案名称', key: 'name', width: 300,},
-      {title: '选考分班', key: 'electionExaminationPlanName', width: 200,},
-      {title: '学考分班', key: 'studyExaminationPlanName', width: 200,},
-      {title: '年级', key: 'gradeName', width: 120,},
-      {title: '创建时间', key: 'dateCreated'},
-
+      {title: '方案名称', key: 'name', width: '25%', tac:false},
+      {title: '选考分班', key: 'electionExaminationPlanName', width: '18%', tac:false},
+      {title: '学考分班', key: 'studyExaminationPlanName', width: '18%', tac:false},
+      {title: '年级', key: 'gradeName', width: '15%',},
+      {title: '创建时间', key: 'dateCreated', width:'18%', },
       {
-        title: '操作',
-        key: 'operate',
-        render: (id, row) => (
+        title: '操作', width:100, key: 'operate',
+        render: (id) => (
           <TableCellOperation
             operations={{
               look: () => router.push({pathname: pathname + '/' + id, query}),

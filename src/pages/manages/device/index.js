@@ -43,10 +43,10 @@ export default class MeterList extends Component {
 
     const columns = [
       {title: 'ID', key: 'id'},
-      {title: '设备名称', key: 'name'},
-      {title: '设备编号', key: 'device'},
+      {title: '设备名称', key: 'name', width: 220, },
+      {title: '设备编号', key: 'device', width:'auto', tac:false},
       {
-        title: '操作',
+        title: '操作', width:120,
         key: 'operate',
         render: (id, row) => (
           <TableCellOperation

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {Component} from 'react'
 import styles from '../index.less'
 import {connect} from 'dva';
 import {Button, Table, Checkbox, Input, notification, Modal} from 'antd';
@@ -18,7 +18,7 @@ import router from 'umi/router';
   roomSelectList: state[ManagesSteps].roomSelectList,
   dateSelectList: state[ManagesSteps].dateSelectList,
 }))
-export default class StepThree extends React.Component {
+export default class StepThree extends Component {
 
   state = {
     sortTableData: [],
@@ -29,7 +29,7 @@ export default class StepThree extends React.Component {
     // editDisabled: true,
   };
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps, nextContent) {
     if (nextProps.updateThree && nextProps.updateThree !== this.props.updateThree) {
       console.log('updateThree: ', nextProps.updateThree);
       this.setState({editModalVisible: true});
@@ -37,91 +37,64 @@ export default class StepThree extends React.Component {
   }
 
   submitData = () => {
-    const examName = this.state.examName;
-    console.log('examName: ', examName);
+    const {examName, roomSubjectIds = []} = this.state;
+
+
     if (!examName) {
       notification.error({message: '请输入考试名称'});
       return;
     }
-    this.setState({
-      editModalVisible: false,
-    });
-    const {
-      oneItem = {}, twoItem = {},
-      dateSelectList = [], dispatch
-    } = this.props;
-    const seatAssignment = oneItem['seatAssignment'];
-    const gradeIndex = oneItem['gradeIndex'];
-    const examDate = oneItem['examDate'];
-    const startDay = examDate[0].valueOf();
-    const endDay = examDate[1].valueOf();
-    const examType = oneItem['examType'];
-    const monitorNum = oneItem['monitorNum'];
-    const rowCol = oneItem['rowCol'];
 
-    const teachers = twoItem['teacherId'].teacherIds || [];
-    const teacherIdList = [];
-    teachers.forEach(it => {
-      teacherIdList.push({id: it});
-    });
+    const {oneItem = {}, twoItem = {}, dateSelectList = [], dispatch} = this.props;
+    const {seatAssignment, gradeIndex, examDate, examType, monitorNum, rowCol} = oneItem;
 
-    const roomSubjectIds = this.state.roomSubjectIds || [];
-    const disableList = [];
-    roomSubjectIds.forEach(it => {
+    const teacherIdList = (twoItem.teacherId.teacherIds || []).map(it => ({id: it}));
+
+    const disableList = (roomSubjectIds || []).map(it => {
       const ids = it.split('_');
-      disableList.push({
+      return {
         examinationSubjectId: ids[1],
         roomId: ids[0]
-      })
+      }
     });
 
-    const subjectList = [];
-    dateSelectList.forEach(it => {
-      const startMonment = it.dateSelect.startDateTime;
-      const endMonment = it.dateSelect.endDateTime;
-      const subjectItem = {
-        examinationSubjectId: it.id,
-        startTime: startMonment.valueOf(),
-        endTime: endMonment.valueOf()
-      };
-      subjectList.push(subjectItem);
-    });
+    const subjectList = dateSelectList.map(it => ({
+      examinationSubjectId: it.id,
+      startTime: it.dateSelect.startDateTime.valueOf(),
+      endTime: it.dateSelect.endDateTime.valueOf()
+    }));
 
-    const roomList = [];
-    // console.log('sortTableData:', this.state.sortTableData);
-    this.state.sortTableData.forEach((value, index) => {
-      const roomItem = {
-        roomId: value.id,
-        roomPriorityNum: index + 1
-      };
-      roomList.push(roomItem);
-    });
+    const roomList = this.state.sortTableData.map((value, index) => ({
+      roomId: value.id,
+      roomPriorityNum: index + 1
+    }));
 
-    const examinationInfo = {
-      rowTotal: rowCol.row,
-      columnTotal: rowCol.col,
-      examinationSubjectList: subjectList,
-      examinationRoomList: roomList,
-      disableList: disableList,
-      teacherIdList,
-    };
 
-    const examinationInfoList = JSON.stringify(examinationInfo);
-    const params = {
-      startDay,
-      endDay,
+    const payload = {
+      startDay: examDate[0].valueOf(),
+      endDay: examDate[1].valueOf(),
       examType,
       monitorNum,
       seatAssignment,
       name: examName,
       gradeIndex,
-      examinationInfoList
+      examinationInfoList: JSON.stringify({
+        rowTotal: rowCol.row,
+        columnTotal: rowCol.col,
+        examinationSubjectList: subjectList,
+        examinationRoomList: roomList,
+        disableList,
+        teacherIdList,
+      })
     };
-    // console.log('examinationInfo: ', examinationInfo);
-    // console.log('params: ', params);
+
+    this.setState({
+      editModalVisible: false,
+    });
+
     dispatch({
       type: ExamCreate + '/distributionStudent',
-      payload: params,
+      payload,
       resolve: () => {
         this.setState({
           successModalVisible: true,
@@ -132,25 +105,16 @@ export default class StepThree extends React.Component {
 
   render() {
     const {oneItem = {}, twoItem = {}, roomSelectList = [], dateSelectList = []} = this.props;
+    const {gradeIndex, rowCol} = oneItem;
     const roomTotal = roomSelectList.length;
-    // const subjectTotal = dateSelectList.length;
-    const teacherIds = twoItem['teacherId'].teacherIds || [];
+    const teacherIds = twoItem.teacherId.teacherIds || [];
     const teacherTotal = teacherIds.length;
-    const gradeIndex = oneItem['gradeIndex'];
-    let gradeName = '';
-    Enums(GradeIndexEnum).forEach(it => {
-      if (gradeIndex === it.value) {
-        gradeName = it.name;
-      }
-    });
-    const rowCol = oneItem['rowCol'];
-    const roomStudentTotal = rowCol.row * rowCol.col;
-    // console.log(`roomTotal: ${roomTotal}   subjectTotal: ${subjectTotal}`);
-    // console.log('roomSelectList: ', roomSelectList);
-    // console.log('dateSelectList: ', dateSelectList);
 
-    const tableData = [];
-    roomSelectList.forEach((value, rowIndex) => {
+    const gradeName = GradeIndexEnum[gradeIndex];
+
+    const roomStudentTotal = rowCol.row * rowCol.col;
+
+    const tableData = roomSelectList.map((value, rowIndex) => {
       const roomItem = {
         ...value,
         rowIndex,
@@ -165,19 +129,18 @@ export default class StepThree extends React.Component {
         roomItem[`teacherColIndex${colIndex}`] = `teacherColIndex${colIndex}`;
         roomItem[`teacherItem${subject.id}`] = teacherItem;
       });
-      tableData.push(roomItem);
+      return roomItem;
     });
-    // console.log('tableData-init: ', tableData);
-    // this.state.sortTableData = tableData;
+
 
     const columns = [
       {
         title: 'ID',
         dataIndex: 'rowIndex',
         key: 'rowIndex',
-        width: 60,
+        width: 40,
         align: 'center',
-        render: (text, record, index) => record.rowIndex + 1
+        render: v => v + 1
       },
       {
         title: '考场',
@@ -193,21 +156,21 @@ export default class StepThree extends React.Component {
       }
     ];
 
-    dateSelectList.map((it, index) => {
-      const startMonment = it.dateSelect.startDateTime;
-      const endMonment = it.dateSelect.endDateTime;
+    dateSelectList.forEach((it, index) => {
+      const start = it.dateSelect.startDateTime;
+      const end = it.dateSelect.endDateTime;
       const columnItem = {
-        title: startMonment.format('YYYY-MM-DD'),
+        title: start.format('MM-DD'),
         children: [
           {
-            title: `${startMonment.format('HH:mm')}-${endMonment.format('HH:mm')}`,
+            title: `${start.format('HH:mm')}-${end.format('HH:mm')}`,
             children: [
               {
                 title: it.name || '-',
                 dataIndex: `teacherIndex${index}`,
                 key: `teacherColIndex${index}`,
                 align: 'center',
-                render: (text, record, index) => {
+                render: (text, record) => {
                   const teacherItem = record[`teacherItem${it.id}`];
                   return <Checkbox value={teacherItem.teacherId}>{teacherItem.teacherName}</Checkbox>
                 }
@@ -220,45 +183,38 @@ export default class StepThree extends React.Component {
     });
 
     // const editBtn = this.state.editDisabled ? '编辑考场' : '禁用';
-    const footer = <div>
-      <Button onClick={() => {
-        router.push({pathname: ExamList});
-      }}>查看列表</Button>
-      <Button type='primary' onClick={() => {
-        this.setState({successModalVisible: false});
-      }}>确定</Button>
-    </div>;
+    const footer = (
+      <div>
+        <Button onClick={() => {
+          router.push({pathname: ExamList});
+        }}>查看列表</Button>
+        <Button type='primary' onClick={() => {
+          this.setState({successModalVisible: false});
+        }}>确定</Button>
+      </div>
+    );
 
     return (
       <div>
         <div className={styles['three-btn-container']}>
           <span className={styles['tip-color']}>请选择禁用的考场(非必选)，通过拖拽表格确定教室优先级</span>
-          {/* <div className={styles['three-right-btn-container']}>
-            <Input
-              onChange={(e) => { this.state.examName = e.target.value }}
-              type='text'
-              style={{ width: 300, marginRight: 10 }}
-              placeholder='请输入考试名称'></Input>
-            <Button
-              onClick={this.submitData}
-              type='primary' className={styles['three-right-btn']}>提交</Button>
-          </div> */}
         </div>
         <span>{`${gradeName}，${roomTotal}个教室，${teacherTotal}位老师`}</span>
         <div style={{marginTop: 20}}>
           <DragTable
             columns={columns}
             tableData={tableData}
-            roomValueChange={(data) => {
-              this.state.roomSubjectIds = data;
+            roomValueChange={(roomSubjectIds) => {
+              // this.state.roomSubjectIds = data;
+              this.setState({roomSubjectIds});
             }}
-            onDragEnd={(data) => {
+            onDragEnd={(sortTableData) => {
               // console.log('tableData-sort:', data);
-              this.state.sortTableData = data;
+              // this.state.sortTableData = data;
+              this.setState({sortTableData});
             }}
           />
         </div>
-        <div style={{height: 120}}/>
         <Modal
           title={'提交成功'}
           visible={this.state.successModalVisible}

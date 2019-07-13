@@ -284,7 +284,7 @@ class CreateFilePanel extends Component {
   componentDidMount() {
     const {dispatch, gradeList, subjectList, classMap, gradeMap, createFilePayload} = this.props;
     this[Mounted] = true;
-    if (!gradeList || !subjectList || !classMap || !gradeMap) {
+    // if (!gradeList || !subjectList || !classMap || !gradeMap) {
       Promise.all([
         new Promise((resolve, reject) => {
           dispatch({
@@ -328,9 +328,13 @@ class CreateFilePanel extends Component {
         }, {});
 
         const classMap = classList.reduce((map, {id, name, gradeId}) => {
-          const grade = gradeMap[gradeId];
           const klass = {value: id, label: name, gradeId};
-          grade.children.push(klass);
+          const grade = gradeMap[gradeId];
+          if(grade){
+            grade.children.push(klass);
+          }else{
+            console.error('班级的年级数据错误', klass);
+          }
           map[id] = klass;
           return map;
         }, {});
@@ -350,7 +354,7 @@ class CreateFilePanel extends Component {
           }
         });
       })
-    }
+    // }
     console.log(createFilePayload);
 
     if (subjectList && createFilePayload && createFilePayload.info && createFilePayload.info.subject) {

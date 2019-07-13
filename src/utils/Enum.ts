@@ -34,7 +34,7 @@ export const enum GenderEnum {
 }
 
 export const enum CourseTypeEnum {
-  非学考选考 = 1,
+  默认 = 1,
   学考 = 2,
   选考 = 3
 }

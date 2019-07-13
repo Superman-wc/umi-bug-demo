@@ -90,7 +90,7 @@ export default class ManagesTimetable extends Component {
         filteredValue: query.gradeIndex ? [query.gradeIndex] : [],
       },
       {
-        title: '学期', key: 'semesterType',
+        title: '学期', key: 'semesterType', width:120,
         render: v => SemesterTypeEnum[v] || v,
         filters: Enums(SemesterTypeEnum).map(it => ({value: it.value, text: it.name})),
         filtered: !!query.semesterType,
@@ -98,18 +98,18 @@ export default class ManagesTimetable extends Component {
         filteredValue: query.semesterType ? [query.semesterType] : [],
       },
       {
-        title: '星期', key: 'dayOfWeek',
+        title: '星期', key: 'dayOfWeek', width:120,
         render: v => WEEK[v + 1] || v,
         filters: Enums(WEEK).map(it => ({value: it.value - 1, text: it.name})),
         filtered: !!query.dayOfWeek,
         filterMultiple: false,
         filteredValue: query.dayOfWeek ? [query.dayOfWeek] : [],
       },
-      {title: '开始时间', key: 'startTime', render: v => moment(v).format('HH:mm:ss')},
-      {title: '时长', key: 'interval', render: v => v ? v + '分钟' : ''},
-      {title: '创建时间', key: 'dateCreated'},
+      {title: '开始时间', key: 'startTime', width:120, render: v => moment(v).format('HH:mm:ss')},
+      {title: '时长', key: 'interval', width:120, render: v => v ? v + '分钟' : ''},
+      {title: '创建时间', key: 'dateCreated', width: 'auto', tac:false},
       {
-        title: '操作',
+        title: '操作', width: 150,
         key: 'operate',
         render: (id, row) => (
           <TableCellOperation

@@ -1,11 +1,11 @@
 import {Component} from 'react';
 import {connect} from 'dva';
 import {Input, Button, notification, Popconfirm, Row, Col} from 'antd';
-import moment from 'moment';
 import {ManagesDormCard as namespace} from '../../../utils/namespace';
 import ListPage from '../../../components/ListPage';
-import {routerRedux} from 'dva/router';
+import router from 'umi/router';
 import styles from './index.less';
+
 
 @connect(state => ({
   loading: state[namespace].loading,
@@ -19,40 +19,21 @@ export default class DormCard extends Component {
   };
 
   componentDidMount() {
-    // 刷新时恢复搜索框的值
-    const {location = {}} = this.props;
-    const {query = {}} = location;
-    const name = query.name || '';
-    if (name) {
-      this.setState({
-        searchValue: name
-      })
-    }
+    const {location:{query:{name}}} = this.props;
+    name && this.setState({ searchValue: name });
   }
 
-  onSearch(value) {
-    if (value) {
-      const {dispatch, location: {pathname, query}} = this.props;
-      dispatch(routerRedux.replace({
-        pathname,
-        query: {
-          ...query,
-          name: value
-        }
-      }));
+  onSearch =(name)=> {
+    if (name) {
+      const {location: {pathname, query}} = this.props;
+      router.replace({pathname, query:{...query, name}});
     }
   };
 
   reset = () => {
     this.setState({searchValue: ''});
-    const {dispatch, location: {pathname, query}} = this.props;
-    dispatch(routerRedux.replace({
-      pathname,
-      query: {
-        ...query,
-        name: null
-      }
-    }));
+    const {location: {pathname, query}} = this.props;
+    router.replace({pathname, query:{...query, name:undefined}});
   };
 
   render() {
@@ -68,20 +49,18 @@ export default class DormCard extends Component {
       size: "default",
       value: this.state.searchValue,
       onChange: (e) => {
-        e.persist();
-        this.setState({
-          searchValue: e.target.value
-        })
+        this.setState({searchValue: e.target.value});
       },
       onSearch: value => {
         this.onSearch(value)
       }
     };
 
-    const children = (
+    const headerChildren = (
       <div className={styles["search-container"]}>
         <Input.Search {...searchProps}/>
-        <Button onClick={this.reset}>重置</Button>
+        <Button style={{marginLeft: 10}} onClick={this.reset}>重置</Button>
+
       </div>
     );
 
@@ -95,12 +74,12 @@ export default class DormCard extends Component {
       {
         title: '学生',
         key: 'id',
-        width: 120,
-        render: (text, record, index) => {
+        width: 240,
+        render: (text, record) => {
           return (
             <Row type="flex" align="middle">
               <Col span={8}>
-                <img width={60} src={record.avatar}/>
+                <img width={50} src={record.avatar} alt={`${record.studentName}的头像`}/>
               </Col>
               <Col span={16}>
                 <div className={styles["student-name"]}>{record.unitName}</div>
@@ -111,74 +90,44 @@ export default class DormCard extends Component {
         }
       },
       {
-        title: '宿舍号(床位)',
-        key: 'dorm',
-        width: 80,
-        render: (text, record, index) =>
-          `${record.buildingName}${record.layerName}${record.dormitoryName}(${record.bedName}床)`
+        title: '宿舍号(床位)', key: 'dorm', width: 100,
+        render: (text, record) => `${record.buildingName}${record.layerName}${record.dormitoryName}(${record.bedName}床)`
       },
+      {title: '申请教师', key: 'creatorName', width: 80,},
+      {title: '申请时间', key: 'lastUpdated', width: 150, format: 'YYYY-MM-DD HH:mm',},
+      {title: '备注', key: 'memo', width: 'auto', tac: false},
       {
-        title: '备注',
-        key: 'memo',
-        width: 100,
-      },
-      {
-        title: '申请时间',
-        key: 'lastUpdated',
-        width: 100,
-        render: (text, record, index) => moment(record.lastUpdated).format('YYYY-MM-DD HH:mm')
-      },
-      {
-        title: '申请教师',
-        key: 'creatorName',
-        width: 80,
-      },
-      {
-        title: '状态',
-        key: 'status',
-        width: 80,
-        render: (text, record, index) => {
-          const status = record.status * 1;
-          const id = record.id;
-          const name = record.studentName;
-          switch (status) {
-            case 1:
-              return (
-                <Popconfirm
-                  title={`确定为${name}开卡`}
-                  onConfirm={() => {
+        title: '状态', key: 'status', width: 120,
+        render: (v, record) => {
+          const {status, id, studentName} = record;
+          return [
+            '-',
+            <Popconfirm
+              title={`确定为[${studentName}]开卡`}
+              onConfirm={() => {
+                dispatch({
+                  type: namespace + '/modify',
+                  payload: {
+                    id
+                  },
+                  resolve: () => {
+                    notification.success({message: '开卡成功'});
                     dispatch({
-                      type: namespace + '/modify',
+                      type: namespace + '/list',
                       payload: {
-                        id
-                      },
-                      resolve: () => {
-                        notification.success({message: '开卡成功'});
-                        dispatch({
-                          type: namespace + '/list',
-                          payload: {
-                            ...query
-                          }
-                        })
+                        ...query
                       }
                     })
-                  }}
-                  okText="确定"
-                  cancelText="取消">
-                  <Button type={"primary"}>
-                    未开卡
-                  </Button>
-                </Popconfirm>
-              );
-            case 2:
-              return (
-                <span>已开卡</span>
-              );
-            case 3:
-              return (
-                <span>已撤销</span>
-              );
-          }
+                  }
+                })
+              }}
+              okText="确定"
+              cancelText="取消">
+              <Button type="primary" size="small">未开卡</Button>
+            </Popconfirm>,
+            '已开卡',
+            '已撤销'
+          ][status];
         },
         filters: statusList,
         filtered: !!query.status,
@@ -197,10 +146,11 @@ export default class DormCard extends Component {
         total={total}
         pagination
         title={title}
-        children={children}
-        scrollHeight={275}
-      >
-      </ListPage>
+        scrollHeight={175}
+        headerChildren={
+          headerChildren
+        }
+      />
     )
       ;
   }

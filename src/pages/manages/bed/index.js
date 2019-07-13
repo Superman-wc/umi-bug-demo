@@ -21,14 +21,6 @@ class BedList extends Component {
 
   state = {};
 
-  // componentDidMount() {
-  //   const {dispatch} = this.props;
-  //   dispatch({
-  //     type: ManagesGrade + '/list',
-  //   });
-  // }
-
-
   render() {
     const {list, total, loading, location, dispatch} = this.props;
 
@@ -56,13 +48,12 @@ class BedList extends Component {
 
     const columns = [
       // {title: 'ID', key: 'id'},
-      {title: '床号', key: 'name'},
-      {title: '班级', key: 'unitName',},
-      {title: '学生', key: 'studentName'},
-      {title: '学生照片', key: 'avatar', render: v => v ? <img width={60} src={v + '!avatar'}/> : '', width: 100,},
-
+      {title: '床号', key: 'name', width:'20%'},
+      {title: '班级', key: 'unitName', width:'20%'},
+      {title: '学生', key: 'studentName', width:'20%'},
+      {title: '学生照片', key: 'avatar', render: v => v ? <img width={60} src={v + '!avatar'}/> : '', width:'20%'},
       {
-        title: '操作',
+        title: '操作', width:'20%',
         key: 'operate',
         render: (id, row) => (
           <TableCellOperation

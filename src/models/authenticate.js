@@ -48,7 +48,7 @@ export default Model({
     },
     * login(action, saga) {
       const data = yield saga.call(
-        effect(login, 'loginSuccess', authenticateCache),
+        effect(login, 'loginSuccess', undefined, authenticateCache),
         action,
         saga
       );
@@ -97,8 +97,8 @@ export default Model({
   },
   reducers: {
     loginSuccess(state, action) {
-      setToken('token', action.result.token);
-      return {...state, authenticate: action.result, loading: false};
+      setToken('token', action.payload.token);
+      return {...state, authenticate: action.payload};
     },
     logoutSuccess() {
       console.log('登出');

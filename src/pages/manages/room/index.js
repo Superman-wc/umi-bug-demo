@@ -48,16 +48,6 @@ export default class MeterList extends Component {
           this.setState({visible: true, item: null});
         },
       },
-      // {
-      //   key: 'import',
-      //   type: 'primary',
-      //   children: '导入',
-      //   title: '导入',
-      //   icon: 'import',
-      //   onClick: () => {
-      //     this.setState({importModalVisible: true});
-      //   },
-      // },
       {
         key: 'rollback'
       }
@@ -66,17 +56,17 @@ export default class MeterList extends Component {
     const columns = [
       {title: 'ID', key: 'id'},
       {title: '名称', key: 'name', width: 200},
-      {title: '容纳学生数', key: 'capacity', width: 100},
+      {title: '容纳学生数', key: 'capacity', width: 150},
       {
         title: '设备',
         key: 'device',
-        width: 240,
+        width: 'auto', tac:false,
         render: v => v ? `${v} (${deviceMap[v] && deviceMap[v].name || ''})` : ''
       },
       {
         title: '操作',
         key: 'operate',
-        width: 100,
+        width: 120,
         render: (id, row) => (
           <TableCellOperation
             operations={{

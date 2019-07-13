@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import {connect} from 'dva';
 import {Link, routerRedux} from 'dva/router';
 import {Button, Icon, Popconfirm, Popover, Tooltip} from 'antd';
-import {Authenticate} from '../../utils/namespace';
+import {Authenticate, Env} from '../../utils/namespace';
 import router from 'umi/router';
 
 @connect(state => ({
   user: state[Authenticate].authenticate,
+  env: state[Env],
 }))
 export default class HeaderOperation extends Component {
   static propTypes = {
@@ -16,7 +17,7 @@ export default class HeaderOperation extends Component {
   };
 
   render() {
-    const {user, buttons = [], children, dispatch} = this.props;
+    const {env,user, buttons = [], children, dispatch} = this.props;
     const defaultButtons = {
       edit: {
         title: '编辑',
@@ -128,7 +129,7 @@ export default class HeaderOperation extends Component {
       });
     };
 
-    const userOperations = user ? (
+    const userOperations = !env.inElectron && user ? (
       <ul>
         <li>
           <a href="javascript:void('退出');" onClick={handleExit}>
@@ -138,7 +139,6 @@ export default class HeaderOperation extends Component {
         <li>
           <Link to="/my/modify-password">修改密码</Link>
         </li>
-        {/*<li><Link to={'/my/' + user.id}>个人信息</Link></li>*/}
       </ul>
     ) : null;
 
@@ -148,10 +148,9 @@ export default class HeaderOperation extends Component {
         {children}
         {
           userOperations ?
-            <Popover content={userOperations}>
+            <Popover placement="bottomRight" title={`用户：${user.nick||user.username}`} content={userOperations}>
               <Button type="ghost" style={{marginLeft: '2em'}}>
                 <Icon type="user"/>
-                {user.nick || user.username}
               </Button>
             </Popover>
             :
@@ -161,3 +160,5 @@ export default class HeaderOperation extends Component {
     );
   }
 }
+
+
