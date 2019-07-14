@@ -1,37 +1,24 @@
-import React, {Component} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {Breadcrumb, Icon, Spin, Menu, Modal} from 'antd';
-import classnames from 'classnames';
-import Operation from './HeaderOperation';
+import classNames from 'classnames';
 import Flex from '../Flex';
 import './Page.less';
 
 const prefixCls = 'page-wrapper';
 
-export default class Page extends Component {
-
-  componentDidMount() {
-    window['TDAPP'] && window['TDAPP'].onEvent('page', 'mount', {url: window.location.href, title: document.title});
-  }
-
-  componentWillUnmount() {
-    window['TDAPP'] && window['TDAPP'].onEvent('page', 'unmount', {url: window.location.href, title: document.title});
-  }
-
-  render() {
-    const {children, header, footer, loading, className, mainClassName, mainDirection = 'column'} = this.props;
+export default function Page ({children, header, footer, loading, className, mainClassName, mainDirection = 'column'}) {
     return (
       <Spin spinning={!!loading}>
-        <Flex direction="column" className={classnames(prefixCls, className)}>
+        <Flex direction="column" className={classNames(prefixCls, className)}>
           {header}
-          <Flex isItem direction={mainDirection} className={classnames(prefixCls + '-main', mainClassName)}>
+          <Flex isItem direction={mainDirection} className={classNames(prefixCls + '-main', mainClassName)}>
             {children}
           </Flex>
           {footer}
         </Flex>
       </Spin>
     );
-  }
 
 }
 
@@ -47,7 +34,7 @@ Page.Header = function ({breadcrumb, title, operation, children, className, styl
     //只在标题不相同的时候设置
     window.document.title = title;
   }
-  const _className = classnames(prefixCls + '-header', className);
+  const _className = classNames(prefixCls + '-header', className);
   const map = {};
 
   return (
@@ -86,7 +73,6 @@ Page.Header.propType = {
   menu: PropTypes.array,
 };
 
-Page.Header.Operation = Operation;
 
 const renderMenu = (data, map) =>
   data.map((menu, index) => {
@@ -147,6 +133,6 @@ function renderBreadcrumb(breadcrumb) {
 }
 
 Page.Footer = function (props) {
-  const className = classnames(prefixCls + '-footer', props.className);
+  const className = classNames(prefixCls + '-footer', props.className);
   return <footer {...{...props, className}} />;
 };

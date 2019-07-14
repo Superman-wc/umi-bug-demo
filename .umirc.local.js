@@ -4,7 +4,7 @@ export default {
     ['umi-plugin-react', {
       antd: true,
       dva: true,
-      dynamicImport: false,
+      dynamicImport: true,
       title: '布谷智慧校园系统',
       // polyfills: ['ie9'],
       dll: true,
